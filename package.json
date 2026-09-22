@@ -1,0 +1,23 @@
+{
+  "name": "magic-mirror-portal",
+  "version": "1.0.0",
+  "description": "Head-tracked Magic Mirror with a talking 3D avatar, dashboard, and live AR mode",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "kiosk": "electron . --kiosk",
+    "test": "npm run test:syntax",
+    "test:syntax": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js && node --check src/headTracking.js && node --check src/avatarController.js && node --check src/geminiLiveAdapter.js && node --check src/wakeWord.js && node --check src/arOverlay.js && node --check src/depthScene.js && node --check src/magicMirrorView.js && node --check src/speechEngine.js"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "@met4citizen/talkinghead": "^1.7.0",
+    "dotenv": "^16.6.1",
+    "three": "0.180.0",
+    "vosk-browser": "^0.0.8"
+  }
+}

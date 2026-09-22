@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https: wss: blob: data:; worker-src 'self' blob:;">
+  <title>Obsidian Mirror</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Manrope:wght@300;400;500;600&family=Unbounded:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --gold: #e7c774;
+      --gold-soft: #8e753a;
+      --violet: #9b7bff;
+      --ember: #df552f;
+      --ink: #040307;
+      --glass: rgba(10, 8, 15, .62);
+      --line: rgba(231, 199, 116, .2);
+      --muted: rgba(244, 239, 224, .54);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
+    body { color: #f8f2df; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .hidden { display: none !important; }
+
+    #app-shell { position: relative; width: 100vw; height: 100vh; isolation: isolate; background: radial-gradient(circle at 50% 34%, #1a1128 0, #050308 48%, #000 100%); }
+    #camera-feed, #ar-canvas, #scene-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #camera-feed { z-index: 0; display: none; object-fit: cover; transform: scaleX(-1); filter: saturate(.65) contrast(1.12) brightness(.58); }
+    #ar-canvas { z-index: 1; display: none; pointer-events: none; }
+    #scene-canvas { z-index: 2; display: block; }
+    #app-shell[data-mode="ar"] #camera-feed,
+    #app-shell[data-mode="ar"] #ar-canvas { display: block; }
+
+    .noise, .vignette, .mirror-frame, .scanline { position: absolute; inset: 0; pointer-events: none; }
+    .noise { z-index: 4; opacity: .055; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
+    .vignette { z-index: 5; box-shadow: inset 0 0 16vw 5vw rgba(0,0,0,.96), inset 0 0 3vw 1vw rgba(0,0,0,.85); background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 18%, transparent 72%, rgba(0,0,0,.82)); }
+    .scanline { z-index: 6; opacity: .035; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,.16) 4px); }
+    .mirror-frame { z-index: 7; inset: 12px; border: 1px solid rgba(231,199,116,.22); border-radius: 42px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), inset 0 0 34px rgba(198,147,255,.08), 0 0 40px rgba(0,0,0,.9); }
+    .mirror-frame::before, .mirror-frame::after { content: ""; position: absolute; left: 50%; width: 64px; height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 12px var(--gold); }
+    .mirror-frame::before { top: 14px; } .mirror-frame::after { bottom: 14px; }
+
+    .ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+    .topbar { position: absolute; top: 30px; left: 34px; right: 34px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 150px; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--gold); font-size: 14px; box-shadow: inset 0 0 14px rgba(231,199,116,.12); }
+    .brand-copy strong { display: block; font: 500 10px/1.1 Cinzel, serif; letter-spacing: 2.7px; }
+    .brand-copy span { color: var(--muted); font-size: 8px; letter-spacing: 1.4px; text-transform: uppercase; }
+
+    .mode-switch { pointer-events: auto; display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: rgba(8,6,12,.64); backdrop-filter: blur(22px); box-shadow: 0 12px 40px rgba(0,0,0,.32); }
+    .mode-btn { appearance: none; border: 0; border-radius: 999px; padding: 8px 14px; background: transparent; color: rgba(255,255,255,.46); font: 500 9px/1 Cinzel, serif; letter-spacing: 1.3px; cursor: pointer; transition: .25s ease; }
+    .mode-btn:hover { color: #fff; }
+    .mode-btn.active { color: #170f09; background: linear-gradient(135deg, #f0d892, #b89147); box-shadow: 0 0 20px rgba(231,199,116,.22); }
+
+    .system-state { min-width: 150px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; color: var(--muted); font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase; }
+    .state-dot { width: 6px; height: 6px; border-radius: 50%; background: #6ee7a8; box-shadow: 0 0 10px #6ee7a8; }
+    .state-dot.busy { background: var(--gold); box-shadow: 0 0 10px var(--gold); animation: pulse 1.2s infinite; }
+    .state-dot.error { background: #ff6b6b; box-shadow: 0 0 10px #ff6b6b; }
+
+    #dashboard-container { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s ease, transform .5s ease; }
+    #app-shell:not([data-mode="mirror"]) #dashboard-container { opacity: 0; transform: translateY(14px); }
+    .mirror-clock { position: absolute; top: 112px; left: 42px; }
+    .clock-time { font: 300 clamp(54px, 10vw, 92px)/.9 Unbounded, sans-serif; letter-spacing: -5px; text-shadow: 0 0 30px rgba(255,255,255,.13); }
+    .clock-date { margin-top: 14px; color: var(--gold); font: 500 9px Cinzel, serif; letter-spacing: 2.6px; }
+    .mirror-weather { position: absolute; top: 120px; right: 42px; display: flex; align-items: flex-start; gap: 13px; text-align: right; }
+    .weather-icon { color: var(--gold); font: 300 44px/1 Cinzel, serif; text-shadow: 0 0 20px rgba(231,199,116,.35); }
+    .mirror-weather strong { display: block; font: 300 44px/.9 Unbounded, sans-serif; }
+    .mirror-weather span, .mirror-weather small { display: block; margin-top: 8px; font: 500 8px Cinzel, serif; letter-spacing: 1.8px; }
+    .mirror-weather small { margin-top: 4px; color: var(--muted); }
+    .mirror-center { position: absolute; top: 43%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .celestial-dial { position: relative; width: 150px; height: 150px; margin: auto; display: grid; place-items: center; border: 1px solid rgba(231,199,116,.22); border-radius: 50%; box-shadow: inset 0 0 40px rgba(155,123,255,.08), 0 0 60px rgba(155,123,255,.06); }
+    .celestial-dial i { position: absolute; inset: 12px; border: 1px solid rgba(155,123,255,.18); border-radius: 46% 54% 48% 52%; animation: spin 18s linear infinite; }
+    .celestial-dial i:nth-child(2) { inset: 28px; animation-direction: reverse; animation-duration: 13s; }
+    .celestial-dial i:nth-child(3) { inset: 48px; border-color: rgba(231,199,116,.35); animation-duration: 8s; }
+    .celestial-dial b { color: var(--gold); font-size: 22px; text-shadow: 0 0 16px var(--gold); }
+    .mirror-center p { margin: 20px 0 5px; font: 400 20px Cinzel, serif; letter-spacing: 1px; }
+    .mirror-center span { color: var(--muted); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
+    .mirror-lower { position: absolute; left: 42px; right: 42px; bottom: 132px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 12px; }
+    .glass-widget { padding: 17px 19px; border: 1px solid rgba(231,199,116,.13); border-radius: 16px; background: rgba(8,6,12,.42); backdrop-filter: blur(18px); }
+    .glass-widget label { display: block; margin-bottom: 12px; color: var(--gold); font: 500 8px Cinzel, serif; letter-spacing: 2px; }
+    .agenda-row { display: grid; grid-template-columns: 52px 1fr; gap: 10px; margin-top: 8px; color: rgba(255,255,255,.72); font-size: 10px; }
+    .agenda-row time { color: var(--gold); font: 500 9px Cinzel, serif; }
+    .quote-widget { display: flex; flex-direction: column; justify-content: space-between; }
+    .quote-widget p { margin: 0; font: italic 16px/1.45 Georgia, serif; color: rgba(255,255,255,.82); transition: opacity .4s; }
+
+    .oracle-card { pointer-events: auto; position: absolute; left: 50%; bottom: 148px; transform: translateX(-50%); width: min(68vw, 430px); max-height: 150px; overflow: auto; padding: 12px 30px 13px; border: 1px solid rgba(231,199,116,.12); border-radius: 14px; background: rgba(7,5,11,.56); backdrop-filter: blur(15px); text-align: center; cursor: pointer; transition: opacity .35s ease, transform .35s ease; }
+    .oracle-card.empty { opacity: 0; transform: translate(-50%, 8px); }
+    .oracle-eyebrow { color: var(--gold); font: 500 7px/1 Cinzel, serif; letter-spacing: 2.4px; text-transform: uppercase; margin-bottom: 7px; }
+    #oracle-text { margin: 0; font: 400 clamp(12px, 1.55vw, 17px)/1.45 Manrope, sans-serif; text-shadow: 0 3px 18px #000; }
+    #oracle-user { margin-top: 7px; color: var(--muted); font-size: 8px; letter-spacing: .3px; }
+    .oracle-close { position: absolute; top: 5px; right: 7px; width: 22px; height: 22px; border: 0; background: transparent; color: rgba(255,255,255,.42); cursor: pointer; font-size: 16px; }
+    .oracle-close:hover { color: var(--gold); }
+
+    .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: 54px; display: grid; grid-template-columns: auto; place-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
+    .bottom-dock.dim { opacity: .22; }
+    .bottom-dock:hover, .bottom-dock:focus-within { opacity: 1; }
+    .round-btn, .icon-btn { border: 0; cursor: pointer; transition: .2s ease; }
+    .round-btn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
+    .round-btn:hover { background: rgba(155,123,255,.18); border-color: rgba(155,123,255,.35); }
+    .round-btn.listening { color: #14070a; background: linear-gradient(135deg, #ffb18e, #e45655); box-shadow: 0 0 0 6px rgba(228,86,85,.1), 0 0 22px rgba(228,86,85,.42); animation: pulse 1.2s infinite; }
+    .wake-status { position: absolute; left: 50%; bottom: 91px; transform: translateX(-50%); color: rgba(255,255,255,.38); font: 500 7px Cinzel, serif; letter-spacing: 1.7px; text-transform: uppercase; }
+    .wake-status.armed { color: rgba(231,199,116,.72); }
+
+    .settings-toggle { pointer-events: auto; position: absolute; right: 34px; bottom: 40px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(8,6,12,.5); color: rgba(255,255,255,.5); cursor: pointer; backdrop-filter: blur(12px); }
+    .settings-toggle:hover { color: var(--gold); border-color: var(--line); transform: rotate(24deg); }
+    .settings-panel { pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .settings-panel.open { opacity: 1; transform: none; pointer-events: auto; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
+    .panel-head strong { font: 500 11px Cinzel, serif; letter-spacing: 2px; color: var(--gold); }
+    .panel-head span { color: var(--muted); font-size: 9px; }
+    .setting { margin-top: 13px; }
+    .setting label { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--muted); font-size: 9px; letter-spacing: 1.1px; text-transform: uppercase; }
+    .setting select, .setting input[type="range"] { width: 100%; }
+    .setting select { height: 35px; padding: 0 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 9px; color: #eee7d8; background: #15111d; outline: 0; }
+    .setting input[type="range"] { accent-color: var(--gold); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; color: var(--muted); font-size: 9px; letter-spacing: 1.1px; text-transform: uppercase; }
+    .toggle-row input { width: 16px; height: 16px; accent-color: var(--gold); }
+    .panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 17px; }
+    .panel-actions button { height: 36px; border: 1px solid var(--line); border-radius: 9px; background: rgba(231,199,116,.07); color: #eee4cc; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+    .config-note { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.07); color: var(--muted); font-size: 9px; line-height: 1.55; }
+
+    .loader { position: absolute; z-index: 12; left: 50%; top: 48%; transform: translate(-50%,-50%); text-align: center; transition: opacity .5s; }
+    .loader.done { opacity: 0; pointer-events: none; }
+    .loader-ring { width: 58px; height: 58px; margin: auto; border: 1px solid rgba(231,199,116,.18); border-top-color: var(--gold); border-radius: 50%; animation: spin 1.2s linear infinite; }
+    .loader p { margin: 14px 0 0; color: var(--muted); font: 500 8px Cinzel, serif; letter-spacing: 2.5px; }
+    #avatar-engine { position: absolute; z-index: 3; inset: 7% 12% 16%; overflow: hidden; pointer-events: none; transform-origin: 50% 55%; transition: opacity .45s ease, visibility .45s ease; }
+    #avatar-engine canvas { width: 100% !important; height: 100% !important; }
+    #avatar-engine[data-mode="ar"] { inset: 16% 8% 12% 34%; }
+    .fallback-presence { position: absolute; inset: 20%; display: grid; place-items: center; }
+    .fallback-presence i { position: absolute; width: min(42vw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
+    .fallback-presence b { color: var(--gold); font-size: 42px; text-shadow: 0 0 20px var(--gold); }
+
+    .ar-label { position: absolute; left: 34px; bottom: 40px; opacity: 0; color: rgba(255,255,255,.58); font-size: 9px; letter-spacing: 1.3px; text-transform: uppercase; transition: opacity .3s; }
+    #app-shell[data-mode="ar"] .ar-label { opacity: 1; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 50% { transform: scale(.88); opacity: .75; } }
+    @media (max-width: 720px) {
+      .topbar { left: 24px; right: 24px; top: 26px; }
+      .brand-copy, .system-state span { display: none; }
+      .brand, .system-state { min-width: 30px; }
+      .mode-btn { padding: 8px 10px; font-size: 8px; }
+      .bottom-dock { bottom: 30px; width: calc(100vw - 90px); }
+      .settings-toggle { right: 22px; bottom: 34px; }
+      .oracle-card { bottom: 124px; }
+      .mirror-clock { left: 28px; } .mirror-weather { right: 28px; }
+      .mirror-lower { left: 28px; right: 28px; grid-template-columns: 1fr; }
+      .quote-widget { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app-shell" data-mode="mirror">
+    <video id="camera-feed" autoplay muted playsinline></video>
+    <canvas id="ar-canvas"></canvas>
+    <canvas id="scene-canvas"></canvas>
+    <div class="noise"></div><div class="scanline"></div><div class="vignette"></div><div class="mirror-frame"></div>
+
+    <div id="avatar-engine" aria-hidden="true"></div>
+    <div class="loader" id="loader"><div class="loader-ring"></div><p id="loader-text">AWAKENING THE MIRROR</p></div>
+
+    <section class="ui-layer">
+      <header class="topbar">
+        <div class="brand"><div class="brand-mark">✦</div><div class="brand-copy"><strong>OBSIDIAN</strong><span>Living mirror</span></div></div>
+        <div class="system-state"><i class="state-dot" id="state-dot"></i><span id="state-label">Starting</span></div>
+      </header>
+
+      <div id="dashboard-container"></div>
+
+      <div class="oracle-card empty" id="oracle-card">
+        <button class="oracle-close" id="oracle-close" type="button" aria-label="Dismiss transcript">×</button>
+        <div class="oracle-eyebrow" id="oracle-eyebrow">The mirror answers</div>
+        <p id="oracle-text"></p>
+        <div id="oracle-user"></div>
+      </div>
+
+      <div class="ar-label" id="vision-notice">Face tracking is local · vision sharing is active only while listening</div>
+
+      <div class="bottom-dock" id="prompt-form">
+        <button class="round-btn" id="mic-btn" type="button" title="Start voice conversation" aria-label="Start voice conversation">◉</button>
+      </div>
+      <div class="wake-status" id="wake-status">Say “mirror mirror”</div>
+
+      <button class="settings-toggle" id="settings-toggle" aria-label="Open settings">⚙</button>
+      <aside class="settings-panel" id="settings-panel">
+        <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
+        <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
+        <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
+        <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
+        <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
+        <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
+        <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="vision-toggle"><span>Share camera with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
+        <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
+        <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
+        <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
+        <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
+        <p class="config-note" id="config-note">The mirror works offline. Add a Gemini key to <b>.env</b> to unlock live conversation.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script type="importmap">
+    { "imports": {
+      "three": "../node_modules/three/build/three.module.js",
+      "three/addons/": "../node_modules/three/examples/jsm/",
+      "talkinghead": "../node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs",
+      "@mediapipe/tasks-vision": "../node_modules/@mediapipe/tasks-vision/vision_bundle.mjs"
+    } }
+  </script>
+  <script src="../node_modules/vosk-browser/dist/vosk.js"></script>
+  <script type="module" src="renderer.js"></script>
+</body>
+</html>
