@@ -42,10 +42,7 @@ all local—no SSH camera forwarding is needed.
 git lfs install
 git clone https://github.com/architdeepak/magicmirror.git
 cd magicmirror
-git lfs pull
-Copy-Item .env.example .env
-npm ci
-npm start
+PowerShell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 ```
 
 Approve the camera and microphone prompts, then choose the USB camera in the
@@ -55,7 +52,7 @@ key to `.env` only when you want live AI conversation.
 For the vertical TV, use:
 
 ```powershell
-npm run kiosk
+PowerShell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -Kiosk
 ```
 
 To create a self-contained Windows executable on a Windows x64 machine:
@@ -151,7 +148,7 @@ On first run, Vosk downloads a small English speech model. When the status chang
 2. Attach the webcam near the top-center of the frame, pointed toward a viewer standing roughly 2–6 feet away.
 3. Use the TV speakers or a nearby speaker; keep the microphone separated enough to reduce echo.
 4. Run `npm run kiosk`, or set `MIRROR_KIOSK=true` in `.env` and start the app normally.
-5. Calibrate depth sensitivity and smoothing from the settings drawer after the acrylic mirror is installed.
+5. In Settings, select **Top-center of portrait TV** under Camera mounting. Stand at the normal viewing spot, wait for **Face Lock**, hold still for two seconds, then press **Calibrate depth**. The mirror averages recent camera samples and saves alignment for that camera. Recalibrate after moving the webcam, TV, or usual standing position.
 
 For automatic startup, add a Windows startup shortcut whose target is `npm run kiosk` and whose working directory is this project folder.
 

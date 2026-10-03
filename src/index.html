@@ -411,6 +411,7 @@
       <aside class="settings-panel" id="settings-panel">
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
+        <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
         <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>
         <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="enchanted">Enchanted reveal</option><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
@@ -423,7 +424,7 @@
         <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
         <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
         <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
-        <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand centered</button></div>
+        <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
         <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button type="button" disabled>Press D to toggle</button></div>
         <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
         <p class="config-note" id="config-note">The mirror works offline. Add a Gemini key to <b>.env</b> to unlock live conversation.</p>

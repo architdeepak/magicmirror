@@ -44,6 +44,7 @@ const elements = {
   settingsToggle: document.querySelector('#settings-toggle'),
   settings: document.querySelector('#settings-panel'),
   cameraSelect: document.querySelector('#camera-select'),
+  cameraMount: document.querySelector('#camera-mount'),
   citySelect: document.querySelector('#city-select'),
   glassProfile: document.querySelector('#glass-profile'),
   arEffect: document.querySelector('#ar-effect'),
@@ -110,9 +111,12 @@ const gesturesEnabled = localStorage.getItem('mirror.gestures') !== 'false';
 const facePuppetEnabled = localStorage.getItem('mirror.face-puppet') === 'true';
 const savedPersona = localStorage.getItem('mirror.persona') || 'velora';
 const savedGlassProfile = localStorage.getItem('mirror.glass-profile') || 'glass';
+const savedCameraMount = localStorage.getItem('mirror.camera-mount') || 'top';
 let depthEnabled = localStorage.getItem('mirror.depth-cube') === 'true';
 config.geminiVoice = savedVoice;
 elements.citySelect.value = config.city;
+elements.cameraMount.value = savedCameraMount;
+setTrackingOptions({ mount: savedCameraMount });
 elements.glassProfile.value = savedGlassProfile;
 elements.shell.dataset.glassProfile = savedGlassProfile;
 elements.voiceSelect.value = savedVoice;
@@ -462,6 +466,12 @@ elements.personaList.addEventListener('click', (event) => {
   }
 });
 elements.cameraSelect.addEventListener('change', async () => { await switchCamera(elements.cameraSelect.value); updateTrackingUi(); });
+elements.cameraMount.addEventListener('change', () => {
+  const mount = elements.cameraMount.value === 'center' ? 'center' : 'top';
+  localStorage.setItem('mirror.camera-mount', mount);
+  setTrackingOptions({ mount });
+  showGesture(mount === 'top' ? 'Top-mounted camera profile selected' : 'Centered camera profile selected');
+});
 elements.citySelect.addEventListener('change', () => dashboard.setCity(elements.citySelect.value));
 elements.glassProfile.addEventListener('change', () => {
   const profile = elements.glassProfile.value === 'night' ? 'night' : 'glass';
@@ -576,9 +586,9 @@ elements.cameraToggle.addEventListener('click', async () => {
 elements.calibrateDepth.addEventListener('click', () => {
   const ready = calibrateDepth();
   showOracle(
-    ready ? 'Depth is calibrated to your current eye position. Move side to side to test the window effect.' : 'Stand in front of the camera until Face Lock appears, then calibrate again.',
+    ready ? 'Depth is calibrated from a stable sample at your normal viewing spot. Move side to side, then slightly up and down, to test the window effect.' : 'Stand at your normal viewing spot until Face Lock appears, hold still for two seconds, then calibrate again.',
     '',
-    ready ? 'Depth calibrated' : 'Camera needed'
+    ready ? 'Screen alignment saved' : 'Camera needed'
   );
 });
 elements.diagnosticsToggle.addEventListener('click', () => elements.diagnostics.classList.toggle('open'));
