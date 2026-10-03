@@ -7,5 +7,9 @@ contextBridge.exposeInMainWorld('mirrorBridge', {
   readMemory: () => ipcRenderer.invoke('mirror:read-memory'),
   rememberFact: (fact) => ipcRenderer.invoke('mirror:remember-fact', fact),
   clearMemory: () => ipcRenderer.invoke('mirror:clear-memory'),
-  toggleFullscreen: () => ipcRenderer.invoke('mirror:toggle-fullscreen')
+  listCloset: () => ipcRenderer.invoke('mirror:list-closet'),
+  importClosetGarment: (item) => ipcRenderer.invoke('mirror:import-closet-garment', item),
+  queueTryOn: (request) => ipcRenderer.invoke('mirror:queue-tryon', request),
+  toggleFullscreen: () => ipcRenderer.invoke('mirror:toggle-fullscreen'),
+  openService: (service) => ipcRenderer.invoke('mirror:open-service', service)
 });

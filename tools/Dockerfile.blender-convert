@@ -1,0 +1,8 @@
+FROM ubuntu:24.04
+
+# Ubuntu's Blender 4.0 package is ARM64-native and its stable FBX importer
+# correctly handles Rocketbox's facial FBX files. NumPy is needed by that
+# importer at runtime.
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends blender python3-numpy \
+  && rm -rf /var/lib/apt/lists/*

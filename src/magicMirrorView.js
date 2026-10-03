@@ -26,6 +26,7 @@ export class MagicMirrorView {
     this._render();
     this._startClock();
     this.fetchWeather();
+    this.refreshNow();
   }
 
   _render() {
@@ -44,9 +45,20 @@ export class MagicMirrorView {
         <span>Step closer. The mirror is awake.</span>
       </div>
       <div class="mirror-lower">
-        <section class="glass-widget"><label>UPCOMING</label><div class="agenda-row"><time>09:00</time><span>Morning focus</span></div><div class="agenda-row"><time>13:30</time><span>Open calendar</span></div><div class="agenda-row"><time>19:00</time><span>Evening reflection</span></div></section>
+        <section class="glass-widget"><label>NOW</label><div class="now-card" id="now-card"></div></section>
         <section class="glass-widget quote-widget"><label>FROM THE GLASS</label><p id="mirror-quote">“${this.quotes[0]}”</p></section>
       </div>`;
+  }
+
+  refreshNow() {
+    const card = this.container.querySelector('#now-card');
+    if (!card) return;
+    const note = localStorage.getItem('mirror.quick-note')?.trim();
+    if (note) {
+      card.innerHTML = `<span class="now-kicker">YOUR NOTE</span><p>${escapeHtml(note)}</p><small>Saved on this mirror</small>`;
+      return;
+    }
+    card.innerHTML = '<span class="now-kicker">YOUR DAY</span><p>Your private services are one touch away.</p><small>Open Command Center for Calendar, Maps, and Find My.</small>';
   }
 
   _startClock() {
@@ -90,4 +102,8 @@ export class MagicMirrorView {
       console.warn('[weather]', error.message);
     }
   }
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 }

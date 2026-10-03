@@ -2,22 +2,28 @@ export class AROverlay {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.effect = 'crown';
+    this.effect = 'enchanted';
     this.resize();
   }
 
   setEffect(effect) { this.effect = effect; }
 
   resize() {
+    const bounds = this.canvas.parentElement?.getBoundingClientRect();
+    const width = Math.round(bounds?.width || window.innerWidth);
+    const height = Math.round(bounds?.height || window.innerHeight);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    this.canvas.width = Math.round(window.innerWidth * dpr);
-    this.canvas.height = Math.round(window.innerHeight * dpr);
-    this.canvas.style.width = `${window.innerWidth}px`;
-    this.canvas.style.height = `${window.innerHeight}px`;
+    this.canvas.width = Math.round(width * dpr);
+    this.canvas.height = Math.round(height * dpr);
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  clear() { this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); }
+  clear() {
+    const bounds = this.canvas.parentElement?.getBoundingClientRect();
+    this.ctx.clearRect(0, 0, bounds?.width || window.innerWidth, bounds?.height || window.innerHeight);
+  }
 
   render(landmarks, video, elapsed, enabled) {
     this.clear();
@@ -42,6 +48,7 @@ export class AROverlay {
     if (['crown', 'runes', 'aura', 'scan'].includes(this.effect)) this._faceContour(landmarks, video, elapsed);
     if (['crown', 'runes', 'aura'].includes(this.effect)) this._eyeGlow(leftEye, rightEye, faceWidth, elapsed);
 
+    if (this.effect === 'enchanted') this._enchantedReveal(centerX, centerY, faceWidth, faceHeight, roll, elapsed);
     if (this.effect === 'crown') this._crown(top, faceWidth, faceHeight, elapsed);
     if (this.effect === 'runes') this._runes(centerX, centerY, faceWidth, elapsed);
     if (this.effect === 'aura') this._aura(centerX, centerY, faceWidth, faceHeight, elapsed);
@@ -355,6 +362,83 @@ export class AROverlay {
     ctx.fillText('TRACKING 468 POINTS', cx - faceWidth * .58, cy + faceHeight * .62);
     ctx.restore();
   }
+
+  // An original, high-polish "mirror comes alive" treatment. It is drawn from
+  // tracked proportions rather than a screen-space sticker, so it stays locked
+  // to a person as they move toward the glass.
+  _enchantedReveal(cx, cy, faceWidth, faceHeight, roll, elapsed) {
+    const ctx = this.ctx;
+    const breath = 1 + Math.sin(elapsed * 1.25) * .018;
+    const outerX = faceWidth * 1.1 * breath;
+    const outerY = faceHeight * 1.32 * breath;
+    const gold = 'rgba(255, 216, 139, .88)';
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(roll * .35);
+
+    // Soft reflected light, kept behind the fine ornament.
+    const glow = ctx.createRadialGradient(0, 0, faceWidth * .25, 0, 0, outerX * 1.25);
+    glow.addColorStop(0, 'rgba(255, 238, 190, 0)');
+    glow.addColorStop(.55, 'rgba(255, 196, 101, .09)');
+    glow.addColorStop(1, 'rgba(133, 82, 255, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, outerX * 1.28, outerY * 1.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineCap = 'round';
+    ctx.shadowColor = '#ffd07a';
+    ctx.shadowBlur = Math.max(12, faceWidth * .12);
+    // Fine broken rings feel more like cast light than a static filter.
+    for (let ring = 0; ring < 3; ring += 1) {
+      const inset = ring * faceWidth * .105;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, outerX - inset, outerY - inset * 1.15, 0, elapsed * (.11 + ring * .035), elapsed * (.11 + ring * .035) + Math.PI * 1.43);
+      ctx.strokeStyle = ring === 0 ? gold : `rgba(229, 190, 255, ${.45 - ring * .08})`;
+      ctx.lineWidth = Math.max(1, faceWidth * (.011 - ring * .002));
+      ctx.stroke();
+    }
+
+    // A pair of restrained ornamental flourishes; unlike an emoji overlay,
+    // each one scales with the face and has a slow living motion.
+    ctx.shadowBlur = Math.max(7, faceWidth * .07);
+    ctx.strokeStyle = 'rgba(255, 225, 164, .7)';
+    ctx.lineWidth = Math.max(1, faceWidth * .008);
+    for (const side of [-1, 1]) {
+      const x = side * outerX * .78;
+      const sway = Math.sin(elapsed * 1.4 + side) * faceWidth * .025;
+      ctx.beginPath();
+      ctx.moveTo(x, -outerY * .38);
+      ctx.bezierCurveTo(x + side * faceWidth * .3, -outerY * .2, x - side * faceWidth * .16, outerY * .03, x + side * faceWidth * .03, outerY * .24 + sway);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x + side * faceWidth * .03, outerY * .25 + sway, faceWidth * .052, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Deterministic motes avoid random-frame flicker and give a cinematic drift.
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#fff1c9';
+    for (let i = 0; i < 24; i += 1) {
+      const phase = i * 2.399 + elapsed * (.32 + (i % 4) * .035);
+      const orbit = .56 + (i % 5) * .115;
+      const x = Math.cos(phase) * outerX * orbit;
+      const y = Math.sin(phase * 1.13) * outerY * orbit;
+      const shimmer = .25 + .75 * Math.max(0, Math.sin(elapsed * 2.5 + i * 1.71));
+      const size = Math.max(1, faceWidth * (.006 + (i % 3) * .002));
+      ctx.globalAlpha = shimmer;
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+      if (i % 4 === 0) {
+        ctx.globalAlpha = shimmer * .65;
+        ctx.fillRect(x - size * 2.4, y - .5, size * 4.8, 1);
+        ctx.fillRect(x - .5, y - size * 2.4, 1, size * 4.8);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
 }
 
 function roundRect(ctx, x, y, width, height, radius) {
@@ -373,8 +457,9 @@ function roundRect(ctx, x, y, width, height, radius) {
 }
 
 function project(landmark, video) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  const bounds = video.closest('#app-shell')?.getBoundingClientRect();
+  const width = bounds?.width || window.innerWidth;
+  const height = bounds?.height || window.innerHeight;
   const scale = Math.max(width / video.videoWidth, height / video.videoHeight);
   const renderedWidth = video.videoWidth * scale;
   const renderedHeight = video.videoHeight * scale;

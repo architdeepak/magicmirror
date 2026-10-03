@@ -3,9 +3,19 @@ Speak with warmth, mystery, dry wit, and quiet theatrical confidence. You are ma
 Speak at a natural, moderately brisk pace with clear enunciation and short pauses between thoughts.
 Keep spoken answers concise—normally two or three sentences—because the user is standing at a mirror.
 You are a capable general assistant, not merely a character: answer general questions directly and help plan real tasks.
-You can control the mirror's AR filters. When the user asks to wear, try, add, show, switch, or remove a filter, call set_ar_effect instead of merely describing it. Examples: wizard or royalty means crown; sunglasses means glasses; masquerade means mask; cat means cat; angel means halo; magical particles means emoji; face analysis means scan. If the request is ambiguous, choose the closest effect and briefly say what you chose.
+You can control the mirror's display and AR filters. When the user asks to wear, try, add, show, switch, or remove a filter, call set_ar_effect instead of merely describing it. Examples: enchanted mirror or reveal means enchanted; wizard or royalty means crown; sunglasses means glasses; masquerade means mask; cat means cat; angel means halo; magical particles means emoji; face analysis means scan. If the request is ambiguous, choose the closest effect and briefly say what you chose. When the user asks to go home, show the time, use ambient; when they ask to talk, use converse; when they ask to watch something, use watch.
 When a durable personal preference or useful biographical fact is stated, call remember_user_fact. Never store passwords, API keys, financial credentials, medical details, or passing conversation.
 Never claim to see something unless a visual frame was actually provided. If unsure, say so elegantly.`;
+
+const HOST_VOICES = {
+  velora: 'You are the Evil Queen: a charming, clever witch with a velvet-dry sense of humor. Be warm and theatrical, never cruel or frightening. You are an original mirror host, not a representation of any existing film character.',
+  solenne: 'You are Snow: a bright, poised storybook guide. Be optimistic, thoughtful, and gently playful; never childish or saccharine. You are an original mirror host, not a representation of any existing film character.',
+  rowan: 'You are Advit: an easygoing, capable friend. Be grounded, encouraging, and practical with a little warmth.'
+};
+
+// Curated prebuilt voices create distinct original host performances. They are
+// intentionally descriptions, not attempts to mimic any screen character.
+const HOST_VOICE_PRESETS = Object.freeze({ velora: 'Gacrux', solenne: 'Aoede', rowan: 'Charon' });
 
 export class GeminiLiveAdapter {
   constructor({ avatar, config, onState, onTranscript, onError, onRemember, onTurnComplete, onModeChange, onArEffect }) {
@@ -34,9 +44,17 @@ export class GeminiLiveAdapter {
     this.videoTimer = null;
     this.visionEnabled = true;
     this.speakingPace = 'natural';
+    this.persona = 'velora';
   }
 
   get available() { return Boolean(this.config?.hasGeminiKey && window.mirrorBridge); }
+
+  setPersona(persona) {
+    this.persona = HOST_VOICES[persona] ? persona : 'velora';
+    const voice = HOST_VOICE_PRESETS[this.persona];
+    if (this.config.geminiVoice !== voice) this.setVoice(voice);
+    return voice;
+  }
 
   async connect() {
     if (this.connected) return true;
@@ -109,7 +127,7 @@ export class GeminiLiveAdapter {
         },
         inputAudioTranscription: {},
         outputAudioTranscription: {},
-        systemInstruction: { parts: [{ text: `${PERSONA}\n${pace}\n\nLOCAL USER MEMORY:\n${facts || '(No saved facts yet.)'}` }] },
+        systemInstruction: { parts: [{ text: `${PERSONA}\n\nCURRENT HOST:\n${HOST_VOICES[this.persona]}\n${pace}\n\nLOCAL USER MEMORY:\n${facts || '(No saved facts yet.)'}` }] },
         tools: [{
           functionDeclarations: [{
             name: 'remember_user_fact',
@@ -126,11 +144,11 @@ export class GeminiLiveAdapter {
         }, {
           functionDeclarations: [{
             name: 'set_display_mode',
-            description: 'Change the mirror display mode when the user asks for AR, turns AR off, or asks to return to the ordinary mirror. Use mirror when quiet, portal for the talking avatar, and ar for the camera AR view.',
+            description: 'Change the mirror display mode. Use mirror for ambient information, portal for the talking avatar, ar for the camera try-on view, and watch for the private video player.',
             parameters: {
               type: 'OBJECT',
               properties: {
-                mode: { type: 'STRING', enum: ['mirror', 'portal', 'ar'], description: 'The requested display mode.' },
+                mode: { type: 'STRING', enum: ['mirror', 'portal', 'ar', 'watch'], description: 'The requested display mode.' },
                 reason: { type: 'STRING', description: 'A brief explanation of the user intent.' }
               },
               required: ['mode']
@@ -145,7 +163,7 @@ export class GeminiLiveAdapter {
               properties: {
                 effect: {
                   type: 'STRING',
-                  enum: ['crown', 'runes', 'aura', 'glasses', 'mask', 'cat', 'halo', 'emoji', 'scan', 'none'],
+                  enum: ['enchanted', 'crown', 'runes', 'aura', 'glasses', 'mask', 'cat', 'halo', 'emoji', 'scan', 'none'],
                   description: 'The visual effect. Choose the closest creative match to the request.'
                 },
                 reason: { type: 'STRING', description: 'A short description of what the user requested.' }
@@ -239,6 +257,13 @@ export class GeminiLiveAdapter {
           const pcm = base64ToInt16(part.inlineData.data);
           const level = rmsLevel(pcm);
           this.avatar.setSpeechLevel(level);
+          this.avatar.setViseme(audioViseme(pcm, level));
+          const time = performance.now();
+          this.avatar.setPerformance({
+            turn: Math.sin(time / 910) * Math.min(.24, level * .44),
+            lean: Math.sin(time / 1430) * Math.min(.14, level * .28),
+            nod: Math.sin(time / 330) * Math.min(.09, level * .18)
+          });
           if (this.avatar.streaming) this.avatar.pushPcm(pcm);
           else this._playFallbackPcm(pcm, 24000);
           this.onState('speaking');
@@ -407,4 +432,20 @@ function rmsLevel(samples) {
     sum += value * value;
   }
   return Math.min(1, Math.sqrt(sum / Math.max(samples.length, 1)) * 4.2);
+}
+
+// PCM has no phoneme labels, so this intentionally modest classifier separates
+// silence/closures from broad and rounded vowel energy. It keeps the visible
+// performer expressive while the text transcript arrives independently.
+function audioViseme(samples, level) {
+  if (level < .09) return 'rest';
+  let crossings = 0;
+  let previous = samples[0] || 0;
+  for (let i = 1; i < samples.length; i += 1) {
+    const current = samples[i];
+    if ((previous < 0 && current >= 0) || (previous >= 0 && current < 0)) crossings += 1;
+    previous = current;
+  }
+  const density = crossings / Math.max(1, samples.length);
+  return density < .105 && level > .18 ? 'O' : 'AA';
 }

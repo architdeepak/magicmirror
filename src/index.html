@@ -23,12 +23,22 @@
 
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
+    body { display: grid; place-items: center; }
     body { color: #f8f2df; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
     button, input, select { font: inherit; }
     button { color: inherit; }
     .hidden { display: none !important; }
 
-    #app-shell { position: relative; width: 100vw; height: 100vh; isolation: isolate; background: radial-gradient(circle at 50% 34%, #1a1128 0, #050308 48%, #000 100%); }
+    /* The browser preview represents the actual 43-inch portrait installation,
+       never a stretched desktop canvas. Wide viewports receive a black matte. */
+    #app-shell { --viewer-x: 0px; --viewer-y: 0px; position: relative; width: min(100vw, 56.25vh); height: min(100vh, 177.777vw); isolation: isolate; background: radial-gradient(circle at 50% 34%, #120d1b 0, #030306 42%, #000 76%); }
+    /* Install profile: daylight needs firm whites and black voids through
+       two-way glass; night mode reduces the reflected light in the room. */
+    #app-shell[data-glass-profile="glass"] { --signal: #c8ffe4; --ice: #fbffff; --muted: rgba(237,255,247,.80); }
+    #app-shell[data-glass-profile="night"] { --signal: #9ee3c4; --ice: #e4ebe8; --muted: rgba(222,236,230,.60); }
+    #app-shell[data-glass-profile="night"] #scene-canvas { filter: brightness(.72) saturate(.82); }
+    #app-shell[data-glass-profile="night"] .mode-switch { background: rgba(2,7,9,.62); border-color: rgba(188,232,213,.20); }
+    #app-shell[data-glass-profile="night"] .glass-widget { background: rgba(2,7,9,.60); border-color: rgba(188,232,213,.20); }
     #camera-feed, #ar-canvas, #scene-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
     #camera-feed { z-index: 0; display: none; object-fit: cover; transform: scaleX(-1); filter: saturate(.65) contrast(1.12) brightness(.58); }
     #ar-canvas { z-index: 1; display: none; pointer-events: none; }
@@ -84,6 +94,7 @@
     .glass-widget label { display: block; margin-bottom: 12px; color: var(--gold); font: 500 8px Cinzel, serif; letter-spacing: 2px; }
     .agenda-row { display: grid; grid-template-columns: 52px 1fr; gap: 10px; margin-top: 8px; color: rgba(255,255,255,.72); font-size: 10px; }
     .agenda-row time { color: var(--gold); font: 500 9px Cinzel, serif; }
+    .now-card { min-height: 72px; } .now-card .now-kicker { display: block; margin-bottom: 7px; color: var(--signal); font-size: 8px; font-weight: 700; letter-spacing: 1.4px; } .now-card p { margin: 0; color: var(--ice); font-size: 13px; line-height: 1.4; } .now-card small { display: block; margin-top: 8px; color: var(--muted); font-size: 9px; }
     .quote-widget { display: flex; flex-direction: column; justify-content: space-between; }
     .quote-widget p { margin: 0; font: italic 16px/1.45 Georgia, serif; color: rgba(255,255,255,.82); transition: opacity .4s; }
 
@@ -94,6 +105,28 @@
     #oracle-user { margin-top: 7px; color: var(--muted); font-size: 8px; letter-spacing: .3px; }
     .oracle-close { position: absolute; top: 5px; right: 7px; width: 22px; height: 22px; border: 0; background: transparent; color: rgba(255,255,255,.42); cursor: pointer; font-size: 16px; }
     .oracle-close:hover { color: var(--gold); }
+
+    .persona-toggle { pointer-events: auto; position: absolute; left: 34px; bottom: 40px; width: 34px; height: 34px; overflow: hidden; padding: 0; border: 1px solid rgba(213,234,244,.2); border-radius: 50%; background: #17222a; cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.45); }
+    .persona-toggle img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+    .persona-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(340px, calc(100vw - 56px)); padding: 15px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .persona-panel.open { opacity: 1; transform: none; pointer-events: auto; }
+    .persona-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .persona-panel p { margin: 5px 0 12px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .persona-list { display: grid; gap: 7px; }
+    .persona-card { display: grid; grid-template-columns: 49px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 7px; border: 1px solid rgba(213,234,244,.1); border-radius: 11px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; }
+    .persona-card:hover, .persona-card.active { border-color: rgba(168,255,207,.5); background: rgba(168,255,207,.07); }
+    .persona-card img { width: 49px; height: 49px; border-radius: 8px; object-fit: cover; object-position: 50% 18%; background: #15212a; }
+    .persona-card strong { display: block; font-size: 10px; } .persona-card span { display: block; margin-top: 3px; color: var(--muted); font-size: 8px; } .persona-card i { color: var(--signal); font-style: normal; opacity: 0; } .persona-card.active i { opacity: 1; }
+    .launcher-toggle { pointer-events: auto; position: absolute; left: 80px; bottom: 40px; width: 34px; height: 34px; border: 1px solid rgba(213,234,244,.16); border-radius: 50%; background: rgba(8,14,19,.76); color: var(--ice); cursor: pointer; backdrop-filter: blur(12px); }
+    .launcher-toggle:hover { border-color: rgba(168,255,207,.55); color: var(--signal); }
+    .launcher-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(360px, calc(100vw - 56px)); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .launcher-panel.open { opacity: 1; transform: none; pointer-events: auto; }
+    .launcher-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .launcher-panel > p { margin: 5px 0 13px; color: var(--muted); font-size: 9px; }
+    .launcher-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .launcher-grid button { min-height: 49px; padding: 7px; border: 1px solid rgba(213,234,244,.1); border-radius: 10px; background: rgba(255,255,255,.03); color: var(--ice); font: 600 9px/1.2 Manrope, sans-serif; cursor: pointer; text-align: left; }
+    .launcher-grid button:hover { color: var(--signal); border-color: rgba(168,255,207,.45); background: rgba(168,255,207,.06); }
+    .quick-note { margin-top: 13px; padding-top: 12px; border-top: 1px solid rgba(213,234,244,.09); }
+    .quick-note label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .quick-note form { display: grid; grid-template-columns: 1fr auto; gap: 7px; } .quick-note input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid rgba(213,234,244,.13); border-radius: 8px; outline: 0; background: rgba(255,255,255,.04); color: var(--ice); font-size: 10px; } .quick-note button { padding: 0 10px; border: 0; border-radius: 8px; background: var(--signal); color: #06110c; font: 700 9px Manrope, sans-serif; cursor: pointer; }
 
     .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: 54px; display: grid; grid-template-columns: auto; place-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
     .bottom-dock.dim { opacity: .22; }
@@ -109,6 +142,10 @@
     .settings-toggle:hover { color: var(--gold); border-color: var(--line); transform: rotate(24deg); }
     .settings-panel { pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .settings-panel.open { opacity: 1; transform: none; pointer-events: auto; }
+    .closet-shelf { margin-top: 16px; padding: 14px; border: 1px solid rgba(213,234,244,.12); border-radius: 14px; background: rgba(6,11,15,.54); } .closet-shelf-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .closet-shelf-head strong { color: var(--ice); font: 700 10px Manrope, sans-serif; letter-spacing: 1.2px; } .closet-shelf-head button { border: 1px solid rgba(168,255,207,.42); border-radius: 8px; background: rgba(168,255,207,.1); color: var(--signal); padding: 7px 10px; font: 700 9px Manrope, sans-serif; cursor: pointer; } .closet-shelf p { margin: 7px 0 10px; color: var(--muted); font-size: 9px; line-height: 1.45; } .closet-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .closet-empty { color: var(--muted); font-size: 9px; line-height: 1.45; padding: 9px 0; } .closet-item { display: grid; grid-template-columns: 42px minmax(92px, 1fr); flex: 0 0 155px; gap: 8px; align-items: center; min-height: 54px; padding: 6px; border: 1px solid rgba(213,234,244,.1); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; } .closet-item.selected { border-color: rgba(168,255,207,.58); background: rgba(168,255,207,.07); } .closet-item img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,.045); } .closet-item b, .closet-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .closet-item b { font-size: 9px; } .closet-item small { margin-top: 3px; color: var(--muted); font-size: 8px; }
+    .tryon-consent { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; color: var(--muted); font-size: 9px; line-height: 1.35; } .tryon-consent input { accent-color: var(--signal); margin: 1px 0 0; } .tryon-run { width: 100%; min-height: 35px; margin-top: 10px; border: 0; border-radius: 9px; background: var(--signal); color: #05100a; font: 700 10px Manrope, sans-serif; cursor: pointer; } .tryon-run:disabled { cursor: not-allowed; opacity: .38; } .tryon-status { display: block; margin-top: 7px; color: var(--muted); font-size: 8px; line-height: 1.4; }
+    .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8vw, 164px); right: clamp(30px, 3vw, 72px); width: min(300px, 34vw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
+    .diagnostics.open { opacity: 1; transform: none; } .diagnostics strong { display: block; margin-bottom: 8px; color: var(--signal); font: 700 10px Manrope, sans-serif; letter-spacing: 1.5px; } .diagnostics p { display: flex; justify-content: space-between; gap: 12px; margin: 3px 0; } .diagnostics span { color: #8fa79d; } .diagnostics b { color: #e6fff2; font-weight: 600; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
     .panel-head strong { font: 500 11px Cinzel, serif; letter-spacing: 2px; color: var(--gold); }
     .panel-head span { color: var(--muted); font-size: 9px; }
@@ -127,8 +164,14 @@
     .loader.done { opacity: 0; pointer-events: none; }
     .loader-ring { width: 58px; height: 58px; margin: auto; border: 1px solid rgba(231,199,116,.18); border-top-color: var(--gold); border-radius: 50%; animation: spin 1.2s linear infinite; }
     .loader p { margin: 14px 0 0; color: var(--muted); font: 500 8px Cinzel, serif; letter-spacing: 2.5px; }
-    #avatar-engine { position: absolute; z-index: 3; inset: 7% 12% 16%; overflow: hidden; pointer-events: none; transform-origin: 50% 55%; transition: opacity .45s ease, visibility .45s ease; }
+    /* Converse is a room-scale mirror, not a phone-video close-up. Leave
+       breathing room above the crown and around the shoulders so the face is
+       centred when viewed at a normal distance from the vertical TV. */
+    #avatar-engine { position: absolute; z-index: 3; inset: 25% 28% 29%; overflow: hidden; pointer-events: none; transform-origin: 50% 52%; transition: opacity .45s ease, visibility .45s ease; }
     #avatar-engine canvas { width: 100% !important; height: 100% !important; }
+    #avatar-engine .face-host-canvas { position: absolute; inset: 0; z-index: 5; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
+    #avatar-engine .rig-face-canvas { position: absolute; inset: 0; z-index: 6; display: none; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
+    #avatar-engine .avatar-video-host { position: absolute; inset: 0; z-index: 8; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
     #avatar-engine[data-mode="ar"] { inset: 16% 8% 12% 34%; }
     .fallback-presence { position: absolute; inset: 20%; display: grid; place-items: center; }
     .fallback-presence i { position: absolute; width: min(42vw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
@@ -151,10 +194,160 @@
       .mirror-lower { left: 28px; right: 28px; grid-template-columns: 1fr; }
       .quote-widget { display: none; }
     }
+
+    /* Product shell — deliberately quiet so the reflection remains the hero. */
+    :root { --ice: #d9e9f2; --signal: #a8ffcf; --panel: rgba(9, 14, 20, .62); --panel-line: rgba(213, 234, 244, .15); }
+    #app-shell { background: radial-gradient(ellipse at 50% 18%, #1c2c35 0%, #081015 43%, #000 100%); }
+    #scene-canvas { opacity: .42; transition: opacity .5s ease; }
+    .noise { opacity: .024; } .scanline { opacity: .017; } .mirror-frame { border-color: rgba(211, 232, 242, .2); border-radius: 24px; }
+    .mirror-frame::before, .mirror-frame::after { background: linear-gradient(90deg, transparent, var(--ice), transparent); box-shadow: 0 0 12px rgba(211,232,242,.6); }
+    .topbar { top: 34px; }
+    .brand-mark { color: var(--signal); border-color: rgba(168,255,207,.32); box-shadow: inset 0 0 14px rgba(168,255,207,.12); }
+    .brand-copy strong, .clock-date, .glass-widget label { font-family: Manrope, sans-serif; font-weight: 600; }
+    .brand-copy strong { letter-spacing: 2px; } .brand-copy span { letter-spacing: 1px; }
+    .mode-switch { background: rgba(10,16,21,.72); border-color: var(--panel-line); }
+    .mode-btn { font-family: Manrope, sans-serif; font-weight: 600; letter-spacing: .8px; }
+    .mode-btn.active { color: #06110c; background: linear-gradient(135deg, #d4ffe4, #8df0bb); box-shadow: 0 0 20px rgba(141,240,187,.16); }
+    .system-state { font-family: Manrope, sans-serif; letter-spacing: 1px; }
+    .state-dot { background: var(--signal); box-shadow: 0 0 10px var(--signal); }
+    .celestial-dial { width: 112px; height: 112px; border-color: rgba(211,232,242,.2); box-shadow: inset 0 0 40px rgba(117,210,255,.05); }
+    .celestial-dial b, .weather-icon { color: var(--signal); text-shadow: 0 0 16px rgba(168,255,207,.45); }
+    .mirror-center p { font-family: Manrope, sans-serif; font-size: 18px; letter-spacing: -.4px; }
+    .glass-widget { background: var(--panel); border-color: var(--panel-line); border-radius: 14px; }
+    .oracle-card { border-color: var(--panel-line); background: rgba(8,14,19,.74); }
+    .oracle-eyebrow { color: var(--signal); font-family: Manrope, sans-serif; }
+    .bottom-dock { width: auto; padding: 7px; background: rgba(8,14,19,.78); border-color: var(--panel-line); }
+    .round-btn { color: #06110c; background: var(--signal); border-color: transparent; }
+    .round-btn:hover { background: #e3fff0; }
+    .wake-status { font-family: Manrope, sans-serif; letter-spacing: 1px; }
+    .settings-panel { background: rgba(7,12,17,.95); border-color: var(--panel-line); }
+
+    .mode-switch { position: absolute; left: 50%; transform: translateX(-50%); }
+    .mode-btn { display: inline-flex; align-items: center; gap: 6px; }
+    .mode-btn::before { content: ''; width: 5px; height: 5px; border: 1px solid currentColor; border-radius: 50%; opacity: .7; }
+    .mode-btn.active::before { background: currentColor; }
+    .experience-panel { position: absolute; z-index: 11; inset: 105px 34px 108px; pointer-events: none; opacity: 0; transform: translateY(10px); transition: opacity .35s ease, transform .35s ease; }
+    .experience-panel.active { opacity: 1; transform: none; pointer-events: auto; }
+    .mode-intro { max-width: 390px; padding: 18px 20px; border: 1px solid var(--panel-line); border-radius: 16px; background: var(--panel); backdrop-filter: blur(24px); }
+    .mode-intro .eyebrow { margin-bottom: 8px; color: var(--signal); font-size: 9px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; }
+    .mode-intro h1 { margin: 0; font: 400 27px/1.1 Manrope, sans-serif; letter-spacing: -1.2px; }
+    .mode-intro p { margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .studio-tray { position: absolute; right: 0; bottom: 0; width: min(368px, 100%); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: var(--panel); backdrop-filter: blur(24px); }
+    .tray-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 13px; }
+    .tray-head strong { font-size: 11px; letter-spacing: .4px; } .tray-head span { color: var(--muted); font-size: 9px; }
+    .effect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .effect-chip { min-height: 46px; padding: 7px; border: 1px solid rgba(213,234,244,.1); border-radius: 10px; background: rgba(255,255,255,.035); color: rgba(255,255,255,.68); font: 600 9px/1.2 Manrope, sans-serif; cursor: pointer; text-align: left; transition: .18s ease; }
+    .effect-chip:hover, .effect-chip.active { border-color: rgba(168,255,207,.6); color: var(--signal); background: rgba(168,255,207,.08); }
+    .tryon-note { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(213,234,244,.09); color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .tryon-note b { color: var(--ice); font-weight: 600; }
+    .watch-stage { position: absolute; inset: 0; display: grid; place-items: center; }
+    .watch-card { width: min(740px, 100%); padding: 22px; border: 1px solid var(--panel-line); border-radius: 20px; background: rgba(5,10,14,.8); box-shadow: 0 28px 100px rgba(0,0,0,.5); backdrop-filter: blur(26px); }
+    .watch-display { position: relative; display: grid; place-items: center; min-height: 260px; overflow: hidden; border: 1px solid rgba(213,234,244,.1); border-radius: 12px; background: radial-gradient(circle at 50% 35%, #233b46, #070c11 66%); }
+    #watch-video { width: 100%; max-height: 52vh; display: none; background: #000; }
+    #watch-video.loaded { display: block; }
+    #watch-frame { display: none; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; } #watch-frame.loaded { display: block; }
+    .watch-placeholder { text-align: center; } .watch-placeholder i { display: grid; width: 54px; height: 54px; margin: auto; place-items: center; border: 1px solid rgba(168,255,207,.55); border-radius: 50%; color: var(--signal); font-style: normal; }
+    .watch-placeholder p { margin: 14px 0 0; color: var(--ice); font-size: 13px; } .watch-placeholder small { color: var(--muted); font-size: 10px; }
+    .watch-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 12px; }
+    #watch-url { min-width: 0; height: 39px; padding: 0 12px; border: 1px solid var(--panel-line); border-radius: 9px; outline: 0; background: rgba(255,255,255,.04); color: var(--ice); font-size: 11px; }
+    #watch-load { padding: 0 15px; border: 0; border-radius: 9px; background: var(--signal); color: #06110c; font: 700 10px Manrope, sans-serif; cursor: pointer; }
+    .watch-hint { margin: 9px 1px 0; color: var(--muted); font-size: 9px; }
+    .service-launcher { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .service-launcher button { height: 28px; padding: 0 10px; border: 1px solid rgba(213,234,244,.14); border-radius: 999px; background: rgba(255,255,255,.035); color: var(--ice); font: 600 9px Manrope, sans-serif; cursor: pointer; }
+    .service-launcher button:hover { border-color: rgba(168,255,207,.55); color: var(--signal); }
+    .gesture-toast { position: absolute; z-index: 13; top: 92px; left: 50%; padding: 8px 12px; border: 1px solid rgba(168,255,207,.35); border-radius: 999px; background: rgba(7,16,14,.76); color: var(--signal); font: 600 9px Manrope, sans-serif; letter-spacing: .9px; opacity: 0; transform: translate(-50%, -6px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+    .gesture-toast.show { opacity: 1; transform: translate(-50%, 0); }
+    #app-shell[data-mode="watch"] #scene-canvas { opacity: .12; }
+    #app-shell[data-mode="watch"] #avatar-engine, #app-shell[data-mode="watch"] #dashboard-container { opacity: 0; visibility: hidden; }
+    @media (max-width: 720px) { .experience-panel { inset: 95px 22px 100px; } .mode-btn { padding: 8px 8px; } .mode-btn::before { display: none; } .mode-intro { max-width: 100%; } }
+
+    /* 43-inch portrait installation profile. Two-way glass eats low-contrast
+       detail, so this uses bright type, thin luminous structure, and generous
+       targets instead of dark cards that compete with the reflection. */
+    :root { --ice: #f4fbff; --signal: #b5ffd4; --muted: rgba(236, 248, 255, .72); --panel: rgba(6, 12, 16, .28); --panel-line: rgba(232, 248, 255, .26); }
+    /* Restraint reads better through two-way glass: keep one luminous edge,
+       reserve animation for state, and let type/space establish hierarchy. */
+    .noise { opacity: .018; } .scanline { display: none; }
+    .vignette { box-shadow: inset 0 0 9vw 2vw rgba(0,0,0,.72); background: linear-gradient(180deg, rgba(0,0,0,.22), transparent 18%, transparent 78%, rgba(0,0,0,.42)); }
+    .mirror-frame { border-color: rgba(232,248,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), inset 0 0 34px rgba(168,255,207,.035), 0 0 40px rgba(0,0,0,.9); }
+    .mirror-frame::before, .mirror-frame::after { opacity: .48; background: linear-gradient(90deg, transparent, var(--signal), transparent); box-shadow: 0 0 10px rgba(181,255,212,.5); }
+    #scene-canvas { opacity: .18; } #app-shell[data-depth="cube"] #scene-canvas { opacity: 1; } #app-shell[data-mode="watch"] #scene-canvas { opacity: .05; }
+    #camera-feed { filter: saturate(.92) contrast(1.16) brightness(.9); } #ar-canvas { filter: brightness(1.22) contrast(1.1); }
+    .topbar { top: clamp(34px, 3.1vw, 68px); left: clamp(34px, 3.7vw, 80px); right: clamp(34px, 3.7vw, 80px); }
+    .brand { min-width: clamp(170px, 16vw, 290px); gap: clamp(11px, 1vw, 18px); }
+    .brand-mark { width: clamp(36px, 3.1vw, 62px); height: clamp(36px, 3.1vw, 62px); font-size: clamp(16px, 1.4vw, 27px); }
+    .brand-copy strong { font-size: clamp(11px, 1vw, 19px); } .brand-copy span { margin-top: 4px; font-size: clamp(9px, .75vw, 14px); }
+    .mode-switch { gap: clamp(4px, .4vw, 8px); padding: clamp(4px, .4vw, 8px); border-color: rgba(216,255,235,.32); background: rgba(2, 7, 9, .82); box-shadow: 0 12px 36px rgba(0,0,0,.42); }
+    .mode-btn.active { color: #06110c; background: var(--signal); box-shadow: none; }
+    .dimension-switch { pointer-events: auto; display: flex; margin-left: clamp(4px,.4vw,8px); padding: 3px; border-left: 1px solid rgba(232,248,255,.18); }
+    .dimension-switch button { min-width: clamp(72px, 6vw, 118px); height: clamp(28px, 2.4vw, 46px); border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 clamp(8px,.65vw,12px) Manrope, sans-serif; letter-spacing: .7px; cursor: pointer; }
+    .dimension-switch button.active { color: #06110c; background: var(--signal); }
+    #app-shell[data-depth="cube"] .dimension-switch { border-color: rgba(181,255,212,.45); }
+    /* HTML cannot be occluded by WebGL geometry, but each interface family is
+       deliberately assigned a depth plane. The off-axis camera and these
+       staggered planes produce readable relative motion instead of one flat
+       HUD sliding over a 3D scene. */
+    #app-shell[data-depth="cube"] .topbar { transform: translate3d(calc(var(--viewer-x) * -.18), calc(var(--viewer-y) * -.16), 52px); transform-style: preserve-3d; }
+    #app-shell[data-depth="cube"] .dimension-switch { transform: translate3d(calc(var(--viewer-x) * -.18), calc(var(--viewer-y) * -.16), 0); }
+    #app-shell[data-depth="cube"] .mirror-clock { transform: translate3d(calc(var(--viewer-x) * -.72), calc(var(--viewer-y) * -.56), 84px); }
+    #app-shell[data-depth="cube"] .mirror-weather { transform: translate3d(calc(var(--viewer-x) * -.64), calc(var(--viewer-y) * -.48), 78px); }
+    #app-shell[data-depth="cube"] .mirror-center { transform: translate3d(calc(-50% + var(--viewer-x) * -.36), calc(-50% + var(--viewer-y) * -.31), 20px); }
+    #app-shell[data-depth="cube"] .mirror-lower { transform: translate3d(calc(var(--viewer-x) * -.42), calc(var(--viewer-y) * -.34), 44px); }
+    #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(-50% + var(--viewer-x) * -.82), calc(var(--viewer-y) * -.66), 112px); }
+    #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(-50% + var(--viewer-x) * -.98), calc(var(--viewer-y) * -.8), 128px); }
+    #app-shell[data-depth="cube"] #dashboard-container { opacity: 0; pointer-events: none; }
+    #app-shell[data-depth="cube"] #avatar-engine { inset: 31% 32% 33%; z-index: 3; filter: drop-shadow(0 16px 28px rgba(0,0,0,.4)); }
+    /* Conversation belongs at the edge of the mirror. Keep the center clean
+       for the living host, with a single thumb-height control and a nearby
+       glanceable transcript instead of a wide caption card across the face. */
+    .bottom-dock { left: auto; right: clamp(42px, 4.4vw, 96px); bottom: clamp(42px, 3.8vw, 80px); transform: none; z-index: 14; }
+    .oracle-card { left: auto; right: clamp(116px, 10.6vw, 220px); bottom: clamp(42px, 3.8vw, 80px); transform: none; width: min(25vw, 380px); max-height: clamp(66px, 6vw, 110px); padding: clamp(10px, .8vw, 15px) clamp(24px, 2vw, 38px) clamp(10px, .8vw, 15px) clamp(13px, 1.1vw, 22px); text-align: left; border-radius: 14px; }
+    .oracle-card.empty { transform: translateX(12px); }
+    .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62vw,12px); }
+    #oracle-text { font-size: clamp(12px, 1vw, 19px); line-height: 1.35; }
+    #oracle-user { margin-top: 5px; font-size: clamp(8px,.65vw,12px); }
+    #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
+    #app-shell[data-depth="cube"] .oracle-card.empty { transform: translate3d(calc(12px + var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
+    #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(var(--viewer-x) * -1.08), calc(var(--viewer-y) * -.88), 142px); }
+    .mode-btn { min-height: clamp(42px, 3.8vw, 74px); padding: 0 clamp(13px, 1.2vw, 24px); font-size: clamp(10px, .9vw, 17px); letter-spacing: 1px; }
+    .mode-btn::before { width: clamp(5px, .5vw, 9px); height: clamp(5px, .5vw, 9px); }
+    .system-state { min-width: clamp(150px, 14vw, 260px); font-size: clamp(10px, .8vw, 15px); } .state-dot { width: clamp(7px, .6vw, 11px); height: clamp(7px, .6vw, 11px); }
+    .mirror-clock { top: clamp(135px, 12vw, 260px); left: clamp(42px, 4.4vw, 96px); }
+    .clock-time { font-size: clamp(86px, 9vw, 184px); letter-spacing: clamp(-9px, -.48vw, -4px); color: #f8fdff; text-shadow: 0 0 30px rgba(225,247,255,.24); }
+    .clock-date { margin-top: clamp(13px, 1.2vw, 24px); font-size: clamp(11px, .95vw, 19px); letter-spacing: clamp(1px, .15vw, 3px); color: var(--signal); }
+    .mirror-weather { top: clamp(145px, 13vw, 278px); right: clamp(42px, 4.4vw, 96px); gap: clamp(12px, 1vw, 20px); }
+    .weather-icon { font-size: clamp(48px, 4.4vw, 88px); } .mirror-weather strong { font-size: clamp(48px, 4.4vw, 88px); }
+    .mirror-weather span, .mirror-weather small { margin-top: clamp(6px, .65vw, 12px); font-size: clamp(10px, .8vw, 16px); letter-spacing: clamp(1px, .13vw, 3px); }
+    /* Ambient is reflection-first: reserve the centre for the person, not a
+       decorative widget. The greeting is intentionally quiet and low. */
+    .mirror-center { top: auto; bottom: clamp(248px, 22vw, 450px); } .celestial-dial { display: none; }
+    .mirror-center p { margin: 0; font-size: clamp(16px, 1.25vw, 25px); color: rgba(244,251,255,.82); } .mirror-center span { display: none; }
+    .mirror-lower { left: clamp(42px, 4.4vw, 96px); right: clamp(42px, 4.4vw, 96px); bottom: clamp(150px, 13vw, 285px); gap: clamp(13px, 1.2vw, 24px); }
+    .glass-widget { padding: clamp(18px, 1.7vw, 34px); border-color: rgba(216,255,235,.32); background: rgba(2,7,9,.74); box-shadow: 0 12px 34px rgba(0,0,0,.34); backdrop-filter: none; }
+    .glass-widget label { margin-bottom: clamp(12px, 1.1vw, 22px); font-size: clamp(10px, .85vw, 16px); letter-spacing: 2px; color: var(--signal); }
+    .agenda-row { grid-template-columns: clamp(62px, 5vw, 104px) 1fr; gap: clamp(10px, .9vw, 18px); margin-top: clamp(9px, .9vw, 17px); font-size: clamp(12px, 1vw, 20px); color: var(--ice); } .agenda-row time { font-size: clamp(11px, .9vw, 18px); }
+    .now-card { min-height: clamp(82px, 7.5vw, 145px); } .now-card .now-kicker { margin-bottom: clamp(7px, .65vw, 12px); font-size: clamp(9px, .75vw, 14px); } .now-card p { font-size: clamp(15px, 1.25vw, 24px); } .now-card small { margin-top: clamp(8px, .75vw, 14px); font-size: clamp(10px, .8vw, 16px); }
+    .quote-widget p { font-size: clamp(17px, 1.45vw, 28px); color: var(--ice); }
+    .oracle-card { bottom: clamp(190px, 16vw, 345px); width: min(78vw, 820px); max-height: 230px; padding: clamp(17px, 1.5vw, 30px) clamp(38px, 3.4vw, 66px); border-color: rgba(175,255,221,.3); background: rgba(4,11,14,.78); box-shadow: 0 18px 58px rgba(0,0,0,.38); backdrop-filter: blur(18px); }
+    .oracle-eyebrow { font-size: clamp(10px, .8vw, 16px); } #oracle-text { font-size: clamp(18px, 1.7vw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85vw, 17px); }
+    .bottom-dock { bottom: clamp(38px, 3.6vw, 76px); padding: clamp(8px, .7vw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
+    .round-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); font-size: clamp(18px, 1.6vw, 31px); }
+    .wake-status { bottom: clamp(100px, 9vw, 180px); font-size: clamp(9px, .7vw, 14px); }
+    .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8vw, 80px); width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
+    .persona-toggle { left: clamp(42px, 4.4vw, 96px); } .launcher-toggle { left: clamp(101px, 9.6vw, 202px); font-size: clamp(17px, 1.6vw, 29px); } .settings-toggle { right: clamp(42px, 4.4vw, 96px); font-size: clamp(18px, 1.6vw, 30px); }
+    .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100vw - 10vw)); padding: clamp(20px, 1.8vw, 35px); bottom: clamp(115px, 10.4vw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
+    .persona-panel h2, .launcher-panel h2, .panel-head strong { font-size: clamp(13px, 1.05vw, 21px); } .persona-panel p, .launcher-panel > p, .panel-head span { font-size: clamp(10px, .8vw, 16px); }
+    .persona-card { grid-template-columns: clamp(55px, 4.7vw, 90px) 1fr auto; gap: clamp(10px, .9vw, 18px); padding: clamp(8px, .8vw, 15px); } .persona-card img { width: clamp(55px, 4.7vw, 90px); height: clamp(55px, 4.7vw, 90px); } .persona-card strong { font-size: clamp(11px, .95vw, 18px); } .persona-card span { font-size: clamp(9px, .75vw, 15px); }
+    .launcher-grid { gap: clamp(8px, .7vw, 14px); } .launcher-grid button { min-height: clamp(55px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); }
+    .quick-note label, .setting label, .toggle-row { font-size: clamp(9px, .75vw, 15px); } .quick-note input { height: clamp(40px, 3.6vw, 68px); font-size: clamp(11px, .9vw, 17px); } .quick-note button { font-size: clamp(10px, .8vw, 15px); }
+    .mode-intro { max-width: min(520px, 46vw); padding: clamp(20px, 1.8vw, 34px); background: rgba(5,10,13,.3); border-color: var(--panel-line); } .mode-intro .eyebrow { font-size: clamp(10px, .8vw, 15px); } .mode-intro h1 { font-size: clamp(29px, 2.5vw, 48px); } .mode-intro p { font-size: clamp(13px, 1vw, 19px); }
+    .studio-tray { width: min(520px, 47vw); padding: clamp(18px, 1.7vw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1vw, 19px); } .tray-head span { font-size: clamp(10px, .8vw, 15px); } .effect-grid { gap: clamp(8px, .7vw, 14px); } .effect-chip { min-height: clamp(58px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); } .tryon-note { font-size: clamp(10px, .8vw, 15px); }
+    .watch-card { width: min(980px, 86vw); padding: clamp(24px, 2.1vw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4vw, 76px); font-size: clamp(12px, 1vw, 19px); } #watch-load { font-size: clamp(11px, .9vw, 17px); padding: 0 clamp(16px, 1.4vw, 28px); } .service-launcher button { min-height: clamp(34px, 3vw, 55px); font-size: clamp(10px, .8vw, 15px); } .watch-hint { font-size: clamp(10px, .75vw, 15px); }
+    @media (max-width: 720px) { .topbar { top: 26px; } .clock-time { font-size: 56px; } .mode-btn { min-height: 35px; } .persona-toggle { left: 22px; } .launcher-toggle { left: 76px; } .settings-toggle { right: 22px; } .mirror-lower { bottom: 120px; } }
   </style>
 </head>
 <body>
-  <main id="app-shell" data-mode="mirror">
+  <main id="app-shell" data-mode="mirror" data-glass-profile="glass">
     <video id="camera-feed" autoplay muted playsinline></video>
     <canvas id="ar-canvas"></canvas>
     <canvas id="scene-canvas"></canvas>
@@ -165,11 +358,28 @@
 
     <section class="ui-layer">
       <header class="topbar">
-        <div class="brand"><div class="brand-mark">✦</div><div class="brand-copy"><strong>OBSIDIAN</strong><span>Living mirror</span></div></div>
+        <div class="brand"><div class="brand-mark">✦</div><div class="brand-copy"><strong>REFLECT</strong><span>Personal mirror</span></div></div>
+        <nav class="mode-switch" aria-label="Mirror modes">
+          <button class="mode-btn active" type="button" data-mode="mirror">Ambient</button>
+          <button class="mode-btn" type="button" data-mode="ar">Try on</button>
+          <button class="mode-btn" type="button" data-mode="watch">Watch</button>
+          <div class="dimension-switch" id="dimension-switch" aria-label="Mirror depth"><button type="button" data-depth="flat">2D</button><button type="button" data-depth="cube">3D</button></div>
+        </nav>
         <div class="system-state"><i class="state-dot" id="state-dot"></i><span id="state-label">Starting</span></div>
       </header>
 
       <div id="dashboard-container"></div>
+
+      <section class="experience-panel" id="studio-panel" aria-label="Try-on studio">
+        <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Face effects are ready now. The wardrobe surface is reserved for your virtual-try-on provider, so generated looks never become part of the core mirror UI.</p></div>
+        <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><span>Tap an effect</span></div><div class="effect-grid" id="effect-grid">
+          <button class="effect-chip active" data-effect="enchanted">Enchanted<br>reveal</button><button class="effect-chip" data-effect="crown">Astral<br>crown</button><button class="effect-chip" data-effect="glasses">Statement<br>glasses</button><button class="effect-chip" data-effect="mask">Evening<br>mask</button><button class="effect-chip" data-effect="halo">Soft<br>halo</button><button class="effect-chip" data-effect="aura">Color<br>aura</button><button class="effect-chip" data-effect="runes">Mirror<br>runes</button><button class="effect-chip" data-effect="scan">Skin-light<br>scan</button><button class="effect-chip" data-effect="none">Clear<br>mirror</button>
+        </div><div class="tryon-note"><span>✦</span><span><b>Wardrobe pipeline</b><br>Choose a local garment below. Your image stays on this device until you explicitly run a try-on job.</span></div><div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Use a clean front-facing PNG, JPG, or WebP. Transparent PNGs give the best eventual result.</p><div class="closet-list" id="closet-list"></div><label class="tryon-consent"><input id="tryon-consent" type="checkbox"> I consent to capture one camera frame for this try-on</label><button class="tryon-run" id="tryon-run" type="button" disabled>Prepare selected look</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
+      </section>
+
+      <section class="experience-panel" id="watch-panel" aria-label="Watch media">
+        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album/playlist, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><p class="watch-hint">YouTube and public Spotify links play here. Netflix, signed-in Spotify, and Find My block framing and open securely in their own page.</p></div></div>
+      </section>
 
       <div class="oracle-card empty" id="oracle-card">
         <button class="oracle-close" id="oracle-close" type="button" aria-label="Dismiss transcript">×</button>
@@ -178,7 +388,19 @@
         <div id="oracle-user"></div>
       </div>
 
+      <button class="persona-toggle" id="persona-toggle" type="button" title="Choose mirror host" aria-label="Choose mirror host"><img id="persona-toggle-image" src="assets/personas/evil-queen-head-v3.png" alt=""></button>
+      <aside class="persona-panel" id="persona-panel"><h2>CHOOSE YOUR HOST</h2><p>Three original face-only mirror hosts. They animate with live speech, blink, and gaze—never a body or neck.</p><div class="persona-list" id="persona-list">
+        <button class="persona-card active" data-persona="velora" type="button"><img src="assets/personas/evil-queen-head-v3.png" alt=""><span><strong>Evil Queen</strong><span>Wicked, warm, theatrical</span></span><i>✓</i></button>
+        <button class="persona-card" data-persona="solenne" type="button"><img src="assets/personas/snow-head-v2.png" alt=""><span><strong>Snow</strong><span>Bright, storybook guide</span></span><i>✓</i></button>
+        <button class="persona-card" data-persona="rowan" type="button"><img src="assets/personas/advit-head-reference.png" alt=""><span><strong>Advit</strong><span>Calm, practical friend</span></span><i>✓</i></button>
+      </div></aside>
+      <button class="launcher-toggle" id="launcher-toggle" type="button" title="Open command center" aria-label="Open command center">⌘</button>
+      <aside class="launcher-panel" id="launcher-panel"><h2>COMMAND CENTER</h2><p>Useful services, opened in their own secure signed-in pages.</p><div class="launcher-grid">
+        <button type="button" data-service="calendar">Calendar</button><button type="button" data-service="maps">Maps</button><button type="button" data-service="photos">Photos</button><button type="button" data-service="findmy">Find My</button><button type="button" data-service="spotify">Music</button><button type="button" data-service="youtube">YouTube</button>
+      </div><div class="quick-note"><label for="quick-note-input">Leave a note for the mirror</label><form id="quick-note-form"><input id="quick-note-input" maxlength="140" placeholder="Remember to…"><button type="submit">Save</button></form></div></aside>
+
       <div class="ar-label" id="vision-notice">Face tracking is local · vision sharing is active only while listening</div>
+      <div class="gesture-toast" id="gesture-toast" role="status" aria-live="polite"></div>
 
       <div class="bottom-dock" id="prompt-form">
         <button class="round-btn" id="mic-btn" type="button" title="Start voice conversation" aria-label="Start voice conversation">◉</button>
@@ -190,17 +412,23 @@
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
-        <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
+        <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>
+        <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="enchanted">Enchanted reveal</option><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
         <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
         <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
         <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="gesture-toggle"><span>Hands-free navigation</span><input id="gesture-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="face-puppet-toggle"><span>Animate host from your face</span><input id="face-puppet-toggle" type="checkbox"></label>
         <label class="toggle-row" for="vision-toggle"><span>Share camera with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
         <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
         <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
         <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
+        <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand centered</button></div>
+        <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button type="button" disabled>Press D to toggle</button></div>
         <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
         <p class="config-note" id="config-note">The mirror works offline. Add a Gemini key to <b>.env</b> to unlock live conversation.</p>
       </aside>
+      <aside class="diagnostics" id="diagnostics" aria-live="polite"><strong>LOCAL DIAGNOSTICS</strong><p><span>Render</span><b id="diag-render">—</b></p><p><span>Tracking</span><b id="diag-tracking">—</b></p><p><span>Face rig</span><b id="diag-rig">—</b></p><p><span>Blendshapes</span><b id="diag-blendshapes">—</b></p><p><span>Eye gaze</span><b id="diag-gaze">—</b></p><p><span>Tip</span><b>Calibrate at mirror position</b></p></aside>
     </section>
   </main>
 
@@ -213,6 +441,7 @@
     } }
   </script>
   <script src="../node_modules/vosk-browser/dist/vosk.js"></script>
+  <script src="previewBridge.js"></script>
   <script type="module" src="renderer.js"></script>
 </body>
 </html>

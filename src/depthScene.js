@@ -37,6 +37,44 @@ export function createDepthScene(scene) {
   }
   root.add(corridor);
 
+  // This is intentionally a real bounded volume, not an abstract tunnel: its
+  // front, side and top planes make the virtual-window illusion legible before
+  // head tracking even begins to move it.
+  const cube = new THREE.Group();
+  cube.name = 'depth-cube';
+  const cubeGeometry = new THREE.BoxGeometry(2.9, 4.85, 2.45);
+  const cubeMaterials = [
+    new THREE.MeshBasicMaterial({ color: 0x78ffd1, transparent: true, opacity: .11, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0x593eaf, transparent: true, opacity: .14, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0xb6ffdc, transparent: true, opacity: .09, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0x26194e, transparent: true, opacity: .16, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0xb5ffd4, transparent: true, opacity: .075, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: 0x101626, transparent: true, opacity: .18, side: THREE.DoubleSide, depthWrite: false })
+  ];
+  const cubeFaces = new THREE.Mesh(cubeGeometry, cubeMaterials);
+  cubeFaces.position.set(0, .1, -2.25);
+  cube.add(cubeFaces);
+  const cubeEdges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(cubeGeometry),
+    new THREE.LineBasicMaterial({ color: 0xb5ffd4, transparent: true, opacity: .94, blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+  cubeEdges.position.copy(cubeFaces.position);
+  cube.add(cubeEdges);
+  cube.visible = false;
+  root.add(cube);
+  const infoWall = makeInfoWall(new THREE.Vector3(0, 1.18, -3.46));
+  cube.add(infoWall.group);
+  const faceDecorations = [
+    makeLattice(1.86, 3.7, new THREE.Vector3(-1.43, .1, -2.25), new THREE.Euler(0, Math.PI / 2, 0)),
+    makeLattice(1.86, 3.7, new THREE.Vector3(1.43, .1, -2.25), new THREE.Euler(0, -Math.PI / 2, 0)),
+    makeLattice(2.25, 2.05, new THREE.Vector3(0, 2.47, -2.25), new THREE.Euler(Math.PI / 2, 0, 0)),
+    makeLattice(2.25, 2.05, new THREE.Vector3(0, -2.47, -2.25), new THREE.Euler(-Math.PI / 2, 0, 0))
+  ];
+  faceDecorations.forEach((wall) => cube.add(wall));
+  const avatarPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 1.62), new THREE.MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide }));
+  avatarPlane.position.set(0, -.26, -2.16); avatarPlane.visible = false; cube.add(avatarPlane);
+  let avatarSource = null; let avatarStage = null; let avatarStageContext = null; let avatarTexture = null;
+
   const halo = new THREE.Mesh(
     new THREE.RingGeometry(1.08, 1.115, 96),
     new THREE.MeshBasicMaterial({
@@ -69,6 +107,7 @@ export function createDepthScene(scene) {
   root.add(particles);
 
   let mode = 'portal';
+  let depthEnabled = false;
   return {
     root,
     fire,
@@ -77,9 +116,41 @@ export function createDepthScene(scene) {
       root.visible = nextMode !== 'ar';
       lineMaterial.opacity = nextMode === 'mirror' ? 0.08 : 0.19;
     },
+    setDepthEnabled(enabled) {
+      depthEnabled = Boolean(enabled);
+      cube.visible = depthEnabled;
+      corridor.visible = depthEnabled;
+      halo.visible = !depthEnabled;
+      innerHalo.visible = !depthEnabled;
+    },
+    setCubeContent(content = {}) { infoWall.draw(content); },
+    setAvatarCanvas(canvas) {
+      avatarSource = canvas || null;
+      if (!avatarSource) { avatarPlane.visible = false; return; }
+      // Copy into a fixed-size staging surface. Uploading a resizing DOM canvas
+      // directly caused Chromium texture-overflow errors in the remote build.
+      // The portrait assets are ~1.2K square. A 1K staging surface retains
+      // their detail on a 4K TV while avoiding a resizing texture each frame.
+      avatarStage = document.createElement('canvas'); avatarStage.width = 1024; avatarStage.height = 1024;
+      avatarStageContext = avatarStage.getContext('2d');
+      avatarTexture?.dispose(); avatarTexture = new THREE.CanvasTexture(avatarStage); avatarTexture.colorSpace = THREE.SRGBColorSpace;
+      avatarPlane.material.map = avatarTexture; avatarPlane.material.needsUpdate = true; avatarPlane.visible = true;
+    },
     update(dt, elapsed, head) {
       fire.material.uniforms.uTime.value += dt;
-      corridor.rotation.z = Math.sin(elapsed * 0.09) * 0.008;
+      corridor.rotation.z = depthEnabled ? 0 : Math.sin(elapsed * 0.09) * 0.008;
+      cube.rotation.y = head.x * -.045;
+      cube.rotation.x = head.y * .025;
+      infoWall.update(head);
+      avatarPlane.position.x = head.x * -.035;
+      avatarPlane.position.y = -.26 - head.y * .025;
+      avatarPlane.rotation.y = head.x * .055;
+      avatarPlane.rotation.x = -head.y * .025;
+      if (avatarSource?.width && avatarStageContext && avatarTexture) {
+        avatarStageContext.clearRect(0, 0, 1024, 1024);
+        avatarStageContext.drawImage(avatarSource, 0, 0, 1024, 1024);
+        avatarTexture.needsUpdate = true;
+      }
       halo.rotation.z = elapsed * 0.035;
       innerHalo.rotation.z = -elapsed * 0.025;
       halo.material.opacity = 0.28 + Math.sin(elapsed * 1.2) * 0.08;
@@ -90,6 +161,58 @@ export function createDepthScene(scene) {
       else fire.material.uniforms.uIntensity.value = 1;
     }
   };
+}
+
+function makeInfoWall(position) {
+  // This wall is viewed close-up in depth mode. Keep it above 2K so fine type
+  // survives the oblique projection of a 4K portrait display.
+  const canvas = document.createElement('canvas'); canvas.width = 3072; canvas.height = 2160;
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
+  const group = new THREE.Group(); group.position.copy(position);
+  const backing = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.7), new THREE.MeshBasicMaterial({ color: 0x061116, transparent: true, opacity: .93, side: THREE.DoubleSide, depthWrite: false }));
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.34, 1.64), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 1, side: THREE.DoubleSide, depthWrite: false }));
+  mesh.position.z = .006; group.add(backing, mesh);
+  return {
+    group,
+    update(head) {
+      // A tiny counter-turn keeps the display usable at the viewing extremes
+      // without pretending it is a flat HUD glued to the glass.
+      group.position.x = head.x * .075;
+      group.position.y = 1.18 - head.y * .045;
+      group.rotation.y = head.x * .17;
+      group.rotation.x = -head.y * .07;
+    },
+    draw(content) {
+      const ctx = canvas.getContext('2d'); ctx.setTransform(3, 0, 0, 3, 0, 0); ctx.clearRect(0, 0, 1024, 720);
+      // Two-way glass eats low-contrast midtones. Use a nearly black backing
+      // and a restrained, bright keyline instead of making every element glow.
+      ctx.fillStyle = 'rgba(1,7,10,.96)'; ctx.fillRect(0, 0, 1024, 720);
+      ctx.strokeStyle = 'rgba(202,255,229,.92)'; ctx.lineWidth = 2; ctx.strokeRect(8, 8, 1008, 704);
+      ctx.fillStyle = '#b5ffd4'; ctx.font = '600 25px Arial'; ctx.fillText('REFLECT · DEPTH CUBE', 42, 58);
+      ctx.fillStyle = '#f4fbff'; ctx.font = '500 92px Arial'; ctx.fillText(content.time || '—', 42, 155);
+      ctx.fillStyle = '#b5ffd4'; ctx.font = '500 28px Arial'; ctx.fillText(content.date || '', 45, 204);
+      ctx.fillStyle = 'rgba(244,251,255,.88)'; ctx.font = '500 32px Arial'; ctx.fillText(content.weather || '', 45, 263);
+      ctx.strokeStyle = 'rgba(181,255,212,.32)'; ctx.beginPath(); ctx.moveTo(42, 294); ctx.lineTo(982, 294); ctx.stroke();
+      ctx.fillStyle = '#b5ffd4'; ctx.font = '600 22px Arial'; ctx.fillText('FROM THE GLASS', 42, 335);
+      ctx.fillStyle = '#f4fbff'; ctx.font = '500 30px Arial'; drawWrapped(ctx, String(content.quote || '').replace(/[“”]/g, ''), 42, 385, 940, 38, 2);
+      texture.needsUpdate = true;
+    }
+  };
+}
+
+function makeLattice(width, height, position, rotation) {
+  const points = []; const columns = 5; const rows = 9;
+  for (let i = 0; i <= columns; i += 1) { const x = -width / 2 + (i / columns) * width; points.push(x, -height / 2, 0, x, height / 2, 0); }
+  for (let i = 0; i <= rows; i += 1) { const y = -height / 2 + (i / rows) * height; points.push(-width / 2, y, 0, width / 2, y, 0); }
+  const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+  const mesh = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x9b7bff, transparent: true, opacity: .46, blending: THREE.AdditiveBlending, depthWrite: false }));
+  mesh.position.copy(position); mesh.rotation.copy(rotation); return mesh;
+}
+
+function drawWrapped(ctx, text, x, y, width, lineHeight, maxLines) {
+  const words = text.split(/\s+/); let line = ''; let lines = 0;
+  for (const word of words) { const next = `${line} ${word}`.trim(); if (ctx.measureText(next).width > width && line) { ctx.fillText(line, x, y); y += lineHeight; lines += 1; if (lines >= maxLines) return; line = word; } else line = next; }
+  if (line && lines < maxLines) ctx.fillText(line, x, y);
 }
 
 function rectangleLine(width, height, z, material) {

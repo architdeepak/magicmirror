@@ -7,15 +7,44 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "kiosk": "electron . --kiosk",
-    "test": "npm run test:syntax",
-    "test:syntax": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js && node --check src/headTracking.js && node --check src/avatarController.js && node --check src/geminiLiveAdapter.js && node --check src/wakeWord.js && node --check src/arOverlay.js && node --check src/depthScene.js && node --check src/magicMirrorView.js && node --check src/speechEngine.js"
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win portable",
+    "test": "npm run test:syntax && npm run test:avatar",
+    "test:avatar": "node tools/test-expression-mixer.mjs",
+    "test:health": "node tools/healthcheck.cjs",
+    "preview:capture": "electron --no-sandbox --headless --disable-gpu tools/capture-preview.cjs",
+    "preview:avatar-demo": "electron --no-sandbox --headless --disable-gpu tools/capture-avatar-demo.cjs",
+    "preview:avatar-video": "electron --no-sandbox --headless --disable-gpu tools/capture-avatar-video-handoff.cjs",
+    "preview:rig-gate": "electron --no-sandbox --headless --disable-gpu tools/capture-persona-rig-preview.cjs",
+    "preview:serve": "node tools/preview-server.cjs",
+    "avatar:lab": "npm --prefix .tools/face-to-blendshape-3d run dev -- --host 127.0.0.1 --port 8790",
+    "avatar:preflight": "node tools/avatar-video-preflight.cjs",
+    "verify": "npm test && npm run test:health",
+    "rig:check": "node tools/inspect-avatar-rig.mjs",
+    "test:syntax": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js && node --check src/headTracking.js && node --check src/gestureNavigation.js && node --check src/avatarController.js && node --check src/expressionMixer.js && node --check src/avatarVideoHost.js && node --check src/rigFaceHost.js && node --check src/memojiFaceHost.js && node --check src/liveFaceHost.js && node --check src/closetStore.js && node --check src/geminiLiveAdapter.js && node --check src/wakeWord.js && node --check src/arOverlay.js && node --check src/depthScene.js && node --check src/magicMirrorView.js && node --check src/speechEngine.js && node --check tools/avatar-video-preflight.cjs && node --check tools/preview-server.cjs && node --check tools/capture-avatar-demo.cjs && node --check tools/capture-avatar-video-handoff.cjs && node --check tools/capture-persona-rig-preview.cjs"
   },
   "devDependencies": {
-    "electron": "^31.0.0"
+    "electron": "^31.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.architdeepak.reflect-mirror",
+    "productName": "Reflect Mirror",
+    "asar": true,
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ]
+    }
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",
     "@met4citizen/talkinghead": "^1.7.0",
+    "@pixiv/three-vrm": "^3.5.5",
     "dotenv": "^16.6.1",
     "three": "0.180.0",
     "vosk-browser": "^0.0.8"

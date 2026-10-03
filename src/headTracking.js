@@ -8,10 +8,13 @@ let lastVideoTime = -1;
 let lastFaceAt = 0;
 let latestLandmarks = null;
 let latestMatrix = null;
+let latestBlendshapes = Object.freeze({});
 
 const currentHead = { x: 0, y: 0, z: 1 };
 const targetHead = { x: 0, y: 0, z: 1 };
+const currentGaze = { x: 0, y: 0, confidence: 0 };
 const options = { sensitivity: 1, smoothing: 0.18 };
+let depthCalibration = null;
 const status = {
   mode: 'mouse',
   ready: false,
@@ -25,6 +28,15 @@ let mouseX = 0.5;
 let mouseY = 0.5;
 
 window.addEventListener('pointermove', (event) => {
+  // The mirror can be letterboxed inside a wide browser window.  Use the
+  // actual portrait display bounds so fallback parallax never treats the
+  // black margins as part of the physical mirror.
+  const rect = videoElement?.getBoundingClientRect();
+  if (rect?.width && rect?.height) {
+    mouseX = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    mouseY = clamp((event.clientY - rect.top) / rect.height, 0, 1);
+    return;
+  }
   mouseX = event.clientX / Math.max(window.innerWidth, 1);
   mouseY = event.clientY / Math.max(window.innerHeight, 1);
 });
@@ -129,6 +141,7 @@ export function stopCamera() {
   status.mode = 'mouse';
   latestLandmarks = null;
   latestMatrix = null;
+  latestBlendshapes = Object.freeze({});
 }
 
 export async function toggleCamera(enable) {
@@ -154,25 +167,37 @@ export function updateHeadTracking(now = performance.now()) {
       const result = faceLandmarker.detectForVideo(videoElement, now);
       latestLandmarks = result.faceLandmarks?.[0] || null;
       latestMatrix = result.facialTransformationMatrixes?.[0]?.data || null;
+      latestBlendshapes = categoriesToBlendshapes(result.faceBlendshapes?.[0]?.categories);
 
       if (latestLandmarks) {
         lastFaceAt = now;
         status.faceDetected = true;
-        const nose = latestLandmarks[1];
         const leftEye = latestLandmarks[33];
         const rightEye = latestLandmarks[263];
+        const eyeCenter = { x: (leftEye.x + rightEye.x) / 2, y: (leftEye.y + rightEye.y) / 2 };
         const eyeDistance = Math.hypot(rightEye.x - leftEye.x, rightEye.y - leftEye.y);
+        const reference = depthCalibration || { x: .5, y: .47, eyeDistance: .14 };
 
-        targetHead.x = clamp((0.5 - nose.x) * 2.1 * options.sensitivity, -1.25, 1.25);
-        targetHead.y = clamp((nose.y - 0.47) * 1.8 * options.sensitivity, -1.1, 1.1);
-        targetHead.z = clamp(0.14 / Math.max(eyeDistance, 0.045), 0.62, 1.55);
+        // Eye midpoint is more stable than nose position for the virtual-window
+        // illusion. Calibration gives a real viewer a centered, comfortable
+        // neutral position rather than assuming every camera is mounted alike.
+        targetHead.x = clamp((reference.x - eyeCenter.x) * 2.1 * options.sensitivity, -1.25, 1.25);
+        targetHead.y = clamp((eyeCenter.y - reference.y) * 1.8 * options.sensitivity, -1.1, 1.1);
+        targetHead.z = clamp(reference.eyeDistance / Math.max(eyeDistance, 0.045), 0.62, 1.55);
+        updateEyeGaze(latestLandmarks);
       }
     } catch (error) {
       console.debug('[tracking] skipped frame', error.message);
     }
   }
 
-  if (now - lastFaceAt > 300) status.faceDetected = false;
+  if (now - lastFaceAt > 300) {
+    status.faceDetected = false;
+    latestBlendshapes = Object.freeze({});
+    currentGaze.x = 0;
+    currentGaze.y = 0;
+    currentGaze.confidence = 0;
+  }
   if (!status.faceDetected) {
     targetHead.x = (mouseX - 0.5) * 1.75 * options.sensitivity;
     targetHead.y = (mouseY - 0.5) * 1.5 * options.sensitivity;
@@ -205,10 +230,74 @@ export function applyOffAxisProjection(camera, head, screenWidth = 1.8, screenHe
   camera.lookAt(eyeX * 0.12, eyeY * 0.12, -1.2);
 }
 
+export function applyFlatProjection(camera, aspect = window.innerWidth / window.innerHeight) {
+  camera.position.set(0, 0, 3.1);
+  camera.fov = 45;
+  camera.aspect = aspect;
+  camera.updateProjectionMatrix();
+  camera.lookAt(0, 0, -1.2);
+}
+
 export function getHeadPosition() { return currentHead; }
 export function getTrackingStatus() { return { ...status }; }
 export function getFaceLandmarks() { return latestLandmarks; }
 export function getFaceMatrix() { return latestMatrix; }
+export function getFaceBlendshapes() { return latestBlendshapes; }
+export function getEyeGaze() { return { ...currentGaze }; }
 export function getVideoElement() { return videoElement; }
 
+export function calibrateDepth() {
+  if (!latestLandmarks || latestLandmarks.length < 264) return false;
+  const leftEye = latestLandmarks[33];
+  const rightEye = latestLandmarks[263];
+  depthCalibration = {
+    x: (leftEye.x + rightEye.x) / 2,
+    y: (leftEye.y + rightEye.y) / 2,
+    eyeDistance: Math.max(.045, Math.hypot(rightEye.x - leftEye.x, rightEye.y - leftEye.y))
+  };
+  return true;
+}
+
 function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+
+function categoriesToBlendshapes(categories = []) {
+  const shapes = {};
+  for (const category of categories) {
+    const name = category?.categoryName;
+    if (!name || name === '_neutral') continue;
+    shapes[name] = clamp(Number(category.score) || 0, 0, 1);
+  }
+  return Object.freeze(shapes);
+}
+
+function updateEyeGaze(landmarks) {
+  // Face Landmarker provides iris points 468–477 when refinement is available.
+  // This is deliberately separate from head position: looking sideways should
+  // not bend the virtual window, but can inform subtle character eye response.
+  if (landmarks.length < 478) return;
+  const leftIris = averagePoint(landmarks.slice(468, 473));
+  const rightIris = averagePoint(landmarks.slice(473, 478));
+  const left = normalizeIris(leftIris, landmarks[33], landmarks[133], landmarks[159], landmarks[145]);
+  const right = normalizeIris(rightIris, landmarks[362], landmarks[263], landmarks[386], landmarks[374]);
+  if (!left || !right) return;
+  const targetX = clamp(((left.x + right.x) / 2 - .5) * 2, -1, 1);
+  const targetY = clamp(((left.y + right.y) / 2 - .5) * 2, -1, 1);
+  currentGaze.x += (targetX - currentGaze.x) * .22;
+  currentGaze.y += (targetY - currentGaze.y) * .22;
+  currentGaze.confidence = .8;
+}
+
+function normalizeIris(iris, outer, inner, top, bottom) {
+  const width = Math.abs(outer.x - inner.x);
+  const height = Math.abs(bottom.y - top.y);
+  if (width < .005 || height < .003) return null;
+  return {
+    x: clamp((iris.x - Math.min(outer.x, inner.x)) / width, 0, 1),
+    y: clamp((iris.y - Math.min(top.y, bottom.y)) / height, 0, 1)
+  };
+}
+
+function averagePoint(points) {
+  const total = points.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
+  return { x: total.x / points.length, y: total.y / points.length };
+}

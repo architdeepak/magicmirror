@@ -1,0 +1,2 @@
+# Keep experimental facial rigs cloneable without bloating normal Git history.
+src/assets/personas/*.glb filter=lfs diff=lfs merge=lfs -text

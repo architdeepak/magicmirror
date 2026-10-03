@@ -1,0 +1,14 @@
+{
+  "remote.portsAttributes": {
+    "8787": {
+      "label": "Reflect browser preview",
+      "onAutoForward": "openBrowserOnce",
+      "protocol": "http"
+    },
+    "8790": {
+      "label": "Avatar blendshape lab",
+      "onAutoForward": "silent",
+      "protocol": "http"
+    }
+  }
+}

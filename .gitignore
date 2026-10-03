@@ -3,5 +3,12 @@ node_modules/
 *.log
 data/memory.json
 data/*.tmp
+data/closet.json
+data/closet/
+data/tryon/
 .DS_Store
 Thumbs.db
+.tools/
+artifacts/
+mirror-preview*.png
+dist/
