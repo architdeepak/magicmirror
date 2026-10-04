@@ -40,6 +40,8 @@
     #app-shell[data-glass-profile="night"] .mode-switch { background: rgba(2,7,9,.62); border-color: rgba(188,232,213,.20); }
     #app-shell[data-glass-profile="night"] .glass-widget { background: rgba(2,7,9,.60); border-color: rgba(188,232,213,.20); }
     #camera-feed, #ar-canvas, #scene-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #hand-overlay { position: absolute; z-index: 16; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .hand-hover { outline: 2px solid var(--signal) !important; outline-offset: 3px; }
     #camera-feed { z-index: 0; display: none; object-fit: cover; transform: scaleX(-1); filter: saturate(.65) contrast(1.12) brightness(.58); }
     #ar-canvas { z-index: 1; display: none; pointer-events: none; }
     #scene-canvas { z-index: 2; display: block; }
@@ -48,7 +50,7 @@
 
     .noise, .vignette, .mirror-frame, .scanline { position: absolute; inset: 0; pointer-events: none; }
     .noise { z-index: 4; opacity: .055; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
-    .vignette { z-index: 5; box-shadow: inset 0 0 16vw 5vw rgba(0,0,0,.96), inset 0 0 3vw 1vw rgba(0,0,0,.85); background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 18%, transparent 72%, rgba(0,0,0,.82)); }
+    .vignette { z-index: 5; box-shadow: inset 0 0 16cqw 5cqw rgba(0,0,0,.96), inset 0 0 3cqw 1cqw rgba(0,0,0,.85); background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 18%, transparent 72%, rgba(0,0,0,.82)); }
     .scanline { z-index: 6; opacity: .035; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,.16) 4px); }
     .mirror-frame { z-index: 7; inset: 12px; border: 1px solid rgba(231,199,116,.22); border-radius: 42px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), inset 0 0 34px rgba(198,147,255,.08), 0 0 40px rgba(0,0,0,.9); }
     .mirror-frame::before, .mirror-frame::after { content: ""; position: absolute; left: 50%; width: 64px; height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 12px var(--gold); }
@@ -74,7 +76,7 @@
     #dashboard-container { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s ease, transform .5s ease; }
     #app-shell:not([data-mode="mirror"]) #dashboard-container { opacity: 0; transform: translateY(14px); }
     .mirror-clock { position: absolute; top: 112px; left: 42px; }
-    .clock-time { font: 300 clamp(54px, 10vw, 92px)/.9 Unbounded, sans-serif; letter-spacing: -5px; text-shadow: 0 0 30px rgba(255,255,255,.13); }
+    .clock-time { font: 300 clamp(54px, 10cqw, 92px)/.9 Unbounded, sans-serif; letter-spacing: -5px; text-shadow: 0 0 30px rgba(255,255,255,.13); }
     .clock-date { margin-top: 14px; color: var(--gold); font: 500 9px Cinzel, serif; letter-spacing: 2.6px; }
     .mirror-weather { position: absolute; top: 120px; right: 42px; display: flex; align-items: flex-start; gap: 13px; text-align: right; }
     .weather-icon { color: var(--gold); font: 300 44px/1 Cinzel, serif; text-shadow: 0 0 20px rgba(231,199,116,.35); }
@@ -98,17 +100,17 @@
     .quote-widget { display: flex; flex-direction: column; justify-content: space-between; }
     .quote-widget p { margin: 0; font: italic 16px/1.45 Georgia, serif; color: rgba(255,255,255,.82); transition: opacity .4s; }
 
-    .oracle-card { pointer-events: auto; position: absolute; left: 50%; bottom: 148px; transform: translateX(-50%); width: min(68vw, 430px); max-height: 150px; overflow: auto; padding: 12px 30px 13px; border: 1px solid rgba(231,199,116,.12); border-radius: 14px; background: rgba(7,5,11,.56); backdrop-filter: blur(15px); text-align: center; cursor: pointer; transition: opacity .35s ease, transform .35s ease; }
+    .oracle-card { pointer-events: auto; position: absolute; left: 50%; bottom: 148px; transform: translateX(-50%); width: min(68cqw, 430px); max-height: 150px; overflow: auto; padding: 12px 30px 13px; border: 1px solid rgba(231,199,116,.12); border-radius: 14px; background: rgba(7,5,11,.56); backdrop-filter: blur(15px); text-align: center; cursor: pointer; transition: opacity .35s ease, transform .35s ease; }
     .oracle-card.empty { opacity: 0; transform: translate(-50%, 8px); }
     .oracle-eyebrow { color: var(--gold); font: 500 7px/1 Cinzel, serif; letter-spacing: 2.4px; text-transform: uppercase; margin-bottom: 7px; }
-    #oracle-text { margin: 0; font: 400 clamp(12px, 1.55vw, 17px)/1.45 Manrope, sans-serif; text-shadow: 0 3px 18px #000; }
+    #oracle-text { margin: 0; font: 400 clamp(12px, 1.55cqw, 17px)/1.45 Manrope, sans-serif; text-shadow: 0 3px 18px #000; }
     #oracle-user { margin-top: 7px; color: var(--muted); font-size: 8px; letter-spacing: .3px; }
     .oracle-close { position: absolute; top: 5px; right: 7px; width: 22px; height: 22px; border: 0; background: transparent; color: rgba(255,255,255,.42); cursor: pointer; font-size: 16px; }
     .oracle-close:hover { color: var(--gold); }
 
     .persona-toggle { pointer-events: auto; position: absolute; left: 34px; bottom: 40px; width: 34px; height: 34px; overflow: hidden; padding: 0; border: 1px solid rgba(213,234,244,.2); border-radius: 50%; background: #17222a; cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.45); }
     .persona-toggle img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
-    .persona-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(340px, calc(100vw - 56px)); padding: 15px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .persona-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(340px, calc(100cqw - 56px)); padding: 15px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .persona-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .persona-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .persona-panel p { margin: 5px 0 12px; color: var(--muted); font-size: 9px; line-height: 1.45; }
     .persona-list { display: grid; gap: 7px; }
@@ -118,7 +120,7 @@
     .persona-card strong { display: block; font-size: 10px; } .persona-card span { display: block; margin-top: 3px; color: var(--muted); font-size: 8px; } .persona-card i { color: var(--signal); font-style: normal; opacity: 0; } .persona-card.active i { opacity: 1; }
     .launcher-toggle { pointer-events: auto; position: absolute; left: 80px; bottom: 40px; width: 34px; height: 34px; border: 1px solid rgba(213,234,244,.16); border-radius: 50%; background: rgba(8,14,19,.76); color: var(--ice); cursor: pointer; backdrop-filter: blur(12px); }
     .launcher-toggle:hover { border-color: rgba(168,255,207,.55); color: var(--signal); }
-    .launcher-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(360px, calc(100vw - 56px)); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .launcher-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(360px, calc(100cqw - 56px)); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .launcher-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .launcher-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .launcher-panel > p { margin: 5px 0 13px; color: var(--muted); font-size: 9px; }
     .launcher-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
@@ -128,23 +130,27 @@
     .quick-note label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
     .quick-note form { display: grid; grid-template-columns: 1fr auto; gap: 7px; } .quick-note input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid rgba(213,234,244,.13); border-radius: 8px; outline: 0; background: rgba(255,255,255,.04); color: var(--ice); font-size: 10px; } .quick-note button { padding: 0 10px; border: 0; border-radius: 8px; background: var(--signal); color: #06110c; font: 700 9px Manrope, sans-serif; cursor: pointer; }
 
-    .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: 54px; display: grid; grid-template-columns: auto; place-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
+    .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: auto; display: grid; grid-auto-flow: column; grid-template-columns: auto auto; gap: 8px; place-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
     .bottom-dock.dim { opacity: .22; }
     .bottom-dock:hover, .bottom-dock:focus-within { opacity: 1; }
     .round-btn, .icon-btn { border: 0; cursor: pointer; transition: .2s ease; }
     .round-btn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
     .round-btn:hover { background: rgba(155,123,255,.18); border-color: rgba(155,123,255,.35); }
     .round-btn.listening { color: #14070a; background: linear-gradient(135deg, #ffb18e, #e45655); box-shadow: 0 0 0 6px rgba(228,86,85,.1), 0 0 22px rgba(228,86,85,.42); animation: pulse 1.2s infinite; }
+    .stop-btn { min-width: 72px; height: 42px; padding: 0 12px; border: 1px solid rgba(255,117,111,.58); border-radius: 22px; background: rgba(115,27,31,.88); color: #fff; font: 800 11px Manrope, sans-serif; letter-spacing: 1px; cursor: pointer; box-shadow: 0 0 20px rgba(225,60,66,.2); }
+    .stop-btn:hover, .stop-btn:focus-visible { background: #d74449; outline: 2px solid rgba(255,255,255,.8); outline-offset: 2px; }
     .wake-status { position: absolute; left: 50%; bottom: 91px; transform: translateX(-50%); color: rgba(255,255,255,.38); font: 500 7px Cinzel, serif; letter-spacing: 1.7px; text-transform: uppercase; }
     .wake-status.armed { color: rgba(231,199,116,.72); }
+    .live-caption { max-height: 0; margin-top: 0; overflow: hidden; color: rgba(230,239,246,.82); font: 500 clamp(11px, .82cqw, 16px)/1.4 Manrope, sans-serif; letter-spacing: .1px; text-wrap: pretty; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; opacity: 0; transition: opacity .16s ease, max-height .16s ease, margin .16s ease; pointer-events: none; }
+    .live-caption.visible { max-height: 2.8em; margin-top: 8px; opacity: 1; }
 
     .settings-toggle { pointer-events: auto; position: absolute; right: 34px; bottom: 40px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(8,6,12,.5); color: rgba(255,255,255,.5); cursor: pointer; backdrop-filter: blur(12px); }
     .settings-toggle:hover { color: var(--gold); border-color: var(--line); transform: rotate(24deg); }
-    .settings-panel { pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .settings-panel { pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100cqw - 56px)); padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .settings-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .closet-shelf { margin-top: 16px; padding: 14px; border: 1px solid rgba(213,234,244,.12); border-radius: 14px; background: rgba(6,11,15,.54); } .closet-shelf-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .closet-shelf-head strong { color: var(--ice); font: 700 10px Manrope, sans-serif; letter-spacing: 1.2px; } .closet-shelf-head button { border: 1px solid rgba(168,255,207,.42); border-radius: 8px; background: rgba(168,255,207,.1); color: var(--signal); padding: 7px 10px; font: 700 9px Manrope, sans-serif; cursor: pointer; } .closet-shelf p { margin: 7px 0 10px; color: var(--muted); font-size: 9px; line-height: 1.45; } .closet-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .closet-empty { color: var(--muted); font-size: 9px; line-height: 1.45; padding: 9px 0; } .closet-item { display: grid; grid-template-columns: 42px minmax(92px, 1fr); flex: 0 0 155px; gap: 8px; align-items: center; min-height: 54px; padding: 6px; border: 1px solid rgba(213,234,244,.1); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; } .closet-item.selected { border-color: rgba(168,255,207,.58); background: rgba(168,255,207,.07); } .closet-item img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,.045); } .closet-item b, .closet-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .closet-item b { font-size: 9px; } .closet-item small { margin-top: 3px; color: var(--muted); font-size: 8px; }
     .tryon-consent { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; color: var(--muted); font-size: 9px; line-height: 1.35; } .tryon-consent input { accent-color: var(--signal); margin: 1px 0 0; } .tryon-run { width: 100%; min-height: 35px; margin-top: 10px; border: 0; border-radius: 9px; background: var(--signal); color: #05100a; font: 700 10px Manrope, sans-serif; cursor: pointer; } .tryon-run:disabled { cursor: not-allowed; opacity: .38; } .tryon-status { display: block; margin-top: 7px; color: var(--muted); font-size: 8px; line-height: 1.4; }
-    .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8vw, 164px); right: clamp(30px, 3vw, 72px); width: min(300px, 34vw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
+    .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8cqw, 164px); right: clamp(30px, 3cqw, 72px); width: min(300px, 34cqw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
     .diagnostics.open { opacity: 1; transform: none; } .diagnostics strong { display: block; margin-bottom: 8px; color: var(--signal); font: 700 10px Manrope, sans-serif; letter-spacing: 1.5px; } .diagnostics p { display: flex; justify-content: space-between; gap: 12px; margin: 3px 0; } .diagnostics span { color: #8fa79d; } .diagnostics b { color: #e6fff2; font-weight: 600; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
     .panel-head strong { font: 500 11px Cinzel, serif; letter-spacing: 2px; color: var(--gold); }
@@ -174,7 +180,7 @@
     #avatar-engine .avatar-video-host { position: absolute; inset: 0; z-index: 8; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
     #avatar-engine[data-mode="ar"] { inset: 16% 8% 12% 34%; }
     .fallback-presence { position: absolute; inset: 20%; display: grid; place-items: center; }
-    .fallback-presence i { position: absolute; width: min(42vw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
+    .fallback-presence i { position: absolute; width: min(42cqw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
     .fallback-presence b { color: var(--gold); font-size: 42px; text-shadow: 0 0 20px var(--gold); }
 
     .ar-label { position: absolute; left: 34px; bottom: 40px; opacity: 0; color: rgba(255,255,255,.58); font-size: 9px; letter-spacing: 1.3px; text-transform: uppercase; transition: opacity .3s; }
@@ -187,7 +193,7 @@
       .brand-copy, .system-state span { display: none; }
       .brand, .system-state { min-width: 30px; }
       .mode-btn { padding: 8px 10px; font-size: 8px; }
-      .bottom-dock { bottom: 30px; width: calc(100vw - 90px); }
+      .bottom-dock { bottom: 30px; width: calc(100cqw - 90px); }
       .settings-toggle { right: 22px; bottom: 34px; }
       .oracle-card { bottom: 124px; }
       .mirror-clock { left: 28px; } .mirror-weather { right: 28px; }
@@ -268,19 +274,19 @@
     /* Restraint reads better through two-way glass: keep one luminous edge,
        reserve animation for state, and let type/space establish hierarchy. */
     .noise { opacity: .018; } .scanline { display: none; }
-    .vignette { box-shadow: inset 0 0 9vw 2vw rgba(0,0,0,.72); background: linear-gradient(180deg, rgba(0,0,0,.22), transparent 18%, transparent 78%, rgba(0,0,0,.42)); }
+    .vignette { box-shadow: inset 0 0 9cqw 2cqw rgba(0,0,0,.72); background: linear-gradient(180deg, rgba(0,0,0,.22), transparent 18%, transparent 78%, rgba(0,0,0,.42)); }
     .mirror-frame { border-color: rgba(232,248,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), inset 0 0 34px rgba(168,255,207,.035), 0 0 40px rgba(0,0,0,.9); }
     .mirror-frame::before, .mirror-frame::after { opacity: .48; background: linear-gradient(90deg, transparent, var(--signal), transparent); box-shadow: 0 0 10px rgba(181,255,212,.5); }
     #scene-canvas { opacity: .18; } #app-shell[data-depth="cube"] #scene-canvas { opacity: 1; } #app-shell[data-mode="watch"] #scene-canvas { opacity: .05; }
     #camera-feed { filter: saturate(.92) contrast(1.16) brightness(.9); } #ar-canvas { filter: brightness(1.22) contrast(1.1); }
-    .topbar { top: clamp(34px, 3.1vw, 68px); left: clamp(34px, 3.7vw, 80px); right: clamp(34px, 3.7vw, 80px); }
-    .brand { min-width: clamp(170px, 16vw, 290px); gap: clamp(11px, 1vw, 18px); }
-    .brand-mark { width: clamp(36px, 3.1vw, 62px); height: clamp(36px, 3.1vw, 62px); font-size: clamp(16px, 1.4vw, 27px); }
-    .brand-copy strong { font-size: clamp(11px, 1vw, 19px); } .brand-copy span { margin-top: 4px; font-size: clamp(9px, .75vw, 14px); }
-    .mode-switch { gap: clamp(4px, .4vw, 8px); padding: clamp(4px, .4vw, 8px); border-color: rgba(216,255,235,.32); background: rgba(2, 7, 9, .82); box-shadow: 0 12px 36px rgba(0,0,0,.42); }
+    .topbar { top: clamp(34px, 3.1cqw, 68px); left: clamp(34px, 3.7cqw, 80px); right: clamp(34px, 3.7cqw, 80px); }
+    .brand { min-width: clamp(170px, 16cqw, 290px); gap: clamp(11px, 1cqw, 18px); }
+    .brand-mark { width: clamp(36px, 3.1cqw, 62px); height: clamp(36px, 3.1cqw, 62px); font-size: clamp(16px, 1.4cqw, 27px); }
+    .brand-copy strong { font-size: clamp(11px, 1cqw, 19px); } .brand-copy span { margin-top: 4px; font-size: clamp(9px, .75cqw, 14px); }
+    .mode-switch { gap: clamp(4px, .4cqw, 8px); padding: clamp(4px, .4cqw, 8px); border-color: rgba(216,255,235,.32); background: rgba(2, 7, 9, .82); box-shadow: 0 12px 36px rgba(0,0,0,.42); }
     .mode-btn.active { color: #06110c; background: var(--signal); box-shadow: none; }
-    .dimension-switch { pointer-events: auto; display: flex; margin-left: clamp(4px,.4vw,8px); padding: 3px; border-left: 1px solid rgba(232,248,255,.18); }
-    .dimension-switch button { min-width: clamp(72px, 6vw, 118px); height: clamp(28px, 2.4vw, 46px); border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 clamp(8px,.65vw,12px) Manrope, sans-serif; letter-spacing: .7px; cursor: pointer; }
+    .dimension-switch { pointer-events: auto; display: flex; margin-left: clamp(4px,.4cqw,8px); padding: 3px; border-left: 1px solid rgba(232,248,255,.18); }
+    .dimension-switch button { min-width: clamp(72px, 6cqw, 118px); height: clamp(28px, 2.4cqw, 46px); border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 clamp(8px,.65cqw,12px) Manrope, sans-serif; letter-spacing: .7px; cursor: pointer; }
     .dimension-switch button.active { color: #06110c; background: var(--signal); }
     #app-shell[data-depth="cube"] .dimension-switch { border-color: rgba(181,255,212,.45); }
     /* HTML cannot be occluded by WebGL geometry, but each interface family is
@@ -300,50 +306,99 @@
     /* Conversation belongs at the edge of the mirror. Keep the center clean
        for the living host, with a single thumb-height control and a nearby
        glanceable transcript instead of a wide caption card across the face. */
-    .bottom-dock { left: auto; right: clamp(42px, 4.4vw, 96px); bottom: clamp(42px, 3.8vw, 80px); transform: none; z-index: 14; }
-    .oracle-card { left: auto; right: clamp(116px, 10.6vw, 220px); bottom: clamp(42px, 3.8vw, 80px); transform: none; width: min(25vw, 380px); max-height: clamp(66px, 6vw, 110px); padding: clamp(10px, .8vw, 15px) clamp(24px, 2vw, 38px) clamp(10px, .8vw, 15px) clamp(13px, 1.1vw, 22px); text-align: left; border-radius: 14px; }
+    .bottom-dock { left: auto; right: clamp(42px, 4.4cqw, 96px); bottom: clamp(42px, 3.8cqw, 80px); transform: none; z-index: 14; }
+    .oracle-card { left: auto; right: clamp(116px, 10.6cqw, 220px); bottom: clamp(42px, 3.8cqw, 80px); transform: none; width: min(25cqw, 380px); max-height: clamp(66px, 6cqw, 110px); padding: clamp(10px, .8cqw, 15px) clamp(24px, 2cqw, 38px) clamp(10px, .8cqw, 15px) clamp(13px, 1.1cqw, 22px); text-align: left; border-radius: 14px; }
     .oracle-card.empty { transform: translateX(12px); }
-    .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62vw,12px); }
-    #oracle-text { font-size: clamp(12px, 1vw, 19px); line-height: 1.35; }
-    #oracle-user { margin-top: 5px; font-size: clamp(8px,.65vw,12px); }
+    .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62cqw,12px); }
+    #oracle-text { font-size: clamp(12px, 1cqw, 19px); line-height: 1.35; }
+    #oracle-user { margin-top: 5px; font-size: clamp(8px,.65cqw,12px); }
     #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .oracle-card.empty { transform: translate3d(calc(12px + var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(var(--viewer-x) * -1.08), calc(var(--viewer-y) * -.88), 142px); }
-    .mode-btn { min-height: clamp(42px, 3.8vw, 74px); padding: 0 clamp(13px, 1.2vw, 24px); font-size: clamp(10px, .9vw, 17px); letter-spacing: 1px; }
-    .mode-btn::before { width: clamp(5px, .5vw, 9px); height: clamp(5px, .5vw, 9px); }
-    .system-state { min-width: clamp(150px, 14vw, 260px); font-size: clamp(10px, .8vw, 15px); } .state-dot { width: clamp(7px, .6vw, 11px); height: clamp(7px, .6vw, 11px); }
-    .mirror-clock { top: clamp(135px, 12vw, 260px); left: clamp(42px, 4.4vw, 96px); }
-    .clock-time { font-size: clamp(86px, 9vw, 184px); letter-spacing: clamp(-9px, -.48vw, -4px); color: #f8fdff; text-shadow: 0 0 30px rgba(225,247,255,.24); }
-    .clock-date { margin-top: clamp(13px, 1.2vw, 24px); font-size: clamp(11px, .95vw, 19px); letter-spacing: clamp(1px, .15vw, 3px); color: var(--signal); }
-    .mirror-weather { top: clamp(145px, 13vw, 278px); right: clamp(42px, 4.4vw, 96px); gap: clamp(12px, 1vw, 20px); }
-    .weather-icon { font-size: clamp(48px, 4.4vw, 88px); } .mirror-weather strong { font-size: clamp(48px, 4.4vw, 88px); }
-    .mirror-weather span, .mirror-weather small { margin-top: clamp(6px, .65vw, 12px); font-size: clamp(10px, .8vw, 16px); letter-spacing: clamp(1px, .13vw, 3px); }
+    .mode-btn { min-height: clamp(42px, 3.8cqw, 74px); padding: 0 clamp(13px, 1.2cqw, 24px); font-size: clamp(10px, .9cqw, 17px); letter-spacing: 1px; }
+    .mode-btn::before { width: clamp(5px, .5cqw, 9px); height: clamp(5px, .5cqw, 9px); }
+    .system-state { min-width: clamp(150px, 14cqw, 260px); font-size: clamp(10px, .8cqw, 15px); } .state-dot { width: clamp(7px, .6cqw, 11px); height: clamp(7px, .6cqw, 11px); }
+    .mirror-clock { top: clamp(135px, 12cqw, 260px); left: clamp(42px, 4.4cqw, 96px); }
+    .clock-time { font-size: clamp(86px, 9cqw, 184px); letter-spacing: clamp(-9px, -.48cqw, -4px); color: #f8fdff; text-shadow: 0 0 30px rgba(225,247,255,.24); }
+    .clock-date { margin-top: clamp(13px, 1.2cqw, 24px); font-size: clamp(11px, .95cqw, 19px); letter-spacing: clamp(1px, .15cqw, 3px); color: var(--signal); }
+    .mirror-weather { top: clamp(145px, 13cqw, 278px); right: clamp(42px, 4.4cqw, 96px); gap: clamp(12px, 1cqw, 20px); }
+    .weather-icon { font-size: clamp(48px, 4.4cqw, 88px); } .mirror-weather strong { font-size: clamp(48px, 4.4cqw, 88px); }
+    .mirror-weather span, .mirror-weather small { margin-top: clamp(6px, .65cqw, 12px); font-size: clamp(10px, .8cqw, 16px); letter-spacing: clamp(1px, .13cqw, 3px); }
     /* Ambient is reflection-first: reserve the centre for the person, not a
        decorative widget. The greeting is intentionally quiet and low. */
-    .mirror-center { top: auto; bottom: clamp(248px, 22vw, 450px); } .celestial-dial { display: none; }
-    .mirror-center p { margin: 0; font-size: clamp(16px, 1.25vw, 25px); color: rgba(244,251,255,.82); } .mirror-center span { display: none; }
-    .mirror-lower { left: clamp(42px, 4.4vw, 96px); right: clamp(42px, 4.4vw, 96px); bottom: clamp(150px, 13vw, 285px); gap: clamp(13px, 1.2vw, 24px); }
-    .glass-widget { padding: clamp(18px, 1.7vw, 34px); border-color: rgba(216,255,235,.32); background: rgba(2,7,9,.74); box-shadow: 0 12px 34px rgba(0,0,0,.34); backdrop-filter: none; }
-    .glass-widget label { margin-bottom: clamp(12px, 1.1vw, 22px); font-size: clamp(10px, .85vw, 16px); letter-spacing: 2px; color: var(--signal); }
-    .agenda-row { grid-template-columns: clamp(62px, 5vw, 104px) 1fr; gap: clamp(10px, .9vw, 18px); margin-top: clamp(9px, .9vw, 17px); font-size: clamp(12px, 1vw, 20px); color: var(--ice); } .agenda-row time { font-size: clamp(11px, .9vw, 18px); }
-    .now-card { min-height: clamp(82px, 7.5vw, 145px); } .now-card .now-kicker { margin-bottom: clamp(7px, .65vw, 12px); font-size: clamp(9px, .75vw, 14px); } .now-card p { font-size: clamp(15px, 1.25vw, 24px); } .now-card small { margin-top: clamp(8px, .75vw, 14px); font-size: clamp(10px, .8vw, 16px); }
-    .quote-widget p { font-size: clamp(17px, 1.45vw, 28px); color: var(--ice); }
-    .oracle-card { bottom: clamp(190px, 16vw, 345px); width: min(78vw, 820px); max-height: 230px; padding: clamp(17px, 1.5vw, 30px) clamp(38px, 3.4vw, 66px); border-color: rgba(175,255,221,.3); background: rgba(4,11,14,.78); box-shadow: 0 18px 58px rgba(0,0,0,.38); backdrop-filter: blur(18px); }
-    .oracle-eyebrow { font-size: clamp(10px, .8vw, 16px); } #oracle-text { font-size: clamp(18px, 1.7vw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85vw, 17px); }
-    .bottom-dock { bottom: clamp(38px, 3.6vw, 76px); padding: clamp(8px, .7vw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
-    .round-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); font-size: clamp(18px, 1.6vw, 31px); }
-    .wake-status { bottom: clamp(100px, 9vw, 180px); font-size: clamp(9px, .7vw, 14px); }
-    .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8vw, 80px); width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
-    .persona-toggle { left: clamp(42px, 4.4vw, 96px); } .launcher-toggle { left: clamp(101px, 9.6vw, 202px); font-size: clamp(17px, 1.6vw, 29px); } .settings-toggle { right: clamp(42px, 4.4vw, 96px); font-size: clamp(18px, 1.6vw, 30px); }
-    .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100vw - 10vw)); padding: clamp(20px, 1.8vw, 35px); bottom: clamp(115px, 10.4vw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
-    .persona-panel h2, .launcher-panel h2, .panel-head strong { font-size: clamp(13px, 1.05vw, 21px); } .persona-panel p, .launcher-panel > p, .panel-head span { font-size: clamp(10px, .8vw, 16px); }
-    .persona-card { grid-template-columns: clamp(55px, 4.7vw, 90px) 1fr auto; gap: clamp(10px, .9vw, 18px); padding: clamp(8px, .8vw, 15px); } .persona-card img { width: clamp(55px, 4.7vw, 90px); height: clamp(55px, 4.7vw, 90px); } .persona-card strong { font-size: clamp(11px, .95vw, 18px); } .persona-card span { font-size: clamp(9px, .75vw, 15px); }
-    .launcher-grid { gap: clamp(8px, .7vw, 14px); } .launcher-grid button { min-height: clamp(55px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); }
-    .quick-note label, .setting label, .toggle-row { font-size: clamp(9px, .75vw, 15px); } .quick-note input { height: clamp(40px, 3.6vw, 68px); font-size: clamp(11px, .9vw, 17px); } .quick-note button { font-size: clamp(10px, .8vw, 15px); }
-    .mode-intro { max-width: min(520px, 46vw); padding: clamp(20px, 1.8vw, 34px); background: rgba(5,10,13,.3); border-color: var(--panel-line); } .mode-intro .eyebrow { font-size: clamp(10px, .8vw, 15px); } .mode-intro h1 { font-size: clamp(29px, 2.5vw, 48px); } .mode-intro p { font-size: clamp(13px, 1vw, 19px); }
-    .studio-tray { width: min(520px, 47vw); padding: clamp(18px, 1.7vw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1vw, 19px); } .tray-head span { font-size: clamp(10px, .8vw, 15px); } .effect-grid { gap: clamp(8px, .7vw, 14px); } .effect-chip { min-height: clamp(58px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); } .tryon-note { font-size: clamp(10px, .8vw, 15px); }
-    .watch-card { width: min(980px, 86vw); padding: clamp(24px, 2.1vw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4vw, 76px); font-size: clamp(12px, 1vw, 19px); } #watch-load { font-size: clamp(11px, .9vw, 17px); padding: 0 clamp(16px, 1.4vw, 28px); } .service-launcher button { min-height: clamp(34px, 3vw, 55px); font-size: clamp(10px, .8vw, 15px); } .watch-hint { font-size: clamp(10px, .75vw, 15px); }
+    .mirror-center { top: auto; bottom: clamp(248px, 22cqw, 450px); } .celestial-dial { display: none; }
+    .mirror-center p { margin: 0; font-size: clamp(16px, 1.25cqw, 25px); color: rgba(244,251,255,.82); } .mirror-center span { display: none; }
+    .mirror-lower { left: clamp(42px, 4.4cqw, 96px); right: clamp(42px, 4.4cqw, 96px); bottom: clamp(150px, 13cqw, 285px); gap: clamp(13px, 1.2cqw, 24px); }
+    .glass-widget { padding: clamp(18px, 1.7cqw, 34px); border-color: rgba(216,255,235,.32); background: rgba(2,7,9,.74); box-shadow: 0 12px 34px rgba(0,0,0,.34); backdrop-filter: none; }
+    .glass-widget label { margin-bottom: clamp(12px, 1.1cqw, 22px); font-size: clamp(10px, .85cqw, 16px); letter-spacing: 2px; color: var(--signal); }
+    .agenda-row { grid-template-columns: clamp(62px, 5cqw, 104px) 1fr; gap: clamp(10px, .9cqw, 18px); margin-top: clamp(9px, .9cqw, 17px); font-size: clamp(12px, 1cqw, 20px); color: var(--ice); } .agenda-row time { font-size: clamp(11px, .9cqw, 18px); }
+    .now-card { min-height: clamp(82px, 7.5cqw, 145px); } .now-card .now-kicker { margin-bottom: clamp(7px, .65cqw, 12px); font-size: clamp(9px, .75cqw, 14px); } .now-card p { font-size: clamp(15px, 1.25cqw, 24px); } .now-card small { margin-top: clamp(8px, .75cqw, 14px); font-size: clamp(10px, .8cqw, 16px); }
+    .quote-widget p { font-size: clamp(17px, 1.45cqw, 28px); color: var(--ice); }
+    .oracle-card { bottom: clamp(190px, 16cqw, 345px); width: min(78cqw, 820px); max-height: 230px; padding: clamp(17px, 1.5cqw, 30px) clamp(38px, 3.4cqw, 66px); border-color: rgba(175,255,221,.3); background: rgba(4,11,14,.78); box-shadow: 0 18px 58px rgba(0,0,0,.38); backdrop-filter: blur(18px); }
+    .oracle-eyebrow { font-size: clamp(10px, .8cqw, 16px); } #oracle-text { font-size: clamp(18px, 1.7cqw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85cqw, 17px); }
+    .bottom-dock { bottom: clamp(38px, 3.6cqw, 76px); padding: clamp(8px, .7cqw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
+    .round-btn { width: clamp(48px, 4.4cqw, 84px); height: clamp(48px, 4.4cqw, 84px); font-size: clamp(18px, 1.6cqw, 31px); }
+    .wake-status { bottom: clamp(100px, 9cqw, 180px); font-size: clamp(9px, .7cqw, 14px); }
+    .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8cqw, 80px); width: clamp(48px, 4.4cqw, 84px); height: clamp(48px, 4.4cqw, 84px); }
+    .persona-toggle { left: clamp(42px, 4.4cqw, 96px); } .launcher-toggle { left: clamp(101px, 9.6cqw, 202px); font-size: clamp(17px, 1.6cqw, 29px); } .settings-toggle { right: clamp(42px, 4.4cqw, 96px); font-size: clamp(18px, 1.6cqw, 30px); }
+    .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100cqw - 10cqw)); padding: clamp(20px, 1.8cqw, 35px); bottom: clamp(115px, 10.4cqw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
+    .persona-panel h2, .launcher-panel h2, .panel-head strong { font-size: clamp(13px, 1.05cqw, 21px); } .persona-panel p, .launcher-panel > p, .panel-head span { font-size: clamp(10px, .8cqw, 16px); }
+    .persona-card { grid-template-columns: clamp(55px, 4.7cqw, 90px) 1fr auto; gap: clamp(10px, .9cqw, 18px); padding: clamp(8px, .8cqw, 15px); } .persona-card img { width: clamp(55px, 4.7cqw, 90px); height: clamp(55px, 4.7cqw, 90px); } .persona-card strong { font-size: clamp(11px, .95cqw, 18px); } .persona-card span { font-size: clamp(9px, .75cqw, 15px); }
+    .launcher-grid { gap: clamp(8px, .7cqw, 14px); } .launcher-grid button { min-height: clamp(55px, 5cqw, 96px); padding: clamp(9px, .8cqw, 16px); font-size: clamp(10px, .85cqw, 16px); }
+    .quick-note label, .setting label, .toggle-row { font-size: clamp(9px, .75cqw, 15px); } .quick-note input { height: clamp(40px, 3.6cqw, 68px); font-size: clamp(11px, .9cqw, 17px); } .quick-note button { font-size: clamp(10px, .8cqw, 15px); }
+    .mode-intro { max-width: min(520px, 46cqw); padding: clamp(20px, 1.8cqw, 34px); background: rgba(5,10,13,.3); border-color: var(--panel-line); } .mode-intro .eyebrow { font-size: clamp(10px, .8cqw, 15px); } .mode-intro h1 { font-size: clamp(29px, 2.5cqw, 48px); } .mode-intro p { font-size: clamp(13px, 1cqw, 19px); }
+    .studio-tray { width: min(520px, 47cqw); padding: clamp(18px, 1.7cqw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1cqw, 19px); } .tray-head span { font-size: clamp(10px, .8cqw, 15px); } .effect-grid { gap: clamp(8px, .7cqw, 14px); } .effect-chip { min-height: clamp(58px, 5cqw, 96px); padding: clamp(9px, .8cqw, 16px); font-size: clamp(10px, .85cqw, 16px); } .tryon-note { font-size: clamp(10px, .8cqw, 15px); }
+    .watch-card { width: min(980px, 86cqw); padding: clamp(24px, 2.1cqw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4cqw, 76px); font-size: clamp(12px, 1cqw, 19px); } #watch-load { font-size: clamp(11px, .9cqw, 17px); padding: 0 clamp(16px, 1.4cqw, 28px); } .service-launcher button { min-height: clamp(34px, 3cqw, 55px); font-size: clamp(10px, .8cqw, 15px); } .watch-hint { font-size: clamp(10px, .75cqw, 15px); }
     @media (max-width: 720px) { .topbar { top: 26px; } .clock-time { font-size: 56px; } .mode-btn { min-height: 35px; } .persona-toggle { left: 22px; } .launcher-toggle { left: 76px; } .settings-toggle { right: 22px; } .mirror-lower { bottom: 120px; } }
+    .memoji-face-host { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; overflow: visible; }
+    /* Separate microphone and setup controls on the physical mirror. */
+    .bottom-dock { right: clamp(108px, 11cqw, 220px); }
+    /* The glass needs calm, dark negative space and legible tracking cues. */
+    #app-shell { background: #000; container-type: inline-size; }
+    #app-shell[data-depth="cube"][data-mode="mirror"] #dashboard-container { opacity: 1; }
+    .mirror-center { display: none; }
+    .clock-period { display: inline-block; font-size: .32em; font-weight: 600; letter-spacing: 0; margin-left: .2em; }
+    .mode-btn { white-space: nowrap; }
+    .noise, .scanline, .vignette, .mirror-frame { display: none; }
+    .clock-time { text-shadow: none; }
+    .mode-switch, .glass-widget, .oracle-card, .bottom-dock { background: #000; box-shadow: none; backdrop-filter: none; }
+    #camera-feed { filter: none; }
+    #app-shell[data-mode="ar"] #scene-canvas, #app-shell[data-mode="ar"] #avatar-engine { display: none !important; }
+    .gesture-toast { top: auto; bottom: clamp(128px,12cqw,230px); font-size: clamp(11px,1cqw,18px); max-width: 80%; text-align: center; }
+    #app-shell[data-mode="ar"] .vignette { opacity: .2; }
+    .tracking-health { position: absolute; z-index: 14; top: clamp(96px, 8.7cqw, 170px); left: 50%; transform: translateX(-50%); max-width: 88%; text-align: center; color: rgba(196,222,212,.8); font: 500 clamp(10px,.85cqw,16px)/1.4 Manrope,sans-serif; }
+    .tracking-health.error { color: #ffb5aa; }
+    .effect-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; min-height: 96px; }
+    .effect-chip svg { width: clamp(30px,3cqw,52px); height: clamp(30px,3cqw,52px); fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .effect-chip.held { opacity: .45; border-color: #fff1a8; }
+    #studio-panel .mode-intro { max-width: 360px; padding: 12px 16px; }
+    #studio-panel .mode-intro h1 { font-size: clamp(20px,2cqw,30px); }
+    #studio-panel .mode-intro p { font-size: clamp(12px,1cqw,17px); }
+    #studio-panel .studio-tray { width: min(470px,48cqw); max-height: 62vh; overflow-y: auto; }
+    #studio-panel .tryon-note { display: none; }
+    .wardrobe-details { margin-top: 16px; color: var(--muted); font-size: 13px; }
+    .wardrobe-details summary { cursor: pointer; }
+    .effect-drag-label { display: none; position: absolute; z-index: 30; padding: 8px 14px; border-radius: 20px; background: rgba(3,13,10,.9); color: #d4ffe5; font: 600 13px Manrope,sans-serif; transform: translate(-50%,38px); pointer-events: none; white-space: nowrap; }
+    .effect-drag-label.visible { display: block; }
+    .sleep-btn { border: 1px solid rgba(211,232,244,.3); border-radius: 22px; background: rgba(14,26,32,.8); color: #dce9ef; min-height: 42px; padding: 0 16px; font: 700 11px Manrope,sans-serif; cursor: pointer; }
+    .bottom-dock { grid-template-columns: auto auto auto; }
+    .sleep-overlay { display: none; position: absolute; inset: 0; z-index: 100; background: #000; align-items: flex-end; justify-content: center; padding-bottom: 8vh; }
+    .sleep-overlay p { color: rgba(220,235,227,.3); font: 500 clamp(12px,1cqw,18px) Manrope,sans-serif; text-align: center; }
+    #app-shell[data-sleeping="true"] { background: #000; }
+    #app-shell[data-sleeping="true"] > :not(.sleep-overlay) { visibility: hidden !important; pointer-events: none !important; }
+    #app-shell[data-sleeping="true"] .sleep-overlay { display: flex; }
+    @container (max-width: 640px) {
+      .topbar { justify-content: center; }
+      .brand, .system-state { display: none; }
+      .mode-switch { gap: 2px; }
+      .mode-btn { padding-left: 9px; padding-right: 9px; }
+      .dimension-switch button { min-width: 42px; }
+      .bottom-dock { left: 50%; right: auto; transform: translateX(-50%); }
+      #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(-50% + var(--viewer-x) * -1.08), calc(var(--viewer-y) * -.88), 142px); }
+      .tracking-health { max-width: 84%; }
+      .clock-time { font-size: clamp(46px,10cqw,70px); letter-spacing: -3px; }
+      .weather-icon, .mirror-weather strong { font-size: 32px; }
+    }
   </style>
 </head>
 <body>
@@ -351,9 +406,12 @@
     <video id="camera-feed" autoplay muted playsinline></video>
     <canvas id="ar-canvas"></canvas>
     <canvas id="scene-canvas"></canvas>
+    <canvas id="hand-overlay" aria-hidden="true"></canvas>
     <div class="noise"></div><div class="scanline"></div><div class="vignette"></div><div class="mirror-frame"></div>
 
     <div id="avatar-engine" aria-hidden="true"></div>
+    <div class="sleep-overlay"><p id="sleep-hint">Say “mirror mirror” to wake</p></div>
+    <div class="effect-drag-label" id="effect-drag-label" aria-live="polite"></div>
     <div class="loader" id="loader"><div class="loader-ring"></div><p id="loader-text">AWAKENING THE MIRROR</p></div>
 
     <section class="ui-layer">
@@ -369,6 +427,7 @@
       </header>
 
       <div id="dashboard-container"></div>
+      <div class="tracking-health" id="tracking-health" role="status">Connecting camera…</div>
 
       <section class="experience-panel" id="studio-panel" aria-label="Try-on studio">
         <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Face effects are ready now. The wardrobe surface is reserved for your virtual-try-on provider, so generated looks never become part of the core mirror UI.</p></div>
@@ -386,6 +445,7 @@
         <div class="oracle-eyebrow" id="oracle-eyebrow">The mirror answers</div>
         <p id="oracle-text"></p>
         <div id="oracle-user"></div>
+        <div class="live-caption" id="live-caption" aria-live="polite" aria-atomic="true"></div>
       </div>
 
       <button class="persona-toggle" id="persona-toggle" type="button" title="Choose mirror host" aria-label="Choose mirror host"><img id="persona-toggle-image" src="assets/personas/evil-queen-head-v3.png" alt=""></button>
@@ -404,6 +464,8 @@
 
       <div class="bottom-dock" id="prompt-form">
         <button class="round-btn" id="mic-btn" type="button" title="Start voice conversation" aria-label="Start voice conversation">◉</button>
+        <button class="stop-btn" id="hard-stop-btn" type="button" title="Immediately stop speaking and turn off all microphone listening" aria-label="Stop voice and mute microphone">STOP</button>
+        <button class="sleep-btn" id="sleep-btn" type="button" title="Sleep until you say mirror mirror" aria-label="Sleep mirror">SLEEP</button>
       </div>
       <div class="wake-status" id="wake-status">Say “mirror mirror”</div>
 
@@ -411,6 +473,7 @@
       <aside class="settings-panel" id="settings-panel">
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
+        <div class="setting"><label for="avatar-style"><span>Character appearance</span></label><select id="avatar-style"><option value="portrait">Portrait head</option><option value="memoji">Animated Memoji-style head (2D)</option></select></div>
         <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
         <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>
@@ -418,13 +481,13 @@
         <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
         <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
         <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
-        <label class="toggle-row" for="gesture-toggle"><span>Hands-free navigation</span><input id="gesture-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="gesture-toggle"><span>Hand pointer · point and pinch to select</span><input id="gesture-toggle" type="checkbox" checked></label>
         <label class="toggle-row" for="face-puppet-toggle"><span>Animate host from your face</span><input id="face-puppet-toggle" type="checkbox"></label>
         <label class="toggle-row" for="vision-toggle"><span>Share camera with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
         <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
         <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
         <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
-        <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
+        <div class="panel-actions"><button id="calibrate-depth" type="button">Re-center camera</button><button type="button" disabled>Stand in your usual spot first</button></div>
         <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button type="button" disabled>Press D to toggle</button></div>
         <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
         <p class="config-note" id="config-note">The mirror works offline. Add a Gemini key to <b>.env</b> to unlock live conversation.</p>

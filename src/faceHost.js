@@ -84,7 +84,9 @@ export class FaceHost {
   resize() {
     // The source art is ~1.2K; retain it for close viewing on the TV while
     // keeping the host canvas bounded on high-density desktop previews.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Render the portrait at higher backing resolution on 1080p signage too;
+    // the source art has enough detail to benefit even when display DPR is 1.
+    const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 3);
     const width = Math.max(1, this.host.clientWidth);
     const height = Math.max(1, this.host.clientHeight);
     this.canvas.width = Math.round(width * dpr);
@@ -96,17 +98,23 @@ export class FaceHost {
     this.height = height;
   }
 
-  update(elapsed) { this.draw(elapsed); }
+  update(elapsed, dt = 1 / 60) { this.draw(elapsed, dt); }
 
-  draw(elapsed) {
+  draw(elapsed, dt = 1 / 60) {
     const { ctx, width: w, height: h } = this;
     if (!ctx || !w || !h) return;
     ctx.clearRect(0, 0, w, h);
     if (!this.ready) return;
-    const base = Math.min(w, h) * 1.03;
+    const spec = HEADS[this.persona];
+    // Fit using the source image's real aspect ratio. Treat `base` as height
+    // so the face and all feature coordinates stay aligned to the artwork.
+    const aspect = this.image.naturalWidth / this.image.naturalHeight;
+    const base = Math.min(h, w / aspect) * .98;
+    const faceWidth = base * aspect;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.
-    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * .13;
+    const motionAlpha = 1 - Math.exp(-Math.max(0, dt) * 8);
+    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * motionAlpha;
     const bob = this.performanceSmooth.nod * h * .032;
     const gazeX = (this.gaze.x || 0) * (this.gaze.confidence || 0) * w * .006;
     const gazeY = (this.gaze.y || 0) * (this.gaze.confidence || 0) * h * .004;
@@ -117,102 +125,102 @@ export class FaceHost {
     // without exposing a body or turning it into a flat sliding sticker.
     ctx.rotate((this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13);
     const jaw = Math.max(this.blendshapes.jawOpen || 0, this.speech);
-    const targetAA = this.viseme === 'AA' || (this.viseme === 'rest' && jaw > .12) ? 1 : 0;
-    const targetO = this.viseme === 'O' ? 1 : 0;
+    const energy = Math.min(1, Math.max(0, jaw) * 1.6);
+    const targetO = ['O', 'OU'].includes(this.viseme) ? energy : 0;
+    const targetAA = targetO === 0 && jaw > .04 ? energy : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
-    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * .2;
-    this.poseBlend.O += (targetO - this.poseBlend.O) * .2;
+    const mouthAlpha = 1 - Math.exp(-Math.max(0, dt) * 20);
+    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * mouthAlpha;
+    this.poseBlend.O += (targetO - this.poseBlend.O) * mouthAlpha;
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));
     const rounded = Math.max(0, Math.min(1 - aa, this.poseBlend.O));
     // Do not squeeze the face to fake a turn. Width distortion is more
     // distracting than a stable front-on pose; real turns belong to the GLB.
-    ctx.drawImage(this.image, -base / 2, -base / 2, base, base);
+    ctx.drawImage(this.image, -faceWidth / 2, -base / 2, faceWidth, base);
     // Only the mouth region crossfades. Blending entire head renders changes
     // cheeks, eyes and hair simultaneously, which reads as a melting face.
-    const spec = HEADS[this.persona];
     const mouthY = base * (spec.mouthY ?? .323);
     if ((this.speakingReady && aa > .015) || (this.roundedReady && rounded > .015)) {
       ctx.save();
       ctx.beginPath();
-      ctx.ellipse(0, mouthY, base * .16, base * .082, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, mouthY, faceWidth * .16, base * .082, 0, 0, Math.PI * 2);
       ctx.clip();
       if (this.speakingReady && aa > .015) {
         ctx.globalAlpha = aa;
-        ctx.drawImage(this.speakingImage, -base / 2, -base / 2, base, base);
+        ctx.drawImage(this.speakingImage, -faceWidth / 2, -base / 2, faceWidth, base);
       }
       if (this.roundedReady && rounded > .015) {
         ctx.globalAlpha = rounded;
-        ctx.drawImage(this.roundedImage, -base / 2, -base / 2, base, base);
+        ctx.drawImage(this.roundedImage, -faceWidth / 2, -base / 2, faceWidth, base);
       }
       ctx.restore();
     }
-    ctx.restore();
-
+    // Feature overlays use the same transformed coordinate system as the head.
     // Face proportions are held across the three deliberately front-on head
     // assets. The overlays sit inside existing features, so resting frames
     // retain the full-resolution art rather than a drawn approximation.
-    const cx = w * .5 + gazeX;
-    const cy = h * .5 + bob + gazeY;
-    // Blinks come from the camera puppet. Avoid a timer-driven full eyelid
-    // overlay: it can freeze an otherwise beautiful still frame mid-blink.
+    const cx = 0;
+    const cy = 0;
+    // The expression bus supplies brief automatic or tracked blinks.
     const lid = Math.max(this.blendshapes.eyeBlinkLeft || 0, this.blendshapes.eyeBlinkRight || 0);
-    if (lid > .08) this.drawLids(ctx, cx, cy, base, lid);
-    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) this.drawMouth(ctx, cx, cy, base, jaw);
+    if (lid > .08) this.drawLids(ctx, cx, cy, faceWidth, base, lid);
+    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) this.drawMouth(ctx, cx, cy, faceWidth, base, jaw);
     // The generated hosts already contain sculpted brows. Drawing a second
     // eyebrow layer on top produces a visible double-brow artifact; reserve
     // the procedural fallback for the unstyled reference host only.
-    if (this.persona === 'rowan') this.drawBrows(ctx, cx, cy, base);
+    if (this.persona === 'rowan') this.drawBrows(ctx, cx, cy, faceWidth, base);
+    ctx.restore();
   }
 
-  drawLids(ctx, cx, cy, size, amount) {
+  drawLids(ctx, cx, cy, width, height, amount) {
     const spec = HEADS[this.persona];
-    const y = cy + size * (spec.eyeY ?? .06);
-    const height = size * .040 * Math.min(1, amount);
-    const halfWidth = size * .082;
+    const y = cy + height * (spec.eyeY ?? .06);
+    const lidHeight = height * .040 * Math.min(1, amount);
+    const halfWidth = width * .082;
     ctx.save();
     ctx.fillStyle = spec.lid;
     ctx.globalAlpha = Math.min(.96, amount * 1.08);
-    for (const x of [cx - size * (spec.eyeX ?? .135), cx + size * (spec.eyeX ?? .135)]) {
+    for (const x of [cx - width * (spec.eyeX ?? .135), cx + width * (spec.eyeX ?? .135)]) {
       ctx.beginPath();
       // Match the eye's almond footprint; a small skin-colored ellipse located
       // at the actual landmarks reads as a closing lid rather than a sticker.
-      ctx.ellipse(x, y, halfWidth, height, 0, 0, Math.PI * 2);
+      ctx.ellipse(x, y, halfWidth, lidHeight, 0, 0, Math.PI * 2);
       ctx.fill();
       if (amount > .55) {
         ctx.globalAlpha = (amount - .55) * .7;
-        ctx.strokeStyle = '#36232a'; ctx.lineWidth = Math.max(1, size * .006); ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x - halfWidth * .72, y); ctx.quadraticCurveTo(x, y + size * .009, x + halfWidth * .72, y); ctx.stroke();
+        ctx.strokeStyle = '#36232a'; ctx.lineWidth = Math.max(1, height * .006); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x - halfWidth * .72, y); ctx.quadraticCurveTo(x, y + height * .009, x + halfWidth * .72, y); ctx.stroke();
         ctx.globalAlpha = Math.min(.96, amount * 1.08);
       }
     }
     ctx.restore();
   }
 
-  drawMouth(ctx, cx, cy, size, amount) {
+  drawMouth(ctx, cx, cy, width, height, amount) {
     const spec = HEADS[this.persona];
     const round = Math.max(this.blendshapes.mouthFunnel || 0, this.blendshapes.mouthPucker || 0);
     const smile = Math.max(this.blendshapes.mouthSmileLeft || 0, this.blendshapes.mouthSmileRight || 0);
     // Keep the cavity comfortably inside the painted lips. A large dark oval
     // reads as a sticker on a clean emoji face; short, narrow openings preserve
     // the designed lip silhouette while still communicating speech.
-    const openness = size * (.003 + amount * .018);
-    const y = cy + size * (spec.mouthY ?? .323);
+    const openness = height * (.003 + amount * .018);
+    const y = cy + height * (spec.mouthY ?? .323);
     ctx.save();
     ctx.fillStyle = spec.mouth;
     ctx.beginPath();
-    ctx.ellipse(cx, y, size * (round > .25 ? .026 : .038 + amount * .003), openness, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, y, width * (round > .25 ? .026 : .038 + amount * .003), openness, 0, 0, Math.PI * 2);
     ctx.fill();
     if (amount > .38) {
       ctx.fillStyle = 'rgba(255,191,191,.72)';
       ctx.beginPath();
-      ctx.ellipse(cx, y + openness * .35, size * .028, openness * .18, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, y + openness * .35, width * .028, openness * .18, 0, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
   }
 
-  drawBrows(ctx, cx, cy, size) {
+  drawBrows(ctx, cx, cy, width, height) {
     const left = this.blendshapes.browInnerUp || 0;
     const right = this.blendshapes.browOuterUpRight || 0;
     const lift = Math.max(left, right);
@@ -220,13 +228,13 @@ export class FaceHost {
     ctx.save();
     ctx.globalAlpha = Math.min(.28, lift * .3);
     ctx.strokeStyle = this.persona === 'rowan' ? '#25150f' : '#2a1622';
-    ctx.lineWidth = Math.max(1.5, size * .009);
+    ctx.lineWidth = Math.max(1.5, height * .009);
     ctx.lineCap = 'round';
-    const y = cy + size * .012 - lift * size * .028;
+    const y = cy + height * .012 - lift * height * .028;
     for (const direction of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(cx + direction * size * .055, y + size * .014);
-      ctx.quadraticCurveTo(cx + direction * size * .14, y - size * .026, cx + direction * size * .205, y + size * .006);
+      ctx.moveTo(cx + direction * width * .055, y + height * .014);
+      ctx.quadraticCurveTo(cx + direction * width * .14, y - height * .026, cx + direction * width * .205, y + height * .006);
       ctx.stroke();
     }
     ctx.restore();

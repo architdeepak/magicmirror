@@ -10,6 +10,7 @@ const PERSONAS = Object.freeze({
 export class MemojiFaceHost {
   constructor(host) {
     this.host = host; this.persona = 'velora'; this.expression = {}; this.gaze = {}; this.speech = 0; this.viewer = {};
+    this.performance = {}; this.smooth = { x: 0, y: 0, turn: 0, nod: 0, lean: 0 };
     this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svg.classList.add('memoji-face-host'); this.svg.setAttribute('viewBox', '0 0 240 240'); this.svg.setAttribute('aria-hidden', 'true');
     host.appendChild(this.svg); this.setPersona(this.persona);
@@ -17,6 +18,7 @@ export class MemojiFaceHost {
 
   setPersona(persona) { this.persona = PERSONAS[persona] ? persona : 'velora'; this.render(); }
   setFace(blendshapes, gaze, speech, viewer) { this.expression = blendshapes || {}; this.gaze = gaze || {}; this.speech = speech || 0; this.viewer = viewer || {}; }
+  setPerformance(performance) { this.performance = performance || {}; }
 
   render() {
     const p = PERSONAS[this.persona];
@@ -47,23 +49,24 @@ export class MemojiFaceHost {
     };
   }
 
-  update(elapsed) {
+  update(elapsed, dt = 1 / 60) {
     if (!this.parts) return;
     const gazeX = clamp((this.gaze.x || 0) * (this.gaze.confidence || 0), -.8, .8);
     const gazeY = clamp((this.gaze.y || 0) * (this.gaze.confidence || 0), -.7, .7);
-    const yaw = (this.viewer.x || 0) * -1.8; const pitch = (this.viewer.y || 0) * .8; const bob = Math.sin(elapsed * 1.1) * .8;
-    this.parts.head.setAttribute('transform', `translate(${yaw} ${pitch + bob})`);
-    this.parts.pupils.forEach((pupil, index) => pupil.setAttribute('transform', `translate(${gazeX * 3.4} ${-gazeY * 2.4})`));
-    const automaticBlink = Math.pow(Math.max(0, Math.sin(elapsed * .64 + 1.4)), 48);
-    const leftBlink = Math.max(this.expression.eyeBlinkLeft || 0, automaticBlink);
-    const rightBlink = Math.max(this.expression.eyeBlinkRight || 0, automaticBlink);
+    const alpha = 1 - Math.exp(-Math.max(0, dt) * 10);
+    const targets = { x: gazeX, y: gazeY, turn: this.performance.turn || 0, nod: this.performance.nod || 0, lean: this.performance.lean || 0 };
+    for (const key of Object.keys(targets)) this.smooth[key] += (targets[key] - this.smooth[key]) * alpha;
+    this.parts.head.setAttribute('transform', `translate(${this.smooth.turn * 8} ${this.smooth.nod * 9}) rotate(${this.smooth.lean * 10} 120 124)`);
+    this.parts.pupils.forEach((pupil) => pupil.setAttribute('transform', `translate(${this.smooth.x * 5} ${this.smooth.y * 4})`));
+    const leftBlink = this.expression.eyeBlinkLeft || 0;
+    const rightBlink = this.expression.eyeBlinkRight || 0;
     this.parts.lids[0]?.setAttribute('height', String(34 * leftBlink)); this.parts.lids[1]?.setAttribute('height', String(34 * rightBlink));
     const brow = Math.max(this.expression.browInnerUp || 0, this.expression.browOuterUpLeft || 0, this.expression.browOuterUpRight || 0);
     this.parts.brows.forEach((node) => node?.setAttribute('transform', `translate(0 ${-brow * 9})`));
     const jaw = clamp(Math.max(this.speech, this.expression.jawOpen || 0), 0, 1);
     const round = Math.max(this.expression.mouthFunnel || 0, this.expression.mouthPucker || 0);
     this.parts.mouth.setAttribute('rx', String(round > .25 ? 7.5 : 15.5 + jaw * 1.5));
-    this.parts.mouth.setAttribute('ry', String(2.5 + jaw * 8));
+    this.parts.mouth.setAttribute('ry', String(.6 + jaw * 10));
     this.parts.mouthGroup.setAttribute('transform', `translate(0 ${jaw * 2.5})`);
   }
 }

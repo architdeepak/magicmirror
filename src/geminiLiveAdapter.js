@@ -18,7 +18,7 @@ const HOST_VOICES = {
 const HOST_VOICE_PRESETS = Object.freeze({ velora: 'Gacrux', solenne: 'Aoede', rowan: 'Charon' });
 
 export class GeminiLiveAdapter {
-  constructor({ avatar, config, onState, onTranscript, onError, onRemember, onTurnComplete, onModeChange, onArEffect }) {
+  constructor({ avatar, config, onState, onTranscript, onError, onRemember, onTurnComplete, onModeChange, onArEffect, onMedia }) {
     this.avatar = avatar;
     this.config = config;
     this.onState = onState || (() => {});
@@ -28,6 +28,7 @@ export class GeminiLiveAdapter {
     this.onTurnComplete = onTurnComplete || (() => {});
     this.onModeChange = onModeChange || (async () => {});
     this.onArEffect = onArEffect || (async () => {});
+    this.onMedia = onMedia || (async () => ({ error: 'Media is unavailable' }));
     this.ws = null;
     this.connected = false;
     this.listening = false;
@@ -36,15 +37,23 @@ export class GeminiLiveAdapter {
     this.processor = null;
     this.outputContext = null;
     this.outputCursor = 0;
+    this.outputSources = new Set();
     this.setupResolve = null;
     this.setupReject = null;
+    this.connectReject = null;
     this.intentionalDisconnect = false;
+    this.connectGeneration = 0;
     this.videoSource = null;
     this.videoCanvas = document.createElement('canvas');
     this.videoTimer = null;
     this.visionEnabled = true;
     this.speakingPace = 'natural';
     this.persona = 'velora';
+    this.turnEnded = false;
+    this.avatar.onAudioPlaybackStart = () => this.onState('speaking');
+    this.avatar.onAudioPlaybackEnd = () => {
+      if (this.turnEnded) this._finishTurn();
+    };
   }
 
   get available() { return Boolean(this.config?.hasGeminiKey && window.mirrorBridge); }
@@ -59,20 +68,23 @@ export class GeminiLiveAdapter {
   async connect() {
     if (this.connected) return true;
     if (!this.available) throw new Error('Gemini is not configured. Add GEMINI_API_KEY to .env and restart.');
+    const generation = ++this.connectGeneration;
     this.intentionalDisconnect = false;
     this.onState('connecting');
 
     try {
       const { token } = await window.mirrorBridge.createGeminiToken();
+      if (generation !== this.connectGeneration) return false;
       const endpoint = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained';
       this.ws = new WebSocket(`${endpoint}?access_token=${encodeURIComponent(token)}`);
       await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('Gemini connection timed out')), 12000);
-        this.ws.onopen = () => { clearTimeout(timeout); resolve(); };
-        this.ws.onerror = () => { clearTimeout(timeout); reject(new Error('Gemini WebSocket could not connect')); };
+        const timeout = setTimeout(() => { this.connectReject = null; reject(new Error('Gemini connection timed out')); }, 12000);
+        this.connectReject = (error) => { clearTimeout(timeout); this.connectReject = null; reject(error); };
+        this.ws.onopen = () => { clearTimeout(timeout); this.connectReject = null; resolve(); };
+        this.ws.onerror = () => { clearTimeout(timeout); this.connectReject = null; reject(new Error('Gemini WebSocket could not connect')); };
       });
 
-      this.ws.onmessage = (event) => this._handleMessage(event.data);
+      this.ws.onmessage = (event) => { if (generation === this.connectGeneration) this._handleMessage(event.data); };
       this.ws.onclose = (event) => {
         const wasIntentional = this.intentionalDisconnect;
         this.setupReject?.(new Error(formatCloseError(event)));
@@ -94,12 +106,21 @@ export class GeminiLiveAdapter {
       });
       this._sendSetup();
       await setupReady;
+      if (generation !== this.connectGeneration) return false;
       this._clearSetupWaiters();
       this.connected = true;
       await this.avatar.startAudioStream();
+      if (generation !== this.connectGeneration || this.intentionalDisconnect) {
+        this.avatar.interrupt();
+        return false;
+      }
       this.onState('ready');
       return true;
     } catch (error) {
+      if (generation !== this.connectGeneration || this.intentionalDisconnect) {
+        this.ws?.close();
+        return false;
+      }
       this.intentionalDisconnect = true;
       this.ws?.close();
       this.connected = false;
@@ -127,7 +148,7 @@ export class GeminiLiveAdapter {
         },
         inputAudioTranscription: {},
         outputAudioTranscription: {},
-        systemInstruction: { parts: [{ text: `${PERSONA}\n\nCURRENT HOST:\n${HOST_VOICES[this.persona]}\n${pace}\n\nLOCAL USER MEMORY:\n${facts || '(No saved facts yet.)'}` }] },
+        systemInstruction: { parts: [{ text: `Execute the appropriate tool for display, try-on and media requests. Never claim an effect is visible or music is playing unless the tool result confirms it. If faceDetected is false, the effect is selected but waits for a camera face lock. Stop and sleep are handled locally; do not verbally acknowledge them.\n${PERSONA}\n\nCURRENT HOST:\n${HOST_VOICES[this.persona]}\n${pace}\n\nLOCAL USER MEMORY:\n${facts || '(No saved facts yet.)'}` }] },
         tools: [{
           functionDeclarations: [{
             name: 'remember_user_fact',
@@ -157,7 +178,7 @@ export class GeminiLiveAdapter {
         }, {
           functionDeclarations: [{
             name: 'set_ar_effect',
-            description: 'Apply or remove a camera-tracked AR face effect. Call this whenever the user asks to wear, try, add, show, change, or remove a visual filter. Applying an effect automatically opens AR mode. Use none to remove AR and return to the ordinary mirror.',
+            description: 'Select or remove a camera-tracked AR face effect and open Try On. Call this for visual filter requests. Rendered effects need a detected face; report the returned faceDetected state accurately. Use none to remove the effect.',
             parameters: {
               type: 'OBJECT',
               properties: {
@@ -171,13 +192,17 @@ export class GeminiLiveAdapter {
               required: ['effect']
             }
           }]
-        }]
+        }, { functionDeclarations: [{
+          name: 'open_mirror_media',
+          description: 'Open Spotify, YouTube or Netflix on the mirror Watch screen. For play my liked songs use spotify, target liked and play true. Playback may require sign-in; only say playing when playbackStarted is true.',
+          parameters: { type: 'OBJECT', properties: { service: { type: 'STRING', enum: ['spotify', 'youtube', 'netflix'] }, target: { type: 'STRING', enum: ['home', 'liked'] }, play: { type: 'BOOLEAN' } }, required: ['service'] }
+        }] }]
       }
     });
   }
 
   async askText(text) {
-    if (!this.connected) await this.connect();
+    if (!this.connected && !(await this.connect())) return false;
     this.avatar.interrupt();
     this.onState('thinking');
     await this._sendVideoFrame();
@@ -189,18 +214,29 @@ export class GeminiLiveAdapter {
       this.stopMicrophone();
       return false;
     }
-    if (!this.connected) await this.connect();
-    await this.startMicrophone();
-    return true;
+    if (!this.connected && !(await this.connect())) return false;
+    return this.startMicrophone();
   }
 
   async startMicrophone() {
-    this.micStream = await navigator.mediaDevices.getUserMedia({
+    const generation = this.connectGeneration;
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       video: false
     });
+    if (generation !== this.connectGeneration || !this.connected) {
+      stream.getTracks().forEach((track) => track.stop());
+      return false;
+    }
+    this.micStream = stream;
     this.inputContext = new AudioContext({ latencyHint: 'interactive' });
-    await this.inputContext.resume();
+    const inputContext = this.inputContext;
+    await inputContext.resume();
+    if (generation !== this.connectGeneration || !this.connected) {
+      stream.getTracks().forEach((track) => track.stop());
+      inputContext.close().catch(() => {});
+      return false;
+    }
     const source = this.inputContext.createMediaStreamSource(this.micStream);
     this.processor = this.inputContext.createScriptProcessor(4096, 1, 1);
     const silent = this.inputContext.createGain();
@@ -222,6 +258,7 @@ export class GeminiLiveAdapter {
     this._startVideoStream();
     this.avatar.interrupt();
     this.onState('listening');
+    return true;
   }
 
   stopMicrophone() {
@@ -240,8 +277,10 @@ export class GeminiLiveAdapter {
   }
 
   async _handleMessage(raw) {
+    const generation = this.connectGeneration;
     try {
       const text = typeof raw === 'string' ? raw : await raw.text();
+      if (generation !== this.connectGeneration) return;
       const message = JSON.parse(text);
       if (message.setupComplete) {
         this.setupResolve?.();
@@ -250,11 +289,15 @@ export class GeminiLiveAdapter {
 
       const content = message.serverContent;
       if (content?.inputTranscription?.text) this.onTranscript('user', content.inputTranscription.text);
+      if (generation !== this.connectGeneration) return;
       if (content?.outputTranscription?.text) this.onTranscript('assistant', content.outputTranscription.text);
+      if (generation !== this.connectGeneration) return;
 
       for (const part of content?.modelTurn?.parts || []) {
+        if (generation !== this.connectGeneration) return;
         if (part.inlineData?.mimeType?.startsWith('audio/pcm')) {
           const pcm = base64ToInt16(part.inlineData.data);
+          this.turnEnded = false;
           const level = rmsLevel(pcm);
           this.avatar.setSpeechLevel(level);
           this.avatar.setViseme(audioViseme(pcm, level));
@@ -270,11 +313,17 @@ export class GeminiLiveAdapter {
         }
       }
 
-      if (content?.interrupted) this.avatar.interrupt();
-      if (content?.turnComplete) {
-        this.avatar.endAudioTurn();
+      if (generation !== this.connectGeneration) return;
+      if (content?.interrupted) {
+        this.turnEnded = false;
+        this._stopFallbackAudio();
+        this.avatar.interrupt();
         this.onState(this.listening ? 'listening' : 'ready');
-        this.onTurnComplete();
+      }
+      if (content?.turnComplete) {
+        this.turnEnded = true;
+        this.avatar.endAudioTurn();
+        if (!this.avatar.audioPending) this._finishTurn();
       }
       if (message.toolCall) await this._handleToolCall(message.toolCall);
     } catch (error) {
@@ -282,14 +331,35 @@ export class GeminiLiveAdapter {
     }
   }
 
+  _finishTurn() {
+    this.turnEnded = false;
+    this.onState(this.listening ? 'listening' : 'ready');
+    this.onTurnComplete();
+  }
+
   _playFallbackPcm(samples, sampleRate) {
     if (!this.outputContext) this.outputContext = new AudioContext({ sampleRate });
+    if (!this.avatar.outputAnalyser) {
+      this.avatar.outputAnalyser = this.outputContext.createAnalyser();
+      this.avatar.outputAnalyser.connect(this.outputContext.destination);
+    }
     const buffer = this.outputContext.createBuffer(1, samples.length, sampleRate);
     const channel = buffer.getChannelData(0);
     for (let i = 0; i < samples.length; i += 1) channel[i] = samples[i] / 32768;
     const source = this.outputContext.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.outputContext.destination);
+    source.connect(this.avatar.outputAnalyser);
+    this.outputSources.add(source);
+    this.avatar.audioPending = true;
+    source.onended = () => {
+      source.disconnect();
+      this.outputSources.delete(source);
+      if (!this.outputSources.size) {
+        this.avatar.audioPending = false;
+        this.avatar.resetSpeech();
+        if (this.turnEnded) this._finishTurn();
+      }
+    };
     const now = this.outputContext.currentTime;
     this.outputCursor = Math.max(now + 0.035, this.outputCursor);
     source.start(this.outputCursor);
@@ -298,10 +368,33 @@ export class GeminiLiveAdapter {
 
   disconnect() {
     this.intentionalDisconnect = true;
+    this.connectGeneration += 1;
+    this.connectReject?.(new Error('Voice connection stopped.'));
+    this.setupReject?.(new Error('Voice connection stopped.'));
+    this._clearSetupWaiters();
+    this.turnEnded = false;
+    this._stopFallbackAudio();
+    this.avatar.interrupt();
     this.stopMicrophone();
-    this.ws?.close();
+    if (this.ws) {
+      this.ws.onopen = null;
+      this.ws.onmessage = null;
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.close();
+    }
     this.ws = null;
     this.connected = false;
+  }
+
+  _stopFallbackAudio() {
+    for (const source of this.outputSources) {
+      source.onended = null;
+      try { source.stop(); } catch { /* already ended */ }
+      source.disconnect();
+    }
+    this.outputSources.clear();
+    this.outputCursor = 0;
   }
 
   _send(payload) {
@@ -354,21 +447,28 @@ export class GeminiLiveAdapter {
 
   async _handleToolCall(toolCall) {
     const functionResponses = [];
+    const generation = this.connectGeneration;
     for (const call of toolCall.functionCalls || []) {
+      if (generation !== this.connectGeneration) return;
       try {
         if (call.name === 'remember_user_fact') {
           const memory = await this.onRemember(call.args || {});
           this.config.memory = memory;
           functionResponses.push({ name: call.name, id: call.id, response: { result: 'saved locally' } });
         } else if (call.name === 'set_display_mode') {
-          const mode = ['mirror', 'portal', 'ar'].includes(call.args?.mode) ? call.args.mode : 'mirror';
-          await this.onModeChange(mode);
-          functionResponses.push({ name: call.name, id: call.id, response: { result: `display mode set to ${mode}` } });
+          const mode = call.args?.mode;
+          if (!['mirror', 'portal', 'ar', 'watch'].includes(mode)) throw new Error('Unknown display mode');
+          const result = await this.onModeChange(mode);
+          functionResponses.push({ name: call.name, id: call.id, response: result || { mode } });
         } else if (call.name === 'set_ar_effect') {
-          const effects = ['crown', 'runes', 'aura', 'glasses', 'mask', 'cat', 'halo', 'emoji', 'scan', 'none'];
-          const effect = effects.includes(call.args?.effect) ? call.args.effect : 'crown';
-          await this.onArEffect(effect);
-          functionResponses.push({ name: call.name, id: call.id, response: { result: effect === 'none' ? 'AR effect removed' : `${effect} AR effect applied` } });
+          const effects = ['enchanted', 'crown', 'runes', 'aura', 'glasses', 'mask', 'cat', 'halo', 'emoji', 'scan', 'none'];
+          const effect = call.args?.effect;
+          if (!effects.includes(effect)) throw new Error('Unknown AR effect');
+          const result = await this.onArEffect(effect);
+          functionResponses.push({ name: call.name, id: call.id, response: result || { effect, selected: true } });
+        } else if (call.name === 'open_mirror_media') {
+          const result = await this.onMedia(call.args || {});
+          functionResponses.push({ name: call.name, id: call.id, response: result });
         } else {
           throw new Error(`Unknown tool: ${call.name}`);
         }
@@ -376,6 +476,7 @@ export class GeminiLiveAdapter {
         functionResponses.push({ name: call.name, id: call.id, response: { error: error.message } });
       }
     }
+    if (generation !== this.connectGeneration) return;
     if (functionResponses.length) this._send({ toolResponse: { functionResponses } });
   }
 

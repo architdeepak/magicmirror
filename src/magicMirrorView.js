@@ -64,7 +64,16 @@ export class MagicMirrorView {
   _startClock() {
     const update = () => {
       const now = new Date();
-      this.container.querySelector('#clock-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const timeParts = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit' }).formatToParts(now);
+      const clock = this.container.querySelector('#clock-time');
+      clock.textContent = timeParts.filter(part => part.type !== 'dayPeriod').map(part => part.value).join('').trim();
+      const dayPeriod = timeParts.find(part => part.type === 'dayPeriod')?.value;
+      if (dayPeriod) {
+        const period = document.createElement('span');
+        period.className = 'clock-period';
+        period.textContent = dayPeriod;
+        clock.append(period);
+      }
       this.container.querySelector('#clock-date').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
       const hour = now.getHours();
       this.container.querySelector('#mirror-greeting').textContent = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';

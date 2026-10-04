@@ -127,18 +127,26 @@ MIRROR_KIOSK=false
 
 Do not commit `.env`; it is already ignored by Git. Live API availability, quotas, preview model names, and billing are controlled by Google. Demo mode remains available when no key is present.
 
-On first run, Vosk downloads a small English speech model. When the status changes to **Say “mirror mirror”**, local wake-word recognition is armed. The round microphone button remains available as a manual trigger.
+On first run, Vosk downloads a small English speech model. When the status changes to **Say “mirror mirror”**, local wake-word recognition is armed. The microphone button starts a manual voice session. The red STOP button immediately interrupts speech and disables all microphone listening, including the wake word, until you start it again.
 
 ## Controls
 
-- Press the round microphone button for live Gemini conversation. With no key, it uses browser speech recognition when available.
+- **SLEEP** blacks out the mirror, stops camera/hand processing and assistant audio, and keeps only local wake detection active. Say **mirror mirror** to wake it; gestures, pointer movement and keyboard shortcuts do not wake it.
+- **STOP** (or Escape) immediately mutes assistant and wake microphone listening. Press the mic for a new voice session, or re-enable the wake-word setting.
+- In **Try on**, point at the glasses or mask icon, pinch and hold, move it onto your face, then release to wear it. Dropping away from your face cancels the action. The screen cursor follows the mirrored camera image.
+- The camera status near the top distinguishes face lock, hand lock and missing tracking. Frame your face in the camera, then use **Re-center camera** at your usual standing position. **3D** must be selected for the background to respond to head movement.
+
+- In Settings, **Character appearance → Animated Memoji-style head (2D)** enables the local layered character with animated pupils, brows, blinks, and speech. Portrait remains the default. Depth Cube uses the canvas portrait host.
+- Listening, thinking, and speaking now drive distinct character poses. Live mouth opening follows playback audio, and the host stays in its speaking state until queued audio ends. This is local animation; it does not use Meta's generated-avatar technology.
+
+- Press the microphone button for live Gemini conversation. With no key, it uses browser speech recognition when available. Press STOP to mute and immediately interrupt the assistant.
 - Or say **“mirror mirror”** to wake the assistant. The wake-word switch, vision sharing, speaking pace, and a curated set of voices are in settings.
 - Ask for an effect naturally: “give me arcane glasses,” “make me a cat,” “show a magical halo,” “scan my face,” or “remove the filter.” Gemini calls the local AR control tool and switches modes automatically.
-- Click the compact transcript (or its × button) to dismiss it.
+- The current user transcript appears in the response card and is limited to two lines. Click the card (or its close button) to dismiss it.
 - The assistant can save useful non-sensitive facts in `data/memory.json`; settings show the count and provide a confirmation-gated clear button.
 - Open the gear for camera, weather city, AR effect, tracking sensitivity, smoothing, and fullscreen.
 - Use the portrait button in the lower-left corner to choose a host. The AI persona changes on its next live connection.
-- With hands-free navigation on: hold an open palm to enter Converse, swipe to change modes, and pinch to cycle Try On effects. Gestures are processed on-device.
+- With the hand pointer on, point with your index finger to show the mirrored hand skeleton and move the screen cursor; pinch thumb and index over a visible control to select it. Hand tracking is processed on-device.
 - Enable **Animate host from your face** to test the webcam face-puppet path. It does not share camera frames with the assistant; the separate vision-sharing switch controls that.
 - Keyboard shortcuts remain available for testing: `1` Converse, `2` Ambient, `3` Try on, `4` Watch, `C` camera, `F` fullscreen.
 
@@ -148,7 +156,7 @@ On first run, Vosk downloads a small English speech model. When the status chang
 2. Attach the webcam near the top-center of the frame, pointed toward a viewer standing roughly 2–6 feet away.
 3. Use the TV speakers or a nearby speaker; keep the microphone separated enough to reduce echo.
 4. Run `npm run kiosk`, or set `MIRROR_KIOSK=true` in `.env` and start the app normally.
-5. In Settings, select **Top-center of portrait TV** under Camera mounting. Stand at the normal viewing spot, wait for **Face Lock**, hold still for two seconds, then press **Calibrate depth**. The mirror averages recent camera samples and saves alignment for that camera. Recalibrate after moving the webcam, TV, or usual standing position.
+5. In Settings, select **Top-center of portrait TV** under Camera mounting. Stand at the normal viewing spot, wait for **Face Lock**, hold still for two seconds, then press **Re-center camera**. This turns on 3D depth and saves alignment from recent camera samples. Recalibrate after moving the webcam, TV, or usual standing position.
 
 For automatic startup, add a Windows startup shortcut whose target is `npm run kiosk` and whose working directory is this project folder.
 

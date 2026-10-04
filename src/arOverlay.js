@@ -3,6 +3,7 @@ export class AROverlay {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.effect = 'enchanted';
+    this.faceTarget = null;
     this.resize();
   }
 
@@ -25,8 +26,63 @@ export class AROverlay {
     this.ctx.clearRect(0, 0, bounds?.width || window.innerWidth, bounds?.height || window.innerHeight);
   }
 
+  // The cursor is normalized to the entire shell so every tray control can
+  // be reached even on a portrait display. Face hit testing uses the same
+  // camera-to-cover projection as the actual AR, rather than a stretched
+  // camera image. Coordinates are shell-normalized, excluding letterboxing.
+  containsFacePoint(point) {
+    if (!this.faceTarget || !point) return false;
+    const { cx, cy, rx, ry, width, height } = this.faceTarget;
+    return ((point.x * width - cx) / rx) ** 2 + ((point.y * height - cy) / ry) ** 2 <= 1;
+  }
+
+  containsCameraFacePoint(point, video) {
+    if (!point || !video) return false;
+    const projected = project(point, video);
+    const bounds = video.closest('#app-shell')?.getBoundingClientRect();
+    return this.containsFacePoint({ x: projected.x / (bounds?.width || window.innerWidth), y: projected.y / (bounds?.height || window.innerHeight) });
+  }
+
+  renderDrag(effect, cursor, elapsed = 0, overFace = false) {
+    if (!cursor || !effect || effect === 'none') return;
+    const bounds = this.canvas.parentElement?.getBoundingClientRect();
+    const width = bounds?.width || window.innerWidth;
+    const height = bounds?.height || window.innerHeight;
+    const x = cursor.x * width;
+    const y = cursor.y * height;
+    const size = Math.max(80, Math.min(150, width * .15));
+    const leftEye = { x: x + size * .2, y };
+    const rightEye = { x: x - size * .2, y };
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = .9;
+    if (overFace && this.faceTarget) {
+      const target = this.faceTarget;
+      ctx.beginPath();
+      ctx.ellipse(target.cx, target.cy, target.rx, target.ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#c5ffe0';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 7]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (effect === 'glasses') this._glasses(leftEye, rightEye, size, 0, elapsed);
+    else if (effect === 'mask') this._mask(leftEye, rightEye, { x, y: y + size * .15 }, size, 0, elapsed);
+    else if (effect === 'crown') this._crown({ x, y: y + size * .15 }, size, size, elapsed);
+    else if (effect === 'halo') this._halo({ x, y: y + size * .25 }, size, size, 0, elapsed);
+    else {
+      ctx.beginPath();
+      ctx.arc(x, y, size * .32, 0, Math.PI * 2);
+      ctx.strokeStyle = '#c5ffe0';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   render(landmarks, video, elapsed, enabled) {
     this.clear();
+    this.faceTarget = null;
     if (!enabled || !landmarks || !video?.videoWidth) return;
     const point = (index) => project(landmarks[index], video);
     const left = point(234);
@@ -42,8 +98,14 @@ export class AROverlay {
     const faceHeight = Math.abs(chin.y - top.y);
     const centerX = (left.x + right.x) / 2;
     const centerY = (top.y + chin.y) / 2;
-    const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
+    // Mirroring reverses eye order. Sorting by screen X avoids rotating
+    // glasses/masks through 180 degrees on every upright face.
+    const eyeA = leftEye.x < rightEye.x ? leftEye : rightEye;
+    const eyeB = leftEye.x < rightEye.x ? rightEye : leftEye;
+    const roll = Math.atan2(eyeB.y - eyeA.y, eyeB.x - eyeA.x);
     const mouthOpen = Math.abs(mouthBottom.y - mouthTop.y) / Math.max(faceHeight, 1);
+    const bounds = video.closest('#app-shell')?.getBoundingClientRect();
+    this.faceTarget = { cx: centerX, cy: centerY, rx: Math.max(45, faceWidth * .75), ry: Math.max(60, faceHeight * .72), width: bounds?.width || window.innerWidth, height: bounds?.height || window.innerHeight };
 
     if (['crown', 'runes', 'aura', 'scan'].includes(this.effect)) this._faceContour(landmarks, video, elapsed);
     if (['crown', 'runes', 'aura'].includes(this.effect)) this._eyeGlow(leftEye, rightEye, faceWidth, elapsed);

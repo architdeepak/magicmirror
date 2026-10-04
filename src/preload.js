@@ -11,5 +11,10 @@ contextBridge.exposeInMainWorld('mirrorBridge', {
   importClosetGarment: (item) => ipcRenderer.invoke('mirror:import-closet-garment', item),
   queueTryOn: (request) => ipcRenderer.invoke('mirror:queue-tryon', request),
   toggleFullscreen: () => ipcRenderer.invoke('mirror:toggle-fullscreen'),
+  openMirrorMedia: (input) => ipcRenderer.invoke('mirror:open-media', input),
+  hideMirrorMedia: () => ipcRenderer.invoke('mirror:hide-media'),
+  resizeMirrorMedia: (bounds) => ipcRenderer.invoke('mirror:resize-media', bounds),
+  controlMirrorMedia: (input) => ipcRenderer.invoke('mirror:control-media', input),
+  mirrorMediaPointer: (input) => ipcRenderer.invoke('mirror:media-pointer', input),
   openService: (service) => ipcRenderer.invoke('mirror:open-service', service)
 });

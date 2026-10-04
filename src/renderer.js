@@ -7,7 +7,10 @@ import { GeminiLiveAdapter } from './geminiLiveAdapter.js';
 import { GestureNavigation } from './gestureNavigation.js';
 import { MagicMirrorView } from './magicMirrorView.js';
 import { SpeechEngine } from './speechEngine.js';
-import { WakeWordListener } from './wakeWord.js';
+import { WakeWordListener, parseMirrorCommand } from './wakeWord.js';
+import { parseMirrorAction, createMirrorActionDispatcher } from './mirrorActions.js';
+import { TrackingDebugOverlay } from './trackingDebug.js';
+import { SleepController } from './sleepController.js';
 import {
   applyOffAxisProjection,
   applyFlatProjection,
@@ -29,6 +32,7 @@ const elements = {
   canvas: document.querySelector('#scene-canvas'),
   video: document.querySelector('#camera-feed'),
   arCanvas: document.querySelector('#ar-canvas'),
+  handOverlay: document.querySelector('#hand-overlay'),
   avatarHost: document.querySelector('#avatar-engine'),
   loader: document.querySelector('#loader'),
   loaderText: document.querySelector('#loader-text'),
@@ -41,6 +45,10 @@ const elements = {
   oracleClose: document.querySelector('#oracle-close'),
   form: document.querySelector('#prompt-form'),
   mic: document.querySelector('#mic-btn'),
+  hardStop: document.querySelector('#hard-stop-btn'),
+  sleepButton: document.querySelector('#sleep-btn'),
+  sleepHint: document.querySelector('#sleep-hint'),
+  dragLabel: document.querySelector('#effect-drag-label'),
   settingsToggle: document.querySelector('#settings-toggle'),
   settings: document.querySelector('#settings-panel'),
   cameraSelect: document.querySelector('#camera-select'),
@@ -55,6 +63,7 @@ const elements = {
   facePuppetToggle: document.querySelector('#face-puppet-toggle'),
   visionToggle: document.querySelector('#vision-toggle'),
   wakeStatus: document.querySelector('#wake-status'),
+  liveCaption: document.querySelector('#live-caption'),
   visionNotice: document.querySelector('#vision-notice'),
   clearMemory: document.querySelector('#clear-memory'),
   memoryStatus: document.querySelector('#memory-status'),
@@ -73,6 +82,7 @@ const elements = {
   diagGaze: document.querySelector('#diag-gaze'),
   fullscreenToggle: document.querySelector('#fullscreen-toggle'),
   trackingBadge: document.querySelector('#tracking-badge'),
+  trackingHealth: document.querySelector('#tracking-health'),
   apiBadge: document.querySelector('#api-badge'),
   configNote: document.querySelector('#config-note'),
   dashboard: document.querySelector('#dashboard-container'),
@@ -101,6 +111,7 @@ const elements = {
   dimensionSwitch: document.querySelector('#dimension-switch')
 };
 
+configureEffectPalette();
 const config = await loadConfig();
 config.memory = await loadMemory();
 const savedVoice = localStorage.getItem('mirror.voice') || config.geminiVoice;
@@ -112,7 +123,9 @@ const facePuppetEnabled = localStorage.getItem('mirror.face-puppet') === 'true';
 const savedPersona = localStorage.getItem('mirror.persona') || 'velora';
 const savedGlassProfile = localStorage.getItem('mirror.glass-profile') || 'glass';
 const savedCameraMount = localStorage.getItem('mirror.camera-mount') || 'top';
-let depthEnabled = localStorage.getItem('mirror.depth-cube') === 'true';
+// Start with parallax on for existing installations too; the former default
+// stored `false`, which made the 3D control appear enabled in code but flat.
+let depthEnabled = localStorage.getItem('mirror.depth-cube-v2') !== 'false';
 config.geminiVoice = savedVoice;
 elements.citySelect.value = config.city;
 elements.cameraMount.value = savedCameraMount;
@@ -179,6 +192,13 @@ scene.add(emberLight);
 const depthScene = createDepthScene(scene);
 depthScene.setDepthEnabled(depthEnabled);
 const arOverlay = new AROverlay(elements.arCanvas);
+const handCtx = elements.handOverlay.getContext('2d');
+let handHoverTarget = null;
+let heldEffect = null;
+const heldEffects = new Map();
+const handPointers = new Map();
+const trackingDebug = new TrackingDebugOverlay(elements.shell, elements.video);
+resizeHandOverlay();
 const gestures = new GestureNavigation(elements.video, handleGesture);
 const dashboard = new MagicMirrorView(elements.dashboard, { city: config.city, units: config.units });
 const closet = new ClosetStore({
@@ -205,8 +225,17 @@ let state = 'starting';
 let assistantTranscript = '';
 let idleTimer = null;
 let diagnosticsTimer = 0;
+let liveCaptionTimer = null;
+let browserRecognition = null;
+let userTranscriptBuffer = '';
+let lastUserTranscriptAt = 0;
+let lastVoiceAction = '';
+let lastVoiceActionAt = 0;
 
 const speech = new SpeechEngine(avatar, { onState: setState });
+const avatarStyleSelect = document.querySelector('#avatar-style');
+avatarStyleSelect.value = avatar.visualStyle;
+avatarStyleSelect.addEventListener('change', () => avatar.setVisualStyle(avatarStyleSelect.value));
 const gemini = new GeminiLiveAdapter({
   avatar,
   config,
@@ -219,11 +248,13 @@ const gemini = new GeminiLiveAdapter({
     return memory;
   },
   onTurnComplete: () => {
+    userTranscriptBuffer = '';
     returnToRequestedMode();
-    if (!gemini.listening && elements.wakeToggle.checked) wake.resume();
+    if (!gemini.listening && elements.wakeToggle.checked) { wake.setCommandsOnly(false); wake.resume(); }
   },
-  onModeChange: async (nextMode) => setAssistantMode(nextMode),
-  onArEffect: async (effect) => setArEffect(effect)
+  onModeChange: async (nextMode) => dispatchAction({ type: 'mode', mode: nextMode }),
+  onArEffect: async (effect) => dispatchAction({ type: 'effect', effect }),
+  onMedia: async (action) => dispatchAction({ ...action, type: 'media' })
 });
 gemini.setVideoSource(elements.video);
 gemini.setPersona(savedPersona);
@@ -233,7 +264,57 @@ gemini.setSpeakingPace(savedPace);
 const wake = new WakeWordListener({
   phrase: 'mirror mirror',
   onWake: handleWakeWord,
+  onCommand: handleLocalCommand,
+  onCaption: (text) => setLiveCaption(text, 3600),
   onStatus: updateWakeStatus
+});
+
+let cameraBeforeSleep = true;
+const sleep = new SleepController({
+  wakeListener: wake,
+  onSleep: enterMirrorSleep,
+  onWake: async () => {
+    delete elements.shell.dataset.sleeping;
+    if (cameraBeforeSleep) await toggleCamera(true);
+    if (sleep.sleeping) return;
+    gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+    setMode('mirror');
+    setState('ready');
+    await populateCameras();
+  },
+  onError: () => { elements.sleepHint.textContent = 'Wake microphone unavailable. Check microphone access.'; }
+});
+
+async function enterMirrorSleep() {
+  wake.setCommandsOnly(false);
+  window.mirrorBridge?.hideMirrorMedia?.();
+  trackingDebug.clear();
+  cameraBeforeSleep = getTrackingStatus().cameraActive;
+  elements.shell.dataset.sleeping = 'true';
+  elements.sleepHint.textContent = 'Say “mirror mirror” to wake';
+  gemini.disconnect();
+  speech.stop();
+  const recognition = browserRecognition;
+  browserRecognition = null;
+  recognition?.abort();
+  gestures.setEnabled(false);
+  cancelEffectDrag();
+  clearHandPointer();
+  elements.watchVideo.pause();
+  elements.watchFrame.src = '';
+  avatar.setVisible(false);
+  clearTimeout(idleTimer);
+  clearTimeout(liveCaptionTimer);
+  elements.liveCaption.classList.remove('visible');
+  elements.settings.classList.remove('open');
+  elements.personaPanel.classList.remove('open');
+  elements.launcherPanel.classList.remove('open');
+  await toggleCamera(false);
+}
+
+const dispatchAction = createMirrorActionDispatcher({
+  setMode: setAssistantMode, setEffect: setArEffect, openMedia: openMirrorMedia,
+  getState: () => ({ mode, effect: arOverlay.effect, faceDetected: getTrackingStatus().faceDetected })
 });
 
 await initialize();
@@ -241,10 +322,11 @@ await initialize();
 async function initialize() {
   setState('starting');
   initHeadTracking(elements.video)
-    .then(populateCameras)
+    .then(async () => { if (sleep.sleeping) await toggleCamera(false); await populateCameras(); })
     .catch((error) => console.warn('[startup] tracking', error));
   gestures.init().then((available) => {
-    gestures.setEnabled(available && elements.gestureToggle.checked);
+    gestures.setEnabled(available && elements.gestureToggle.checked && !sleep.sleeping && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+    if (available && elements.gestureToggle.checked) handleGesture('ready');
     if (!available) elements.gestureToggle.checked = false;
   });
   try { await avatar.init('assets/avatar.glb'); }
@@ -261,11 +343,11 @@ async function initialize() {
   if (elements.wakeToggle.checked) wake.start();
 }
 
-window.__mirrorDebug = { scene, camera, avatar, depthScene, renderQuality };
+window.__mirrorDebug = { scene, camera, avatar, depthScene, renderQuality, getTrackingStatus, getFaceLandmarks, gestures, sleep, wake, gemini, handleGesture, setMode, hardStopVoice, dispatchAction, handleTranscript, handleLocalCommand, trackingDebug };
 
 function setDepthMode(enabled, announce = true) {
   depthEnabled = Boolean(enabled);
-  localStorage.setItem('mirror.depth-cube', String(depthEnabled));
+  localStorage.setItem('mirror.depth-cube-v2', String(depthEnabled));
   elements.shell.dataset.depth = depthEnabled ? 'cube' : 'flat';
   elements.dimensionSwitch?.querySelectorAll('button').forEach((button) => button.classList.toggle('active', button.dataset.depth === (depthEnabled ? 'cube' : 'flat')));
   depthScene.setDepthEnabled(depthEnabled);
@@ -275,8 +357,13 @@ function setDepthMode(enabled, announce = true) {
 setDepthMode(depthEnabled, false);
 
 function setMode(nextMode) {
+  if (sleep.sleeping) return;
   if (!['portal', 'mirror', 'ar', 'watch'].includes(nextMode)) return;
+  if (nextMode !== mode) cancelEffectDrag();
   mode = nextMode;
+  gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+  if (!['ar', 'watch'].includes(mode)) clearHandPointer();
+  if (mode !== 'watch') window.mirrorBridge?.hideMirrorMedia?.();
   elements.shell.dataset.mode = nextMode;
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === nextMode));
   elements.studioPanel.classList.toggle('active', nextMode === 'ar');
@@ -289,6 +376,7 @@ function setMode(nextMode) {
 }
 
 function setAssistantMode(nextMode) {
+  if (sleep.sleeping) return;
   if (!['mirror', 'portal', 'ar', 'watch'].includes(nextMode)) return;
   requestedMode = nextMode;
   setMode(nextMode);
@@ -306,6 +394,7 @@ function returnToRequestedMode() {
 }
 
 function setArEffect(effect, { openStudio = false } = {}) {
+  if (sleep.sleeping) return;
   const effects = ['enchanted', 'crown', 'runes', 'aura', 'glasses', 'mask', 'cat', 'halo', 'emoji', 'scan', 'none'];
   const selected = effects.includes(effect) ? effect : 'crown';
   arOverlay.setEffect(selected);
@@ -317,11 +406,13 @@ function setArEffect(effect, { openStudio = false } = {}) {
   }
   if (openStudio) setAssistantMode('ar');
   const names = { enchanted: 'Enchanted reveal', crown: 'Astral crown', runes: 'Oracle runes', aura: 'Violet aura', glasses: 'Arcane glasses', mask: 'Masquerade mask', cat: 'Familiar cat', halo: 'Celestial halo', emoji: 'Magic emojis', scan: 'Mystic face scan' };
-  showOracle(`${names[selected]} applied.`, '', 'AR enchantment');
+  showOracle(getTrackingStatus().faceDetected ? `${names[selected]} selected.` : `${names[selected]} selected. Face not detected ? look toward the camera to wear it.`, '', 'AR enchantment');
 }
 
 function setState(next) {
+  if (sleep.sleeping) return;
   state = next;
+  avatar.setConversationState(next);
   const labels = {
     starting: 'Awakening', connecting: 'Opening the veil', ready: config.hasGeminiKey ? 'AI ready' : 'Demo ready',
     listening: 'Listening', thinking: 'Consulting', speaking: 'Speaking', offline: 'Demo ready', error: 'Needs attention'
@@ -335,6 +426,7 @@ function setState(next) {
 }
 
 function showOracle(text, user = '', eyebrow = 'The mirror answers') {
+  if (sleep.sleeping) return;
   if (!text) return;
   elements.oracleText.textContent = text;
   elements.oracleUser.textContent = user ? `You asked: “${user}”` : '';
@@ -343,6 +435,7 @@ function showOracle(text, user = '', eyebrow = 'The mirror answers') {
 }
 
 async function askMirror(text) {
+  if (sleep.sleeping) return;
   const prompt = text.trim();
   if (!prompt) return;
   if (runVoiceNavigation(prompt)) return;
@@ -363,7 +456,9 @@ async function askMirror(text) {
 }
 
 async function handleWakeWord(command) {
-  wake.pause();
+  if (sleep.sleeping && !(await sleep.wakeFromPhrase())) return;
+  wake.setCommandsOnly(true);
+  wake.resume();
   showAssistant();
   showOracle(command ? 'I heard you…' : 'I am listening…', command, 'Mirror mirror');
   if (command) await askMirror(command);
@@ -371,6 +466,7 @@ async function handleWakeWord(command) {
 }
 
 function updateWakeStatus(status) {
+  if (sleep.sleeping) elements.sleepHint.textContent = status === 'unavailable' ? 'Wake microphone unavailable. Check microphone access.' : status === 'training' ? 'Preparing local wake listener…' : 'Say “mirror mirror” to wake';
   const labels = {
     armed: 'Say “mirror mirror”', heard: 'Wake word heard', paused: 'Wake word paused',
     training: 'Downloading local speech model…', unavailable: 'Wake word unavailable'
@@ -380,26 +476,87 @@ function updateWakeStatus(status) {
 }
 
 function handleTranscript(role, text) {
+  if (sleep.sleeping) return;
   if (!text?.trim()) return;
+  if (role === 'user') {
+    const now = Date.now();
+    userTranscriptBuffer = now - lastUserTranscriptAt > 2200 ? text : `${userTranscriptBuffer} ${text}`.slice(-400);
+    lastUserTranscriptAt = now;
+    const command = parseMirrorCommand(userTranscriptBuffer) || (/^\s*(?:please )?(?:stop|stop talking|be quiet|sleep|go to sleep)[.!?]*\s*$/i.test(text) ? (/sleep/i.test(text) ? 'sleep' : 'stop') : null);
+    if (command) { handleLocalCommand(command); return; }
+    const action = parseMirrorAction(userTranscriptBuffer);
+    if (action) {
+      const key = JSON.stringify(action);
+      if (key !== lastVoiceAction || now - lastVoiceActionAt > 2500) { dispatchAction(action); lastVoiceAction = key; lastVoiceActionAt = now; }
+      setLiveCaption(userTranscriptBuffer, 6500);
+      return;
+    }
+  }
   if (role === 'assistant') {
     assistantTranscript = `${assistantTranscript} ${text}`.trim();
     showOracle(assistantTranscript, '', 'The mirror answers');
   } else {
-    showOracle('Listening…', text.trim(), 'You said');
+    setLiveCaption(text.trim(), 6500);
+    showOracle('Listening…', '', 'You said');
   }
 }
 
+function setLiveCaption(text, duration = 4200) {
+  if (sleep.sleeping) return;
+  const caption = String(text || '').trim().slice(0, 220);
+  if (!caption || !elements.liveCaption) return;
+  elements.liveCaption.textContent = caption;
+  elements.liveCaption.classList.add('visible');
+  clearTimeout(liveCaptionTimer);
+  liveCaptionTimer = setTimeout(() => elements.liveCaption.classList.remove('visible'), duration);
+}
+
+function handleLocalCommand(command) {
+  if (command === 'stop') { hardStopVoice(); return; }
+  if (command === 'sleep') { sleep.enter(); return; }
+  if (command === 'debug-on' || command === 'debug-off') {
+    if (sleep.sleeping) return;
+    const enabled = command === 'debug-on';
+    trackingDebug.setEnabled(enabled);
+    gestures.setEnabled(elements.gestureToggle.checked && (enabled || ['ar', 'watch'].includes(mode)));
+    elements.diagnostics.classList.toggle('open', enabled);
+    if (enabled) setDepthMode(true, false);
+    showGesture(enabled ? 'Tracking debug on' : 'Tracking debug off');
+  }
+}
+
+function hardStopVoice() {
+  window.mirrorBridge?.hideMirrorMedia?.();
+  sleep.cancelPendingWake();
+  elements.wakeToggle.checked = false;
+  localStorage.setItem('mirror.wake', 'false');
+  wake.pause();
+  const recognition = browserRecognition;
+  browserRecognition = null;
+  recognition?.abort();
+  speech.stop();
+  gemini.disconnect();
+  elements.mic.classList.remove('listening');
+  clearTimeout(liveCaptionTimer);
+  elements.liveCaption.textContent = '';
+  elements.liveCaption.classList.remove('visible');
+  assistantTranscript = '';
+  userTranscriptBuffer = '';
+  showOracle('Voice stopped. Press the mic to start again.', '', 'Microphone muted');
+}
+
 async function toggleVoice() {
+  if (sleep.sleeping) return;
   if (!config.hasGeminiKey) {
     wake.pause();
     startBrowserRecognition();
     return;
   }
   try {
-    if (!gemini.listening) wake.pause();
+    if (!gemini.listening) { wake.setCommandsOnly(true); wake.resume(); }
     const active = await gemini.toggleMicrophone();
     elements.mic.classList.toggle('listening', active);
-    if (!active && elements.wakeToggle.checked) wake.resume();
+    if (!active && elements.wakeToggle.checked) { wake.setCommandsOnly(false); wake.resume(); }
   } catch (error) {
     setState('error');
     showOracle(error.message, '', 'Voice connection');
@@ -414,12 +571,19 @@ function startBrowserRecognition() {
     return;
   }
   const recognition = new Recognition();
+  browserRecognition = recognition;
   recognition.lang = 'en-US';
   recognition.interimResults = false;
   recognition.onstart = () => setState('listening');
-  recognition.onresult = (event) => askMirror(event.results[0][0].transcript);
+  recognition.onresult = (event) => {
+    if (browserRecognition !== recognition) return;
+    const transcript = event.results[0][0].transcript;
+    setLiveCaption(transcript, 6500);
+    askMirror(transcript);
+  };
   recognition.onerror = () => setState('ready');
   recognition.onend = () => {
+    if (browserRecognition === recognition) browserRecognition = null;
     if (state === 'listening') setState('ready');
     if (elements.wakeToggle.checked) wake.resume();
   };
@@ -439,11 +603,19 @@ async function populateCameras() {
 
 function updateTrackingUi() {
   const tracking = getTrackingStatus();
+  const handState = gestures.status === 'tracking' ? 'Hand lock' : gestures.enabled ? 'Show your pointing hand' : 'Hands off';
+  elements.trackingHealth.textContent = tracking.error || `${tracking.activeCameraLabel} · ${tracking.faceDetected ? 'Face lock' : tracking.cameraActive ? 'Looking for your face' : 'Camera off'} · ${handState}`;
+  elements.trackingHealth.classList.toggle('error', Boolean(tracking.error));
   elements.trackingBadge.textContent = tracking.faceDetected ? 'FACE LOCK' : tracking.cameraActive ? 'SEARCHING' : 'MOUSE';
   elements.cameraToggle.textContent = tracking.cameraActive ? 'Camera off' : 'Camera on';
 }
 
 elements.mic.addEventListener('click', toggleVoice);
+elements.hardStop.addEventListener('click', hardStopVoice);
+elements.sleepButton.addEventListener('click', () => sleep.enter());
+elements.shell.addEventListener('click', (event) => {
+  if (sleep.sleeping) { event.preventDefault(); event.stopImmediatePropagation(); }
+}, true);
 elements.dimensionSwitch?.addEventListener('click', (event) => {
   const button = event.target.closest('button[data-depth]');
   if (button) setDepthMode(button.dataset.depth === 'cube');
@@ -488,7 +660,8 @@ elements.watchLoad.addEventListener('click', loadWatchVideo);
 elements.watchUrl.addEventListener('keydown', (event) => { if (event.key === 'Enter') loadWatchVideo(); });
 document.querySelectorAll('[data-service]').forEach((button) => button.addEventListener('click', async () => {
   try {
-    await window.mirrorBridge?.openService(button.dataset.service);
+    if (['spotify', 'youtube', 'netflix'].includes(button.dataset.service)) await dispatchAction({ type: 'media', service: button.dataset.service });
+    else await window.mirrorBridge?.openService(button.dataset.service);
     showGesture(`Opening ${button.textContent}`);
   } catch (error) {
     showOracle(error.message, '', 'Service launcher');
@@ -525,8 +698,8 @@ elements.wakeToggle.addEventListener('change', () => {
 });
 elements.gestureToggle.addEventListener('change', () => {
   localStorage.setItem('mirror.gestures', String(elements.gestureToggle.checked));
-  gestures.setEnabled(elements.gestureToggle.checked);
-  showGesture(elements.gestureToggle.checked ? 'Hand navigation on' : 'Hand navigation off');
+  gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+  showGesture(elements.gestureToggle.checked ? 'Point with one finger · pinch over a control to select' : 'Hand pointer off');
 });
 elements.facePuppetToggle.addEventListener('change', () => {
   localStorage.setItem('mirror.face-puppet', String(elements.facePuppetToggle.checked));
@@ -585,16 +758,18 @@ elements.cameraToggle.addEventListener('click', async () => {
 });
 elements.calibrateDepth.addEventListener('click', () => {
   const ready = calibrateDepth();
+  if (ready) setDepthMode(true);
   showOracle(
-    ready ? 'Depth is calibrated from a stable sample at your normal viewing spot. Move side to side, then slightly up and down, to test the window effect.' : 'Stand at your normal viewing spot until Face Lock appears, hold still for two seconds, then calibrate again.',
+    ready ? 'Re-centered from your current position. Move left, right, and up or down to test the window effect.' : 'Look toward the mirror from your usual viewing spot. Once Face Lock appears, hold still for two seconds and tap Re-center camera again.',
     '',
     ready ? 'Screen alignment saved' : 'Camera needed'
   );
 });
-elements.diagnosticsToggle.addEventListener('click', () => elements.diagnostics.classList.toggle('open'));
+elements.diagnosticsToggle.addEventListener('click', () => handleLocalCommand(trackingDebug.enabled ? 'debug-off' : 'debug-on'));
 elements.fullscreenToggle.addEventListener('click', () => window.mirrorBridge?.toggleFullscreen());
 
 function resetIdle() {
+  if (sleep.sleeping) return;
   elements.form.classList.remove('dim');
   clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
@@ -603,6 +778,9 @@ function resetIdle() {
 }
 window.addEventListener('pointermove', resetIdle);
 window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') { hardStopVoice(); return; }
+  if (sleep.sleeping) return;
+  if (event.key === 'Escape') { hardStopVoice(); return; }
   resetIdle();
   if (event.key === '1') setMode('portal');
   if (event.key === '2') setMode('mirror');
@@ -610,17 +788,17 @@ window.addEventListener('keydown', (event) => {
   if (event.key === '4') setMode('watch');
   if (event.key.toLowerCase() === 'f') window.mirrorBridge?.toggleFullscreen();
   if (event.key.toLowerCase() === 'c') elements.cameraToggle.click();
-  if (event.key.toLowerCase() === 'd' && !/input|select|textarea/i.test(event.target.tagName)) elements.diagnostics.classList.toggle('open');
+  if (event.key.toLowerCase() === 'd' && !/input|select|textarea/i.test(event.target.tagName)) handleLocalCommand(trackingDebug.enabled ? 'debug-off' : 'debug-on');
 });
 resetIdle();
 
 const clock = new THREE.Clock();
 let statusTick = 0;
-let cubeContentTick = 0;
 function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
   const elapsed = clock.elapsedTime;
+  if (sleep.sleeping) return;
   const viewer = updateHeadTracking(performance.now());
   if (depthEnabled) {
     elements.shell.style.setProperty('--viewer-x', `${Math.round(viewer.x * 42)}px`);
@@ -636,20 +814,12 @@ function animate() {
     applyFlatProjection(camera, viewport.width / Math.max(viewport.height, 1));
   }
   depthScene.update(dt, elapsed, viewer);
-  if (depthEnabled && elapsed - cubeContentTick > 1) {
-    cubeContentTick = elapsed;
-    depthScene.setCubeContent({
-      time: document.querySelector('#clock-time')?.textContent || '',
-      date: document.querySelector('#clock-date')?.textContent || '',
-      weather: `${document.querySelector('#weather-temp')?.textContent || ''} ${document.querySelector('#weather-condition')?.textContent || ''}`,
-      quote: document.querySelector('#mirror-quote')?.textContent || '',
-      note: document.querySelector('#now-card p')?.textContent || 'Your day, held in view.'
-    });
-  }
   avatar.setFaceBlendshapes(getFaceBlendshapes());
   avatar.setEyeGaze(getEyeGaze());
   avatar.update(dt, elapsed, viewer);
   arOverlay.render(getFaceLandmarks(), elements.video, elapsed, mode === 'ar');
+  if (mode === 'ar') for (const item of heldEffects.values()) arOverlay.renderDrag(item.effect, item.cursor, elapsed, isEffectOverFace(item));
+  trackingDebug.draw({ face: getFaceLandmarks(), hands: gestures.debugHands || gestures.latestHands || [...handPointers.values()].map(d => ({ landmarks: d.hand, screenHand: d.screenHand })), status: getTrackingStatus(), viewer, handStatus: gestures.status, depthEnabled });
   renderer.render(scene, camera);
   updateRenderQuality(dt);
   diagnosticsTimer += dt;
@@ -667,7 +837,7 @@ function updateDiagnostics() {
   const blends = getFaceBlendshapes() || {};
   const gaze = getEyeGaze() || {};
   elements.diagRender.textContent = `${Math.round(renderQuality.fps)} fps · ${renderQuality.pixelRatio.toFixed(2)}× DPR`;
-  elements.diagTracking.textContent = tracking.faceDetected ? 'Face lock' : tracking.cameraActive ? 'Searching' : 'Mouse fallback';
+  elements.diagTracking.textContent = `${tracking.faceDetected ? 'Face lock' : tracking.cameraActive ? 'Searching' : 'Camera off'} · face ${Math.round(tracking.detectionMs || 0)}ms · hands ${Math.round(gestures.inferenceMs || 0)}ms`;
   const avatarVideo = avatar.getAvatarVideoStatus();
   const hostSource = avatarVideo.active
     ? `video · ${avatarVideo.state}${avatarVideo.width ? ` · ${avatarVideo.width}×${avatarVideo.height}` : ''}`
@@ -678,6 +848,7 @@ function updateDiagnostics() {
 }
 
 window.addEventListener('resize', () => {
+  if (mode === 'watch') window.mirrorBridge?.resizeMirrorMedia?.(mediaBounds());
   const viewport = viewportSize();
   camera.aspect = viewport.width / viewport.height;
   camera.updateProjectionMatrix();
@@ -686,9 +857,29 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(renderQuality.pixelRatio);
   renderer.setSize(viewport.width, viewport.height);
   arOverlay.resize();
+  resizeHandOverlay();
 });
 
 window.addEventListener('beforeunload', () => { wake.destroy(); gemini.disconnect(); });
+
+function mediaBounds() {
+  const bounds = document.querySelector('.watch-display').getBoundingClientRect();
+  return { x: Math.round(bounds.x), y: Math.round(bounds.y), width: Math.max(1, Math.round(bounds.width)), height: Math.max(320, Math.round(bounds.height)) };
+}
+
+async function openMirrorMedia(action) {
+  try {
+    elements.watchVideo.pause();
+    elements.watchFrame.removeAttribute('src');
+    const result = await window.mirrorBridge.openMirrorMedia({ ...action, bounds: mediaBounds() });
+    if (mode !== 'watch' || sleep.sleeping) { await window.mirrorBridge.hideMirrorMedia(); return { handled: true, cancelled: true }; }
+    showGesture(result?.message || 'Media opened on the mirror');
+    return { handled: true, ...result };
+  } catch (error) {
+    showOracle(error.message, '', 'Media playback');
+    return { handled: true, error: error.message };
+  }
+}
 
 async function loadConfig() {
   try {
@@ -720,6 +911,7 @@ function escapeHtml(value) {
 }
 
 function loadWatchVideo() {
+  window.mirrorBridge?.hideMirrorMedia?.();
   const url = elements.watchUrl.value.trim();
   if (!url) return;
   try {
@@ -764,6 +956,11 @@ function spotifyEmbedUrl(url) {
 }
 
 function runVoiceNavigation(prompt) {
+  const command = parseMirrorCommand(prompt);
+  if (command) { handleLocalCommand(command); return true; }
+  const action = parseMirrorAction(prompt);
+  if (action) { dispatchAction(action); return true; }
+  if (/^(?:go to sleep|sleep|sleep mode|mirror sleep)[.!?]*$/i.test(prompt.trim())) { sleep.enter(); return true; }
   const text = prompt.toLowerCase().replace(/[.,!?]/g, ' ');
   const serviceMatch = text.match(/\b(?:open|show)\s+(?:my\s+)?(calendar|photos|maps|map|spotify|music|youtube)\b/);
   if (serviceMatch) {
@@ -796,35 +993,196 @@ function runVoiceNavigation(prompt) {
   return false;
 }
 
-function handleGesture(type) {
-  // Swipes are inherently noisy in a living room. Keep the camera/AR studio
-  // out of this cycle; it is opened intentionally by its control or voice.
-  const modes = ['mirror', 'portal', 'watch'];
-  if (type === 'palm') {
-    setAssistantMode('portal');
-    showGesture('Open palm · Converse');
-    return;
-  }
-  if (type === 'pinch') {
-    // A casual hand pose can resemble a pinch. Never let that abruptly open
-    // Try On; pinches advance effects only after the studio is already open.
-    if (mode !== 'ar') {
-      showGesture('Pinch · available in Try on');
-      return;
+function handleGesture(type, detail) {
+  if (sleep.sleeping || !['ar', 'watch'].includes(mode)) return;
+  const handId = detail?.handId ?? 'default';
+  heldEffect = heldEffects.get(handId) || null;
+  if (type === 'pointer-down') {
+    const target = handControlAt(detail);
+    const chip = target?.closest('[data-effect]');
+    if (mode === 'ar' && chip && chip.dataset.effect !== 'none') {
+      heldEffect = { effect: chip.dataset.effect, chip, cursor: { x: detail.x, y: detail.y }, hand: detail.hand };
+      heldEffects.set(handId, heldEffect);
+      chip.classList.add('held');
+      updateEffectDragLabel();
+      showGesture('Hold the pinch, move to your face, then release');
     }
-    const effects = ['enchanted', 'crown', 'glasses', 'mask', 'halo', 'aura', 'runes'];
-    const current = effects.indexOf(arOverlay.effect);
-    const next = effects[(current + 1) % effects.length];
-    setArEffect(next);
-    showGesture(`Pinch · ${next.replace(/^./, (letter) => letter.toUpperCase())}`);
     return;
   }
-  const current = modes.indexOf(mode);
-  const delta = type === 'swipe-right' ? 1 : -1;
-  const next = modes[(current + delta + modes.length) % modes.length];
-  setAssistantMode(next);
-  const labels = { mirror: 'Ambient', portal: 'Converse', ar: 'Try on', watch: 'Watch' };
-  showGesture(`${type === 'swipe-right' ? 'Swipe right' : 'Swipe left'} · ${labels[next]}`);
+  if (type === 'pointer-drag' && heldEffect) {
+    heldEffect.cursor = { x: detail.x, y: detail.y };
+    heldEffect.hand = detail.hand;
+    updateEffectDragLabel();
+    return;
+  }
+  if (type === 'pointer-up' && heldEffect) {
+    heldEffect.cursor = { x: detail.x, y: detail.y };
+    heldEffect.hand = detail.hand;
+    const effect = heldEffect.effect;
+    const apply = isEffectOverFace(heldEffect);
+    cancelEffectDrag(handId);
+    if (apply) { setArEffect(effect); showGesture(`${effect} applied`); }
+    else showGesture(getTrackingStatus().faceDetected ? 'Release over your face to wear it' : 'Face not found. Look toward the camera and try again');
+    return true;
+  }
+  if (type === 'pointer-cancel') { cancelEffectDrag(handId); handPointers.delete(handId); redrawHands(); return; }
+  if (type === 'pointer-move') {
+    if (mode === 'watch' && detail.indexUp) {
+      const bounds = elements.shell.getBoundingClientRect();
+      window.mirrorBridge?.mirrorMediaPointer?.({ x: bounds.left + detail.cursor.x * bounds.width, y: bounds.top + detail.cursor.y * bounds.height, pinch: detail.pinchDown });
+    }
+    handPointers.set(handId, detail);
+    redrawHands();
+    return;
+  }
+  if (type === 'pointer-lost') {
+    cancelEffectDrag(detail?.handId);
+    if (detail?.handId != null) handPointers.delete(handId); else handPointers.clear();
+    redrawHands();
+    return;
+  }
+  if (type === 'pointer-click') {
+    const shell = elements.shell.getBoundingClientRect();
+    const x = shell.left + detail.x * shell.width;
+    const y = shell.top + detail.y * shell.height;
+    if (mode === 'watch') window.mirrorBridge?.mirrorMediaPointer?.({ x, y, click: true });
+    const target = document.elementFromPoint(x, y)?.closest('button, a, [role="button"], input[type="button"], input[type="checkbox"], select, summary, label[for]');
+    if (target && !target.disabled && elements.shell.contains(target)) {
+      target.click();
+      showGesture(`Selected · ${target.getAttribute('aria-label') || target.textContent.trim().replace(/\s+/g, ' ').slice(0, 32) || 'control'}`);
+    } else showGesture('Move fingertip over a control, then pinch');
+    return;
+  }
+  if (type === 'ready') showGesture('Point with one finger · pinch thumb and index to select');
+}
+
+function configureEffectPalette() {
+  const paths = {
+    glasses: '<rect x="4" y="15" width="16" height="13" rx="5"/><rect x="28" y="15" width="16" height="13" rx="5"/><path d="M20 19q4-4 8 0M4 18l-3-3m43 3 3-3"/>',
+    mask: '<path d="M3 13q21 10 42 0l-4 20q-8 6-17-3-9 9-17 3z"/><path d="M10 21q5-4 9 0-4 5-9 0zm19 0q5-4 9 0-4 5-9 0z"/>',
+    crown: '<path d="M6 34 3 13l12 9 9-16 9 16 12-9-3 21zM6 39h36"/>',
+    halo: '<ellipse cx="24" cy="15" rx="20" ry="7"/><path d="M13 32q11-12 22 0"/>',
+    aura: '<circle cx="24" cy="24" r="9"/><circle cx="24" cy="24" r="19" stroke-dasharray="3 6"/>',
+    runes: '<path d="m24 4 16 20-16 20L8 24zM24 4v40M8 24h32"/>',
+    scan: '<path d="M4 16V4h12m16 0h12v12M4 32v12h12m16 0h12V32M5 24h38"/>',
+    none: '<circle cx="24" cy="24" r="19"/><path d="m10 10 28 28"/>',
+    enchanted: '<path d="m24 3 5 15 15 6-15 5-5 16-6-16-15-5 15-6z"/>'
+  };
+  const names = {glasses:'Glasses',mask:'Mask',crown:'Crown',halo:'Halo',aura:'Aura',runes:'Runes',scan:'Scan',none:'Remove',enchanted:'Glow'};
+  elements.effectGrid.querySelectorAll('[data-effect]').forEach((chip) => {
+    const effect = chip.dataset.effect;
+    chip.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true">${paths[effect] || paths.enchanted}</svg><span>${names[effect] || effect}</span>`;
+    chip.setAttribute('aria-label', `Try ${names[effect] || effect}`);
+  });
+  const intro = elements.studioPanel.querySelector('.mode-intro');
+  intro.querySelector('h1').textContent = 'Pick up a look.';
+  intro.querySelector('p').textContent = 'Point at an effect. Pinch, hold it to your face, then release.';
+  elements.studioPanel.querySelector('.tray-head span').textContent = 'Pinch · drag · release';
+  const shelf = elements.studioPanel.querySelector('.closet-shelf');
+  const details = document.createElement('details');
+  details.className = 'wardrobe-details';
+  const summary = document.createElement('summary');
+  summary.textContent = 'Wardrobe';
+  shelf.before(details);
+  details.append(summary, shelf);
+}
+
+function handControlAt(point) {
+  const bounds = elements.shell.getBoundingClientRect();
+  const target = document.elementFromPoint(bounds.left + point.x * bounds.width, bounds.top + point.y * bounds.height)?.closest('button, a, [role="button"], input, select, summary, label[for]');
+  return target && elements.shell.contains(target) && !target.disabled ? target : null;
+}
+
+function isEffectOverFace(item) {
+  return mode === 'ar' && getTrackingStatus().faceDetected && (arOverlay.containsFacePoint(item.cursor) || arOverlay.containsCameraFacePoint(item.hand?.[8], elements.video));
+}
+
+function updateEffectDragLabel() {
+  if (!heldEffect) return;
+  elements.dragLabel.textContent = isEffectOverFace(heldEffect) ? 'Release to wear' : 'Move to your face';
+  elements.dragLabel.style.left = `${heldEffect.cursor.x * 100}%`;
+  elements.dragLabel.style.top = `${heldEffect.cursor.y * 100}%`;
+  elements.dragLabel.classList.add('visible');
+}
+
+function cancelEffectDrag(handId) {
+  if (handId == null) {
+    for (const item of heldEffects.values()) item.chip.classList.remove('held');
+    heldEffects.clear();
+  } else {
+    const item = heldEffects.get(handId);
+    heldEffects.delete(handId);
+    if (item && ![...heldEffects.values()].some(other => other.chip === item.chip)) item.chip.classList.remove('held');
+  }
+  heldEffect = null;
+  elements.dragLabel.classList.remove('visible');
+}
+
+function resizeHandOverlay() {
+  const { width, height } = viewportSize();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  elements.handOverlay.width = Math.round(width * dpr);
+  elements.handOverlay.height = Math.round(height * dpr);
+  handCtx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function clearHandPointer() {
+  handPointers.clear();
+  if (!handCtx) return;
+  const { width, height } = viewportSize();
+  handCtx.clearRect(0, 0, width, height);
+  elements.handOverlay.dataset.state = '';
+  handHoverTarget?.classList.remove('hand-hover');
+  handHoverTarget = null;
+}
+
+function redrawHands() {
+  const { width, height } = viewportSize();
+  handCtx?.clearRect(0, 0, width, height);
+  for (const detail of handPointers.values()) drawHandPointer(detail);
+}
+
+function drawHandPointer(detail) {
+  if (!handCtx || !detail) return;
+  const { width, height } = viewportSize();
+  const hand = detail.screenHand || detail.hand;
+  const point = (landmark) => ({ x: (detail.screenHand ? landmark.x : 1 - landmark.x) * width, y: landmark.y * height });
+  elements.handOverlay.dataset.state = detail.pinchDown ? 'pinch' : 'point';
+
+  if (detail.indexUp && hand) {
+    const bones = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17],[5,17]];
+    handCtx.lineWidth = Math.max(2, width * .002);
+    handCtx.lineCap = 'round';
+    handCtx.strokeStyle = 'rgba(181,255,212,.72)';
+    for (const [a, b] of bones) {
+      handCtx.beginPath(); handCtx.moveTo(...Object.values(point(hand[a]))); handCtx.lineTo(...Object.values(point(hand[b]))); handCtx.stroke();
+    }
+    for (const id of [4, 8]) {
+      const tip = point(hand[id]);
+      handCtx.beginPath(); handCtx.arc(tip.x, tip.y, id === 8 ? Math.max(12, width * .013) : Math.max(5, width * .005), 0, Math.PI * 2);
+      handCtx.fillStyle = detail.pinchDown ? '#fff1a8' : id === 8 ? '#c5ffe0' : 'rgba(255,241,168,.75)';
+      handCtx.fill();
+      handCtx.strokeStyle = 'rgba(4,12,10,.8)'; handCtx.lineWidth = 2; handCtx.stroke();
+    }
+  }
+
+  if (detail.indexUp) {
+    handCtx.beginPath();
+    handCtx.arc(detail.cursor.x * width, detail.cursor.y * height, Math.max(14, width * .016), 0, Math.PI * 2);
+    handCtx.strokeStyle = detail.pinchDown ? '#fff1a8' : '#c5ffe0';
+    handCtx.lineWidth = 3;
+    handCtx.stroke();
+  }
+
+  const shell = elements.shell.getBoundingClientRect();
+  const screenX = shell.left + detail.cursor.x * shell.width;
+  const screenY = shell.top + detail.cursor.y * shell.height;
+  const target = detail.indexUp ? document.elementFromPoint(screenX, screenY)?.closest('button, a, [role="button"], input[type="button"], input[type="checkbox"], select, summary, label[for]') : null;
+  if (target !== handHoverTarget) {
+    handHoverTarget?.classList.remove('hand-hover');
+    handHoverTarget = target && elements.shell.contains(target) && !target.disabled ? target : null;
+    handHoverTarget?.classList.add('hand-hover');
+  }
 }
 
 let gestureToastTimer = null;

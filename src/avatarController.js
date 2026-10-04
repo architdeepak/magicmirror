@@ -3,6 +3,8 @@ import { FaceHost } from './faceHost.js';
 import { RigFaceHost } from './rigFaceHost.js';
 import { ExpressionMixer } from './expressionMixer.js';
 import { AvatarVideoHost } from './avatarVideoHost.js';
+import { AvatarPresence } from './avatarPresence.js';
+import { MemojiFaceHost } from './memojiFaceHost.js';
 
 export class AvatarController {
   constructor({ host, onStatus }) {
@@ -32,11 +34,19 @@ export class AvatarController {
     this.faceHost = null;
     this.rigHost = null;
     this.videoHost = null;
+    this.presence = new AvatarPresence();
+    this.visualStyle = localStorage.getItem('mirror.avatar-style') === 'memoji' ? 'memoji' : 'portrait';
+    this.audioPending = false;
+    this.audioSamples = null;
   }
 
   async init(url = 'assets/avatar.glb') {
     this.fallbackRigUrl = url;
     this.onStatus('Loading 3D oracle…');
+    this.faceHost = new FaceHost(this.host);
+    this.memojiHost = new MemojiFaceHost(this.host);
+    this.videoHost = new AvatarVideoHost(this.host);
+    this._syncAvatarSourceVisibility();
     try {
       this.head = new TalkingHead(this.host, {
         cameraView: 'head',
@@ -67,14 +77,14 @@ export class AvatarController {
         lightSpotDispersion: 1.1
       });
 
+      this.host.querySelectorAll('canvas:not(.face-host-canvas)').forEach((canvas) => { canvas.style.display = 'none'; });
+
       await this._showRig(url);
       // TalkingHead stays mounted solely as the proven low-latency PCM player.
       // The visible performer is our face-only host below; hide every generic
       // canvas before first paint so a body can never flash on the mirror.
-      this.host.querySelectorAll('canvas').forEach((canvas) => { canvas.style.display = 'none'; });
-      this.faceHost = new FaceHost(this.host);
+      this.host.querySelectorAll('canvas:not(.face-host-canvas)').forEach((canvas) => { canvas.style.display = 'none'; });
       this.rigHost = new RigFaceHost(this.host);
-      this.videoHost = new AvatarVideoHost(this.host);
       this.rigHost.setPersona(this.persona)
         // Keep the experimental GLB renderer staged until its crop, materials,
         // and persona art meet the face-only presentation bar. A rig must never
@@ -88,8 +98,7 @@ export class AvatarController {
       return true;
     } catch (error) {
       console.warn('[avatar] TalkingHead could not load this GLB:', error);
-      this.host.innerHTML = '<div class="fallback-presence"><i></i><b>✦</b></div>';
-      this.onStatus('Magical fallback ready');
+      this.onStatus('Local character ready; voice engine unavailable');
       return false;
     }
   }
@@ -128,6 +137,7 @@ export class AvatarController {
   setDepthEnabled(enabled) {
     this.depthEnabled = Boolean(enabled);
     if (this.faceHost?.canvas) this.faceHost.canvas.style.opacity = this.depthEnabled ? '.001' : '1';
+    this._syncAvatarSourceVisibility();
   }
 
   async setPersona(persona) {
@@ -138,6 +148,7 @@ export class AvatarController {
     const moods = { velora: 'neutral', solenne: 'happy', rowan: 'neutral' };
     this.setMood(moods[this.persona]);
     this.faceHost?.setPersona(this.persona);
+    this.memojiHost?.setPersona(this.persona);
     this.rigHost?.setPersona(this.persona)
       .then(() => { this.rigHost.canvas.style.display = 'none'; })
       .catch((error) => console.warn('[avatar] rig fallback', error));
@@ -191,8 +202,21 @@ export class AvatarController {
 
   _syncAvatarSourceVisibility() {
     const streaming = Boolean(this.videoHost?.active);
-    if (this.faceHost?.canvas) this.faceHost.canvas.style.display = streaming ? 'none' : 'block';
+    const memoji = this.visualStyle === 'memoji' && !this.depthEnabled;
+    if (this.faceHost?.canvas) this.faceHost.canvas.style.display = streaming || memoji ? 'none' : 'block';
+    if (this.memojiHost?.svg) this.memojiHost.svg.style.display = !streaming && memoji ? 'block' : 'none';
     if (this.rigHost?.canvas) this.rigHost.canvas.style.display = 'none';
+  }
+
+  setConversationState(state) {
+    this.presence.setState(state);
+    this.host.dataset.conversationState = state;
+  }
+
+  setVisualStyle(style) {
+    this.visualStyle = style === 'memoji' ? 'memoji' : 'portrait';
+    localStorage.setItem('mirror.avatar-style', this.visualStyle);
+    this._syncAvatarSourceVisibility();
   }
 
   setMood(mood) {
@@ -211,6 +235,10 @@ export class AvatarController {
         gain: 0.9,
         lipsyncType: 'visemes',
         waitForAudioChunks: true
+      }, () => this.onAudioPlaybackStart?.(), () => {
+        this.audioPending = false;
+        this.resetSpeech();
+        this.onAudioPlaybackEnd?.();
       });
       this.streaming = true;
     } catch (error) {
@@ -220,12 +248,17 @@ export class AvatarController {
 
   pushPcm(pcm) {
     if (!this.head || !this.streaming) return;
+    this.audioPending = true;
     try { this.head.streamAudio({ audio: pcm }); } catch (error) { console.debug('[avatar] pcm', error.message); }
   }
 
   endAudioTurn() {
     if (!this.streaming) return;
     try { this.head?.streamNotifyEnd(); } catch (error) { console.debug('[avatar] end stream', error.message); }
+    if (!this.audioPending) this.resetSpeech();
+  }
+
+  resetSpeech() {
     this.setSpeechLevel(0);
     this.setViseme('rest');
     this.setPerformance({ turn: 0, nod: 0, lean: 0 });
@@ -233,16 +266,27 @@ export class AvatarController {
   }
 
   interrupt() {
-    if (!this.streaming) return;
-    try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
-    this.setSpeechLevel(0);
-    this.setViseme('rest');
-    this.setPerformance({ turn: 0, nod: 0, lean: 0 });
-    this.setExpression({});
+    this.audioPending = false;
+    if (this.streaming) {
+      try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
+    }
+    this.resetSpeech();
   }
 
   update(dt, elapsed, viewer) {
     if (!this.visible) return;
+    // Sample audible playback rather than network arrival bursts.
+    const analyser = this.audioPending && (this.streaming ? this.head?.audioAnalyzerNode : this.outputAnalyser);
+    if (analyser) {
+      if (this.audioSamples?.length !== analyser.fftSize) this.audioSamples = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(this.audioSamples);
+      let sum = 0;
+      for (const value of this.audioSamples) sum += value * value;
+      this.speechLevel = Math.min(1, Math.sqrt(sum / this.audioSamples.length) * 4.2);
+    }
+    const presence = this.presence.update(dt, viewer, this.speechLevel);
+    const gaze = this.facePuppetEnabled ? this.eyeGaze : presence.gaze;
+    const performance = Object.fromEntries(['turn', 'nod', 'lean'].map((key) => [key, clamp((this.performance[key] || 0) + presence.performance[key], -1, 1)]));
     const offsetX = viewer.x * (this.depthEnabled ? -15 : -7);
     // Never add a perpetual idle bounce to a face-only host. It makes a still
     // frame look like a sticker and fights deliberate nods from the performer.
@@ -270,7 +314,7 @@ export class AvatarController {
     }
     const expression = this.expressionMixer.update({
       tracking: this.facePuppetEnabled ? this.faceBlendshapes : {},
-      manual: this.expression,
+      manual: { ...presence.expression, ...this.expression },
       speech: this.speechLevel,
       viseme: this.viseme,
       dt
@@ -278,13 +322,15 @@ export class AvatarController {
     this.smoothedBlendshapes = expression;
     this._applyFacialMorphs(expression);
     if (!this.videoHost?.active) {
-      this.faceHost?.setFace(expression, this.eyeGaze, this.speechLevel, viewer);
+      this.faceHost?.setFace(expression, gaze, this.speechLevel, viewer);
       this.faceHost?.setViseme(this.viseme);
-      this.faceHost?.setPerformance(this.performance);
-      this.faceHost?.update(elapsed);
-      this.rigHost?.update({ ...expression, jawOpen: Math.max(expression.jawOpen || 0, this.speechLevel) }, this.eyeGaze, this.performance);
+      this.faceHost?.setPerformance(performance);
+      this.faceHost?.update(elapsed, dt);
+      this.memojiHost?.setFace(expression, gaze, this.speechLevel, viewer);
+      this.memojiHost?.setPerformance(performance);
+      this.memojiHost?.update(elapsed, dt);
     }
-    this.speechLevel *= 0.82;
+    this.speechLevel *= Math.exp(-dt * 12);
   }
 
   _applyFacialMorphs(expression = {}) {

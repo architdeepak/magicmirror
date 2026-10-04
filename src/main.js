@@ -1,8 +1,9 @@
-const { app, BrowserWindow, ipcMain, session, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, session, shell, dialog, screen } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const fs = require('fs/promises');
 const dotenv = require('dotenv');
+const { MirrorMedia } = require('./mirrorMedia');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -29,6 +30,17 @@ const serviceUrls = Object.freeze({
   maps: 'https://www.google.com/maps/'
 });
 let mainWindow = null;
+const mirrorMediaControllers = new WeakMap();
+
+function mediaForSender(event) {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win !== mainWindow || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame) {
+    throw new Error('Media controls are only available to the mirror app.');
+  }
+  let controller = mirrorMediaControllers.get(win);
+  if (!controller) { controller = new MirrorMedia(win); mirrorMediaControllers.set(win, controller); }
+  return controller;
+}
 
 async function readMemory() {
   try {
@@ -169,6 +181,11 @@ async function createGeminiToken() {
 }
 
 function registerBridge() {
+  ipcMain.handle('mirror:open-media', (event, input) => mediaForSender(event).open(input));
+  ipcMain.handle('mirror:hide-media', event => mediaForSender(event).hide());
+  ipcMain.handle('mirror:resize-media', (event, bounds) => mediaForSender(event).resize(bounds));
+  ipcMain.handle('mirror:control-media', (event, input) => mediaForSender(event).control(input));
+  ipcMain.handle('mirror:media-pointer', (event, input) => mediaForSender(event).pointer(input));
   ipcMain.handle('mirror:get-config', () => safePublicConfig());
   ipcMain.handle('mirror:create-gemini-token', () => createGeminiToken());
   ipcMain.handle('mirror:read-memory', () => readMemory());
@@ -192,11 +209,19 @@ function registerBridge() {
 }
 
 function createWindow() {
+  const displays = screen.getAllDisplays();
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const mirrorDisplay = displays.find((display) => display.id !== primaryDisplay.id
+    && display.bounds.height > display.bounds.width) || primaryDisplay;
+  const windowWidth = 540;
+  const windowHeight = 960;
   const win = new BrowserWindow({
     // Vertical 43" TV portrait dimensions (9:16 aspect ratio)
     // 540x960 fits perfectly on laptop dev screens, scales natively to 1080x1920 / 4K on TV
-    width: 540,
-    height: 960,
+    x: mirrorDisplay.bounds.x + Math.max(0, Math.round((mirrorDisplay.bounds.width - windowWidth) / 2)),
+    y: mirrorDisplay.bounds.y + Math.max(0, Math.round((mirrorDisplay.bounds.height - windowHeight) / 2)),
+    width: windowWidth,
+    height: windowHeight,
     minWidth: 400,
     minHeight: 700,
     aspectRatio: 9 / 16,
@@ -247,6 +272,36 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+
+  // HDMI can reconnect or change orientation while the mirror is running.
+  // Move the existing window to the portrait TV without resetting sleep/voice.
+  let displayMoveTimer = null;
+  const moveToMirrorDisplay = () => {
+    clearTimeout(displayMoveTimer);
+    displayMoveTimer = setTimeout(() => {
+      const win = mainWindow;
+      if (!win || win.isDestroyed()) return;
+      const primary = screen.getPrimaryDisplay();
+      const target = screen.getAllDisplays().find(display => display.id !== primary.id && display.bounds.height > display.bounds.width) || primary;
+      const fullscreen = win.isFullScreen();
+      const kiosk = win.isKiosk();
+      if (kiosk) win.setKiosk(false);
+      if (fullscreen) win.setFullScreen(false);
+      const bounds = target.bounds;
+      win.setBounds(fullscreen || kiosk ? bounds : {
+        x: bounds.x + Math.max(0, Math.round((bounds.width - 540) / 2)),
+        y: bounds.y + Math.max(0, Math.round((bounds.height - 960) / 2)),
+        width: 540, height: Math.min(960, bounds.height)
+      });
+      if (kiosk) win.setKiosk(true);
+      else if (fullscreen) win.setFullScreen(true);
+    }, 400);
+  };
+  screen.on('display-added', moveToMirrorDisplay);
+  screen.on('display-removed', moveToMirrorDisplay);
+  screen.on('display-metrics-changed', (_event, _display, metrics) => {
+    if (metrics.includes('bounds') || metrics.includes('rotation')) moveToMirrorDisplay();
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
