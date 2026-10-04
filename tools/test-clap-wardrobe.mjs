@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { ClapGesture } from '../src/clapGesture.js';
+import { STARTER_GARMENTS, findGarment } from '../src/starterWardrobe.js';
+import { garmentPlacement } from '../src/bodyTryOn.js';
+import { parseMirrorAction } from '../src/mirrorActions.js';
+import { FaceNavigation } from '../src/faceNavigation.js';
+
+function hand(x) {
+  const points=Array.from({length:21},()=>({x,y:.6}));
+  points[0]={x,y:.8};points[5]={x:x-.08,y:.6};points[17]={x:x+.08,y:.6};
+  for(const [tip,joint] of [[8,6],[12,10],[16,14],[20,18]]) {points[tip]={x,y:.2};points[joint]={x,y:.4};}
+  return points;
+}
+const clap=new ClapGesture();
+assert.equal(clap.update([hand(.2),hand(.8)],100),false);
+assert.equal(clap.update([hand(.46),hand(.54)],250),false);
+assert.equal(clap.update([hand(.2),hand(.8)],400),true);
+assert.equal(clap.update([hand(.46),hand(.54)],500),false);
+assert.equal(clap.update([hand(.2),hand(.8)],600),false,'Cooldown suppresses repeated toggles');
+assert.equal(clap.update([hand(.2)],2200),false,'One hand cannot clap');
+const slow=new ClapGesture();
+slow.update([hand(.2),hand(.8)],0);
+assert.equal(slow.update([hand(.46),hand(.54)],2000),false);
+assert.equal(slow.update([hand(.2),hand(.8)],2300),false,'Slowly bringing palms together cannot toggle');
+assert.equal(findGarment(STARTER_GARMENTS,'jacket').id,'starter-coat');
+assert.equal(findGarment(STARTER_GARMENTS,'pants').id,'starter-jeans');
+assert.equal(findGarment(STARTER_GARMENTS,'spacesuit'),null);
+assert.deepEqual(parseMirrorAction('put on the t-shirt'),{type:'garment',garment:'t shirt',remove:false});
+assert.deepEqual(parseMirrorAction('take off my jacket'),{type:'garment',garment:'jacket',remove:true});
+assert.deepEqual(parseMirrorAction('remove all clothes'),{type:'garment',garment:'all',remove:true});
+assert.deepEqual(parseMirrorAction('make it fullscreen'),{type:'browser-layout',fullscreen:true});
+assert.deepEqual(parseMirrorAction('exit full screen'),{type:'browser-layout',fullscreen:false});
+assert.deepEqual(parseMirrorAction('open youtube shorts'),{type:'media',service:'youtube',target:'shorts'});
+assert.deepEqual(parseMirrorAction('next short'),{type:'media-step',action:'next'});
+assert.deepEqual(parseMirrorAction('previous song'),{type:'media-step',action:'previous'});
+const face=new FaceNavigation();
+const state=y=>({viewer:{y},faceDetected:true,active:true});
+assert.equal(face.update(state(0),0),null);
+assert.equal(face.update(state(.3),100),null);
+assert.equal(face.update(state(.3),600),'next');
+assert.equal(face.update(state(.3),2200),null,'Holding the head down must not repeatedly skip');
+face.update(state(0),2300);
+face.update(state(-.3),2400);
+assert.equal(face.update(state(-.3),2900),'previous');
+assert.equal(face.update({...state(.4),faceDetected:false},5000),null,'Face loss must not navigate');
+const pose=Array.from({length:33},()=>({x:.5,y:.5,visibility:1}));
+pose[11]={x:.7,y:.2,visibility:1};pose[12]={x:.3,y:.2,visibility:1};pose[23]={x:.6,y:.6,visibility:1};pose[24]={x:.4,y:.6,visibility:1};
+const place=garmentPlacement(pose,STARTER_GARMENTS[0],point=>point);
+assert.equal(place.angle,0,'Mirrored shoulder order must not invert clothes');
+assert.ok(place.width>0&&place.height>0);
+pose[11].visibility=.1;
+assert.equal(garmentPlacement(pose,STARTER_GARMENTS[0],point=>point),null,'Do not place clothes on unreliable body landmarks');
+console.log('Clap and wardrobe passed: deliberate toggle, cooldown, retrieval, removal, fullscreen and body geometry.');

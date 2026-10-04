@@ -41,6 +41,24 @@ gestures.setEnabled(false);
 assert.ok(events.some(e => e.type === 'pointer-cancel'), 'Disabling tracking cancels held items');
 console.log('Gesture drag lifecycle passed.');
 
+// An immediate selection fires once when the pinch closes, even if the hand
+// moves or the renderer changes mode before release.
+let selections = 0;
+let duplicateClicks = 0;
+const immediate = new GestureNavigation(null, type => {
+  if (type === 'pointer-down') { selections++; return true; }
+  if (type === 'pointer-click') duplicateClicks++;
+});
+immediate._point(hand(), 100);
+immediate._point(hand(.45, true), 150);
+assert.equal(selections, 1, 'Select immediately without a drag or a release');
+immediate._point(hand(.45, true), 200);
+immediate._point(hand(.45), 250);
+assert.equal(selections, 1, 'Holding the pinch cannot repeatedly select');
+assert.equal(duplicateClicks, 0, 'Consumed pinch-down cannot click again on release');
+immediate._point(hand(.45, true), 300);
+assert.equal(selections, 2, 'A new pinch can select another effect');
+
 // Both hands have their own cursor and pinch state, even if MediaPipe
 // changes result ordering. Losing one must not release the other hand.
 const dualEvents = [];

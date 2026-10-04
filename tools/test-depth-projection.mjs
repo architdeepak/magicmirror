@@ -7,6 +7,10 @@ import * as THREE from 'three';
 const source = (await readFile(new URL('../src/headTracking.js', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
 const projectionCode = source.slice(source.indexOf('export function applyOffAxisProjection'), source.indexOf('export function applyFlatProjection')).replace('export ', '');
 const applyOffAxisProjection = new Function(`${projectionCode}; return applyOffAxisProjection;`)();
+const trackingX = source.match(/targetHead\.x = ([^;]+);/)[1];
+const cameraX = new Function('eyeCenter','reference','options','clamp',`return (${trackingX});`);
+const viewerMovedLeft = cameraX({x:.6},{x:.5},{sensitivity:1},(n,a,b)=>Math.min(b,Math.max(a,n)));
+assert.ok(viewerMovedLeft > 0, 'Moving left in the mirrored display must drive the scene right');
 const camera = new THREE.PerspectiveCamera(45, 9 / 16, .1, 100);
 const project = (point) => point.clone().project(camera);
 const corners = [

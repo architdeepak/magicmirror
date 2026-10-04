@@ -1,3 +1,6 @@
+import { FaceNavigation } from './faceNavigation.js';
+import { BodyTryOn } from './bodyTryOn.js';
+import { findGarment } from './starterWardrobe.js';
 import * as THREE from 'three';
 import { AvatarController } from './avatarController.js';
 import { ClosetStore } from './closetStore.js';
@@ -6,10 +9,12 @@ import { createDepthScene } from './depthScene.js';
 import { GeminiLiveAdapter } from './geminiLiveAdapter.js';
 import { GestureNavigation } from './gestureNavigation.js';
 import { MagicMirrorView } from './magicMirrorView.js';
+import { StreamingCaption, lastTwoLines } from './streamingCaption.js';
 import { SpeechEngine } from './speechEngine.js';
 import { WakeWordListener, parseMirrorCommand } from './wakeWord.js';
 import { parseMirrorAction, createMirrorActionDispatcher } from './mirrorActions.js';
 import { TrackingDebugOverlay } from './trackingDebug.js';
+import { MediaPanelController, assistantDisplayMode } from './mediaPanelController.js';
 import { SleepController } from './sleepController.js';
 import {
   applyOffAxisProjection,
@@ -18,6 +23,7 @@ import {
   getCameraDevices,
   getFaceBlendshapes,
   getFaceLandmarks,
+  getFaceMatrix,
   getEyeGaze,
   getTrackingStatus,
   initHeadTracking,
@@ -117,7 +123,9 @@ config.memory = await loadMemory();
 const savedVoice = localStorage.getItem('mirror.voice') || config.geminiVoice;
 const savedPace = localStorage.getItem('mirror.pace') || 'brisk';
 const visionEnabled = localStorage.getItem('mirror.vision') !== 'false';
-const wakeEnabled = localStorage.getItem('mirror.wake') !== 'false';
+// Legacy mirror.wake=false was also written by STOP. Only the explicit
+// wake setting persists across launches; STOP mutes this session.
+const wakeEnabled = localStorage.getItem('mirror.wake.enabled') !== 'false';
 const gesturesEnabled = localStorage.getItem('mirror.gestures') !== 'false';
 const facePuppetEnabled = localStorage.getItem('mirror.face-puppet') === 'true';
 const savedPersona = localStorage.getItem('mirror.persona') || 'velora';
@@ -192,10 +200,10 @@ scene.add(emberLight);
 const depthScene = createDepthScene(scene);
 depthScene.setDepthEnabled(depthEnabled);
 const arOverlay = new AROverlay(elements.arCanvas);
+const bodyTryOn = new BodyTryOn(elements.video);
 const handCtx = elements.handOverlay.getContext('2d');
 let handHoverTarget = null;
-let heldEffect = null;
-const heldEffects = new Map();
+const pinchSelections = new Set();
 const handPointers = new Map();
 const trackingDebug = new TrackingDebugOverlay(elements.shell, elements.video);
 resizeHandOverlay();
@@ -206,9 +214,10 @@ const closet = new ClosetStore({
   importButton: elements.closetImport,
   onSelect: (item) => {
     localStorage.setItem('mirror.closet.selected-name', item.name);
-    elements.tryOnRun.disabled = !elements.tryOnConsent.checked;
-    elements.tryOnStatus.textContent = `${item.name} selected · consent to prepare a frame.`;
-    showOracle(`${item.name} is selected. When the virtual try-on renderer is connected, this is the garment it will receive.`, '', 'Closet ready');
+    bodyTryOn.wear(item);
+    if (typeof mode !== 'undefined') setAssistantMode('ar');
+    elements.tryOnStatus.textContent = `${item.name} selected. Show your shoulders and hips for a live preview.`;
+    showGesture(`${item.name} selected`);
   },
   onNotice: (message) => showGesture(message)
 });
@@ -221,11 +230,50 @@ const avatar = new AvatarController({
 
 let mode = 'mirror';
 let requestedMode = 'mirror';
+const mediaPanel = new MediaPanelController({
+  bridge: window.mirrorBridge, getBounds: mediaBounds,
+  onVisibility: active => {
+    elements.watchPanel.classList.toggle('active', active || mode === 'watch');
+    elements.shell.dataset.mediaOpen = String(active);
+    if (!active) setBrowserLayout({ fullscreen: false });
+    localStorage.setItem('mirror.browser.open', String(active));
+  }
+});
+const mediaResizeObserver = new ResizeObserver(() => mediaPanel.resize());
+mediaResizeObserver.observe(document.querySelector('.watch-display'));
+document.querySelector('#watch-close').addEventListener('click', () => {
+  mediaPanel.close();
+  elements.watchVideo.pause();
+  elements.watchFrame.removeAttribute('src');
+  if (mode === 'watch') setAssistantMode('mirror');
+});
 let state = 'starting';
 let assistantTranscript = '';
 let idleTimer = null;
 let diagnosticsTimer = 0;
 let liveCaptionTimer = null;
+let gestureToastTimer = null;
+const faceNavigation = new FaceNavigation();
+let activeMediaService = '';
+let mediaContentUrl = '';
+const faceNavigationToggle = document.querySelector('#face-navigation-toggle');
+faceNavigationToggle.checked = localStorage.getItem('mirror.face-navigation') !== 'false';
+faceNavigationToggle.addEventListener('change', () => { localStorage.setItem('mirror.face-navigation', String(faceNavigationToggle.checked)); faceNavigation.reset(); });
+const captionMeasure = document.createElement('canvas').getContext('2d');
+const captions = new StreamingCaption({
+  render: text => {
+    elements.liveCaption.textContent = text;
+    if (text) { elements.oracleText.textContent = ''; elements.oracleCard.classList.remove('empty'); }
+    elements.liveCaption.classList.toggle('visible', Boolean(text));
+    clearTimeout(liveCaptionTimer);
+    if (text) liveCaptionTimer = setTimeout(() => captions.clear(), 6500);
+  },
+  fit: text => {
+    const style = getComputedStyle(elements.liveCaption);
+    captionMeasure.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    return lastTwoLines(text, elements.liveCaption.clientWidth || 360, value => captionMeasure.measureText(value).width + value.length * (parseFloat(style.letterSpacing) || 0));
+  }
+});
 let browserRecognition = null;
 let userTranscriptBuffer = '';
 let lastUserTranscriptAt = 0;
@@ -241,7 +289,7 @@ const gemini = new GeminiLiveAdapter({
   config,
   onState: setState,
   onTranscript: handleTranscript,
-  onError: (message) => showOracle(message, '', 'Connection notice'),
+  onError: (message) => { window.mirrorBridge?.cancelCodex?.(); showOracle(message, '', 'Connection notice'); },
   onRemember: async (fact) => {
     const memory = await window.mirrorBridge.rememberFact(fact);
     updateMemoryStatus(memory);
@@ -249,12 +297,17 @@ const gemini = new GeminiLiveAdapter({
   },
   onTurnComplete: () => {
     userTranscriptBuffer = '';
+    lastVoiceAction = '';
     returnToRequestedMode();
     if (!gemini.listening && elements.wakeToggle.checked) { wake.setCommandsOnly(false); wake.resume(); }
   },
   onModeChange: async (nextMode) => dispatchAction({ type: 'mode', mode: nextMode }),
   onArEffect: async (effect) => dispatchAction({ type: 'effect', effect }),
-  onMedia: async (action) => dispatchAction({ ...action, type: 'media' })
+  onMedia: async (action) => dispatchAction({ ...action, type: 'media' }),
+  onCodexTask: async ({ task }) => window.mirrorBridge.codexTask(task),
+  onBrowserAction: runBrowserAction,
+  onGarment: async action => dispatchAction({ ...action, type: 'garment' }),
+  onBrowserLayout: async action => setBrowserLayout(action)
 });
 gemini.setVideoSource(elements.video);
 gemini.setPersona(savedPersona);
@@ -277,7 +330,7 @@ const sleep = new SleepController({
     delete elements.shell.dataset.sleeping;
     if (cameraBeforeSleep) await toggleCamera(true);
     if (sleep.sleeping) return;
-    gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+    syncGestures();
     setMode('mirror');
     setState('ready');
     await populateCameras();
@@ -286,9 +339,11 @@ const sleep = new SleepController({
 });
 
 async function enterMirrorSleep() {
+  window.mirrorBridge?.cancelCodex?.();
   wake.setCommandsOnly(false);
-  window.mirrorBridge?.hideMirrorMedia?.();
+  mediaPanel.close();
   trackingDebug.clear();
+  bodyTryOn.resetTracking();
   cameraBeforeSleep = getTrackingStatus().cameraActive;
   elements.shell.dataset.sleeping = 'true';
   elements.sleepHint.textContent = 'Say “mirror mirror” to wake';
@@ -304,6 +359,7 @@ async function enterMirrorSleep() {
   elements.watchFrame.src = '';
   avatar.setVisible(false);
   clearTimeout(idleTimer);
+  captions.clear();
   clearTimeout(liveCaptionTimer);
   elements.liveCaption.classList.remove('visible');
   elements.settings.classList.remove('open');
@@ -313,7 +369,7 @@ async function enterMirrorSleep() {
 }
 
 const dispatchAction = createMirrorActionDispatcher({
-  setMode: setAssistantMode, setEffect: setArEffect, openMedia: openMirrorMedia,
+  setMode: setAssistantMode, setEffect: setArEffect, openMedia: openMirrorMedia, setGarment: applyGarmentAction, setBrowserLayout: setBrowserLayout, stepMedia: stepMedia,
   getState: () => ({ mode, effect: arOverlay.effect, faceDetected: getTrackingStatus().faceDetected })
 });
 
@@ -321,11 +377,15 @@ await initialize();
 
 async function initialize() {
   setState('starting');
+  // Begin downloading/initializing speech immediately, independent of avatar load.
+  wake.prepare();
+  if (elements.wakeToggle.checked) wake.start();
   initHeadTracking(elements.video)
     .then(async () => { if (sleep.sleeping) await toggleCamera(false); await populateCameras(); })
     .catch((error) => console.warn('[startup] tracking', error));
   gestures.init().then((available) => {
-    gestures.setEnabled(available && elements.gestureToggle.checked && !sleep.sleeping && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+    gestures.setEnabled(available && !sleep.sleeping);
+    gestures.setControlsEnabled(elements.gestureToggle.checked);
     if (available && elements.gestureToggle.checked) handleGesture('ready');
     if (!available) elements.gestureToggle.checked = false;
   });
@@ -340,10 +400,10 @@ async function initialize() {
   elements.loader.classList.add('done');
   setState('ready');
   elements.oracleCard.classList.add('empty');
-  if (elements.wakeToggle.checked) wake.start();
+  if (localStorage.getItem('mirror.browser.open') === 'true') dispatchAction({ type: 'media', service: localStorage.getItem('mirror.browser.service') || 'spotify' });
 }
 
-window.__mirrorDebug = { scene, camera, avatar, depthScene, renderQuality, getTrackingStatus, getFaceLandmarks, gestures, sleep, wake, gemini, handleGesture, setMode, hardStopVoice, dispatchAction, handleTranscript, handleLocalCommand, trackingDebug };
+window.__mirrorDebug = { scene, camera, avatar, depthScene, renderQuality, getTrackingStatus, getFaceLandmarks, gestures, sleep, wake, gemini, handleGesture, setMode, hardStopVoice, dispatchAction, handleTranscript, handleLocalCommand, trackingDebug, mediaPanel, bodyTryOn };
 
 function setDepthMode(enabled, announce = true) {
   depthEnabled = Boolean(enabled);
@@ -361,17 +421,15 @@ function setMode(nextMode) {
   if (!['portal', 'mirror', 'ar', 'watch'].includes(nextMode)) return;
   if (nextMode !== mode) cancelEffectDrag();
   mode = nextMode;
-  gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
-  if (!['ar', 'watch'].includes(mode)) clearHandPointer();
-  if (mode !== 'watch') window.mirrorBridge?.hideMirrorMedia?.();
+  syncGestures();
   elements.shell.dataset.mode = nextMode;
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === nextMode));
   elements.studioPanel.classList.toggle('active', nextMode === 'ar');
-  elements.watchPanel.classList.toggle('active', nextMode === 'watch');
+  elements.watchPanel.classList.toggle('active', nextMode === 'watch' || mediaPanel.active);
   depthScene.setMode(nextMode);
   avatar.setVisible(nextMode === 'portal' || nextMode === 'ar');
   avatar.setDisplayMode(nextMode);
-  if (nextMode === 'mirror') elements.oracleCard.classList.add('empty');
+  if (nextMode === 'mirror' && !elements.liveCaption.classList.contains('visible')) elements.oracleCard.classList.add('empty');
   resetIdle();
 }
 
@@ -380,11 +438,11 @@ function setAssistantMode(nextMode) {
   if (!['mirror', 'portal', 'ar', 'watch'].includes(nextMode)) return;
   requestedMode = nextMode;
   setMode(nextMode);
-  if (nextMode === 'mirror') elements.oracleCard.classList.add('empty');
+  if (nextMode === 'mirror' && !elements.liveCaption.classList.contains('visible')) elements.oracleCard.classList.add('empty');
 }
 
 function showAssistant() {
-  setMode(requestedMode === 'ar' ? 'ar' : 'portal');
+  setMode(assistantDisplayMode(requestedMode, mediaPanel.active));
 }
 
 function returnToRequestedMode() {
@@ -457,6 +515,7 @@ async function askMirror(text) {
 
 async function handleWakeWord(command) {
   if (sleep.sleeping && !(await sleep.wakeFromPhrase())) return;
+  if (command && runVoiceNavigation(command)) { wake.setCommandsOnly(false); if (elements.wakeToggle.checked) wake.resume(); return; }
   wake.setCommandsOnly(true);
   wake.resume();
   showAssistant();
@@ -484,31 +543,44 @@ function handleTranscript(role, text) {
     lastUserTranscriptAt = now;
     const command = parseMirrorCommand(userTranscriptBuffer) || (/^\s*(?:please )?(?:stop|stop talking|be quiet|sleep|go to sleep)[.!?]*\s*$/i.test(text) ? (/sleep/i.test(text) ? 'sleep' : 'stop') : null);
     if (command) { handleLocalCommand(command); return; }
-    const action = parseMirrorAction(userTranscriptBuffer);
+    const action = parseMirrorAction(text) || parseMirrorAction(userTranscriptBuffer);
     if (action) {
       const key = JSON.stringify(action);
-      if (key !== lastVoiceAction || now - lastVoiceActionAt > 2500) { dispatchAction(action); lastVoiceAction = key; lastVoiceActionAt = now; }
+      if (key !== lastVoiceAction || now - lastVoiceActionAt > 2500) {
+        gemini.suppressCurrentReply();
+        const commandGeneration = gemini.connectGeneration;
+        Promise.resolve(dispatchAction(action)).then(result => {
+          if (sleep.sleeping || commandGeneration !== gemini.connectGeneration) return;
+          elements.liveCaption.dataset.speaker = 'assistant';
+          captions.push(result?.error || result?.ok === false ? 'Not ready yet.' : 'Sure.', 'assistant', true);
+        });
+        lastVoiceAction = key; lastVoiceActionAt = now;
+      }
       setLiveCaption(userTranscriptBuffer, 6500);
       return;
     }
   }
   if (role === 'assistant') {
     assistantTranscript = `${assistantTranscript} ${text}`.trim();
-    showOracle(assistantTranscript, '', 'The mirror answers');
+    elements.oracleText.textContent = '';
+    elements.oracleUser.textContent = '';
+    elements.oracleEyebrow.textContent = '';
+    elements.liveCaption.dataset.speaker = 'assistant';
+    elements.oracleCard.classList.remove('empty');
+    captions.push(text, 'assistant');
   } else {
-    setLiveCaption(text.trim(), 6500);
-    showOracle('Listening…', '', 'You said');
+    setLiveCaption(userTranscriptBuffer, 6500);
+    elements.oracleText.textContent = '';
+    elements.oracleUser.textContent = '';
+    elements.oracleEyebrow.textContent = '';
+    elements.oracleCard.classList.remove('empty');
   }
 }
 
 function setLiveCaption(text, duration = 4200) {
   if (sleep.sleeping) return;
-  const caption = String(text || '').trim().slice(0, 220);
-  if (!caption || !elements.liveCaption) return;
-  elements.liveCaption.textContent = caption;
-  elements.liveCaption.classList.add('visible');
-  clearTimeout(liveCaptionTimer);
-  liveCaptionTimer = setTimeout(() => elements.liveCaption.classList.remove('visible'), duration);
+  elements.liveCaption.dataset.speaker = 'user';
+  captions.push(text, 'user', true);
 }
 
 function handleLocalCommand(command) {
@@ -518,7 +590,7 @@ function handleLocalCommand(command) {
     if (sleep.sleeping) return;
     const enabled = command === 'debug-on';
     trackingDebug.setEnabled(enabled);
-    gestures.setEnabled(elements.gestureToggle.checked && (enabled || ['ar', 'watch'].includes(mode)));
+    syncGestures();
     elements.diagnostics.classList.toggle('open', enabled);
     if (enabled) setDepthMode(true, false);
     showGesture(enabled ? 'Tracking debug on' : 'Tracking debug off');
@@ -526,10 +598,10 @@ function handleLocalCommand(command) {
 }
 
 function hardStopVoice() {
-  window.mirrorBridge?.hideMirrorMedia?.();
+  window.mirrorBridge?.cancelCodex?.();
+  mediaPanel.close();
   sleep.cancelPendingWake();
   elements.wakeToggle.checked = false;
-  localStorage.setItem('mirror.wake', 'false');
   wake.pause();
   const recognition = browserRecognition;
   browserRecognition = null;
@@ -537,6 +609,7 @@ function hardStopVoice() {
   speech.stop();
   gemini.disconnect();
   elements.mic.classList.remove('listening');
+  captions.clear();
   clearTimeout(liveCaptionTimer);
   elements.liveCaption.textContent = '';
   elements.liveCaption.classList.remove('visible');
@@ -612,6 +685,7 @@ function updateTrackingUi() {
 
 elements.mic.addEventListener('click', toggleVoice);
 elements.hardStop.addEventListener('click', hardStopVoice);
+window.mirrorBridge?.onStopRequested?.(hardStopVoice);
 elements.sleepButton.addEventListener('click', () => sleep.enter());
 elements.shell.addEventListener('click', (event) => {
   if (sleep.sleeping) { event.preventDefault(); event.stopImmediatePropagation(); }
@@ -692,13 +766,13 @@ elements.visionToggle.addEventListener('change', () => {
     : 'Camera frames stay on this device';
 });
 elements.wakeToggle.addEventListener('change', () => {
-  localStorage.setItem('mirror.wake', String(elements.wakeToggle.checked));
+  localStorage.setItem('mirror.wake.enabled', String(elements.wakeToggle.checked));
   if (elements.wakeToggle.checked) wake.resume();
   else wake.pause();
 });
 elements.gestureToggle.addEventListener('change', () => {
   localStorage.setItem('mirror.gestures', String(elements.gestureToggle.checked));
-  gestures.setEnabled(elements.gestureToggle.checked && (['ar', 'watch'].includes(mode) || trackingDebug.enabled));
+  syncGestures();
   showGesture(elements.gestureToggle.checked ? 'Point with one finger · pinch over a control to select' : 'Hand pointer off');
 });
 elements.facePuppetToggle.addEventListener('change', () => {
@@ -757,6 +831,7 @@ elements.cameraToggle.addEventListener('click', async () => {
   await populateCameras();
 });
 elements.calibrateDepth.addEventListener('click', () => {
+  faceNavigation.reset();
   const ready = calibrateDepth();
   if (ready) setDepthMode(true);
   showOracle(
@@ -780,7 +855,6 @@ window.addEventListener('pointermove', resetIdle);
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') { hardStopVoice(); return; }
   if (sleep.sleeping) return;
-  if (event.key === 'Escape') { hardStopVoice(); return; }
   resetIdle();
   if (event.key === '1') setMode('portal');
   if (event.key === '2') setMode('mirror');
@@ -800,6 +874,9 @@ function animate() {
   const elapsed = clock.elapsedTime;
   if (sleep.sleeping) return;
   const viewer = updateHeadTracking(performance.now());
+  const matrix = getFaceMatrix();
+  const step = faceNavigation.update({ viewer, pitch: matrix ? Math.atan2(matrix[6], matrix[10]) : null, faceDetected: getTrackingStatus().faceDetected, active: faceNavigationToggle.checked && mediaPanel.active && (activeMediaService === 'spotify' || mediaContentUrl.includes('/shorts/')) }, performance.now());
+  if (step) stepMedia({ action: step });
   if (depthEnabled) {
     elements.shell.style.setProperty('--viewer-x', `${Math.round(viewer.x * 42)}px`);
     elements.shell.style.setProperty('--viewer-y', `${Math.round(viewer.y * 30)}px`);
@@ -818,8 +895,11 @@ function animate() {
   avatar.setEyeGaze(getEyeGaze());
   avatar.update(dt, elapsed, viewer);
   arOverlay.render(getFaceLandmarks(), elements.video, elapsed, mode === 'ar');
-  if (mode === 'ar') for (const item of heldEffects.values()) arOverlay.renderDrag(item.effect, item.cursor, elapsed, isEffectOverFace(item));
   trackingDebug.draw({ face: getFaceLandmarks(), hands: gestures.debugHands || gestures.latestHands || [...handPointers.values()].map(d => ({ landmarks: d.hand, screenHand: d.screenHand })), status: getTrackingStatus(), viewer, handStatus: gestures.status, depthEnabled });
+  bodyTryOn.update(performance.now(), mode === 'ar');
+  if (mode === 'ar') { bodyTryOn.draw(arOverlay.ctx, viewportSize().width, viewportSize().height);
+    if (bodyTryOn.items.size) elements.tryOnStatus.textContent = bodyTryOn.status === 'unavailable' ? 'Body tracking is unavailable. Check the camera and local model.' : bodyTryOn.pose ? 'Live garment preview: local 2D overlay' : 'Step back so the camera can see your shoulders and hips.';
+  }
   renderer.render(scene, camera);
   updateRenderQuality(dt);
   diagnosticsTimer += dt;
@@ -848,7 +928,7 @@ function updateDiagnostics() {
 }
 
 window.addEventListener('resize', () => {
-  if (mode === 'watch') window.mirrorBridge?.resizeMirrorMedia?.(mediaBounds());
+  mediaPanel.resize();
   const viewport = viewportSize();
   camera.aspect = viewport.width / viewport.height;
   camera.updateProjectionMatrix();
@@ -860,19 +940,76 @@ window.addEventListener('resize', () => {
   resizeHandOverlay();
 });
 
-window.addEventListener('beforeunload', () => { wake.destroy(); gemini.disconnect(); });
+window.addEventListener('beforeunload', () => { window.mirrorBridge?.cancelCodex?.(); window.mirrorBridge?.hideMirrorMedia?.(); bodyTryOn.dispose(); mediaResizeObserver.disconnect(); wake.destroy(); gemini.disconnect(); });
+
+function syncGestures() {
+  gestures.setEnabled(!sleep.sleeping && Boolean(gestures.landmarker));
+  gestures.setControlsEnabled(elements.gestureToggle.checked);
+  if (!elements.gestureToggle.checked) clearHandPointer();
+}
+
+function applyGarmentAction(action) {
+  const removing = action.remove || action.action === 'remove';
+  const query = action.garment || action.name || '';
+  const item = findGarment(closet.items, query);
+  if (!item && !(removing && query === 'all')) return { handled: true, error: 'Garment not found', available: closet.items.map(item => ({ name: item.name, id: item.id })) };
+  const result = removing ? bodyTryOn.remove(item) : bodyTryOn.wear(item);
+  if (!removing) { closet.selectedId = item.id; closet.render(); }
+  elements.tryOnStatus.textContent = removing ? 'Garment removed.' : `${item.name} selected. Show your shoulders and hips.`;
+  showGesture(removing ? 'Garment removed' : `${item.name} selected`);
+  return { handled: true, ...result };
+}
+
+function setBrowserLayout(action) {
+  const fullscreen = Boolean(action.fullscreen);
+  elements.watchPanel.dataset.fullscreen = String(fullscreen);
+  elements.shell.dataset.browserFullscreen = String(fullscreen);
+  document.querySelector('#browser-expand').textContent = fullscreen ? 'Minimize' : 'Fullscreen';
+  document.querySelector('#browser-expand').setAttribute('aria-pressed', String(fullscreen));
+  mediaPanel.resize();
+  return { handled: true, fullscreen };
+}
+
+async function runBrowserAction(action) {
+  const result = await window.mirrorBridge.browserAction(action);
+  if (result?.page?.url && result.page.url.startsWith('https://')) { mediaContentUrl = result.page.url; elements.watchUrl.value = mediaContentUrl; }
+  return result;
+}
+
+async function stepMedia(input) {
+  const result = await window.mirrorBridge.controlMirrorMedia({ action: input.action });
+  showGesture(result?.executed ? (input.action === 'next' ? 'Next' : 'Previous') : result?.message || 'Open Spotify or a Short first');
+  return { handled: true, ...result };
+}
+
+async function browserToolbar(action) {
+  if (!mediaPanel.active) return;
+  const result = await runBrowserAction({ action });
+  if (result?.page?.url) elements.watchUrl.value = result.page.url;
+  if (result?.error) showGesture(result.error);
+}
+document.querySelector('#browser-back').addEventListener('click', () => browserToolbar('back'));
+document.querySelector('#browser-forward').addEventListener('click', () => browserToolbar('forward'));
+document.querySelector('#browser-reload').addEventListener('click', () => browserToolbar('reload'));
+document.querySelector('#browser-expand').addEventListener('click', () => setBrowserLayout({ fullscreen: elements.watchPanel.dataset.fullscreen !== 'true' }));
+document.querySelector('#wardrobe-clear').addEventListener('click', () => applyGarmentAction({ remove: true, garment: 'all' }));
 
 function mediaBounds() {
   const bounds = document.querySelector('.watch-display').getBoundingClientRect();
-  return { x: Math.round(bounds.x), y: Math.round(bounds.y), width: Math.max(1, Math.round(bounds.width)), height: Math.max(320, Math.round(bounds.height)) };
+  return { x: Math.round(bounds.x), y: Math.round(bounds.y), width: Math.max(1, Math.round(bounds.width)), height: Math.max(1, Math.round(bounds.height)) };
 }
 
 async function openMirrorMedia(action) {
   try {
+    activeMediaService = action.service;
+    faceNavigation.reset();
+    localStorage.setItem('mirror.browser.service', action.service);
     elements.watchVideo.pause();
     elements.watchFrame.removeAttribute('src');
-    const result = await window.mirrorBridge.openMirrorMedia({ ...action, bounds: mediaBounds() });
-    if (mode !== 'watch' || sleep.sleeping) { await window.mirrorBridge.hideMirrorMedia(); return { handled: true, cancelled: true }; }
+    if (action.fullscreen != null) setBrowserLayout(action);
+    const result = await mediaPanel.open(action);
+    if (result?.url) { elements.watchUrl.value = result.url; mediaContentUrl = result.url; }
+    if (result.cancelled || sleep.sleeping) return { handled: true, cancelled: true };
     showGesture(result?.message || 'Media opened on the mirror');
     return { handled: true, ...result };
   } catch (error) {
@@ -911,33 +1048,21 @@ function escapeHtml(value) {
 }
 
 function loadWatchVideo() {
-  window.mirrorBridge?.hideMirrorMedia?.();
-  const url = elements.watchUrl.value.trim();
-  if (!url) return;
+  const value = elements.watchUrl.value.trim();
+  if (!value) return;
   try {
-    const parsed = new URL(url);
-    if (!['https:', 'http:'].includes(parsed.protocol)) throw new Error('Use an http(s) video URL.');
-    const videoId = youtubeId(parsed);
-    const spotifyEmbed = spotifyEmbedUrl(parsed);
-    if (videoId || spotifyEmbed) {
-      elements.watchVideo.pause();
-      elements.watchVideo.removeAttribute('src');
-      elements.watchVideo.classList.remove('loaded');
-      elements.watchFrame.src = videoId
-        ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`
-        : spotifyEmbed;
-      elements.watchFrame.classList.add('loaded');
-    } else {
-      elements.watchFrame.removeAttribute('src');
-      elements.watchFrame.classList.remove('loaded');
-      elements.watchVideo.src = parsed.href;
-      elements.watchVideo.classList.add('loaded');
-      elements.watchVideo.play().catch(() => {});
+    let parsed;
+    try { parsed = new URL(value.includes('://') ? value : `https://${value}`); if (!parsed.hostname.includes('.')) throw new Error('search'); }
+    catch { parsed = new URL(`https://www.google.com/search?q=${encodeURIComponent(value)}`); }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') throw new Error('Use a web address.');
+    if (/\.(mp4|webm)(?:$|\?)/i.test(parsed.href)) {
+      mediaPanel.close();elements.watchFrame.removeAttribute('src');elements.watchVideo.src=parsed.href;elements.watchVideo.classList.add('loaded');elements.watchPlaceholder.style.display='none';elements.watchVideo.play().catch(()=>{});return;
     }
-    elements.watchPlaceholder.classList.add('hidden');
-  } catch (error) {
-    showOracle(error.message, '', 'Watch mode');
-  }
+    if (parsed.protocol !== 'https:') throw new Error('Browser pages require HTTPS.');
+    const host=parsed.hostname.replace(/^www\./,'');
+    const service=host==='open.spotify.com'?'spotify':/^(youtube\.com|youtu\.be)$/.test(host)?'youtube':host==='netflix.com'?'netflix':'browser';
+    dispatchAction({ type:'media',service,url:parsed.href });
+  } catch(error) { showGesture(error.message); }
 }
 
 function youtubeId(url) {
@@ -956,6 +1081,7 @@ function spotifyEmbedUrl(url) {
 }
 
 function runVoiceNavigation(prompt) {
+  if (/^\s*(?:please )?(?:stop|stop talking|be quiet|mute)[.!?]*\s*$/i.test(prompt)) { hardStopVoice(); return true; }
   const command = parseMirrorCommand(prompt);
   if (command) { handleLocalCommand(command); return true; }
   const action = parseMirrorAction(prompt);
@@ -994,40 +1120,24 @@ function runVoiceNavigation(prompt) {
 }
 
 function handleGesture(type, detail) {
-  if (sleep.sleeping || !['ar', 'watch'].includes(mode)) return;
+  if (sleep.sleeping) return;
+  if (type === 'clap') { elements.gestureToggle.checked = !elements.gestureToggle.checked; elements.gestureToggle.dispatchEvent(new Event('change')); return; }
+  if (!elements.gestureToggle.checked) return;
   const handId = detail?.handId ?? 'default';
-  heldEffect = heldEffects.get(handId) || null;
   if (type === 'pointer-down') {
-    const target = handControlAt(detail);
-    const chip = target?.closest('[data-effect]');
-    if (mode === 'ar' && chip && chip.dataset.effect !== 'none') {
-      heldEffect = { effect: chip.dataset.effect, chip, cursor: { x: detail.x, y: detail.y }, hand: detail.hand };
-      heldEffects.set(handId, heldEffect);
-      chip.classList.add('held');
-      updateEffectDragLabel();
-      showGesture('Hold the pinch, move to your face, then release');
+    const chip = handControlAt(detail)?.closest('[data-effect], [data-closet-id]');
+    if (mode === 'ar' && chip) {
+      pinchSelections.add(handId);
+      chip.click();
+      showGesture(getTrackingStatus().faceDetected ? 'Filter selected' : 'Filter selected ? look toward the camera');
+      return true;
     }
     return;
   }
-  if (type === 'pointer-drag' && heldEffect) {
-    heldEffect.cursor = { x: detail.x, y: detail.y };
-    heldEffect.hand = detail.hand;
-    updateEffectDragLabel();
-    return;
-  }
-  if (type === 'pointer-up' && heldEffect) {
-    heldEffect.cursor = { x: detail.x, y: detail.y };
-    heldEffect.hand = detail.hand;
-    const effect = heldEffect.effect;
-    const apply = isEffectOverFace(heldEffect);
-    cancelEffectDrag(handId);
-    if (apply) { setArEffect(effect); showGesture(`${effect} applied`); }
-    else showGesture(getTrackingStatus().faceDetected ? 'Release over your face to wear it' : 'Face not found. Look toward the camera and try again');
-    return true;
-  }
+  if (type === 'pointer-up') return pinchSelections.delete(handId);
   if (type === 'pointer-cancel') { cancelEffectDrag(handId); handPointers.delete(handId); redrawHands(); return; }
   if (type === 'pointer-move') {
-    if (mode === 'watch' && detail.indexUp) {
+    if (mediaPanel.active && detail.indexUp) {
       const bounds = elements.shell.getBoundingClientRect();
       window.mirrorBridge?.mirrorMediaPointer?.({ x: bounds.left + detail.cursor.x * bounds.width, y: bounds.top + detail.cursor.y * bounds.height, pinch: detail.pinchDown });
     }
@@ -1036,6 +1146,7 @@ function handleGesture(type, detail) {
     return;
   }
   if (type === 'pointer-lost') {
+    window.mirrorBridge?.mirrorMediaPointer?.({ clear: true });
     cancelEffectDrag(detail?.handId);
     if (detail?.handId != null) handPointers.delete(handId); else handPointers.clear();
     redrawHands();
@@ -1045,15 +1156,22 @@ function handleGesture(type, detail) {
     const shell = elements.shell.getBoundingClientRect();
     const x = shell.left + detail.x * shell.width;
     const y = shell.top + detail.y * shell.height;
-    if (mode === 'watch') window.mirrorBridge?.mirrorMediaPointer?.({ x, y, click: true });
+    if (mediaPanel.active) {
+      window.mirrorBridge.mirrorMediaPointer({ x, y, click: true }).then(result => { if (!result.hit && !sleep.sleeping && elements.gestureToggle.checked) clickMirrorControl(x, y); });
+      return;
+    }
+    clickMirrorControl(x, y);
+    return;
+  }
+  if (type === 'ready') showGesture('Right hand: point and pinch. Clap to toggle controls.');
+}
+
+function clickMirrorControl(x, y) {
     const target = document.elementFromPoint(x, y)?.closest('button, a, [role="button"], input[type="button"], input[type="checkbox"], select, summary, label[for]');
     if (target && !target.disabled && elements.shell.contains(target)) {
       target.click();
       showGesture(`Selected · ${target.getAttribute('aria-label') || target.textContent.trim().replace(/\s+/g, ' ').slice(0, 32) || 'control'}`);
     } else showGesture('Move fingertip over a control, then pinch');
-    return;
-  }
-  if (type === 'ready') showGesture('Point with one finger · pinch thumb and index to select');
 }
 
 function configureEffectPalette() {
@@ -1075,12 +1193,13 @@ function configureEffectPalette() {
     chip.setAttribute('aria-label', `Try ${names[effect] || effect}`);
   });
   const intro = elements.studioPanel.querySelector('.mode-intro');
-  intro.querySelector('h1').textContent = 'Pick up a look.';
-  intro.querySelector('p').textContent = 'Point at an effect. Pinch, hold it to your face, then release.';
+  intro.querySelector('h1').textContent = 'Choose a look.';
+  intro.querySelector('p').textContent = 'Point with your right hand. Pinch an effect to wear it.';
   elements.studioPanel.querySelector('.tray-head span').textContent = 'Pinch · drag · release';
   const shelf = elements.studioPanel.querySelector('.closet-shelf');
   const details = document.createElement('details');
   details.className = 'wardrobe-details';
+  details.open = true;
   const summary = document.createElement('summary');
   summary.textContent = 'Wardrobe';
   shelf.before(details);
@@ -1089,32 +1208,16 @@ function configureEffectPalette() {
 
 function handControlAt(point) {
   const bounds = elements.shell.getBoundingClientRect();
+  const browserBounds = document.querySelector('.watch-display').getBoundingClientRect();
+  const px = bounds.left + point.x * bounds.width, py = bounds.top + point.y * bounds.height;
+  if (mediaPanel.active && px >= browserBounds.left && px < browserBounds.right && py >= browserBounds.top && py < browserBounds.bottom) return null;
   const target = document.elementFromPoint(bounds.left + point.x * bounds.width, bounds.top + point.y * bounds.height)?.closest('button, a, [role="button"], input, select, summary, label[for]');
   return target && elements.shell.contains(target) && !target.disabled ? target : null;
 }
 
-function isEffectOverFace(item) {
-  return mode === 'ar' && getTrackingStatus().faceDetected && (arOverlay.containsFacePoint(item.cursor) || arOverlay.containsCameraFacePoint(item.hand?.[8], elements.video));
-}
-
-function updateEffectDragLabel() {
-  if (!heldEffect) return;
-  elements.dragLabel.textContent = isEffectOverFace(heldEffect) ? 'Release to wear' : 'Move to your face';
-  elements.dragLabel.style.left = `${heldEffect.cursor.x * 100}%`;
-  elements.dragLabel.style.top = `${heldEffect.cursor.y * 100}%`;
-  elements.dragLabel.classList.add('visible');
-}
-
 function cancelEffectDrag(handId) {
-  if (handId == null) {
-    for (const item of heldEffects.values()) item.chip.classList.remove('held');
-    heldEffects.clear();
-  } else {
-    const item = heldEffects.get(handId);
-    heldEffects.delete(handId);
-    if (item && ![...heldEffects.values()].some(other => other.chip === item.chip)) item.chip.classList.remove('held');
-  }
-  heldEffect = null;
+  if (handId == null) pinchSelections.clear();
+  else pinchSelections.delete(handId);
   elements.dragLabel.classList.remove('visible');
 }
 
@@ -1128,6 +1231,7 @@ function resizeHandOverlay() {
 
 function clearHandPointer() {
   handPointers.clear();
+  window.mirrorBridge?.mirrorMediaPointer?.({ clear: true });
   if (!handCtx) return;
   const { width, height } = viewportSize();
   handCtx.clearRect(0, 0, width, height);
@@ -1185,7 +1289,6 @@ function drawHandPointer(detail) {
   }
 }
 
-let gestureToastTimer = null;
 function showGesture(text) {
   elements.gestureToast.textContent = text;
   elements.gestureToast.classList.add('show');
@@ -1232,3 +1335,16 @@ function updateRenderQuality(dt) {
   renderQuality.frames = 0;
   renderQuality.elapsed = 0;
 }
+
+window.mirrorBridge?.onCodexTool?.(async ({ id, tool, args }) => {
+  let result;
+  try {
+    if (sleep.sleeping || !gemini.connected) throw new Error('Voice task cancelled');
+    if (tool === 'browser_action') result = await runBrowserAction(args);
+    else if (tool === 'open_mirror_media') result = await dispatchAction({ ...args, type: 'media' });
+    else if (tool === 'set_browser_layout') result = setBrowserLayout(args);
+    else if (tool === 'set_garment') result = await dispatchAction({ ...args, type: 'garment' });
+    else throw new Error('Unknown mirror tool');
+  } catch (error) { result = { error: error.message }; }
+  await window.mirrorBridge.codexToolResult({ id, result });
+});

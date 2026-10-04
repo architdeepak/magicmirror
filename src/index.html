@@ -399,6 +399,40 @@
       .clock-time { font-size: clamp(46px,10cqw,70px); letter-spacing: -3px; }
       .weather-icon, .mirror-weather strong { font-size: 32px; }
     }
+
+    /* Keep media in its own lower corner while the assistant talks. */
+    #watch-panel { inset: auto 20px 116px auto; width: min(72%, 680px); height: min(52%, 720px); z-index: 20; transform: none; transition: opacity .2s ease; }
+    #watch-panel .watch-stage { position: relative; display: block; height: 100%; }
+    #watch-panel .watch-card { box-sizing: border-box; width: 100%; height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #000; box-shadow: none; backdrop-filter: none; }
+    #watch-panel .tray-head { flex: 0 0 auto; margin: 0; }
+    #watch-panel .watch-display { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+    #watch-panel #watch-frame, #watch-panel #watch-video { height: 100%; aspect-ratio: auto; object-fit: contain; }
+    #watch-panel .watch-controls, #watch-panel .service-launcher { flex: 0 0 auto; margin: 0; }
+    #watch-panel #watch-url { min-width: 0; height: 40px; font-size: 13px; }
+    #watch-panel .service-launcher button { min-height: 30px; font-size: 12px; }
+    #watch-panel .watch-hint { margin: 0; font-size: 11px; }
+    #watch-close { border: 1px solid var(--panel-line); border-radius: 8px; padding: 6px 12px; color: var(--text); background: #000; cursor: pointer; }
+    .live-caption { display: block; white-space: pre-line; text-wrap: wrap; font-size: clamp(15px, 1.3cqw, 24px); }
+    #oracle-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+
+    .oracle-card, #app-shell[data-depth="cube"] .oracle-card, #app-shell[data-depth="cube"] .oracle-card.empty {
+      left: 50%; right: auto; bottom: 100px; width: 88%; max-height: none; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; overflow: hidden; text-align: center; transform: translateX(-50%); pointer-events: none;
+    }
+    .oracle-eyebrow, #oracle-user, #oracle-close { display: none; }
+    .live-caption, #oracle-text { font-size: clamp(24px, 3cqw, 42px); line-height: 1.25; font-weight: 600; text-shadow: 0 2px 4px #000; }
+    .live-caption.visible { margin-top: 0; max-height: 2.5em; }
+    .live-caption[data-speaker="user"] { color: #a7deff; }
+    .live-caption[data-speaker="assistant"] { color: #baffd2; }
+    #watch-panel { bottom: 200px; width: min(84%, 820px); }
+    #watch-panel[data-fullscreen="true"] { inset: 18px 18px 190px; width: auto; height: auto; }
+    #watch-panel .browser-actions { display: flex; gap: 5px; margin-left: auto; }
+    #watch-panel .browser-actions button { padding: 6px 8px; min-height: 36px; background: #000; color: var(--ice); border: 1px solid var(--panel-line); border-radius: 6px; font-size: 13px; cursor: pointer; }
+    #app-shell[data-browser-fullscreen="true"] .studio-tray { visibility: hidden; }
+    .tryon-consent, .tryon-run { display: none; }
+    .closet-list { flex-wrap: wrap; max-height: 240px; overflow: auto; }
+    .closet-item { min-height: 64px; }
+    .head-navigation-control { display: flex; align-items: center; gap: 4px; color: var(--ice); font-size: 12px; white-space: nowrap; }
+    #watch-panel .tray-head { flex-wrap: wrap; gap: 7px; }
   </style>
 </head>
 <body>
@@ -433,11 +467,11 @@
         <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Face effects are ready now. The wardrobe surface is reserved for your virtual-try-on provider, so generated looks never become part of the core mirror UI.</p></div>
         <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><span>Tap an effect</span></div><div class="effect-grid" id="effect-grid">
           <button class="effect-chip active" data-effect="enchanted">Enchanted<br>reveal</button><button class="effect-chip" data-effect="crown">Astral<br>crown</button><button class="effect-chip" data-effect="glasses">Statement<br>glasses</button><button class="effect-chip" data-effect="mask">Evening<br>mask</button><button class="effect-chip" data-effect="halo">Soft<br>halo</button><button class="effect-chip" data-effect="aura">Color<br>aura</button><button class="effect-chip" data-effect="runes">Mirror<br>runes</button><button class="effect-chip" data-effect="scan">Skin-light<br>scan</button><button class="effect-chip" data-effect="none">Clear<br>mirror</button>
-        </div><div class="tryon-note"><span>✦</span><span><b>Wardrobe pipeline</b><br>Choose a local garment below. Your image stays on this device until you explicitly run a try-on job.</span></div><div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Use a clean front-facing PNG, JPG, or WebP. Transparent PNGs give the best eventual result.</p><div class="closet-list" id="closet-list"></div><label class="tryon-consent"><input id="tryon-consent" type="checkbox"> I consent to capture one camera frame for this try-on</label><button class="tryon-run" id="tryon-run" type="button" disabled>Prepare selected look</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
+        </div><div class="tryon-note"><span>✦</span><span><b>Wardrobe pipeline</b><br>Choose a local garment below. Your image stays on this device until you explicitly run a try-on job.</span></div><div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="wardrobe-clear" type="button">Take off</button><button id="closet-import" type="button">Add garment</button></div><p>Pinch a garment or say "put on the T-shirt". Local 2D preview: step back so your body is visible.</p><div class="closet-list" id="closet-list"></div><label class="tryon-consent"><input id="tryon-consent" type="checkbox"> I consent to capture one camera frame for this try-on</label><button class="tryon-run" id="tryon-run" type="button" disabled>Prepare selected look</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
       </section>
 
       <section class="experience-panel" id="watch-panel" aria-label="Watch media">
-        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album/playlist, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><p class="watch-hint">YouTube and public Spotify links play here. Netflix, signed-in Spotify, and Find My block framing and open securely in their own page.</p></div></div>
+        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>BROWSER</strong><span class="browser-actions"><button id="browser-back" type="button" aria-label="Back">&larr;</button><button id="browser-forward" type="button" aria-label="Forward">&rarr;</button><button id="browser-reload" type="button" aria-label="Reload">&#8635;</button><label class="head-navigation-control" title="Head down: next. Head up: previous. Return to center between actions."><input id="face-navigation-toggle" type="checkbox"> Head control</label><button id="browser-expand" type="button" aria-pressed="false">Fullscreen</button></span><button id="watch-close" type="button" aria-label="Close media">Close</button></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album/playlist, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="text" inputmode="url" placeholder="Search or enter a web address" aria-label="Media URL"><button id="watch-load" type="button">Go</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><p class="watch-hint">Sign in once in this browser. Your session stays on this mirror.</p></div></div>
       </section>
 
       <div class="oracle-card empty" id="oracle-card">

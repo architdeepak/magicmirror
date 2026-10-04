@@ -62,6 +62,17 @@ export class WakeWordListener {
     this.starting = null;
   }
 
+  async prepare() {
+    try {
+      if (!this.model) await this._initialize();
+      return true;
+    } catch (error) {
+      console.warn('[wake word prepare]', error.message);
+      this.onStatus('unavailable');
+      return false;
+    }
+  }
+
   async start() {
     this.enabled = true;
     if (this.processor) return;

@@ -1,3 +1,4 @@
+import { STARTER_GARMENTS } from './starterWardrobe.js';
 // Renderer-side closet view. Images remain local; this module never uploads a
 // garment or a camera frame. A future try-on provider receives an explicit
 // consented request built from the selected item and current camera frame.
@@ -13,14 +14,16 @@ export class ClosetStore {
   }
 
   async load() {
+    this.items = [...STARTER_GARMENTS];
     try {
       const closet = await window.mirrorBridge?.listCloset();
-      this.items = closet?.garments || [];
+      this.items = [...STARTER_GARMENTS, ...(closet?.garments || [])];
       this.render();
       const selected = this.items.find((item) => item.id === this.selectedId);
-      if (selected) this.onSelect(selected);
+      // Garments are applied explicitly by the user, not while loading the closet.
     } catch (error) {
-      this.onNotice(`Closet unavailable: ${error.message}`);
+      this.render();
+      this.onNotice(`Imported closet unavailable: ${error.message}`);
     }
   }
 

@@ -4,6 +4,7 @@ const { pathToFileURL } = require('url');
 const fs = require('fs/promises');
 const dotenv = require('dotenv');
 const { MirrorMedia } = require('./mirrorMedia');
+const { CodexMirrorAgent } = require('./codexMirrorAgent');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -181,10 +182,33 @@ async function createGeminiToken() {
 }
 
 function registerBridge() {
+  const toolWaiters = new Map();
+  let toolSequence = 0;
+  const codex = new CodexMirrorAgent({ cwd: app.getPath('userData'), executeTool: (tool, args, generation) => new Promise((resolve, reject) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return reject(new Error('Mirror unavailable'));
+    const id = ++toolSequence;
+    const timer = setTimeout(() => { toolWaiters.delete(id); reject(new Error('Mirror tool timed out')); }, 15000);
+    toolWaiters.set(id, { resolve, timer });
+    mainWindow.webContents.send('mirror:codex-tool', { id, tool, args, generation });
+  }) });
+  const cancelCodex = () => {
+    codex.cancel();
+    for (const waiter of toolWaiters.values()) { clearTimeout(waiter.timer); waiter.resolve({ error: 'Cancelled' }); }
+    toolWaiters.clear();
+  };
+  ipcMain.handle('mirror:codex-task', (event, task) => { mediaForSender(event); return codex.run(task); });
+  ipcMain.handle('mirror:codex-cancel', event => { mediaForSender(event); cancelCodex(); return { cancelled: true }; });
+  ipcMain.handle('mirror:codex-tool-result', (event, { id, result }) => {
+    mediaForSender(event);
+    const waiter = toolWaiters.get(id);
+    if (waiter) { clearTimeout(waiter.timer); toolWaiters.delete(id); waiter.resolve(result); }
+  });
+  app.on('before-quit', cancelCodex);
   ipcMain.handle('mirror:open-media', (event, input) => mediaForSender(event).open(input));
   ipcMain.handle('mirror:hide-media', event => mediaForSender(event).hide());
   ipcMain.handle('mirror:resize-media', (event, bounds) => mediaForSender(event).resize(bounds));
   ipcMain.handle('mirror:control-media', (event, input) => mediaForSender(event).control(input));
+  ipcMain.handle('mirror:browser-action', (event, input) => mediaForSender(event).browserAction(input));
   ipcMain.handle('mirror:media-pointer', (event, input) => mediaForSender(event).pointer(input));
   ipcMain.handle('mirror:get-config', () => safePublicConfig());
   ipcMain.handle('mirror:create-gemini-token', () => createGeminiToken());

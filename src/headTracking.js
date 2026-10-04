@@ -247,7 +247,9 @@ export function updateHeadTracking(now = performance.now()) {
         // Eye midpoint is more stable than nose position for the virtual-window
         // illusion. Calibration gives a real viewer a centered, comfortable
         // neutral position rather than assuming every camera is mounted alike.
-        targetHead.x = clamp((reference.x - eyeCenter.x) * 3.2 * options.sensitivity, -1.25, 1.25);
+        // Raw camera x increases when the viewer moves left. Reverse the
+        // scene response so moving left reveals motion to the right.
+        targetHead.x = clamp((eyeCenter.x - reference.x) * 3.2 * options.sensitivity, -1.25, 1.25);
         // A camera above a portrait display sees vertical movement more
         // aggressively than a centred camera. Its calibrated baseline handles
         // the static offset; this factor keeps movement comfortable afterward.
@@ -274,7 +276,7 @@ export function updateHeadTracking(now = performance.now()) {
   }
   if (!status.faceDetected) {
     // A camera losing lock must not jump to the unrelated mouse cursor.
-    targetHead.x = status.cameraActive ? currentHead.x : (mouseX - 0.5) * 1.75 * options.sensitivity;
+    targetHead.x = status.cameraActive ? currentHead.x : (0.5 - mouseX) * 1.75 * options.sensitivity;
     targetHead.y = status.cameraActive ? currentHead.y : (mouseY - 0.5) * 1.5 * options.sensitivity;
     targetHead.z = 1;
   }

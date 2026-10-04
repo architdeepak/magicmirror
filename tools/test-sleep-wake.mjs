@@ -96,3 +96,27 @@ await adapter._handleMessage(JSON.stringify({ serverContent: {
 } }));
 assert.equal(audioPlayed, false);
 console.log('Sleep transitions, STOP races, and strict wake phrase checks passed.');
+
+// Startup preload must initialize once and never request a microphone itself.
+let modelLoads = 0;
+let releaseModel;
+globalThis.window = { Vosk: { createModel: () => {
+  modelLoads++;
+  return new Promise(resolve => { releaseModel = resolve; });
+} } };
+const preloadListener = new WakeWordListener({});
+let microphoneStarts = 0;
+preloadListener._resetRecognizer = () => {};
+preloadListener._startMicrophone = async () => { microphoneStarts++; return true; };
+const preparing = preloadListener.prepare();
+assert.equal(modelLoads, 1, 'The model starts loading without pressing Record');
+assert.equal(preloadListener.enabled, false, 'Preloading must respect mute');
+const arming = preloadListener.start();
+assert.equal(modelLoads, 1, 'Startup arming must share the preload download');
+releaseModel({ setLogLevel() {} });
+assert.equal(await preparing, true);
+await arming;
+assert.equal(microphoneStarts, 1);
+await preloadListener.prepare();
+assert.equal(modelLoads, 1, 'A ready model must be reused');
+console.log('Wake startup passed: immediate preload, one shared download, automatic arming and model reuse.');

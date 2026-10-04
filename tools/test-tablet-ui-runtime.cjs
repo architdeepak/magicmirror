@@ -1,0 +1,57 @@
+const { app, BrowserWindow, session }=require('electron');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const directory=fs.mkdtempSync(path.join(os.tmpdir(),'mirror-ui-test-'));
+app.setPath('userData',directory);
+fs.writeFileSync(path.join(directory,'preload.cjs'),"localStorage.setItem('mirror.wake.enabled','false');localStorage.setItem('mirror.browser.open','false');");
+app.whenReady().then(async()=>{
+  session.defaultSession.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));
+  const win=new BrowserWindow({show:false,width:1080,height:1920,webPreferences:{preload:path.join(directory,'preload.cjs'),backgroundThrottling:false}});
+  const errors=[];
+  win.webContents.on('console-message',(_event,level,message)=>{if(level===3&&!/camera|NotAllowed|api\/config|ERR_FILE_NOT_FOUND/.test(message))errors.push(message);});
+  try {
+    await win.loadFile(path.join(__dirname,'../src/index.html'));
+    const deadline=Date.now()+40000;
+    while(Date.now()<deadline && !await win.webContents.executeJavaScript('Boolean(window.__mirrorDebug)'))await new Promise(resolve=>setTimeout(resolve,200));
+    assert.equal(await win.webContents.executeJavaScript('Boolean(window.__mirrorDebug)'),true,errors.join('\n')||'Renderer did not start');
+    const result=await win.webContents.executeJavaScript(`(async()=>{
+      const d=window.__mirrorDebug;
+      d.dispatchAction({type:'garment',garment:'t-shirt'});
+      const clothes=d.bodyTryOn.getState();
+      const image=d.bodyTryOn.images.get('starter-t-shirt');
+      if(!image.complete) await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;});
+      const canvas=document.createElement('canvas');canvas.width=800;canvas.height=1600;
+      const originalVideo=d.bodyTryOn.video;
+      d.bodyTryOn.video={videoWidth:1280,videoHeight:720};
+      d.bodyTryOn.pose=Array.from({length:33},()=>({x:.5,y:.6,visibility:1}));
+      d.bodyTryOn.pose[11]={x:.45,y:.3,visibility:1};d.bodyTryOn.pose[12]={x:.55,y:.3,visibility:1};
+      d.bodyTryOn.pose[23]={x:.45,y:.7,visibility:1};d.bodyTryOn.pose[24]={x:.55,y:.7,visibility:1};
+      d.bodyTryOn.draw(canvas.getContext('2d'),800,1600);
+      const painted=canvas.getContext('2d').getImageData(0,0,800,1600).data.some((value,index)=>index%4===3&&value>0);
+      d.bodyTryOn.video=originalVideo;d.bodyTryOn.resetTracking();
+      d.dispatchAction({type:'garment',garment:'all',remove:true});
+      const removed=d.bodyTryOn.getState();
+      d.dispatchAction({type:'mode',mode:'watch'});
+      d.dispatchAction({type:'browser-layout',fullscreen:true});
+      const fullscreen=document.querySelector('#watch-panel').getBoundingClientRect();
+      d.dispatchAction({type:'browser-layout',fullscreen:false});
+      const corner=document.querySelector('#watch-panel').getBoundingClientRect();
+      d.handleTranscript('user','hello mirror');
+      const userColor=getComputedStyle(document.querySelector('#live-caption')).color;
+      d.handleTranscript('assistant','Hello there.');
+      const assistantColor=getComputedStyle(document.querySelector('#live-caption')).color;
+      return {clothes,painted,removed,fullscreen:{width:fullscreen.width,height:fullscreen.height},corner:{width:corner.width,height:corner.height},userColor,assistantColor,border:getComputedStyle(document.querySelector('#oracle-card')).borderWidth,eyebrow:getComputedStyle(document.querySelector('#oracle-eyebrow')).display};
+    })()`);
+    assert.equal(result.clothes.garments[0].id,'starter-t-shirt');
+    assert.equal(result.painted,true,'Downloaded garments must actually draw on the tracked body');
+    assert.equal(result.removed.garments.length,0);
+    assert.ok(result.fullscreen.height>result.corner.height);
+    assert.notEqual(result.userColor,result.assistantColor);
+    assert.equal(result.border,'0px');assert.equal(result.eyebrow,'none');
+    assert.ok(!errors.some(message=>/ReferenceError|TypeError|SyntaxError/.test(message)),errors.join('\n'));
+    console.log('Tablet UI passed: startup, wardrobe wear/remove, fullscreen, floating captions and speaker colors.');
+    win.destroy();app.exit(0);
+  }catch(error){console.error(error);win.destroy();app.exit(1);}
+}).catch(error=>{console.error(error);app.exit(1);});

@@ -1,7 +1,8 @@
+import { ClapGesture } from './clapGesture.js';
 ﻿import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 
-// A pinch has a complete lifecycle: controls click on release, while try-on
-// items can be held and carried to a face. Loss of tracking cancels a hold.
+// A pinch has a complete lifecycle. Controls can consume pinch-down for
+// immediate selection; other controls click on release without duplicate clicks.
 export class GestureNavigation {
   constructor(video, onGesture = () => {}) {
     this.video = video;
@@ -24,6 +25,8 @@ export class GestureNavigation {
     this.nextHandId = 1;
     this.handPreference = 'right';
     this.debugHands = [];
+    this.controlsEnabled = true;
+    this.clap = new ClapGesture();
   }
 
   async init() {
@@ -67,17 +70,26 @@ export class GestureNavigation {
     if (state.pinchWasDown) this.onGesture('pointer-cancel', detail);
     state.pinchWasDown = false;
     state.pinchStart = null;
+    state.pinchConsumed = false;
     state.previousWrist = null;
     this.latestHands = this.latestHands.filter((hand) => hand.handId !== state.handId);
     this.onGesture('pointer-lost', detail);
   }
 
   setEnabled(enabled) {
+    if (this.enabled === Boolean(enabled) && (enabled || (!this.pinchWasDown && !this.handStates.size))) return;
+    this.clap.reset();
     this.enabled = Boolean(enabled);
     this._cancel();
     this.debugHands = [];
     this.lastVideoTime = -1;
     this.status = !this.enabled ? 'off' : this.landmarker ? 'ready' : 'unavailable';
+  }
+
+  setControlsEnabled(enabled) {
+    if (this.controlsEnabled === Boolean(enabled)) return;
+    this.controlsEnabled = Boolean(enabled);
+    this._cancel();
   }
 
   setHandPreference(preference = 'right') {
@@ -97,7 +109,7 @@ export class GestureNavigation {
     // Searching invokes the more expensive palm detector; leave camera/face
     // tracking enough frame budget. Once locked, restore smooth dragging.
     const held = [...this.handStates.values()].some((state) => state.pinchWasDown);
-    const interval = this.status === 'tracking' || held ? 50 : 100;
+    const interval = this.status === 'tracking' || held || this.debugHands.length || !this.controlsEnabled ? 50 : 100;
     if (this.video.currentTime === this.lastVideoTime || now - this.lastDetectAt < interval) return;
     this.lastDetectAt = now;
     this.lastVideoTime = this.video.currentTime;
@@ -127,6 +139,8 @@ export class GestureNavigation {
     // supplied unmirrored; the physical right hand receives label Left.
     // Do not turn an unclassified or left hand into an interactive pointer.
     this.debugHands = detected.map(({ hand, label }) => ({ hand, screenHand: hand.map(point => this._project(point)), handedness: label === 'Left' ? 'right' : label === 'Right' ? 'left' : '', label }));
+    if (this.clap.update(detected.map(item => item.hand), now)) this.onGesture('clap');
+    if (!this.controlsEnabled) { this.latestHands = []; this.status = 'clap-ready'; return; }
     const detections = this.handPreference === 'both' ? detected : detected.filter(({ label }) => label === 'Left');
     const existing = [...this.handStates.values()];
     const candidates = [];
@@ -189,17 +203,18 @@ export class GestureNavigation {
     const pointer = { ...state.cursor, handId: state.handId, hand };
     if (pinchDown && !state.pinchWasDown && now - state.lastPointAt < 250) {
       state.pinchStart = { ...state.cursor };
-      this.onGesture('pointer-down', pointer);
+      state.pinchConsumed = this.onGesture('pointer-down', pointer) === true;
     } else if (pinchDown && state.pinchWasDown) {
       this.onGesture('pointer-drag', pointer);
     } else if (!pinchDown && state.pinchWasDown) {
       // A renderer can consume the release when a held item exists; a
       // drag must never click an unrelated control underneath its release.
       const handled = this.onGesture('pointer-up', pointer);
-      if (!handled && state.pinchStart && distance(state.cursor, state.pinchStart) < .06) {
+      if (!handled && !state.pinchConsumed && state.pinchStart && distance(state.cursor, state.pinchStart) < .06) {
         this.onGesture('pointer-click', pointer);
       }
       state.pinchStart = null;
+      state.pinchConsumed = false;
     }
     state.pinchWasDown = pinchDown;
   }

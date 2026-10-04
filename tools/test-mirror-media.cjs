@@ -28,17 +28,20 @@ mediaSession.setPermissionRequestHandler = callback => { mediaSession.permission
 mediaSession.setPermissionCheckHandler = callback => { mediaSession.permissionCheck = callback; };
 const exportsObject = { exports: {} };
 const source = fs.readFileSync(path.join(__dirname, '../src/mirrorMedia.js'), 'utf8');
-vm.runInNewContext(source, { module: exportsObject, require: name => { assert.equal(name, 'electron'); return { WebContentsView: MockView, session: { fromPartition: name => { assert.equal(name, 'persist:mirror-media'); return mediaSession; } } }; }, URL, setTimeout, console });
+vm.runInNewContext(source, { module: exportsObject, require: name => { if (name === './browserInteraction.js') return require('../src/browserInteraction.js'); assert.equal(name, 'electron'); return { WebContentsView: MockView, session: { fromPartition: name => { assert.equal(name, 'persist:mirror-media'); return mediaSession; } } }; }, URL, setTimeout, console });
 const { MirrorMedia, allowedNavigation, clampBounds } = exportsObject.exports;
 
 (async () => {
   assert.equal(allowedNavigation('https://open.spotify.com/collection/tracks', 'spotify'), true);
   assert.equal(allowedNavigation('https://accounts.spotify.com/en/login', 'spotify'), true);
+  assert.equal(allowedNavigation('https://accounts.google.com/signin', 'spotify'), true);
+  assert.equal(allowedNavigation('https://google.com.attacker.test/signin', 'spotify'), false);
   for (const url of ['http://open.spotify.com/', 'https://spotify.com.attacker.test/', 'file:///etc/passwd', 'javascript:alert(1)']) assert.equal(allowedNavigation(url, 'spotify'), false);
   assert.equal(JSON.stringify(clampBounds({ x: -5, y: 25, width: 900, height: 1000 }, { width: 540, height: 960 })), JSON.stringify({ x: 0, y: 25, width: 540, height: 935 }));
   assert.throws(() => clampBounds({ x: NaN, y: 0, width: 10, height: 10 }, { width: 540, height: 960 }));
   const win = new EventEmitter();
   win.webContents = new EventEmitter();
+  win.webContents.send = channel => { win.sentChannel = channel; };
   win.contentView = { addChildView(view) { win.child = view; } };
   win.isDestroyed = () => false;
   win.getContentBounds = () => ({ width: 540, height: 960 });
@@ -55,6 +58,10 @@ const { MirrorMedia, allowedNavigation, clampBounds } = exportsObject.exports;
   assert.equal(controller.view.webContents.inputs[0].x, 10);
   assert.equal(controller.view.webContents.inputs[0].y, 20);
   assert.equal((await controller.pointer({ x: 10, y: 10, click: true })).hit, false);
+  let preventedEscape = false;
+  controller.view.webContents.emit('before-input-event', { preventDefault() { preventedEscape = true; } }, { type: 'keyDown', key: 'Escape' });
+  assert.equal(preventedEscape, true);
+  assert.equal(win.sentChannel, 'mirror:stop-requested');
   controller.hide();
   assert.equal(controller.view.visible, false);
   assert.equal(controller.view.webContents.muted, true);
