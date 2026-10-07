@@ -35,3 +35,8 @@ assert.equal(overlay.getLiveState(1601).cameraActive,false);
 video.srcObject=tracker.stream;video.srcObject.active=false;overlay.render(1601);assert.equal(overlay.getLiveState(1601).visible,false);assert(!overlay.hasPixels,'Ended camera retained pixels');video.srcObject.active=true;
 video.srcObject=tracker.stream;overlay.render(1602);assert(overlay.hasPixels);overlay.setEnabled(false);assert(!overlay.hasPixels);const disabledClears=clearCalls;for(let now=1603;now<1663;now++)overlay.render(now);assert.equal(clearCalls,disabledClears,'Hidden mode kept clearing the canvas');
 console.log('Garment raster reuse passed: tracking continues; pose, fit, mask, texture, resize, source and dimensions invalidate; expired/lost camera and disabled modes clear once.');
+
+video.srcObject=tracker.stream;video.srcObject.active=true;overlay.enabled=true;tracker.enabled=true;tracker.lastPoseAt=3000;tracker.pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1}));
+context.buildGarmentMesh=()=>[[{x:600,y:100},{x:700,y:100},{x:600,y:200}]];
+overlay.render(3000);assert(overlay.getLiveState(3000).bodyDetected);assert(!overlay.getLiveState(3000).visible,'Offscreen garment was reported visible');assert.match(overlay.getLiveState(3000).status,/Center yourself/);
+console.log('Garment visibility: a detected body outside the portrait crop does not claim a visible garment.');

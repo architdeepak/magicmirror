@@ -305,7 +305,7 @@ export class GeminiLiveAdapter {
         }, {
           functionDeclarations: [{
             name: 'wardrobe_command',
-            description: 'Control the local wardrobe and photo editor. Commands: add garment; from phone (show QR for a local phone photo upload); take photo; name it [name]; type top/jacket/dress/skirt/trousers; save garment; cancel photo; next garment; previous garment; make it red/blue/green/purple/white/black; change style to t-shirt/blouse/long sleeve/dress/skirt. Color/style changes use bundled starter clothes; real photos retain their original color. Ask before saving. Camera must already be on for take photo.',
+            description: 'Control the local wardrobe and photo editor. Commands: add garment; from phone (show QR for a local phone photo upload); take photo; name it [name]; type top/jacket/dress/skirt/trousers; save garment; cancel photo; next garment; previous garment; make it red/blue/green/purple/white/black; change style to t-shirt/blouse/long sleeve/dress/skirt. Color/style changes use bundled starter clothes; real photos retain their original color. Save only when the user requests or confirms saving. Take photo starts the local mirror camera if needed.',
             parameters: { type: 'OBJECT', properties: { command: { type: 'STRING' } }, required: ['command'] }
           }]
         }, {

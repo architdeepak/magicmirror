@@ -10,7 +10,7 @@ export class GarmentOcclusion {
     this.limbs = document.createElement('canvas');
     this.lastMask = null;
   }
-  erase(ctx, segmentation, pose, video, viewport) {
+  erase(ctx, segmentation, pose, video, viewport, { coverForearms = false } = {}) {
     if (!segmentation) { this.lastMask = null; return false; }
     if (this.lastMask !== segmentation) {
       this.lastMask = segmentation;
@@ -49,7 +49,7 @@ export class GarmentOcclusion {
       if (!visiblePoint(pose[elbow]) || !visiblePoint(pose[wrist]) || pose[wrist].z >= torsoDepth - .035) continue;
       const a = project(elbow); const b = project(wrist);
       limbs.lineWidth = shoulderWidth * .2;
-      limbs.beginPath(); limbs.moveTo(a.x, a.y); limbs.lineTo(b.x, b.y); limbs.stroke();
+      if (!coverForearms) { limbs.beginPath(); limbs.moveTo(a.x, a.y); limbs.lineTo(b.x, b.y); limbs.stroke(); }
       if (visiblePoint(pose[finger])) {
         const c = project(finger); limbs.lineWidth = shoulderWidth * .28;
         limbs.beginPath(); limbs.moveTo(b.x, b.y); limbs.lineTo(c.x, c.y); limbs.stroke();

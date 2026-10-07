@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "starterGarments": 30,
-  "savedGarments": 5,
+  "savedGarments": 6,
   "checks": [
     "real garment upload/cutout",
     "real IPC persistence/reload",
@@ -13,6 +13,8 @@
     "voice tool commands",
     "interpreted swipe and pinch routing",
     "cancel",
+    "gesture-only capture/type/save with automatic name",
+    "editor Stop/mute controls, two colored bottom captions and restoration",
     "paired LAN phone photo upload",
     "one-photo acceptance",
     "unauthenticated/cross-origin/invalid phone requests rejected"

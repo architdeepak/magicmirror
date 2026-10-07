@@ -3,13 +3,13 @@ import { starterWardrobe } from "./starterWardrobe.js";
 // Renderer-side closet view. Live fit remains local; a still-image provider
 // receives only an explicit consented request built by the renderer.
 export class ClosetStore {
-  constructor({ container, importButton, video, onSelect, onNotice }) {
+  constructor({ container, importButton, video, onSelect, onNotice, onStopVoice, ensureCamera }) {
     this.container = container;
     this.importButton = importButton;
     this.onSelect = onSelect || (() => {});
     this.onNotice = onNotice || (() => {});
     this.items = [];
-    this.photo = new WardrobePhoto({ video, onSave: input => this.savePhoto(input), onNotice: this.onNotice });
+    this.photo = new WardrobePhoto({ video, onStopVoice, ensureCamera, suggestName: category => this.nextPhotoName(category), onSave: input => this.savePhoto(input), onNotice: this.onNotice });
     this.selectedId = localStorage.getItem('mirror.closet.selected') || '';
     this.importButton?.addEventListener('click', () => this.importGarment());
   }
@@ -24,6 +24,13 @@ export class ClosetStore {
     } catch (error) {
       this.onNotice(`Closet unavailable: ${error.message}`);
     }
+  }
+
+  nextPhotoName(category) {
+    const base = `My ${{ top: 'top', outerwear: 'jacket', dress: 'dress', skirt: 'skirt', bottoms: 'trousers' }[category] || 'garment'}`;
+    let name = base, number = 2;
+    while (this.items.some(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase())) name = `${base} ${number++}`;
+    return name;
   }
 
   importGarment() { this.photo.show(); }

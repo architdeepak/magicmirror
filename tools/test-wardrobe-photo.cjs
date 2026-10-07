@@ -27,3 +27,18 @@ const giant=Buffer.from(png);giant.writeUInt32BE(65535,16);assert.throws(()=>war
 assert.throws(()=>wardrobePhotoBytes('data:image/png;base64,aaaa'),/valid PNG/);
 assert.throws(()=>wardrobePhotoBytes(url(Buffer.alloc(40))),/valid PNG/);
 console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimensions and invalid headers checked before decoding.');
+
+(async()=>{
+ const scope=vm.createContext({Uint8ClampedArray,Uint32Array,Uint8Array});
+ vm.runInContext(source.replaceAll('export function','function').replace('export class','class')+';globalThis.Subject=WardrobePhoto;',scope);
+ const subject=Object.create(scope.Subject.prototype),buttons={capture:{},save:{}},pending=[],notices=[];
+ Object.assign(subject,{generation:0,dialog:{open:true},video:{},button:name=>buttons[name],status:message=>notices.push(message),ensureCamera:()=>new Promise(resolve=>pending.push(resolve)),setSource:()=>{throw new Error('Old capture replaced a new photo')}});
+ const first=subject.capture();assert(subject.capturePending);
+ subject.generation++;subject.dialog.open=false;subject.generation++;subject.dialog.open=true;subject.output='new photo';
+ assert(!subject.capturePending,'A closed editor kept a new photo blocked by an old camera request');
+ const next=subject.capture();assert(subject.capturePending);pending[0](false);await first;
+ assert(subject.capturePending,'Old camera completion cleared a newer capture');
+ pending[1](false);await next;assert(!subject.capturePending);assert.equal(subject.output,'new photo');
+ assert.equal(notices.filter(n=>n.includes('unavailable')).length,1,'Stale capture changed the new editor notice');
+ console.log('Wardrobe capture ownership: closed/uploaded/reopened photo scopes ignore stale camera completion and preserve the current capture.');
+})().catch(error=>{console.error(error);process.exitCode=1});

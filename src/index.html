@@ -514,7 +514,7 @@
     .connections { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
     .connections input:not([type="checkbox"]) { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.35); color: var(--ice); font-size: 12px; }
 
-    #wardrobe-photo { width: min(620px, 90vw); max-height: 90vh; overflow-y: auto; box-sizing: border-box; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
+    #wardrobe-photo { width: min(620px, 90vw); max-height: min(82vh, calc(100dvh - 180px)); overflow-y: auto; box-sizing: border-box; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
     #wardrobe-photo::backdrop { background: rgba(0,0,0,.78); backdrop-filter: blur(8px); }
     #wardrobe-photo header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     #wardrobe-photo h2 { margin: 0; font-size: 26px; }
@@ -527,6 +527,11 @@
     #wardrobe-photo .wardrobe-check { justify-content: flex-start; }
     #wardrobe-photo .wardrobe-help { font-size: 14px; }
     #wardrobe-photo :focus-visible { outline: 3px solid #a8ffcf; outline-offset: 3px; }
+    #wardrobe-photo .wardrobe-voice { position: sticky; top: -24px; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0; background: #111d23; }
+    #wardrobe-photo .wardrobe-voice button { font-size: 14px; padding: 8px 12px; }
+    #wardrobe-photo .live-captions { position: fixed; inset: auto; bottom: 18px; left: 50%; transform: translateX(-50%); width: calc(100vw - 40px); max-width: 720px; margin: 0; padding: 10px; background: rgba(7,16,20,.96); border-radius: 10px; z-index: 3; }
+    #wardrobe-photo .live-captions:not(:has(.caption-line.visible)) { display: none; }
+    #wardrobe-photo .caption-line { font-size: clamp(16px, 1.5vw, 32px); }
     .wardrobe-photo-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     #wardrobe-photo [data-action=save] { width: 100%; background: #345c4b; }
   </style>

@@ -1,6 +1,7 @@
 const assert=require('assert/strict');const fs=require('fs');const path=require('path');
 (async()=>{
-  const source=fs.readFileSync(path.join(__dirname,'../src/garmentGeometry.js'),'utf8');const {buildGarmentMesh,projectCameraPoint}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+  const dependency='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(__dirname,'../src/starterSleeves.js'),'utf8')).toString('base64');
+  const source=fs.readFileSync(path.join(__dirname,'../src/garmentGeometry.js'),'utf8').replace('"./starterSleeves.js"',JSON.stringify(dependency));const {buildGarmentMesh,projectCameraPoint}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
   const video={width:540,height:960},viewport={width:540,height:960};
   const pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
   for(const [i,x,y]of [[11,.7,.25],[12,.3,.25],[23,.4,.55],[24,.6,.55],[25,.65,.72],[26,.35,.72],[27,.4,.9],[28,.6,.9]])Object.assign(pose[i],{x,y,visibility:1});

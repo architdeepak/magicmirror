@@ -283,6 +283,8 @@ const gestures = new GestureNavigation(elements.video, handleGesture, (status) =
 const dashboard = new MagicMirrorView(elements.dashboard, { city: config.city, units: config.units });
 const closet = new ClosetStore({
   container: elements.closetList,
+  onStopVoice: stopAssistant,
+  ensureCamera: () => toggleCamera(true),
   video: elements.video,
   importButton: elements.closetImport,
   onSelect: (item) => {
@@ -420,6 +422,7 @@ const gemini = new GeminiLiveAdapter({
   onWardrobe: async ({ command = '' } = {}) => {
     setAssistantMode('ar');
     if (/^save(?: (?:garment|photo|it))?$/i.test(command.trim()) && closet.photo.open) await closet.photo.save();
+    else if (/^(?:take|capture)(?: a)? photo$/i.test(command.trim()) && closet.photo.open) await closet.photo.capture();
     else if (!closet.voice(command)) return { result: 'Command not recognized.' };
     return { result: closet.photo.open ? closet.photo.field('status').textContent : 'Wardrobe updated.', photoEditorOpen: closet.photo.open, selected: closet.items.find(item => item.id === closet.selectedId)?.name };
   },
@@ -1559,10 +1562,11 @@ function resetIdle() {
     if (state === 'ready') elements.form.classList.add('dim');
   }, 6000);
   sleepTimer = setTimeout(() => {
-    if (desktopActive || state !== 'ready' || mode !== 'mirror' || gemini.listening ||
+    if (desktopActive || state !== 'ready' || !['mirror', 'portal'].includes(mode) || gemini.listening || closet.photo.open ||
         elements.settings.classList.contains('open') || elements.personaPanel.classList.contains('open') ||
         elements.launcherPanel.classList.contains('open')) return;
     sleeping = true;
+    resumeRendering();
     cameraWasActiveBeforeSleep = getTrackingStatus().cameraActive;
     elements.shell.dataset.sleeping = 'true';
     gestures.setEnabled(false);
