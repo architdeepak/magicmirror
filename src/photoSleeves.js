@@ -1,0 +1,89 @@
+// Infer a short-sleeved front from its alpha silhouette once at image load.
+// Ambiguous/long-sleeved outlines keep the existing torso preview. This does
+// not reconstruct hidden fabric or infer physical size.
+export function inferPhotoSleeves({ width, height, data }, onReject = () => {}) {
+  const reject = reason => { onReject(reason); return null; };
+  if (width < 40 || height < 40 || width * height > 1024 * 1024 || data.length !== width * height * 4) return reject('small image');
+  const rows = [];
+  for (let y = 0; y < height; y++) {
+    let left = width, right = -1;
+    for (let x = 0; x < width; x++) if (data[(y * width + x) * 4 + 3] > 32) { left = Math.min(left, x); right = x; }
+    rows.push({ left, right });
+  }
+  const lower = rows.slice(Math.round(height * .7), Math.round(height * .9)).filter(r => r.right > r.left);
+  if (lower.length < height * .1) return reject('missing lower body');
+  const median = values => values.sort((a,b) => a-b)[Math.floor(values.length/2)];
+  const bodyLeft = median(lower.map(r => r.left)), bodyRight = median(lower.map(r => r.right));
+  const bodyWidth = bodyRight - bodyLeft;
+  if (bodyWidth < width * .3 || bodyWidth > width * .9) return reject('ambiguous body width');
+  let widest = 0;
+  for (let y = 0; y < height * .6; y++) if (rows[y].right - rows[y].left > rows[widest].right - rows[widest].left) widest = y;
+  const extreme = rows[widest];
+  if (bodyLeft - extreme.left < width * .075 || extreme.right - bodyRight < width * .075) return reject('missing sleeve extension');
+  let underarm = -1;
+  for (let y = widest + 1; y < height * .65; y++) {
+    const span = rows.slice(y, y + Math.ceil(height * .05));
+    if (span.every(r => r.right > r.left && r.left >= bodyLeft - width * .035 && r.right <= bodyRight + width * .035)) { underarm = y; break; }
+  }
+  if (underarm < height * .18 || underarm < 0) return reject('ambiguous underarm');
+  const sides = [];
+  for (const [bodyX, extremeX, sign] of [[bodyLeft, extreme.left, 1], [bodyRight, extreme.right, -1]]) {
+    const shoulderX = Math.round(bodyX + sign * bodyWidth * .12);
+    const shoulderY = rows.findIndex((r,y) => y < underarm && data[(y * width + shoulderX) * 4 + 3] > 32);
+    if (shoulderY < 0 || underarm - shoulderY < height * .08) return reject('missing shoulder');
+    // The cuff lies on the outer contour; use its top and lower inside corner.
+    const cuffX = Math.round(extremeX + sign * width * .02);
+    const cuffYs = [];
+    for (let y = shoulderY; y <= underarm; y++) if (data[(y * width + cuffX) * 4 + 3] > 32) cuffYs.push(y);
+    if (!cuffYs.length) return reject('missing cuff');
+    const cuffTop = cuffYs[0], cuffBottom = cuffYs[cuffYs.length-1];
+    if (cuffTop < shoulderY || cuffTop > underarm) return reject('ambiguous cuff height');
+    const innerY = Math.min(underarm - 1, Math.max(cuffBottom, underarm - height * .07));
+    const innerX = sign === 1 ? rows[Math.round(innerY)].left : rows[Math.round(innerY)].right;
+    if (sign * (bodyX - innerX) < width * .03) return reject('missing cuff inner corner');
+    sides.push({ outer: { u: shoulderX / width, v: shoulderY / height }, inner: { u: bodyX / width, v: underarm / height },
+      cuffOuter: { u: cuffX / width, v: cuffTop / height }, cuffInner: { u: innerX / width, v: innerY / height } });
+  }
+  return { kind: 'photo-short-sleeve', sides, underarm: underarm / height, hem: .99 };
+}
+
+export function buildPhotoSleeves(pose, video, viewport, fit) {
+  const pattern = fit.photoPattern;
+  if (!pattern || ![11,12,13,14,23,24].every(i => pose?.[i] && (pose[i].visibility ?? 1) >= .55 && Number.isFinite(pose[i].x) && Number.isFinite(pose[i].y))) return null;
+  const scale = Math.max(viewport.width/video.width, viewport.height/video.height);
+  const project = i => ({ x: viewport.width-((viewport.width-video.width*scale)/2+pose[i].x*video.width*scale), y: (viewport.height-video.height*scale)/2+pose[i].y*video.height*scale, z: pose[i].z || 0 });
+  const sides = [[11,13,23],[12,14,24]].map(([s,e,h])=>({s:project(s),e:project(e),h:project(h)})).sort((a,b)=>a.s.x-b.s.x);
+  const width = fit.width ?? 1, length = fit.length ?? 1, offset = fit.offset ?? 0;
+  const top = mix(sides[0].s,sides[1].s,.5), bottom = mix(sides[0].h,sides[1].h,.5), shoulderWidth = distance(sides[0].s,sides[1].s);
+  if (shoulderWidth < 20 || distance(top,bottom) < 25 || sides.some(s=>distance(s.s,s.e)<8)) return null;
+  const shoulderV = (pattern.sides[0].outer.v + pattern.sides[1].outer.v)/2;
+  const body = (q,v) => {
+    const t = (v <= pattern.underarm ? (v-shoulderV)/(pattern.underarm-shoulderV)*.32 : .32+(v-pattern.underarm)/(pattern.hem-pattern.underarm)*.68)*length;
+    const center = mix(top,bottom,t+offset), a=mix(sides[0].s,sides[0].h,Math.max(0,Math.min(1,t))), b=mix(sides[1].s,sides[1].h,Math.max(0,Math.min(1,t)));
+    const across = Math.max(0, Math.min(1, (v-shoulderV)/(pattern.underarm-shoulderV)));
+    const left = pattern.sides[0].outer.u+(pattern.sides[0].inner.u-pattern.sides[0].outer.u)*across;
+    const right = pattern.sides[1].outer.u+(pattern.sides[1].inner.u-pattern.sides[1].outer.u)*across;
+    return {...center,x:center.x+(b.x-a.x)*(q-.5)*width,y:center.y+(b.y-a.y)*(q-.5)*width,u:left+(right-left)*q,v};
+  };
+  const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
+  const triangles = grid(8,rows.length-1,(q,t)=>body(q,rows[Math.round(t*(rows.length-1))]));
+  sides.forEach((side,i)=>{
+    const source = pattern.sides[i], rootOuter=body(i,shoulderV),rootInner=body(i,pattern.underarm),root=mix(rootOuter,rootInner,.5),cuff=mix(side.s,side.e,.65*length);
+    const rootNormal=unit({x:rootOuter.x-rootInner.x,y:rootOuter.y-rootInner.y});
+    const armNormal=unit({x:-(side.e.y-side.s.y)*(i===0?1:-1),y:(side.e.x-side.s.x)*(i===0?1:-1)});
+    const radius=distance(rootOuter,rootInner)/2;
+    triangles.push(...grid(4,8,(q,t)=>{
+      const center=mix(root,cuff,t),normal=unit(mix(rootNormal,armNormal,t)),r=radius*(1-t)+shoulderWidth*width*.085*t;
+      const uv=mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
+      return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),...uv};
+    }));
+  });
+  triangles.sort((a,b)=>b.reduce((n,p)=>n+p.z,0)-a.reduce((n,p)=>n+p.z,0));
+  triangles.sleeveStyle=pattern.kind;
+  return triangles;
+}
+function mix(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:(a.z||0)+((b.z||0)-(a.z||0))*t}}
+function mixUV(a,b,t){return{u:a.u+(b.u-a.u)*t,v:a.v+(b.v-a.v)*t}}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function unit(p){const d=Math.hypot(p.x,p.y)||1;return{x:p.x/d,y:p.y/d}}
+function grid(columns,rows,map){const result=[];for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){const a=map(x/columns,y/rows),b=map((x+1)/columns,y/rows),c=map((x+1)/columns,(y+1)/rows),d=map(x/columns,(y+1)/rows);result.push([a,b,c],[a,c,d])}return result}

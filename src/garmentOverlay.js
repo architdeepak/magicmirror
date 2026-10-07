@@ -1,4 +1,5 @@
 import { GarmentOcclusion } from './garmentOcclusion.js';
+import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
 import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint, visiblePoint, distance } from './garmentGeometry.js';
 
@@ -6,6 +7,14 @@ export class GarmentOverlay {
   constructor(canvas, video, onStatus = () => {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this.cameraCanvas = canvas.ownerDocument?.createElement('canvas') || null;
+    if (this.cameraCanvas) {
+      this.cameraCanvas.className = 'garment-sync-camera';
+      this.cameraCanvas.setAttribute('aria-hidden', 'true');
+      Object.assign(this.cameraCanvas.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: '0', display: 'none' });
+      canvas.parentElement.insertBefore(this.cameraCanvas, canvas);
+    }
+    this.lastCameraFrame = null;
     this.video = video;
     this.onStatus = onStatus;
     this.tracker = new BodyTracking(video, (_state, message) => { this.trackingMessage = message; });
@@ -33,6 +42,11 @@ export class GarmentOverlay {
     this.canvas.width = Math.round(bounds.width * scale);
     this.canvas.height = Math.round(bounds.height * scale);
     this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    if (this.cameraCanvas) {
+      this.cameraCanvas.width = this.canvas.width; this.cameraCanvas.height = this.canvas.height;
+      this.cameraCanvas.getContext('2d').setTransform(scale, 0, 0, scale, 0, 0);
+      this.lastCameraFrame = null;
+    }
     this.hasPixels = false;
     this.lastDraw = null;
   }
@@ -81,11 +95,12 @@ export class GarmentOverlay {
     return { ...this.fit };
   }
 
-  clear() {
+  clear(keepCamera = false) {
     if (this.hasPixels) this.ctx.clearRect(0, 0, this.viewport.width, this.viewport.height);
     this.hasPixels = false;
     this.lastDraw = null;
     this.outsideCrop = false;
+    if (!keepCamera) { if (this.cameraCanvas) this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; }
   }
 
   getLiveState(now = performance.now()) {
@@ -135,12 +150,13 @@ export class GarmentOverlay {
       return;
     }
     this.tracker.update(now);
+    this.drawCameraFrame(now);
     const pose = this.tracker.getPose(now);
     const segmentation = this.tracker.getSegmentation(now);
     // Tracking still advances and freshness is checked on every display tick.
     // Reuse only the raster drawing, not the camera or inference lifecycle.
     if (this._sameDraw(pose, segmentation)) return;
-    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: this.texture.sourceBounds });
+    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, photoPattern: this.item.starter ? null : this.texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: this.texture.sourceBounds });
     if (!mesh) {
       this.clear();
       this.occlusion.clear();
@@ -155,7 +171,7 @@ export class GarmentOverlay {
       this._status('Center yourself in the portrait camera view.');
       return;
     }
-    this.clear();
+    this.clear(true);
     this.hasPixels = true;
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, this.texture, triangle);
     const coverage = { coverForearms: mesh.sleeveStyle === 'long sleeve' };
@@ -189,13 +205,27 @@ export class GarmentOverlay {
     this.ctx.restore();
   }
 
+  drawCameraFrame(now) {
+    if (!this.cameraCanvas) return;
+    const frame = this.tracker.getCameraFrame(now);
+    if (!frame) { this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; return; }
+    this.cameraCanvas.style.display = 'block';
+    if (frame === this.lastCameraFrame) return;
+    const { width, height } = this.viewport;
+    const scale = Math.max(width/frame.width, height/frame.height), w = frame.width*scale, h = frame.height*scale;
+    const ctx = this.cameraCanvas.getContext('2d');
+    ctx.save(); ctx.translate(width, 0); ctx.scale(-1, 1);
+    ctx.drawImage(frame, (width-w)/2, (height-h)/2, w, h); ctx.restore();
+    this.lastCameraFrame = frame;
+  }
+
   _status(message) {
     if (message === this.lastStatus) return;
     this.lastStatus = message;
     this.onStatus(message);
   }
 
-  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.clear(); }
+  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.clear(); this.cameraCanvas?.remove(); }
 }
 
 function readFit(id) {
@@ -235,6 +265,7 @@ export function prepareTexture(image) {
   cropped.width = right - left + 1; cropped.height = bottom - top + 1;
   cropped.getContext('2d').drawImage(canvas, left, top, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
   cropped.sourceBounds = { left, top, width: cropped.width, height: cropped.height, scale };
+  cropped.photoPattern = inferPhotoSleeves(cropped.getContext('2d').getImageData(0, 0, cropped.width, cropped.height));
   return cropped;
 }
 

@@ -42,6 +42,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal(captions.count,2);assert.equal(captions.containers,1);assert.notEqual(captions.colors[0],captions.colors[1]);assert(Math.abs(captions.bottom-(captions.height-18))<2,'Editor captions are not at the screen bottom');
   await shot('photo-preview');
   await tool('save garment');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo").open'),false);
+  await until(()=>client.evaluate('__mirrorDebug.garmentOverlay.texture?.photoPattern?.kind==="photo-short-sleeve"'),'saved photo sleeve inference');
   const saved=JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8'));
   await until(()=>client.evaluate('!!document.querySelector(".bottom-dock ~ #live-captions")'),'caption restoration');
   assert.equal(saved.garments.length,1);assert.equal(saved.garments[0].name,'My black festival shirt');
@@ -104,7 +105,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo").open'),'extracted garment save');
   assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,7);
   assert.deepEqual(exceptions,[]);
-  const report={status:'passed',starterGarments:30,savedGarments:7,checks:['real garment upload/cutout','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
+  const report={status:'passed',starterGarments:30,savedGarments:7,checks:['real garment upload/cutout','saved photo short sleeve inference','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
   await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -456,7 +456,7 @@ const gemini = new GeminiLiveAdapter({
 });
 gemini.setVideoSource(() => selectAssistantVision({ mode, desktopActive, camera: elements.video, neural: elements.liveTryOnVideo,
   neuralState: liveTryOn.snapshot(), view: tryOnView, still: elements.tryOnOverlay,
-  garmentCanvas: elements.garmentCanvas, effectCanvas: elements.arCanvas,
+  cameraCanvas: garmentOverlay.cameraCanvas, garmentCanvas: elements.garmentCanvas, effectCanvas: elements.arCanvas,
   width: elements.shell.clientWidth || 720, height: elements.shell.clientHeight || 1280 }));
 gemini.setPersona(savedPersona);
 gemini.setVisionEnabled(visionEnabled);

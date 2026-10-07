@@ -158,7 +158,10 @@ app.whenReady().then(async () => {
         }
       };
       try {
-        await until(() => Boolean(tracker.getPose()), 75_000);
+        // Slow CPU masks are sampled between faster poses. Observe an actual
+        // fresh masked frame rather than assuming every pose contains a mask.
+        await until(() => Boolean(tracker.getPose() && tracker.getSegmentation()), 75_000);
+        if(!tracker.getCameraFrame())throw new Error('Pose result lost its matching display frame');
         const landmarks = tracker.getPose().length;
         const segmentation=tracker.getSegmentation();
         if(!segmentation)throw new Error('Real body segmentation did not return a mask: '+tracker.segmentationNotice);

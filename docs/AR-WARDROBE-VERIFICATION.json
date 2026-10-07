@@ -4,6 +4,7 @@
   "savedGarments": 7,
   "checks": [
     "real garment upload/cutout",
+    "saved photo short sleeve inference",
     "offline worn clothing extraction, voice/gesture crop and real persistence",
     "real IPC persistence/reload",
     "original retained",

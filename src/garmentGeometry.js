@@ -1,4 +1,5 @@
 import { buildStarterSleeves } from "./starterSleeves.js";
+import { buildPhotoSleeves } from './photoSleeves.js';
 export function projectCameraPoint(point, video, viewport) {
   const scale = Math.max(viewport.width / video.width, viewport.height / video.height);
   const width = video.width * scale;
@@ -14,6 +15,7 @@ export function visiblePoint(point) {
 // and the hem near the bottom. A small triangle mesh follows torso skew rather
 // than stretching an axis-aligned rectangle as the viewer turns or leans.
 export function buildGarmentMesh(pose, video, viewport, category = 'top', fit = {}) {
+  if (fit.photoPattern && ['top', 'outerwear'].includes(category)) { const articulated = buildPhotoSleeves(pose, video, viewport, fit); if (articulated) return articulated; }
   if (fit.sleeveStyle && fit.textureBounds) { const articulated = buildStarterSleeves(pose, video, viewport, fit); if (articulated) return articulated; }
   const width = fit.width ?? 1;
   const length = fit.length ?? 1;

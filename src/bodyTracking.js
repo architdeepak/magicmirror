@@ -15,6 +15,7 @@ export class BodyTracking {
     this.lastFrameAt = 0;
     this.lastPoseAt = 0;
     this.pose = null;
+    this.cameraFrame = null; this.cameraFrameAt = 0;
     this.segmentation = null;
     this.stream = null;
     this.disposed = false;
@@ -31,6 +32,7 @@ export class BodyTracking {
     if (next !== this.enabled) {
       this.epoch += 1;
       this.pose = null;
+      this.clearCameraFrame();
       this.segmentation = null;
       this.filter.reset();
       this.lastVideoTime = -1;
@@ -50,7 +52,7 @@ export class BodyTracking {
       if (this.worker === worker && !this.ready) this._fail('Body tracker could not load. Check your connection, then select Live camera to retry.');
     }, 60_000);
     worker.onmessage = ({ data }) => {
-      if (this.worker !== worker) return;
+      if (this.worker !== worker) { data.frame?.close(); return; }
       if (data.type === 'ready') {
         clearTimeout(timeout);
         this.ready = true;
@@ -58,15 +60,16 @@ export class BodyTracking {
         this.segmentationNotice = data.segmentationNotice || '';
         this.onStatus('searching', 'Step back so your shoulders and hips are visible.');
       } else if (data.type === 'pose') {
-        if (!this.pending || data.requestId !== this.pending.id) return;
+        if (!this.pending || data.requestId !== this.pending.id) { data.frame?.close(); return; }
         clearTimeout(this.pending.timeout); this.pending = null;
         this.busy = false;
         this.warmedUp = true;
-        if (!this.enabled || data.epoch !== this.epoch) return;
+        if (!this.enabled || data.epoch !== this.epoch) { data.frame?.close(); return; }
+        this.clearCameraFrame(); this.cameraFrame = data.frame || null; this.cameraFrameAt = data.timestamp;
         this.pose = this.filter.update(data.landmarks || null, data.timestamp);
         const mask = data.segmentation;
         this.segmentation = this.pose && mask && Number.isInteger(mask.width) && Number.isInteger(mask.height)
-          && mask.width > 0 && mask.height > 0 && mask.width * mask.height <= 640 * 480
+          && mask.width > 0 && mask.height > 0 && mask.width * mask.height <= 960 * 720
           && mask.classes?.length === mask.width * mask.height ? mask : null;
         this.inferenceMs = data.inferenceMs || 0;
         this.lastPoseAt = data.timestamp;
@@ -94,6 +97,7 @@ export class BodyTracking {
     this.ready = false;
     this.busy = false;
     this.pose = null;
+    this.clearCameraFrame();
     this.segmentation = null;
     this.onStatus('unavailable', message);
   }
@@ -104,12 +108,13 @@ export class BodyTracking {
       this.stream = this.video.srcObject;
       this.epoch += 1;
       this.pose = null;
+      this.clearCameraFrame();
       this.segmentation = null;
       this.filter.reset();
       this.lastVideoTime = -1;
     }
     if (!this.enabled || !this.ready || this.busy) return;
-    if (!this.video.srcObject || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.segmentation = null; return; }
+    if (!this.video.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.clearCameraFrame(); this.segmentation = null; return; }
     if (now - this.lastFrameAt < 100 || this.video.currentTime === this.lastVideoTime) return;
     this.lastFrameAt = now;
     this.lastVideoTime = this.video.currentTime;
@@ -121,7 +126,7 @@ export class BodyTracking {
     request.timeout = setTimeout(() => {
       if (this.pending === request) this._fail('Body tracking stalled. Select Live camera to retry.');
     }, this.warmedUp ? 5000 : 20000);
-    const scale = Math.min(1, 640 / this.video.videoWidth, 480 / this.video.videoHeight);
+    const scale = Math.min(1, 960 / this.video.videoWidth, 720 / this.video.videoHeight);
     createImageBitmap(this.video, {
       resizeWidth: Math.round(this.video.videoWidth * scale),
       resizeHeight: Math.round(this.video.videoHeight * scale), resizeQuality: 'low'
@@ -142,12 +147,19 @@ export class BodyTracking {
     return this.enabled && this.stream === this.video.srcObject && now - this.lastPoseAt < 400 ? this.pose : null;
   }
 
+  clearCameraFrame() { this.cameraFrame?.close(); this.cameraFrame = null; this.cameraFrameAt = 0; }
+
+  getCameraFrame(now = performance.now()) {
+    return this.enabled && this.video.srcObject?.active !== false && this.video.readyState >= 2 && this.stream === this.video.srcObject && now - this.cameraFrameAt < 400 ? this.cameraFrame : null;
+  }
+
   getSegmentation(now = performance.now()) { return this.getPose(now) ? this.segmentation : null; }
 
   destroy() {
     clearTimeout(this.initTimeout);
     clearTimeout(this.pending?.timeout); this.pending = null;
     this.filter.reset();
+    this.clearCameraFrame();
     this.disposed = true;
     this.enabled = false;
     this.ready = false; this.busy = false; this.stream = null;

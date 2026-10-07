@@ -11,7 +11,7 @@ function drawVideo(context, video, width, height, mirrored, cover) {
 
 // This captures the camera/try-on content, not the entire desktop. Desktop and
 // app observations continue through the explicit see_screen tool.
-export function selectAssistantVision({ mode, desktopActive, camera, neural, neuralState, view, still, garmentCanvas, effectCanvas, width, height }) {
+export function selectAssistantVision({ mode, desktopActive, camera, cameraCanvas, neural, neuralState, view, still, garmentCanvas, effectCanvas, width, height }) {
   const fitting = mode === 'ar' && !desktopActive;
   if (fitting && neuralState?.active) {
     if (neuralState.state !== 'streaming' || neuralState.frameAgeMs == null || neuralState.frameAgeMs > 3000 || neural.hidden || !usableVideo(neural)) return null;
@@ -30,7 +30,8 @@ export function selectAssistantVision({ mode, desktopActive, camera, neural, neu
   if (!fitting) return { kind: 'camera', width: camera.videoWidth, height: camera.videoHeight,
     draw: (context, w, h) => context.drawImage(camera, 0, 0, w, h) };
   return { kind: 'local-try-on', width, height, draw: (context, w, h) => {
-    drawVideo(context, camera, w, h, true, true);
+    if (cameraCanvas?.style.display === 'block' && cameraCanvas.width && cameraCanvas.height) context.drawImage(cameraCanvas, 0, 0, w, h);
+    else drawVideo(context, camera, w, h, true, true);
     for (const layer of [garmentCanvas, effectCanvas]) {
       if (layer?.width && layer.height) context.drawImage(layer, 0, 0, w, h);
     }

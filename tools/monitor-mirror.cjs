@@ -1,6 +1,7 @@
 // Bounded local soak monitor. Temporary profile, no provider keys, no camera
 // fixtures. Logs metrics, never captions, credentials or screenshots of other apps.
 const fs=require('fs/promises'),path=require('path'),os=require('os');
+const {createReadStream}=require('fs'),{createHash}=require('crypto');
 const {spawn,execFileSync,execFile}=require('child_process');const {promisify}=require('util');
 const {connect}=require('./cdp-client.cjs');const run=promisify(execFile);
 const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
@@ -16,8 +17,13 @@ async function processTree(pid,output=[]){
 (async()=>{
  const id=new Date().toISOString().replace(/[:.]/g,'-'),dir=path.join(root,'artifacts/monitor',id);await fs.mkdir(dir,{recursive:true});
  const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-monitor-'));
+ const build=path.join(profile,'app'),sourceBuild=path.join(root,`dist/linux-${process.arch}-unpacked`);
+ try{await fs.cp(sourceBuild,build,{recursive:true})}catch(error){await fs.rm(profile,{recursive:true,force:true});throw error}
+ const hash=createHash('sha256');for await(const chunk of createReadStream(path.join(build,'resources/app.asar')))hash.update(chunk);
+ const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true};
+ await fs.writeFile(path.join(dir,'build.json'),JSON.stringify(buildInfo,null,2));
  const manager=spawn(path.join(root,'.tools/native-companion-wm/root/usr/bin/openbox'),[],{stdio:'ignore',env:{...process.env,LD_LIBRARY_PATH:path.join(root,'.tools/native-companion-wm/root/usr/lib/aarch64-linux-gnu'),XDG_DATA_DIRS:path.join(root,'.tools/native-companion-wm/root/usr/share')+':/usr/share'}});
- const binary=path.join(root,`dist/linux-${process.arch}-unpacked/magic-mirror-portal`);
+ const binary=path.join(build,'magic-mirror-portal');
  const child=spawn(binary,['--kiosk','--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-port=0','--remote-debugging-address=127.0.0.1'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_TRYON_ENDPOINT:'',MIRROR_TRYON_API_KEY:'',MIRROR_SPOTIFY_CLIENT_ID:'',MIRROR_VERTEX_PROJECT:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
  let logs='',client,appExit=null,stopping=false;for(const stream of [child.stdout,child.stderr])stream.on('data',b=>logs=(logs+b).slice(-12000));child.on('exit',(code,signal)=>appExit={code,signal});child.on('error',error=>appExit={error:error.message});
  const errors=[],samples=[],scope='Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.';
@@ -50,5 +56,5 @@ async function processTree(pid,output=[]){
    if(samples.length%20===0)console.log(JSON.stringify({status:'monitoring',minutes:Math.round(sample.elapsedSec/60),mode:ui.mode,sleeping:ui.sleeping,cpuPercent:Math.round(sample.cpuPercent),errors:errors.length}));
   }
  }catch(error){errors.push({at:new Date().toISOString(),type:'monitor-error',message:error.message});process.exitCode=1}
- finally{stopping=true;await write();client?.close();child.kill('SIGTERM');manager.kill('SIGTERM');await delay(500);if(!appExit)child.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});await fs.writeFile(path.join(dir,'summary.json'),JSON.stringify({scope,status:'finished',sampleCount:samples.length,errors,latest:samples.at(-1),appExit},null,2));console.log(JSON.stringify({status:'finished',directory:dir,samples:samples.length,errors:errors.length}));}
+ finally{stopping=true;await write();client?.close();child.kill('SIGTERM');manager.kill('SIGTERM');await delay(500);if(!appExit)child.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});await fs.writeFile(path.join(dir,'summary.json'),JSON.stringify({scope,status:'finished',sampleCount:samples.length,errors,latest:samples.at(-1),appExit,build:buildInfo},null,2));if(errors.length)process.exitCode=1;console.log(JSON.stringify({status:'finished',directory:dir,samples:samples.length,errors:errors.length}));}
 })().catch(error=>{console.error(error.message);process.exitCode=1});
