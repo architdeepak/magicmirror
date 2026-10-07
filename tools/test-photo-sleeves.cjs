@@ -23,3 +23,25 @@ for(const mode of ['down','raised','crossed']){
 pose[13].visibility=.1;assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}),null);
 pose[13]={...pose[11]};assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}),null);
 console.log('Photo sleeves: silhouette inference, rectangle/empty rejection, finite down/raised/crossed geometry, shared UV seams and missing/degenerate arm fallback.');
+
+const world=Array.from({length:33},()=>({x:0,y:0,z:0}));
+world[11]={x:.2,y:-.45,z:0};world[12]={x:-.2,y:-.45,z:0};world[23]={x:.16,y:0,z:0};world[24]={x:-.16,y:0,z:0};
+const sides=[{sIndex:11,hIndex:23,s:{x:100,y:100},h:{x:120,y:400}},{sIndex:12,hIndex:24,s:{x:300,y:100},h:{x:280,y:400}}];
+const point={x:200,y:200,z:0,u:.5,v:.4};
+const front=scope.createTorsoCurve(sides,world,540);assert(front.enabled);
+assert.equal(front.curve(point,.5,.4).x,point.x,'Frontal garment/logo projection changed');
+assert(front.curve(point,.5,.4).z<point.z,'Front panel was not closer than its seams');
+for(const q of [0,1])assert.deepEqual(JSON.parse(JSON.stringify(front.curve(point,q,.4))),point,'Curved panel moved a sewn root');
+world[12].z=.25;world[24].z=.25;const right=scope.createTorsoCurve(sides,world,540);assert(right.curve(point,.5,.4).x>point.x);
+world[12].z=-.25;world[24].z=-.25;const left=scope.createTorsoCurve(sides,world,540);assert(left.curve(point,.5,.4).x<point.x);
+world[12].z=4;assert.equal(scope.createTorsoCurve(sides,world,540).enabled,false,'Implausible 3D depth distorted the garment');
+world[12].z=NaN;assert.equal(scope.createTorsoCurve(sides,world,540).enabled,false);
+assert.equal(scope.createTorsoCurve(sides,null,540).enabled,false);
+assert.equal(scope.createTorsoCurve([],world,540).enabled,false);
+assert.equal(scope.createTorsoCurve([null,null],world,540).enabled,false);
+assert.equal(scope.createTorsoCurve(sides,world,540,NaN).enabled,false);
+world[12].z=.25;world[24].z=.25;
+pose[13]={x:.86,y:.35,z:-.2,visibility:1};pose[11].z=-.15;pose[12].z=.15;
+const curved=scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern,worldPose:world});assert(curved.curvedTorso);
+const curvedByUV=new Map();for(const tri of curved)for(const p of tri){const key=p.u.toFixed(8)+':'+p.v.toFixed(8);const before=curvedByUV.get(key);if(before)assert(Math.hypot(p.x-before.x,p.y-before.y,p.z-before.z)<1e-6,'Curved surface split a sewn root');else curvedByUV.set(key,p);}
+console.log('Curved torso: unchanged frontal projection and sewn roots, camera-facing depth, opposite yaw shifts, missing/invalid/extreme world-pose fallback.');

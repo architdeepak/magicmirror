@@ -1,5 +1,17 @@
 # Local AR wardrobe progress — 2026-10-07
 
+## World-pose curvature follow-up
+
+The pose worker now forwards its 33 world landmarks with the analyzed camera frame. The tracker accepts finite complete world coordinates only with a full pose and applies the same 400 ms freshness/camera/disable boundaries as image landmarks. [MediaPipe's official guide](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker) describes normalized image landmarks and estimated world coordinates in meters. These estimates are not body measurements validated for sizing.
+
+Recognizable short-sleeved photo tops now use an elliptical front panel. Shoulder/hip depth differences estimate yaw; projected torso length supplies an approximate scale. The source front photo stays unchanged in a frontal projection and curves in depth as the wearer turns. Missing, invalid, implausible, or degenerate world data keeps the previous flat preview. This remains an estimated front surface with the original source pixels, not a sewn garment, back texture, or fabric simulation.
+
+The first 3D seam test caught matching screen coordinates but mismatched sleeve/torso depth. Depth now interpolates across both the torso and the sleeve root. Tests check all three seam coordinates, frontal XY preservation, opposite yaw shifts, camera-facing depth, and invalid input fallback. The renderer cache also includes world-pose identity, so a depth change cannot reuse an old flat drawing. Assistant state reports whether the visible torso is actually curved.
+
+The actual offline moving-person replay passed its visibility and blank/camera-off gates while using real world landmarks. Evidence is saved separately in `WORLD-POSE-CURVATURE-VERIFICATION.json`. `artifacts/photo-fit-motion/comparison-*.png` compares flat and curved rendering using the same analyzed frame, pose, source photo, and occlusion. Visual review confirms perspective changes; it also shows incomplete shoulder/back coverage and a photographic overlay appearance. These comparisons do not prove physical fit or final realism. Personal front/back garment ingestion, full surface coverage, and actual cloth behavior remain outstanding.
+
+The prior 30-minute monitor (`2026-10-07T20-42-08-871Z`) finished with 587 samples and zero recorded errors. A separate frozen-copy monitor for commit `609279f` is still running. Both are muted, camera-off software-rendering checks, not tests of this world-pose feature or installation wattage.
+
 ## Photo sleeves and moving-camera alignment
 
 Recognizable short-sleeved photo cutouts now get shoulder, underarm, and cuff regions inferred from their alpha outline at load time. Their source pixels are bound to the torso and upper arms, with shared sewn UV roots and depth ordering. No per-frame photo model or cloud generation is used. A real public polo photo was loaded through the packaged upload/save workflow and its sleeve pattern verified. A long-sleeved photo and ambiguous/solid outlines keep the existing torso preview. Automatic photo fitting is currently limited to short-sleeved tops/outerwear, not long sleeves, layered outfits, or a reconstructed garment.

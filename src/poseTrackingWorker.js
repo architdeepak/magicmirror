@@ -96,7 +96,7 @@ self.onmessage = async ({ data }) => {
           }
         }
       }
-      self.postMessage({ type: 'pose', requestId: data.requestId, epoch: data.epoch, timestamp: data.timestamp, landmarks: result.landmarks?.[0] || null, frame: data.frame, segmentation, inferenceMs, segmentationDelegate: usedSegmentationDelegate }, [data.frame, ...(segmentation ? [segmentation.classes.buffer] : [])]);
+      self.postMessage({ type: 'pose', requestId: data.requestId, epoch: data.epoch, timestamp: data.timestamp, landmarks: result.landmarks?.[0] || null, worldLandmarks: result.worldLandmarks?.[0] || null, frame: data.frame, segmentation, inferenceMs, segmentationDelegate: usedSegmentationDelegate }, [data.frame, ...(segmentation ? [segmentation.classes.buffer] : [])]);
     } catch (error) { self.postMessage({ type: 'error', message: `Body tracker failed: ${error.message}` }); }
     finally { segmentationFrame?.close(); segmentationResult?.close(); result?.close(); data.frame.close(); }
   }

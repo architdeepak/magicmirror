@@ -52,10 +52,11 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
   if (!pattern || ![11,12,13,14,23,24].every(i => pose?.[i] && (pose[i].visibility ?? 1) >= .55 && Number.isFinite(pose[i].x) && Number.isFinite(pose[i].y))) return null;
   const scale = Math.max(viewport.width/video.width, viewport.height/video.height);
   const project = i => ({ x: viewport.width-((viewport.width-video.width*scale)/2+pose[i].x*video.width*scale), y: (viewport.height-video.height*scale)/2+pose[i].y*video.height*scale, z: pose[i].z || 0 });
-  const sides = [[11,13,23],[12,14,24]].map(([s,e,h])=>({s:project(s),e:project(e),h:project(h)})).sort((a,b)=>a.s.x-b.s.x);
+  const sides = [[11,13,23],[12,14,24]].map(([s,e,h])=>({sIndex:s,hIndex:h,s:project(s),e:project(e),h:project(h)})).sort((a,b)=>a.s.x-b.s.x);
   const width = fit.width ?? 1, length = fit.length ?? 1, offset = fit.offset ?? 0;
   const top = mix(sides[0].s,sides[1].s,.5), bottom = mix(sides[0].h,sides[1].h,.5), shoulderWidth = distance(sides[0].s,sides[1].s);
   if (shoulderWidth < 20 || distance(top,bottom) < 25 || sides.some(s=>distance(s.s,s.e)<8)) return null;
+  const surface = createTorsoCurve(sides, fit.worldPose, video.width*scale, width);
   const shoulderV = (pattern.sides[0].outer.v + pattern.sides[1].outer.v)/2;
   const body = (q,v) => {
     const t = (v <= pattern.underarm ? (v-shoulderV)/(pattern.underarm-shoulderV)*.32 : .32+(v-pattern.underarm)/(pattern.hem-pattern.underarm)*.68)*length;
@@ -63,7 +64,7 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     const across = Math.max(0, Math.min(1, (v-shoulderV)/(pattern.underarm-shoulderV)));
     const left = pattern.sides[0].outer.u+(pattern.sides[0].inner.u-pattern.sides[0].outer.u)*across;
     const right = pattern.sides[1].outer.u+(pattern.sides[1].inner.u-pattern.sides[1].outer.u)*across;
-    return {...center,x:center.x+(b.x-a.x)*(q-.5)*width,y:center.y+(b.y-a.y)*(q-.5)*width,u:left+(right-left)*q,v};
+    return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width,y:center.y+(b.y-a.y)*(q-.5)*width,z:center.z+(b.z-a.z)*(q-.5)*width,u:left+(right-left)*q,v}, q, Math.max(0,Math.min(1,t)));
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
   const triangles = grid(8,rows.length-1,(q,t)=>body(q,rows[Math.round(t*(rows.length-1))]));
@@ -75,12 +76,40 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     triangles.push(...grid(4,8,(q,t)=>{
       const center=mix(root,cuff,t),normal=unit(mix(rootNormal,armNormal,t)),r=radius*(1-t)+shoulderWidth*width*.085*t;
       const uv=mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
-      return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),...uv};
+      return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),z:center.z+(rootOuter.z-rootInner.z)*(1-2*q)*.5*(1-t),...uv};
     }));
   });
   triangles.sort((a,b)=>b.reduce((n,p)=>n+p.z,0)-a.reduce((n,p)=>n+p.z,0));
   triangles.sleeveStyle=pattern.kind;
+  triangles.curvedTorso=surface.enabled;
   return triangles;
+}
+
+// An elliptical front panel, estimated from world-pose yaw and torso length.
+// Frontal photo projection stays linear; only depth and yaw displacement change.
+// It describes a curved front surface, not measured body shape or cloth physics.
+export function createTorsoCurve(sides, world, depthPixels, fitWidth = 1) {
+  const flat = { enabled: false, curve: point => point };
+  if (!world || !Array.isArray(sides) || sides.length !== 2 || !Number.isFinite(fitWidth) || fitWidth <= 0 || !sides.every(s => s && s.s && s.h && [s.s.x,s.s.y,s.h.x,s.h.y].every(Number.isFinite)) || !sides.every(s => [s.sIndex,s.hIndex].every(i => world[i] && [world[i].x,world[i].y,world[i].z].every(Number.isFinite)))) return flat;
+  const worldTop=mix(world[sides[0].sIndex],world[sides[1].sIndex],.5),worldBottom=mix(world[sides[0].hIndex],world[sides[1].hIndex],.5);
+  const worldLength=Math.hypot(worldBottom.x-worldTop.x,worldBottom.y-worldTop.y,worldBottom.z-worldTop.z);
+  const screenLength=distance(mix(sides[0].s,sides[1].s,.5),mix(sides[0].h,sides[1].h,.5));
+  if (!Number.isFinite(screenLength) || worldLength < .1 || worldLength > 1 || screenLength < 25 || !Number.isFinite(depthPixels) || depthPixels <= 0) return flat;
+  const pixelsPerMeter=screenLength/worldLength;
+  const layers=['s','h'].map(key=>{
+    const id=key==='s'?'sIndex':'hIndex';
+    const x=sides[1][key].x-sides[0][key].x,z=(world[sides[1][id]].z-world[sides[0][id]].z)*pixelsPerMeter;
+    const across=Math.hypot(x,z);
+    if (across < 12 || Math.abs(z)>screenLength*1.1) return null;
+    return { nx:z/across,nz:-x/across,depth:Math.min(across*.22,screenLength*.25)*fitWidth };
+  });
+  if (layers.some(p=>!p)) return flat;
+  return { enabled:true,curve(point,q,t) {
+    const shape=Math.sqrt(Math.max(0,1-(2*q-1)**2));
+    const depth=layers[0].depth+(layers[1].depth-layers[0].depth)*t;
+    const nx=layers[0].nx+(layers[1].nx-layers[0].nx)*t,nz=layers[0].nz+(layers[1].nz-layers[0].nz)*t;
+    return {...point,x:point.x+nx*depth*shape,z:point.z+nz*depth*shape/depthPixels};
+  } };
 }
 function mix(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:(a.z||0)+((b.z||0)-(a.z||0))*t}}
 function mixUV(a,b,t){return{u:a.u+(b.u-a.u)*t,v:a.v+(b.v-a.v)*t}}

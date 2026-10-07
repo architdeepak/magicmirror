@@ -14,7 +14,7 @@ export class BodyTracking {
     this.lastVideoTime = -1;
     this.lastFrameAt = 0;
     this.lastPoseAt = 0;
-    this.pose = null;
+    this.pose = null; this.worldPose = null;
     this.cameraFrame = null; this.cameraFrameAt = 0;
     this.segmentation = null;
     this.stream = null;
@@ -31,7 +31,7 @@ export class BodyTracking {
     const next = Boolean(enabled);
     if (next !== this.enabled) {
       this.epoch += 1;
-      this.pose = null;
+      this.pose = null; this.worldPose = null;
       this.clearCameraFrame();
       this.segmentation = null;
       this.filter.reset();
@@ -67,6 +67,7 @@ export class BodyTracking {
         if (!this.enabled || data.epoch !== this.epoch) { data.frame?.close(); return; }
         this.clearCameraFrame(); this.cameraFrame = data.frame || null; this.cameraFrameAt = data.timestamp;
         this.pose = this.filter.update(data.landmarks || null, data.timestamp);
+        this.worldPose = this.pose?.length === 33 && Array.isArray(data.worldLandmarks) && data.worldLandmarks.length === 33 && data.worldLandmarks.every(p => p && [p.x,p.y,p.z].every(Number.isFinite)) ? data.worldLandmarks : null;
         const mask = data.segmentation;
         this.segmentation = this.pose && mask && Number.isInteger(mask.width) && Number.isInteger(mask.height)
           && mask.width > 0 && mask.height > 0 && mask.width * mask.height <= 960 * 720
@@ -96,7 +97,7 @@ export class BodyTracking {
     this.worker = null;
     this.ready = false;
     this.busy = false;
-    this.pose = null;
+    this.pose = null; this.worldPose = null;
     this.clearCameraFrame();
     this.segmentation = null;
     this.onStatus('unavailable', message);
@@ -107,14 +108,14 @@ export class BodyTracking {
     if (this.stream !== this.video.srcObject) {
       this.stream = this.video.srcObject;
       this.epoch += 1;
-      this.pose = null;
+      this.pose = null; this.worldPose = null;
       this.clearCameraFrame();
       this.segmentation = null;
       this.filter.reset();
       this.lastVideoTime = -1;
     }
     if (!this.enabled || !this.ready || this.busy) return;
-    if (!this.video.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.clearCameraFrame(); this.segmentation = null; return; }
+    if (!this.video.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.worldPose = null; this.clearCameraFrame(); this.segmentation = null; return; }
     if (now - this.lastFrameAt < 100 || this.video.currentTime === this.lastVideoTime) return;
     this.lastFrameAt = now;
     this.lastVideoTime = this.video.currentTime;
@@ -139,7 +140,7 @@ export class BodyTracking {
       worker.postMessage({ type: 'frame', frame, timestamp: now, epoch, requestId: request.id }, [frame]);
     }).catch(() => {
       if (this.pending !== request) return;
-      clearTimeout(request.timeout); this.pending = null; this.busy = false; this.pose = null; this.segmentation = null;
+      clearTimeout(request.timeout); this.pending = null; this.busy = false; this.pose = null; this.worldPose = null; this.segmentation = null;
     });
   }
 
@@ -153,6 +154,8 @@ export class BodyTracking {
     return this.enabled && this.video.srcObject?.active !== false && this.video.readyState >= 2 && this.stream === this.video.srcObject && now - this.cameraFrameAt < 400 ? this.cameraFrame : null;
   }
 
+  getWorldPose(now = performance.now()) { return this.getPose(now) ? this.worldPose : null; }
+
   getSegmentation(now = performance.now()) { return this.getPose(now) ? this.segmentation : null; }
 
   destroy() {
@@ -165,7 +168,7 @@ export class BodyTracking {
     this.ready = false; this.busy = false; this.stream = null;
     this.worker?.terminate();
     this.worker = null;
-    this.pose = null;
+    this.pose = null; this.worldPose = null;
     this.segmentation = null;
   }
 }
