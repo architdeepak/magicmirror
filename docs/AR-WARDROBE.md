@@ -1,5 +1,21 @@
 # Local AR wardrobe progress — 2026-10-07
 
+## Worn-photo ingestion and graphics follow-up
+
+The editor now offers **Extract worn clothing** after upload, phone transfer, or camera capture. It uses the already bundled MediaPipe multiclass model, offline in a disposable CPU worker; it preserves source RGB and changes only transparency. The worker is cancelled when a photo changes or the editor closes, has a 30-second timeout, and never runs continuously in the AR loop. No cloud key, Python installation, or additional weights are required. Google's [model card](https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Multiclass%20Segmentation.pdf) identifies the clothing class and Apache 2.0 license.
+
+Say **extract clothing**, **trim bottom**, **extend bottom**, **trim top**, **extend top**, or **restore photo**. Each trim changes the edge by five percentage points, bounded to retain at least five percent of the image. After extraction, swipe up/down trims/extends the bottom; horizontal swipes still choose type and pinch saves. The top/bottom sliders also work with a mouse or touchscreen. Save remains an explicit action. The original photo remains available; restore resets extraction and cropping.
+
+Actual offline Electron-worker checks on two public worn-clothing photos took approximately 384–588 ms including model setup across two checks, with 224–333 ms inference. UI heartbeats advanced and no RGB channel changed. This model includes **all visible clothes**, so the seated-photo result included trousers. Reviewed upper-body cropping removed them in the packaged photo editor. It cannot reconstruct hidden fabric, flatten folds, infer accurate sizing, separate overlapping layers, or produce a complete 3D garment. Flat/hanging photos remain the easiest dependable starting point.
+
+The packaged wardrobe check saved seven garments and exercised real file input, native persistence, local model extraction, voice tool callbacks, interpreted swipe cropping, synthetic camera capture, and paired HTTP phone upload. These do not prove physical microphone, gesture, phone-camera, or clothing fit performance. Evidence: ignored `artifacts/photo-clothing/result.json`, `artifacts/wardrobe/worn-clothing-crop.png`, and tracked `docs/AR-WARDROBE-VERIFICATION.json`.
+
+A separate FASHN human-parser experiment ran on the Spark with about 38–51 ms warm inference. Its inherited [NVIDIA SegFormer license](https://raw.githubusercontent.com/NVlabs/SegFormer/master/LICENSE) restricts use to research/evaluation. It is not integrated or bundled. The app uses MediaPipe instead.
+
+Flat views now retain the rendered room backdrop and animate the face independently. Room rendering resumes on depth/reveal, mode changes, resize, DPR change, wake, and WebGL context restoration. The actual power check measured zero repeated scene draws with face animation around 27 FPS. Flat Queen renderer CPU was about 7–8% in this short software-rendering check, compared with about 49% in the earlier resumed-view check; this is not a whole-process or Windows wattage measurement. Depth rendering remains expensive under software graphics. Sleep had zero scene/face draws and about 2% renderer CPU.
+
+The previous build's 30-minute monitor (`2026-10-07T20-08-39-289Z`) finished with 589 samples and zero recorded errors, muted with camera and depth disabled. It predates these photo/graphics changes. GitHub progress remains on `codex/local-ar-wardrobe`; remote main's independent changes still need reconciliation.
+
 ## Added
 
 - A photo editor replaces blocking name/category prompts. Upload JPG, PNG, or WebP (up to 20 MB), or explicitly capture the mirror camera. No capture is saved until Save garment.

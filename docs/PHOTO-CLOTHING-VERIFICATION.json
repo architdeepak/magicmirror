@@ -1,0 +1,23 @@
+{
+  "scope": "Actual bundled offline CPU model in Electron worker; real photos, unchanged RGB, responsive UI. No physical camera or fit validation.",
+  "results": [
+    {
+      "file": "artifacts/fashn/garment0.png",
+      "inferenceMs": 329.59999990463257,
+      "totalMs": 553.3999999761581,
+      "beats": 21,
+      "changedRGB": 0,
+      "removed": 320227,
+      "kept": 177437
+    },
+    {
+      "file": "artifacts/fashn/person0.png",
+      "inferenceMs": 333.39999997615814,
+      "totalMs": 587.7000000476837,
+      "beats": 22,
+      "changedRGB": 0,
+      "removed": 787161,
+      "kept": 251175
+    }
+  ]
+}

@@ -72,3 +72,7 @@ not a completed live feature or part of the current Electron package.
 ## Local AR wardrobe update (2026-10-07)
 
 The user chose a local AR approach. The photo editor, camera still capture, paired phone photo ingestion, thirty bundled starter garments, voice tool actions, and editor gesture routing are implemented and verified in the packaged Linux app. See `AR-WARDROBE.md` and `AR-WARDROBE-VERIFICATION.json`. Physical camera/gesture behavior, prepared 3D cloth, realistic moving garment fidelity, and Windows installation remain unproven. The previously built Windows ZIP predates these changes and must be rebuilt before delivery.
+
+Offline worn-photo clothing extraction now uses the bundled MediaPipe model in a disposable worker, with original colors retained, cancellation/timeout handling, top/bottom cropping, voice trim commands, and interpreted vertical swipe cropping. Two real-photo worker checks and the packaged seven-garment persistence workflow passed. The mask includes all clothes; crop/review is required. This does not reconstruct obscured fabric or provide 3D fitting. See `PHOTO-CLOTHING-VERIFICATION.json`.
+
+Flat views now cache the room scene while animating the face separately; short development checks show a large renderer CPU reduction and no repeated flat scene draws. The prior 30-minute muted camera-off monitor finished with zero recorded errors. Whole-process PC-stick efficiency, physical input testing, and reconciliation with remote main remain outstanding.

@@ -1,5 +1,5 @@
 // Bounded CPU work when editing a photo; never runs in the camera render loop.
-export function cutoutPhoto(source, { removeBackground = true, tolerance = 35 } = {}) {
+export function cutoutPhoto(source, { removeBackground = true, tolerance = 35, topPercent = 0, bottomPercent = 100 } = {}) {
   const width = source.width, height = source.height;
   const data = new Uint8ClampedArray(source.data);
   if (!width || !height || width * height > 1024 * 1024 || data.length !== width * height * 4) throw new Error('Choose a smaller photo.');
@@ -25,6 +25,8 @@ export function cutoutPhoto(source, { removeBackground = true, tolerance = 35 } 
       if (p + width < width * height) visit(p + width);
     }
   }
+  if (!Number.isFinite(topPercent) || !Number.isFinite(bottomPercent) || topPercent < 0 || bottomPercent > 100 || bottomPercent - topPercent < 5) throw new Error('Keep at least 5% of the photo between its top and bottom edges.');
+  for (let y = 0; y < height; y++) if (y < height * topPercent / 100 || y >= height * bottomPercent / 100) for (let x = 0; x < width; x++) data[(y * width + x) * 4 + 3] = 0;
   let left = width, top = height, right = -1, bottom = -1, visible = 0;
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     if (data[(y * width + x) * 4 + 3] <= 16) continue;
@@ -43,14 +45,17 @@ export class WardrobePhoto {
       <div class="wardrobe-caption-host"></div>
       <p>Lay one garment flat or hang it against a plain, contrasting background. Keep sleeves spread and the whole garment visible.</p>
       <div class="wardrobe-photo-actions"><button type="button" data-action="upload">Upload photo</button><button type="button" data-action="capture">Take photo</button><button type="button" data-action="phone">From phone</button></div><div data-field="phone" hidden><img alt="Scan to send a clothing photo" width="180" height="180"><p>Scan on the same Wi-Fi, choose a clothing photo, then review it here.</p></div>
+      <div class="wardrobe-photo-actions"><button type="button" data-action="extract" disabled>Extract worn clothing</button><button type="button" data-action="restore" disabled>Restore photo</button></div>
       <input data-field="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
       <canvas width="480" height="540" aria-label="Garment cutout preview"></canvas>
       <label>Name <input data-field="name" maxlength="80" placeholder="My blue summer dress"></label>
       <label>Clothing type <select data-field="category"><option value="top">Top / T-shirt</option><option value="outerwear">Jacket / coat</option><option value="dress">Dress</option><option value="skirt">Skirt</option><option value="bottoms">Trousers</option></select></label>
       <label class="wardrobe-check"><input data-field="remove" type="checkbox" checked> Remove plain background</label>
       <label>Cutout strength <input data-field="tolerance" type="range" min="8" max="80" value="35"></label>
+      <label>Top edge <input data-field="crop-top" type="range" min="0" max="95" value="0"></label>
+      <label>Bottom edge <input data-field="crop-bottom" type="range" min="5" max="100" value="100"></label>
       <p data-field="status" role="status">Upload a photo, or turn on the mirror camera and say “take photo”.</p>
-      <p class="wardrobe-help">Say “name it …”, “type dress”, “save garment”, or “cancel photo”. Swipe to choose a type; pinch to take a photo, then save. Use From phone to scan a QR and upload over Wi-Fi. A photo gives a front view, not a full 3D scan.</p>
+      <p class="wardrobe-help">Say “name it …”, “type dress”, “save garment”, or “cancel photo”. Swipe to choose a type; pinch to take a photo, then save. Use From phone to scan a QR and upload over Wi-Fi. For a photo worn by someone, say “extract clothing” with just one garment visible. Say “trim bottom” or “extend bottom” to exclude other clothes; swipe up/down does the same after extraction. Review the cutout before saving. A photo gives a front view, not a full 3D scan.</p>
       <button type="button" data-action="save" disabled>Save garment</button></form>`;
     document.body.append(this.dialog);
     this.field = name => this.dialog.querySelector(`[data-field="${name}"]`);
@@ -68,11 +73,13 @@ export class WardrobePhoto {
     this.button('phone').onclick = () => void this.connectPhone();
     this.removePhoneListener = window.mirrorBridge?.onWardrobePhoto?.(value => void this.receivePhone(value));
     this.button('save').onclick = () => void this.save();
+    this.button('extract').onclick = () => void this.extractClothing();
+    this.button('restore').onclick = () => { this.cancelExtraction(); this.generation++; this.clothingSource = null; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100'; this.field('remove').checked = true; this.button('extract').disabled = !this.source; this.preview(); };
     this.field('name').oninput = () => { this.nameAutomatic = false; };
     this.field('category').onchange = () => this.updateSuggestedName();
     this.field('file').onchange = () => void this.upload(this.field('file').files?.[0]);
-    for (const name of ['remove', 'tolerance']) this.field(name).oninput = () => this.preview();
-    this.dialog.addEventListener('close', () => { if (this.open) return; this.restoreVoiceUi(); this.generation++; this.source = null; this.output = null; this.original = null; this.waitingPhone = false; void window.mirrorBridge?.wardrobePhone?.(false); });
+    for (const name of ['remove', 'tolerance', 'crop-top', 'crop-bottom']) this.field(name).oninput = () => this.preview();
+    this.dialog.addEventListener('close', () => { if (this.open) return; this.restoreVoiceUi(); this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null; this.original = null; this.waitingPhone = false; void window.mirrorBridge?.wardrobePhone?.(false); });
     this.dialog.addEventListener('cancel', event => { if (this.saving) event.preventDefault(); });
     this.dialog.querySelector('form').onsubmit = event => { event.preventDefault(); void this.save(); };
   }
@@ -80,13 +87,14 @@ export class WardrobePhoto {
   get capturePending() { return this.captureOwner === this.generation; }
   show() {
     if (this.open) return;
-    this.generation++; this.source = null; this.output = null;
+    this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null;
     this.field('phone').hidden = true;
     this.nameAutomatic = true;
     this.field('name').value = ''; this.field('file').value = ''; this.field('remove').checked = true;
+    this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
     this.field('tolerance').value = '35'; this.field('category').value = 'top';
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.button('capture').disabled = false;
+    this.button('capture').disabled = false; this.button('extract').disabled = true; this.button('restore').disabled = true;
     this.button('save').disabled = true; this.status('Upload a photo, or hold the garment in front of the camera and take a photo.');
     this.attachVoiceUi();
     this.dialog.showModal(); this.button('upload').focus();
@@ -146,6 +154,7 @@ export class WardrobePhoto {
     if (!file || this.saving) return;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 20_000_000) { this.status('Choose a PNG, JPG, or WebP under 20 MB.'); return; }
     const hadName = Boolean(this.field('name').value.trim());
+    this.cancelExtraction(); this.clothingSource = null;
     const generation = ++this.generation, url = URL.createObjectURL(file);
     this.source = null; this.output = null; this.original = null;
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -159,7 +168,7 @@ export class WardrobePhoto {
     finally { URL.revokeObjectURL(url); }
   }
   async capture() {
-    if (this.saving || this.capturePending || !this.open) return;
+    if (this.saving || this.capturePending || this.extracting || !this.open) return;
     const generation = ++this.generation;
     this.captureOwner = generation; this.button('capture').disabled = true; this.button('save').disabled = true;
     try {
@@ -177,6 +186,8 @@ export class WardrobePhoto {
     if (this.nameAutomatic || !this.field('name').value.trim()) { this.field('name').value = this.suggestName(this.field('category').value); this.nameAutomatic = true; }
   }
   setSource(image, width, height) {
+    this.cancelExtraction(); this.clothingSource = null;
+    this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
     this.updateSuggestedName();
     this.waitingPhone = false; this.field('phone').hidden = true; void window.mirrorBridge?.wardrobePhone?.(false);
     const scale = Math.min(1, 1024 / Math.max(width, height)), canvas = document.createElement('canvas');
@@ -185,13 +196,33 @@ export class WardrobePhoto {
     this.source = ctx.getImageData(0, 0, canvas.width, canvas.height); this.original = canvas.toDataURL('image/png');
     let transparent = 0; for (let i = 3; i < this.source.data.length; i += 4) if (this.source.data[i] < 16) transparent++;
     this.field('remove').checked = transparent / (canvas.width * canvas.height) < .005;
+    this.button('extract').disabled = false; this.button('restore').disabled = false;
     this.preview();
+  }
+  get extracting() { return this.extractionOwner === this.generation; }
+  cancelExtraction() { this.extractionJob?.cancel(); this.extractionJob = null; this.extractionOwner = null; }
+  async extractClothing() {
+    if (!this.open || !this.source || this.saving || this.capturePending || this.extracting) return;
+    const generation = this.generation; this.extractionOwner = generation;
+    this.button('extract').disabled = true; this.button('save').disabled = true;
+    this.status('Extracting clothing locally… Keep just one garment visible in the photo.');
+    try {
+      const { extractPhotoClothing } = await import('./photoClothing.js');
+      if (!this.open || generation !== this.generation || !this.extracting) return;
+      const job = extractPhotoClothing(this.source); this.extractionJob = job;
+      const result = await job.promise;
+      if (!this.open || generation !== this.generation || this.extractionJob !== job) return;
+      this.clothingSource = result.source; this.field('remove').checked = false;
+      this.extractionOwner = null; this.preview();
+      this.status('Review the outline carefully. All visible clothing is included; skin and background are removed. Hidden fabric cannot be recovered. Restore photo to use a flat garment instead.');
+    } catch (error) { if (this.open && generation === this.generation && this.extracting) this.status(error.message); }
+    finally { if (generation === this.generation) { this.extractionOwner = null; this.extractionJob = null; this.button('extract').disabled = !this.source; this.button('save').disabled = !this.output || this.saving; } }
   }
   preview() {
     this.output = null; this.button('save').disabled = true;
     if (!this.source) return;
     try {
-      const result = cutoutPhoto(this.source, { removeBackground: this.field('remove').checked, tolerance: Number(this.field('tolerance').value) });
+      const result = cutoutPhoto(this.clothingSource || this.source, { removeBackground: this.field('remove').checked, tolerance: Number(this.field('tolerance').value), topPercent: Number(this.field('crop-top').value), bottomPercent: Number(this.field('crop-bottom').value) });
       const temp = document.createElement('canvas'); temp.width = result.width; temp.height = result.height;
       temp.getContext('2d').putImageData(new ImageData(result.data, result.width, result.height), 0, 0);
       const crop = document.createElement('canvas'); crop.width = result.bounds.width; crop.height = result.bounds.height;
@@ -200,12 +231,12 @@ export class WardrobePhoto {
       const ctx = this.canvas.getContext('2d'); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       const scale = Math.min((this.canvas.width - 32) / crop.width, (this.canvas.height - 32) / crop.height);
       ctx.drawImage(crop, (this.canvas.width - crop.width * scale) / 2, (this.canvas.height - crop.height * scale) / 2, crop.width * scale, crop.height * scale);
-      this.button('save').disabled = this.saving || this.capturePending;
-      this.status('Check that only the garment remains, with no person or hanger. Choose a name and type, then save. For complex backgrounds, upload a transparent PNG.');
+      this.button('save').disabled = this.saving || this.capturePending || this.extracting;
+      this.status('Check that only the garment remains, with no person or hanger. Choose a name and type, then save. Use the top and bottom edges to keep just one garment. For complex backgrounds, extract worn clothing or upload a transparent PNG.');
     } catch (error) { this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height); this.status(error.message); }
   }
   async save() {
-    if (this.saving || this.capturePending || !this.output || !this.open) return;
+    if (this.saving || this.capturePending || this.extracting || !this.output || !this.open) return;
     const name = this.field('name').value.trim(); if (!name) { this.status('Give this garment a name.'); this.field('name').focus(); return; }
     this.saving = true; this.button('save').disabled = true;
     for (const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control])')) el.disabled = true;
@@ -218,6 +249,9 @@ export class WardrobePhoto {
   }
   voice(text) {
     if (!this.open) return false;
+    if (/^(?:extract|isolate)(?: worn)? clothing[.!]?$/i.test(text.trim())) { void this.extractClothing(); return true; }
+    if (/^(trim|extend) (top|bottom)[.!]?$/i.test(text.trim()) && !this.saving && !this.extracting) { const [, action, edge] = text.trim().match(/^(trim|extend) (top|bottom)/i); this.adjustCrop(edge.toLowerCase(), action.toLowerCase() === 'trim'); return true; }
+    if (/^restore photo[.!]?$/i.test(text.trim())) { this.button('restore').click(); return true; }
     const name = text.match(/^name (?:it|this|the garment)\s+(.+)/i), type = text.match(/^(?:type|category|make it (?:a|an))\s+(top|t shirt|t-shirt|jacket|coat|dress|skirt|trousers|pants)$/i);
     if (name && !this.saving) { this.nameAutomatic = false; this.field('name').value = name[1].trim().slice(0, 80); this.status(`Named ${this.field('name').value}.`); }
     else if (type && !this.saving) { this.field('category').value = { jacket: 'outerwear', coat: 'outerwear', pants: 'bottoms', trousers: 'bottoms', 't shirt': 'top', 't-shirt': 'top' }[type[1].toLowerCase()] || type[1].toLowerCase(); this.updateSuggestedName(); }
@@ -228,10 +262,16 @@ export class WardrobePhoto {
     else return false;
     return true;
   }
+  adjustCrop(edge, trim) {
+    const field = this.field(`crop-${edge}`), top = Number(this.field('crop-top').value), bottom = Number(this.field('crop-bottom').value);
+    field.value = String(edge === 'top' ? Math.max(0, Math.min(bottom - 5, top + (trim ? 5 : -5))) : Math.max(top + 5, Math.min(100, bottom + (trim ? -5 : 5))));
+    this.preview();
+  }
   gesture(type) {
     if (!this.open) return false;
-    if (this.saving || this.capturePending) return true;
-    if (type === 'pinch') { if (this.output) void this.save(); else this.capture(); }
+    if (this.saving || this.capturePending || this.extracting) return true;
+    if (this.clothingSource && ['swipe-up', 'swipe-down'].includes(type)) this.adjustCrop('bottom', type === 'swipe-up');
+    else if (type === 'pinch') { if (this.output) void this.save(); else this.capture(); }
     else if (['swipe-left', 'swipe-right'].includes(type)) {
       const select = this.field('category'), count = select.options.length;
       select.selectedIndex = (select.selectedIndex + (type === 'swipe-left' ? 1 : -1) + count) % count;

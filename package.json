@@ -77,7 +77,8 @@
     "test:wardrobe": "node tools/test-wardrobe-photo.cjs",
     "check:wardrobe:ui": "node tools/check-wardrobe-ui.cjs",
     "test:starter-sleeves": "node tools/test-starter-sleeves.cjs",
-    "check:sleeves": "electron --no-sandbox tools/check-sleeve-ui.cjs"
+    "check:sleeves": "electron --no-sandbox tools/check-sleeve-ui.cjs",
+    "check:photo:clothing": "electron --no-sandbox tools/check-photo-clothing.cjs"
   },
   "devDependencies": {
     "electron": "^31.0.0",

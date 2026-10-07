@@ -87,8 +87,24 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal((await send(image)).status,409,'Closed editor continued accepting photos');
   await client.evaluate('window.mirrorBridge.stopPhoneLink()');
   await tool('add garment');await tool('cancel photo');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo").open'),false);
+  await tool('add garment');
+  const wornDoc=await client.call('DOM.getDocument'),wornFile=await client.call('DOM.querySelector',{nodeId:wornDoc.root.nodeId,selector:'#wardrobe-photo input[type=file]'});
+  await client.call('DOM.setFileInputFiles',{nodeId:wornFile.nodeId,files:[path.join(root,'artifacts/fashn/garment0.png')]});
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo [data-action=extract]").disabled'),'worn source');
+  await client.evaluate('document.querySelector("#wardrobe-photo [data-action=extract]").click()');
+  await tool('restore photo');
+  assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo [data-action=extract]").disabled'),false);
+  await tool('extract clothing');
+  await until(()=>client.evaluate('/All visible clothing/.test(document.querySelector("#wardrobe-photo [data-field=status]").textContent)&&!document.querySelector("#wardrobe-photo [data-action=save]").disabled'),'offline worn clothing extraction');
+  await tool('trim bottom');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo [data-field=crop-bottom]").value'),'95');
+  await client.evaluate("__mirrorDebug.gestures.onGesture('swipe-up')");assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo [data-field=crop-bottom]").value'),'90');
+  await tool('extend bottom');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo [data-field=crop-bottom]").value'),'95');
+  await client.evaluate(`document.querySelector('#wardrobe-photo [data-field=crop-bottom]').value='83';document.querySelector('#wardrobe-photo [data-field=crop-bottom]').dispatchEvent(new Event('input'))`);
+  await shot('worn-clothing-crop');await tool('name it My extracted shirt');await tool('save garment');
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo").open'),'extracted garment save');
+  assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,7);
   assert.deepEqual(exceptions,[]);
-  const report={status:'passed',starterGarments:30,savedGarments:6,checks:['real garment upload/cutout','real IPC persistence/reload','original retained','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured.','Plain-background cutout only.']};
+  const report={status:'passed',starterGarments:30,savedGarments:7,checks:['real garment upload/cutout','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
   await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});

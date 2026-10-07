@@ -18,6 +18,18 @@ assert.equal(context.cutoutPhoto(picture([250,250,250],[245,245,245]),{removeBac
 const noisy=picture([250,250,250],[30,30,30]);noisy.data.set([0,0,0,255],0);assert.throws(()=>context.cutoutPhoto(noisy),/plain background/);
 assert.throws(()=>context.cutoutPhoto({width:4096,height:4096,data:new Uint8ClampedArray(0)}),/smaller/);
 console.log('Wardrobe photo: reversible cutout on light/dark/colored backgrounds, crops, contrast warning, complex background rejection, bounded work.');
+const cropped=context.cutoutPhoto(picture([250,250,250],[35,150,65]),{topPercent:30,bottomPercent:65});
+assert.equal(cropped.bounds.top,6);assert.equal(cropped.bounds.height,7);
+assert.throws(()=>context.cutoutPhoto(picture([250,250,250],[35,150,65]),{topPercent:90,bottomPercent:91}),/at least 5%/);
+const maskScope=vm.createContext({Uint8ClampedArray});
+vm.runInContext(fs.readFileSync('src/photoClothing.js','utf8').split('export function extractPhotoClothing')[0].replace('export function','function'),maskScope);
+const original=picture([250,250,250],[35,150,65]),classes=new Uint8Array(400);classes.fill(4);classes.fill(2,0,100);
+const masked=maskScope.applyClothingMask(original,{width:20,height:20,classes});
+assert.equal(masked.data[3],0);assert.equal(original.data[3],255);
+for(let p=0;p<original.data.length;p+=4)for(let c=0;c<3;c++)assert.equal(masked.data[p+c],original.data[p+c]);
+assert.throws(()=>maskScope.applyClothingMask(original,{width:20,height:20,classes:new Uint8Array(400)}),/Not enough clothing/);
+assert.throws(()=>maskScope.applyClothingMask(original,{width:20,height:20,classes:[]}),/Invalid/);
+console.log('Worn photo: clothing-only alpha, unchanged RGB/source, empty/invalid masks rejected; reversible crop bounds.');
 
 const {wardrobePhotoBytes}=require('../src/wardrobePhotoValidation.cjs');
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jGZkAAAAASUVORK5CYII=','base64');

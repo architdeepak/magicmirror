@@ -1,9 +1,10 @@
 {
   "status": "passed",
   "starterGarments": 30,
-  "savedGarments": 6,
+  "savedGarments": 7,
   "checks": [
     "real garment upload/cutout",
+    "offline worn clothing extraction, voice/gesture crop and real persistence",
     "real IPC persistence/reload",
     "original retained",
     "invalid PNG rejected",
@@ -21,6 +22,6 @@
   ],
   "limits": [
     "No physical camera/gesture recognition or garment drape accuracy measured.",
-    "Plain-background cutout only."
+    "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
   ]
 }

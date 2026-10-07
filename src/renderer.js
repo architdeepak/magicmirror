@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { RenderBudget } from './renderBudget.js';
+import { RenderBudget, SceneRenderBudget } from './renderBudget.js';
 import { AvatarController } from './avatarController.js';
 import { ClosetStore } from './closetStore.js';
 import { matchGarment } from './garmentMatch.js';
@@ -222,7 +222,7 @@ elements.visionNotice.textContent = visionEnabled
 updateMemoryStatus(config.memory);
 
 
-const renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 const viewportSize = () => ({ width: elements.shell.clientWidth || window.innerWidth, height: elements.shell.clientHeight || window.innerHeight });
 // A native 4K portrait television is already 8.3MP at DPR 1.  Preserve that
 // native detail, but cap Retina/browser scaling by a pixel budget rather than
@@ -233,6 +233,8 @@ const preferredPixelRatio = () => {
   const budgetRatio = Math.sqrt(RENDER_PIXEL_BUDGET / Math.max(1, width * height));
   return Math.min(window.devicePixelRatio || 1, Math.max(.8, budgetRatio));
 };
+const sceneBudget = new SceneRenderBudget();
+elements.canvas.addEventListener('webglcontextrestored', () => sceneBudget.invalidate());
 const renderQuality = {
   // A 4K portrait panel at DPR 2 would otherwise request ~33 million pixels
   // per rendered layer. The governor protects frame time before visual polish.
@@ -423,6 +425,7 @@ const gemini = new GeminiLiveAdapter({
     setAssistantMode('ar');
     if (/^save(?: (?:garment|photo|it))?$/i.test(command.trim()) && closet.photo.open) await closet.photo.save();
     else if (/^(?:take|capture)(?: a)? photo$/i.test(command.trim()) && closet.photo.open) await closet.photo.capture();
+    else if (/^(?:extract|isolate)(?: worn)? clothing[.!]?$/i.test(command.trim()) && closet.photo.open) await closet.photo.extractClothing();
     else if (!closet.voice(command)) return { result: 'Command not recognized.' };
     return { result: closet.photo.open ? closet.photo.field('status').textContent : 'Wardrobe updated.', photoEditorOpen: closet.photo.open, selected: closet.items.find(item => item.id === closet.selectedId)?.name };
   },
@@ -498,10 +501,11 @@ async function initialize() {
 }
 
 window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant,
-  getPowerState: () => renderBudget.snapshot() };
+  getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
 function setDepthMode(enabled, announce = true) {
   depthEnabled = Boolean(enabled);
+  sceneBudget.invalidate();
   localStorage.setItem('mirror.depth-cube', String(depthEnabled));
   elements.shell.dataset.depth = depthEnabled ? 'cube' : 'flat';
   elements.dimensionSwitch?.querySelectorAll('button').forEach((button) => button.classList.toggle('active', button.dataset.depth === (depthEnabled ? 'cube' : 'flat')));
@@ -516,6 +520,7 @@ function setMode(nextMode) {
   if (mode === 'ar' && nextMode !== 'ar') { cancelTryOnRender(); liveTryOn.stop(); }
   if (mode === 'watch' && nextMode !== 'watch') { elements.watchVideo.pause(); youtubePlayer.pause(); }
   mode = nextMode;
+  sceneBudget.invalidate();
   elements.shell.dataset.mode = nextMode;
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === nextMode));
   elements.studioPanel.classList.toggle('active', nextMode === 'ar');
@@ -598,7 +603,7 @@ function getMirrorState() {
       fit: { ...garmentOverlay.fit }, contourOcclusion: Boolean(garmentOverlay.tracker.getSegmentation()), trackingInferenceMs: garmentOverlay.tracker.inferenceMs || 0, previewReady: Boolean(garmentOverlay.texture),
       liveFit: garmentOverlay.getLiveState(),
       renderedStillAvailable: !elements.tryOnStill.disabled,
-      photoEditor: { open: closet.photo.open, readyToSave: Boolean(closet.photo.output), saving: Boolean(closet.photo.saving) },
+      photoEditor: { open: closet.photo.open, readyToSave: Boolean(closet.photo.output) && !closet.photo.extracting, extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category })) },
     watch: { ...watchPlayback.snapshot(), castingEnabled, castActive: castPlayer.active },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }
@@ -1650,7 +1655,7 @@ function animate() {
   avatar.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
   arOverlay.render(getFaceLandmarks(), elements.video, elapsed, mode === 'ar' && !desktopActive);
   garmentOverlay.render(performance.now());
-  renderer.render(scene, camera);
+  if (sceneBudget.shouldRender({ hidden: document.hidden, sleeping, depthEnabled, awakening: elements.awakening.classList.contains('active'), mode })) renderer.render(scene, camera);
   updateRenderQuality(frameDelta);
   diagnosticsTimer += dt;
   if (diagnosticsTimer > .25 && elements.diagnostics.classList.contains('open')) {
@@ -1664,6 +1669,7 @@ animate();
 
 // Avoid waiting for the standby heartbeat before the first restored frame.
 function resumeRendering() {
+  sceneBudget.invalidate();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   if (animationTimer !== null) clearTimeout(animationTimer);
   renderBudget.reset();
@@ -1701,6 +1707,7 @@ window.addEventListener('resize', () => {
   renderQuality.pixelRatio = Math.min(renderQuality.pixelRatio, renderQuality.maxPixelRatio);
   renderer.setPixelRatio(renderQuality.pixelRatio);
   renderer.setSize(viewport.width, viewport.height);
+  sceneBudget.invalidate();
   arOverlay.resize();
   garmentOverlay.resize();
 });
@@ -2030,6 +2037,7 @@ function updateRenderQuality(dt) {
     // desktop browser. The render surface is the portrait mirror shell.
     const viewport = viewportSize();
     renderer.setSize(viewport.width, viewport.height);
+    sceneBudget.invalidate();
   }
   renderQuality.frames = 0;
   renderQuality.elapsed = 0;
