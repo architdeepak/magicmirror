@@ -1,0 +1,43 @@
+const assert=require('assert/strict');const fs=require('fs');const path=require('path');const vm=require('vm');
+const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return{promise,resolve}};const tick=()=>new Promise(r=>setImmediate(r));
+(async()=>{
+  const workers=[],bitmaps=[],events=[],timers=new Map();let timerId=0,now=1000;
+  class Worker{constructor(){this.messages=[];workers.push(this)}postMessage(message){this.messages.push(message)}terminate(){this.terminated=true}send(data){this.onmessage({data})}}
+  const context=vm.createContext({console,URL,Worker,performance:{now:()=>now},setTimeout:(fn,ms)=>{const id=++timerId;timers.set(id,{fn,ms});return id},clearTimeout:id=>timers.delete(id),createImageBitmap:(_video,options)=>{const d=deferred();d.options=options;bitmaps.push(d);return d.promise}});
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/frameTracking.js'),'utf8').replace(/^import .*;\n/gm,'').replace('export class ','class ').replaceAll('import.meta.url',"'file:///fixture/frameTracking.js'"),context);
+  const source=fs.readFileSync(path.join(__dirname,'../src/handTracking.js'),'utf8').replace(/^import .*;\n/gm,'').replace('export class ','class ').replaceAll('import.meta.url',"'file:///fixture/handTracking.js'");vm.runInContext(source+'\nglobalThis.Subject=HandTracking;',context);
+  const video={srcObject:{id:1},readyState:2,videoWidth:640,videoHeight:480,currentTime:0};const tracker=new context.Subject(video,(hand,stamp)=>events.push({hand,stamp}));
+  const init=tracker.init();workers[0].send({type:'ready',delegate:'CPU'});assert(await init);tracker.setEnabled(true);tracker.update(now);const first=tracker.pending;
+  assert.equal(timers.get(first.timeout).ms,20000);const bitmap=()=>({closed:false,close(){this.closed=true}});
+  video.srcObject={id:2};const oldBitmap=bitmap();bitmaps[0].resolve(oldBitmap);await tick();assert(oldBitmap.closed&&tracker.pending===null,'Late bitmap from a changed camera was sent');
+  now=1100;video.currentTime=1;tracker.update(now);const current=tracker.pending;bitmaps[1].resolve(bitmap());await tick();const frame=workers[0].messages.at(-1);assert.equal(frame.requestId,current.id);
+  workers[0].send({type:'hand',requestId:first.id,epoch:first.epoch,timestamp:1000,landmarks:[{}]});assert.equal(tracker.pending,current,'Old reply released a newer slot');
+  now=1200;workers[0].send({type:'hand',requestId:current.id,epoch:frame.epoch,timestamp:1100,landmarks:[{x:.5,y:.5}],inferenceMs:100});assert.equal(events.at(-1).hand.length,1);
+  video.currentTime=2;tracker.update(now);const stale=tracker.pending;bitmaps[2].resolve(bitmap());await tick();const staleFrame=workers[0].messages.at(-1);now=1800;
+  workers[0].send({type:'hand',requestId:stale.id,epoch:staleFrame.epoch,timestamp:1200,landmarks:[{}]});assert.equal(events.at(-1).hand,null,'Late inference emitted old landmarks');
+  video.currentTime=3;tracker.update(now);const stopped=tracker.pending;bitmaps[3].resolve(bitmap());await tick();const stoppedFrame=workers[0].messages.at(-1);tracker.setEnabled(false);const count=events.length;
+  workers[0].send({type:'hand',requestId:stopped.id,epoch:stoppedFrame.epoch,timestamp:1800,landmarks:[{}]});assert.equal(events.length,count,'Disabled worker emitted a gesture frame');
+  tracker.setEnabled(true);video.currentTime=4;tracker.update(1900);const stalled=tracker.pending;assert.equal(timers.get(stalled.timeout).ms,5000);timers.get(stalled.timeout).fn();assert(workers[0].terminated&&!tracker.ready&&!tracker.pending);
+  const late=bitmap();bitmaps[4].resolve(late);await tick();assert(late.closed);
+  const retry=tracker.init();workers[1].send({type:'ready',delegate:'CPU'});assert(await retry);tracker.destroy();assert(workers[1].terminated);assert.equal(timers.size,0);assert.equal(await tracker.init(),false);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/faceTracking.js'),'utf8').replace(/^import .*;\n/gm,'').replace('export class ','class ')+';globalThis.Face=FaceTracking;',context);
+  const faces=[];const face=new context.Face(video,(landmarks,stamp,data)=>faces.push({landmarks,stamp,data}));const loadingFace=face.init();workers[2].send({type:'ready',delegate:'CPU'});await loadingFace;face.setEnabled(true);
+  now=2200;video.videoWidth=1280;video.videoHeight=720;video.currentTime=5;face.update(now);const faceRequest=face.pending;bitmaps[5].resolve(bitmap());await tick();assert.equal(bitmaps[5].options.resizeWidth,960);assert.equal(bitmaps[5].options.resizeHeight,540);
+  const packet=workers[2].messages.at(-1);now=2300;workers[2].send({type:'face',requestId:faceRequest.id,epoch:packet.epoch,timestamp:2200,landmarks:[{}],matrix:[1],blendshapes:[{}]});assert.equal(faces[0].data.matrix[0],1,'Face metadata was lost by shared transport');
+  video.currentTime=6;face.update(2300);const expired=face.pending;bitmaps[6].resolve(bitmap());await tick();const expiredPacket=workers[2].messages.at(-1);now=2601;workers[2].send({type:'face',requestId:expired.id,epoch:expiredPacket.epoch,timestamp:2300,landmarks:[{}]});assert.equal(faces.at(-1).landmarks,null,'Expired face passed the 300ms freshness limit');face.destroy();assert.equal(timers.size,0);
+  const endedEvents=[];const dormant=new context.Subject(video,hand=>endedEvents.push(hand));dormant.setEnabled(false);assert.equal(workers.length,3,'Disabled tracker loaded a worker');
+  dormant.setEnabled(true);assert.equal(workers.length,4);workers[3].send({type:'ready',delegate:'CPU'});
+  video.srcObject.active=false;video.currentTime=7;dormant.update(2700);assert.equal(dormant.pending,null,'Ended stream started inference');
+  video.srcObject.active=true;dormant.update(2800);const ending=dormant.pending;assert(ending);
+  video.srcObject.active=false;const endedBitmap=bitmap();bitmaps[7].resolve(endedBitmap);await tick();assert(endedBitmap.closed&&dormant.pending===null,'Ended stream sent a late bitmap');
+  video.srcObject.active=true;video.currentTime=8;dormant.update(2900);const endedResult=dormant.pending;bitmaps[8].resolve(bitmap());await tick();const endedPacket=workers[3].messages.at(-1);
+  video.srcObject.active=false;workers[3].send({type:'hand',requestId:endedResult.id,epoch:endedPacket.epoch,timestamp:2900,landmarks:[{}]});assert.equal(endedEvents.length,0,'Ended stream delivered a late tracking result');
+  dormant.destroy();assert.equal(timers.size,0);
+  const delegates=[],messages=[];const result={landmarks:[Array.from({length:21},()=>({x:.5,y:.5,z:0}))]};
+  const workerContext=vm.createContext({console,URL,performance:{now:()=>100},OffscreenCanvas:class {getContext(){return{getExtension:name=>name==='WEBGL_debug_renderer_info'?{UNMASKED_RENDERER_WEBGL:1}:null,getParameter:()=> 'hardware GPU'}}},
+    self:{location:{href:'file:///fixture/handTrackingWorker.js'},postMessage:message=>messages.push(message)},mockedVision:async()=>({FilesetResolver:{forVisionTasks:async()=>({})},HandLandmarker:{createFromOptions:async(_vision,options)=>{delegates.push(options.baseOptions.delegate);if(options.baseOptions.delegate==='GPU')throw new Error('GPU unavailable');return{detectForVideo:()=>result}}}})});
+  const workerSource=fs.readFileSync(path.join(__dirname,'../src/handTrackingWorker.js'),'utf8').replace("await import('../node_modules/@mediapipe/tasks-vision/vision_bundle.mjs')",'await mockedVision()');vm.runInContext(workerSource,workerContext);
+  await workerContext.self.onmessage({data:{type:'init'}});assert.deepEqual(delegates,['GPU','CPU']);assert.equal(messages[0].delegate,'CPU');
+  const workerBitmap=bitmap();await workerContext.self.onmessage({data:{type:'frame',frame:workerBitmap,timestamp:10,requestId:3,epoch:2}});assert(workerBitmap.closed);assert.equal(messages.at(-1).landmarks.length,21);assert.equal(messages.at(-1).requestId,3);
+  console.log('Hand tracking lifecycle passed: worker readiness, bounded frames, camera/bitmap races, stale results, disabled sessions, watchdog recovery, retry, disposal, worker GPU fallback, and bitmap release.');
+})().catch(error=>{console.error(error);process.exitCode=1});

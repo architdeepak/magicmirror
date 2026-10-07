@@ -7,7 +7,7 @@ const HEADS = Object.freeze({
   // a real feature rig. The current raster experiment is retained as an asset
   // for art direction, but is deliberately not used as the speaking performer.
   solenne: { image: 'assets/personas/snow-head-v3.png', speaking: 'assets/personas/snow-head-v2-speaking.png', rounded: 'assets/personas/snow-head-v2-o.png', mouth: '#4a1820', lip: '#b84e58', lid: '#f0c0aa', mouthY: .22, eyeY: .015, eyeX: .132, proceduralMouth: false },
-  rowan: { image: 'assets/personas/advit-head-reference.png', mouth: '#31140e', lip: '#7b3d37', lid: '#4a281e', mouthY: .323 }
+  rowan: { image: 'assets/personas/advit-head-reference.png', mouth: '#31140e', lip: '#7b3d37', lid: '#4a281e', mouthY: .247 }
 });
 
 // The host is deliberately a face cutout, not a conventional character avatar.
@@ -30,6 +30,9 @@ export class FaceHost {
     this.ready = false;
     this.speakingReady = false;
     this.roundedReady = false;
+    this.speakingPatch = null;
+    this.roundedPatch = null;
+    this.fallbackMouthPatch = null;
     this.viseme = 'rest';
     this.poseBlend = { AA: 0, O: 0 };
     this.performance = { turn: 0, nod: 0, lean: 0 };
@@ -51,15 +54,26 @@ export class FaceHost {
     this.roundedImage = new Image();
     this.speakingReady = false;
     this.roundedReady = false;
+    this.speakingPatch = null;
+    this.roundedPatch = null;
+    this.fallbackMouthPatch = null;
     this.poseBlend = { AA: 0, O: 0 };
-    this.image.onload = () => { this.ready = true; this.draw(0); };
+    const neutral = this.image;
+    this.image.onload = () => {
+      if (this.image !== neutral) return;
+      if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
+      this.ready = true;
+      this.draw(0);
+    };
     this.image.src = HEADS[this.persona].image;
     if (HEADS[this.persona].speaking) {
-      this.speakingImage.onload = () => { this.speakingReady = true; };
+      const speaking = this.speakingImage;
+      this.speakingImage.onload = () => { if (this.speakingImage !== speaking) return; this.speakingPatch = createMouthPatch(speaking, HEADS[this.persona]); this.speakingReady = true; };
       this.speakingImage.src = HEADS[this.persona].speaking;
     }
     if (HEADS[this.persona].rounded) {
-      this.roundedImage.onload = () => { this.roundedReady = true; };
+      const rounded = this.roundedImage;
+      this.roundedImage.onload = () => { if (this.roundedImage !== rounded) return; this.roundedPatch = createMouthPatch(rounded, HEADS[this.persona]); this.roundedReady = true; };
       this.roundedImage.src = HEADS[this.persona].rounded;
     }
   }
@@ -134,16 +148,13 @@ export class FaceHost {
     const mouthY = base * (spec.mouthY ?? .323);
     if ((this.speakingReady && aa > .015) || (this.roundedReady && rounded > .015)) {
       ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(0, mouthY, base * .16, base * .082, 0, 0, Math.PI * 2);
-      ctx.clip();
-      if (this.speakingReady && aa > .015) {
+      if (this.speakingPatch && aa > .015) {
         ctx.globalAlpha = aa;
-        ctx.drawImage(this.speakingImage, -base / 2, -base / 2, base, base);
+        ctx.drawImage(this.speakingPatch, -base * .11, mouthY - base * .05, base * .22, base * .10);
       }
-      if (this.roundedReady && rounded > .015) {
+      if (this.roundedPatch && rounded > .015) {
         ctx.globalAlpha = rounded;
-        ctx.drawImage(this.roundedImage, -base / 2, -base / 2, base, base);
+        ctx.drawImage(this.roundedPatch, -base * .11, mouthY - base * .05, base * .22, base * .10);
       }
       ctx.restore();
     }
@@ -191,6 +202,14 @@ export class FaceHost {
 
   drawMouth(ctx, cx, cy, size, amount) {
     const spec = HEADS[this.persona];
+    if (this.fallbackMouthPatch) {
+      // The reference already has detailed teeth and lips. Keep that painted
+      // mouth as one soft-edged layer; an additional dark oval reads as a
+      // second mouth, even when its center is correctly aligned.
+      const stretch = 1 + Math.min(1, amount) * .28;
+      ctx.drawImage(this.fallbackMouthPatch, cx - size * .11, cy + size * (spec.mouthY - .05), size * .22, size * .10 * stretch);
+      return;
+    }
     const round = Math.max(this.blendshapes.mouthFunnel || 0, this.blendshapes.mouthPucker || 0);
     const smile = Math.max(this.blendshapes.mouthSmileLeft || 0, this.blendshapes.mouthSmileRight || 0);
     // Keep the cavity comfortably inside the painted lips. A large dark oval
@@ -231,4 +250,28 @@ export class FaceHost {
     }
     ctx.restore();
   }
+}
+
+function createMouthPatch(image, spec) {
+  // Blend only the lips and their immediate edge. A large hard ellipse exposed
+  // the older speaking art's cheek/nose lighting as a conspicuous face patch.
+  // The feathered crop is cached when the image loads, never per frame.
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+  const patch = document.createElement('canvas');
+  patch.width = Math.ceil(width * .22);
+  patch.height = Math.ceil(height * .10);
+  const context = patch.getContext('2d');
+  context.drawImage(image, width * .39, height * (.5 + spec.mouthY - .05), width * .22, height * .10,
+    0, 0, patch.width, patch.height);
+  context.globalCompositeOperation = 'destination-in';
+  context.translate(patch.width / 2, patch.height / 2);
+  context.scale(patch.width / 2, patch.height / 2);
+  const mask = context.createRadialGradient(0, 0, 0, 0, 0, 1);
+  mask.addColorStop(0, '#fff');
+  mask.addColorStop(.68, '#fff');
+  mask.addColorStop(1, 'rgba(255,255,255,0)');
+  context.fillStyle = mask;
+  context.fillRect(-1, -1, 2, 2);
+  return patch;
 }

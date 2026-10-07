@@ -2,6 +2,8 @@
 const fs = require('fs/promises');
 const path = require('path');
 const root = path.join(__dirname, '..');
+const packageMetadata = require('../package.json');
+if (packageMetadata.mirrorAppId !== packageMetadata.build.appId) throw new Error('Runtime mirrorAppId must match the packaged application ID');
 const required = ['src/index.html', 'src/renderer.js', 'src/main.js', 'src/preload.js', 'src/liveFaceHost.js', 'src/closetStore.js', 'src/assets/avatar.glb'];
 
 async function main() {

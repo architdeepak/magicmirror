@@ -72,6 +72,7 @@ export function createDepthScene(scene) {
   ];
   faceDecorations.forEach((wall) => cube.add(wall));
   const avatarPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 1.62), new THREE.MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide }));
+  avatarPlane.name = 'cube-avatar';
   avatarPlane.position.set(0, -.26, -2.16); avatarPlane.visible = false; cube.add(avatarPlane);
   let avatarSource = null; let avatarStage = null; let avatarStageContext = null; let avatarTexture = null;
 
@@ -108,22 +109,28 @@ export function createDepthScene(scene) {
 
   let mode = 'portal';
   let depthEnabled = false;
+  let avatarAnchor = { x: 0, y: -.26 };
   return {
     root,
     fire,
     setMode(nextMode) {
       mode = nextMode;
+      avatarPlane.visible = Boolean(depthEnabled && avatarSource && nextMode === 'portal');
       root.visible = nextMode !== 'ar';
       lineMaterial.opacity = nextMode === 'mirror' ? 0.08 : 0.19;
     },
     setDepthEnabled(enabled) {
       depthEnabled = Boolean(enabled);
+      avatarPlane.visible = Boolean(depthEnabled && avatarSource && mode === 'portal');
       cube.visible = depthEnabled;
       corridor.visible = depthEnabled;
       halo.visible = !depthEnabled;
       innerHalo.visible = !depthEnabled;
     },
     setCubeContent(content = {}) { infoWall.draw(content); },
+    setAvatarPosition(position) {
+      avatarAnchor = { center: { x: 0, y: -.26 }, left: { x: -.95, y: -.26 }, right: { x: .95, y: -.26 }, upper: { x: 0, y: .72 }, lower: { x: 0, y: -1.2 } }[position] || { x: 0, y: -.26 };
+    },
     setAvatarCanvas(canvas) {
       avatarSource = canvas || null;
       if (!avatarSource) { avatarPlane.visible = false; return; }
@@ -134,7 +141,7 @@ export function createDepthScene(scene) {
       avatarStage = document.createElement('canvas'); avatarStage.width = 1024; avatarStage.height = 1024;
       avatarStageContext = avatarStage.getContext('2d');
       avatarTexture?.dispose(); avatarTexture = new THREE.CanvasTexture(avatarStage); avatarTexture.colorSpace = THREE.SRGBColorSpace;
-      avatarPlane.material.map = avatarTexture; avatarPlane.material.needsUpdate = true; avatarPlane.visible = true;
+      avatarPlane.material.map = avatarTexture; avatarPlane.material.needsUpdate = true; avatarPlane.visible = depthEnabled && mode === 'portal';
     },
     update(dt, elapsed, head) {
       fire.material.uniforms.uTime.value += dt;
@@ -142,11 +149,11 @@ export function createDepthScene(scene) {
       cube.rotation.y = head.x * -.045;
       cube.rotation.x = head.y * .025;
       infoWall.update(head);
-      avatarPlane.position.x = head.x * -.035;
-      avatarPlane.position.y = -.26 - head.y * .025;
+      avatarPlane.position.x = avatarAnchor.x + head.x * -.035;
+      avatarPlane.position.y = avatarAnchor.y - head.y * .025;
       avatarPlane.rotation.y = head.x * .055;
       avatarPlane.rotation.x = -head.y * .025;
-      if (avatarSource?.width && avatarStageContext && avatarTexture) {
+      if (depthEnabled && avatarPlane.visible && avatarSource?.width && avatarStageContext && avatarTexture) {
         avatarStageContext.clearRect(0, 0, 1024, 1024);
         avatarStageContext.drawImage(avatarSource, 0, 0, 1024, 1024);
         avatarTexture.needsUpdate = true;

@@ -1,0 +1,24 @@
+const assert = require('assert/strict');
+const fs = require('fs/promises');
+(async () => {
+  const source = await fs.readFile(require('path').join(__dirname, '../src/renderBudget.js'), 'utf8');
+  const { RenderBudget, renderFrameRate } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+  const ambient = { mode: 'mirror', depthEnabled: false, avatarVisible: false };
+  assert.equal(renderFrameRate(ambient), 12);
+  for (const mode of ['watch', 'spotify']) assert.equal(renderFrameRate({ ...ambient, mode }), 12);
+  for (const input of [{ avatarVisible: true }, { depthEnabled: true }, { mode: 'ar' }]) assert.equal(renderFrameRate({ ...ambient, ...input }), 30);
+  for (const input of [{ sleeping: true }, { hidden: true }]) assert.equal(renderFrameRate({ ...ambient, avatarVisible: true, ...input }), 0);
+  const budget = new RenderBudget();
+  assert(budget.shouldRender(0, ambient));
+  assert(!budget.shouldRender(16, ambient));
+  assert(budget.shouldRender(84, ambient));
+  assert(!budget.shouldRender(100, { ...ambient, sleeping: true }));
+  assert(!budget.shouldRender(10000, { ...ambient, hidden: true }));
+  assert(budget.shouldRender(10001, { ...ambient, avatarVisible: true }));
+  assert(!budget.shouldRender(10017, { ...ambient, avatarVisible: true }));
+  assert(budget.shouldRender(10035, { ...ambient, avatarVisible: true }));
+  budget.reset();
+  assert(budget.shouldRender(10036, { ...ambient, avatarVisible: true }));
+  assert.equal(budget.snapshot().frames, 5);
+  console.log('Render budget passed: cadence, sleep/hidden suppression, immediate restore and reset.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

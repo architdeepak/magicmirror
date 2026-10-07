@@ -9,7 +9,7 @@
     "kiosk": "electron . --kiosk",
     "pack": "electron-builder --dir",
     "dist:win": "electron-builder --win portable",
-    "test": "npm run test:syntax && npm run test:avatar",
+    "test": "npm run test:syntax && npm run test:avatar && npm run test:desktop && npm run test:casting && npm run test:voice && npm run test:gestures && npm run test:youtube && npm run test:watch && npm run test:depth && npm run test:body && npm run test:settings && npm run test:companion && npm run test:desktop-gestures && npm run test:audio-turns && npm run test:tryon && npm run test:garment-geometry && npm run test:camera && npm run test:garment-cache && npm run test:hand && npm run test:mirror-state && npm run test:spotify && npm run test:live-tryon && npm run test:assistant-vision && npm run test:spotify-devices && npm run test:windows-spotify && npm run test:power && npm run test:wardrobe",
     "test:avatar": "node tools/test-expression-mixer.mjs",
     "test:health": "node tools/healthcheck.cjs",
     "preview:capture": "electron --no-sandbox --headless --disable-gpu tools/capture-preview.cjs",
@@ -21,11 +21,66 @@
     "avatar:preflight": "node tools/avatar-video-preflight.cjs",
     "verify": "npm test && npm run test:health",
     "rig:check": "node tools/inspect-avatar-rig.mjs",
-    "test:syntax": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js && node --check src/headTracking.js && node --check src/gestureNavigation.js && node --check src/avatarController.js && node --check src/expressionMixer.js && node --check src/avatarVideoHost.js && node --check src/rigFaceHost.js && node --check src/memojiFaceHost.js && node --check src/liveFaceHost.js && node --check src/closetStore.js && node --check src/geminiLiveAdapter.js && node --check src/wakeWord.js && node --check src/arOverlay.js && node --check src/depthScene.js && node --check src/magicMirrorView.js && node --check src/speechEngine.js && node --check tools/avatar-video-preflight.cjs && node --check tools/preview-server.cjs && node --check tools/capture-avatar-demo.cjs && node --check tools/capture-avatar-video-handoff.cjs && node --check tools/capture-persona-rig-preview.cjs"
+    "test:syntax": "node tools/check-syntax.cjs",
+    "test:live-fit": "electron --no-sandbox tools/test-live-fit.cjs",
+    "test:desktop": "node tools/test-desktop-harness.cjs",
+    "test:desktop:windows": "electron tools/test-native-desktop.cjs",
+    "test:casting": "node tools/test-casting.cjs",
+    "test:cast-player": "electron --no-sandbox tools/test-cast-player.cjs",
+    "test:voice": "node tools/test-voice-lifecycle.cjs",
+    "test:gestures": "node tools/test-gestures.cjs",
+    "test:youtube": "node tools/test-youtube-bridge.cjs",
+    "check:gemini:live": "electron --no-sandbox tools/check-gemini-live.cjs",
+    "test:watch": "node tools/test-watch-controls.cjs",
+    "check:youtube:live": "electron --no-sandbox tools/check-youtube-live.cjs",
+    "check:wake:recognition": "electron --no-sandbox tools/check-wake-recognition.cjs",
+    "test:depth": "node tools/test-depth.cjs",
+    "test:body": "node tools/test-body-tracking.cjs",
+    "test:settings": "node tools/test-integration-settings.cjs",
+    "test:companion": "node tools/test-native-companion.cjs",
+    "check:companion": "electron --no-sandbox tools/check-native-companion.cjs",
+    "test:desktop-gestures": "node tools/test-desktop-gestures.cjs",
+    "check:packaged": "node tools/check-packaged.cjs",
+    "check:voice:journey": "node tools/check-voice-journey.cjs",
+    "test:audio-turns": "node tools/test-audio-turns.cjs",
+    "test:tryon": "node tools/test-tryon.cjs",
+    "test:garment-geometry": "node tools/test-garment-geometry.cjs",
+    "test:camera": "node tools/test-camera-lifecycle.cjs",
+    "test:garment-cache": "node tools/test-garment-cache.cjs",
+    "test:hand": "node tools/test-hand-tracking.cjs",
+    "check:hand:worker": "electron --no-sandbox tools/check-hand-worker.cjs",
+    "check:face:worker": "electron --no-sandbox tools/check-face-worker.cjs",
+    "test:mirror-state": "node tools/test-mirror-state.cjs",
+    "test:spotify": "node tools/test-spotify-playback.cjs",
+    "build:decart": "node tools/build-decart.cjs",
+    "prestart": "npm run build:decart",
+    "predev": "npm run build:decart",
+    "prekiosk": "npm run build:decart",
+    "prepack": "npm run build:decart",
+    "predist:win": "npm run build:decart",
+    "test:live-tryon": "node tools/test-live-tryon.cjs",
+    "check:live-tryon:ui": "node tools/check-live-tryon-ui.cjs",
+    "test:assistant-vision": "node tools/test-assistant-vision.cjs",
+    "test:spotify-devices": "node tools/test-spotify-devices.cjs",
+    "dist:win:zip": "electron-builder --win zip --x64 -c.win.signAndEditExecutable=false",
+    "predist:win:zip": "npm run build:decart",
+    "check:windows-package": "node tools/check-windows-package.cjs",
+    "test:managed-keys": "electron --no-sandbox tools/test-managed-keys.cjs",
+    "check:computer:live": "node tools/check-live-computer.cjs",
+    "check:computer:form": "node tools/check-live-computer.cjs --form",
+    "check:computer:scroll": "node tools/check-live-computer.cjs --scroll",
+    "check:computer:double": "node tools/check-live-computer.cjs --double",
+    "test:windows-spotify": "node tools/test-windows-spotify.cjs",
+    "test:power": "node tools/test-render-budget.cjs",
+    "check:power:ui": "node tools/check-power-ui.cjs",
+    "monitor:local": "node tools/monitor-mirror.cjs",
+    "test:wardrobe": "node tools/test-wardrobe-photo.cjs",
+    "check:wardrobe:ui": "node tools/check-wardrobe-ui.cjs"
   },
   "devDependencies": {
     "electron": "^31.0.0",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2"
   },
   "build": {
     "appId": "com.architdeepak.reflect-mirror",
@@ -33,20 +88,41 @@
     "asar": true,
     "files": [
       "src/**/*",
-      "package.json"
+      "package.json",
+      {
+        "from": "node_modules/three/examples/jsm",
+        "to": "node_modules/three/examples/jsm",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "win": {
       "target": [
         "portable"
+      ],
+      "extraFiles": [
+        {
+          "from": "release/windows",
+          "to": ".",
+          "filter": [
+            "*.cmd",
+            "README.txt"
+          ]
+        }
       ]
     }
   },
   "dependencies": {
+    "@decartai/sdk": "^0.2.5",
     "@mediapipe/tasks-vision": "^1.0.1",
     "@met4citizen/talkinghead": "^1.7.0",
     "@pixiv/three-vrm": "^3.5.5",
     "dotenv": "^16.6.1",
+    "google-auth-library": "^11.1.0",
+    "qrcode": "^1.5.4",
     "three": "0.180.0",
     "vosk-browser": "^0.0.8"
-  }
+  },
+  "mirrorAppId": "com.architdeepak.reflect-mirror"
 }

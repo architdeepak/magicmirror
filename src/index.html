@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https: wss: blob: data:; worker-src 'self' blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data: blob:; media-src 'self' https: http: blob:; connect-src 'self' https: wss: http://127.0.0.1:* blob: data:; worker-src 'self' blob:; frame-src 'self' https: http://127.0.0.1:*;">
   <title>Obsidian Mirror</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,12 +39,49 @@
     #app-shell[data-glass-profile="night"] #scene-canvas { filter: brightness(.72) saturate(.82); }
     #app-shell[data-glass-profile="night"] .mode-switch { background: rgba(2,7,9,.62); border-color: rgba(188,232,213,.20); }
     #app-shell[data-glass-profile="night"] .glass-widget { background: rgba(2,7,9,.60); border-color: rgba(188,232,213,.20); }
-    #camera-feed, #ar-canvas, #scene-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #camera-feed, #garment-canvas, #ar-canvas, #scene-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #app-shell[data-sleeping="true"] #scene-canvas { opacity: .015 !important; }
+    #app-shell[data-sleeping="true"] .ui-layer { opacity: .16; transition: opacity 1.2s ease; }
+    #app-shell[data-sleeping="true"] .topbar, #app-shell[data-sleeping="true"] .experience-panel,
+    #app-shell[data-sleeping="true"] .persona-toggle, #app-shell[data-sleeping="true"] .launcher-toggle,
+    #app-shell[data-sleeping="true"] .settings-toggle, #app-shell[data-sleeping="true"] .oracle-card { opacity: 0; }
+    #app-shell[data-sleeping="true"] .spotify-panel { opacity: 0; }
+    #app-shell[data-sleeping="true"] *, #app-shell[data-sleeping="true"] *::before,
+    #app-shell[data-sleeping="true"] *::after { animation-play-state: paused !important; }
     #camera-feed { z-index: 0; display: none; object-fit: cover; transform: scaleX(-1); filter: saturate(.65) contrast(1.12) brightness(.58); }
-    #ar-canvas { z-index: 1; display: none; pointer-events: none; }
+    #garment-canvas { z-index: 1; display: none; pointer-events: none; }
+    #app-shell[data-mode="ar"][data-live-tryon="true"] #garment-canvas,
+    #app-shell[data-mode="ar"][data-live-tryon="true"] #ar-canvas { display: none; }
+    #live-tryon-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 1; pointer-events: none; }
+    #live-tryon-video[hidden], #app-shell:not([data-mode="ar"]) #live-tryon-video,
+    #app-shell[data-desktop="true"] #live-tryon-video { display: none; }
+    .live-tryon-controls { margin: 10px 0; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(5,8,12,.65); }
+    .live-tryon-controls button { margin: 8px 5px 4px 0; }
+    #live-tryon-stop { border-color: #ff7a80; color: #ffb8bc; }
+    #live-tryon-status { display: block; font-size: 11px; color: var(--muted); }
+    #ar-canvas { z-index: 2; display: none; pointer-events: none; }
     #scene-canvas { z-index: 2; display: block; }
+    #tryon-overlay { display: none; }
+    #app-shell[data-mode="ar"] #tryon-overlay.visible { position: absolute; z-index: 2; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
     #app-shell[data-mode="ar"] #camera-feed,
+    #app-shell[data-mode="ar"] #garment-canvas,
     #app-shell[data-mode="ar"] #ar-canvas { display: block; }
+    #app-shell[data-mode="ar"] #camera-feed { filter: none; }
+    #app-shell[data-mode="ar"][data-tryon-view="rendered"] #ar-canvas { display: none; }
+    .tryon-view-switch { display: flex; gap: 6px; margin-top: 10px; }
+    .tryon-view-switch button { flex: 1; min-height: 34px; border: 1px solid var(--panel-line); border-radius: 8px; background: rgba(255,255,255,.03); color: var(--ice); font: 600 10px Manrope, sans-serif; cursor: pointer; }
+    .tryon-view-switch button[aria-pressed="true"] { border-color: var(--signal); color: var(--signal); background: rgba(168,255,207,.08); }
+    .tryon-view-switch button:disabled { opacity: .35; cursor: default; }
+    .live-fit-status { display: block; margin-top: 7px; color: var(--signal); font: 500 10px/1.4 Manrope, sans-serif; }
+    .studio-tools[hidden] { display: none; }
+    .studio-tools-toggle { min-height: 32px; padding: 0 10px; border: 1px solid var(--panel-line); border-radius: 8px; background: transparent; color: var(--ice); font: 600 10px Manrope, sans-serif; cursor: pointer; }
+    .studio-summary { display: block; margin: 8px 0; color: var(--signal); font: 500 10px/1.4 Manrope, sans-serif; }
+    .studio-tools .effect-grid { margin-top: 14px; }
+    .garment-fit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .garment-fit[hidden] { display: none; }
+    .garment-fit label { display: grid; gap: 5px; color: var(--muted); font: 500 10px Manrope, sans-serif; }
+    .garment-fit input { width: 100%; accent-color: var(--signal); }
+    .garment-fit button { align-self: end; min-height: 28px; border: 1px solid var(--panel-line); border-radius: 7px; background: transparent; color: var(--ice); cursor: pointer; }
 
     .noise, .vignette, .mirror-frame, .scanline { position: absolute; inset: 0; pointer-events: none; }
     .noise { z-index: 4; opacity: .055; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
@@ -128,22 +165,36 @@
     .quick-note label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
     .quick-note form { display: grid; grid-template-columns: 1fr auto; gap: 7px; } .quick-note input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid rgba(213,234,244,.13); border-radius: 8px; outline: 0; background: rgba(255,255,255,.04); color: var(--ice); font-size: 10px; } .quick-note button { padding: 0 10px; border: 0; border-radius: 8px; background: var(--signal); color: #06110c; font: 700 9px Manrope, sans-serif; cursor: pointer; }
 
-    .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: 54px; display: grid; grid-template-columns: auto; place-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
-    .bottom-dock.dim { opacity: .22; }
+    .bottom-dock { pointer-events: auto; position: absolute; left: 50%; bottom: 35px; transform: translateX(-50%); width: auto; display: grid; grid-template-columns: auto auto; gap: 8px; place-items: center; padding: 8px; border: 1px solid var(--line); border-radius: 28px; background: rgba(8,6,12,.72); backdrop-filter: blur(28px); box-shadow: 0 16px 60px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.04); transition: opacity .5s ease; }
+    .bottom-dock.dim { opacity: .88; }
     .bottom-dock:hover, .bottom-dock:focus-within { opacity: 1; }
     .round-btn, .icon-btn { border: 0; cursor: pointer; transition: .2s ease; }
-    .round-btn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
+    .round-btn { width: 74px; height: 58px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
+    .round-btn span { font-size: 20px; line-height: 1; } .round-btn small, .mute-btn small { font: 700 9px/1 Manrope, sans-serif; letter-spacing: 1px; }
     .round-btn:hover { background: rgba(155,123,255,.18); border-color: rgba(155,123,255,.35); }
     .round-btn.listening { color: #14070a; background: linear-gradient(135deg, #ffb18e, #e45655); box-shadow: 0 0 0 6px rgba(228,86,85,.1), 0 0 22px rgba(228,86,85,.42); animation: pulse 1.2s infinite; }
-    .wake-status { position: absolute; left: 50%; bottom: 91px; transform: translateX(-50%); color: rgba(255,255,255,.38); font: 500 7px Cinzel, serif; letter-spacing: 1.7px; text-transform: uppercase; }
+    .round-btn:disabled { opacity: .44; cursor: not-allowed; }
+    .mute-btn { width: 74px; height: 58px; border: 1px solid rgba(255,255,255,.16); border-radius: 15px; background: rgba(255,255,255,.045); color: var(--ice); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+    .mute-btn span { font-size: 19px; line-height: 1; } .mute-btn[aria-pressed="true"] { color: #fff; background: #8f3039; border-color: #ff7b83; box-shadow: 0 0 20px rgba(255,75,90,.32); }
+    .live-captions { position: absolute; left: 50%; bottom: clamp(140px, 13vw, 260px); z-index: 12; width: min(82%, 920px); transform: translateX(-50%); padding: 10px 16px; border: 1px solid rgba(232,248,255,.2); border-radius: 12px; background: rgba(2,7,9,.76); box-shadow: 0 8px 35px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; opacity: 0; transition: opacity .2s ease; }
+    .live-captions.visible { opacity: 1; }
+    .caption-line { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 clamp(16px, 1.7vw, 32px)/1.45 Manrope, sans-serif; }
+    .caption-line.visible { display: flex; align-items: baseline; }
+    .caption-line span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+    .caption-line b { flex-shrink: 0; display: inline-block; width: clamp(74px, 7.8vw, 150px); font: 700 clamp(10px, 1vw, 18px) Manrope, sans-serif; letter-spacing: 1.4px; }
+    #caption-user { color: #ffd58a; } #caption-user b { color: #ffd58a; }
+    #caption-assistant { color: #b5ffd4; } #caption-assistant b { color: #b5ffd4; }
+    .wake-status { position: absolute; left: 50%; bottom: clamp(112px, 10vw, 210px); transform: translateX(-50%); color: rgba(255,255,255,.65); font: 500 clamp(10px, 1vw, 18px) Cinzel, serif; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
     .wake-status.armed { color: rgba(231,199,116,.72); }
 
     .settings-toggle { pointer-events: auto; position: absolute; right: 34px; bottom: 40px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(8,6,12,.5); color: rgba(255,255,255,.5); cursor: pointer; backdrop-filter: blur(12px); }
     .settings-toggle:hover { color: var(--gold); border-color: var(--line); transform: rotate(24deg); }
-    .settings-panel { pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .settings-panel { z-index: 30; pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); max-height: calc(100% - 150px); overflow-y: auto; overscroll-behavior: contain; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .settings-panel.open { opacity: 1; transform: none; pointer-events: auto; }
-    .closet-shelf { margin-top: 16px; padding: 14px; border: 1px solid rgba(213,234,244,.12); border-radius: 14px; background: rgba(6,11,15,.54); } .closet-shelf-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .closet-shelf-head strong { color: var(--ice); font: 700 10px Manrope, sans-serif; letter-spacing: 1.2px; } .closet-shelf-head button { border: 1px solid rgba(168,255,207,.42); border-radius: 8px; background: rgba(168,255,207,.1); color: var(--signal); padding: 7px 10px; font: 700 9px Manrope, sans-serif; cursor: pointer; } .closet-shelf p { margin: 7px 0 10px; color: var(--muted); font-size: 9px; line-height: 1.45; } .closet-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .closet-empty { color: var(--muted); font-size: 9px; line-height: 1.45; padding: 9px 0; } .closet-item { display: grid; grid-template-columns: 42px minmax(92px, 1fr); flex: 0 0 155px; gap: 8px; align-items: center; min-height: 54px; padding: 6px; border: 1px solid rgba(213,234,244,.1); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; } .closet-item.selected { border-color: rgba(168,255,207,.58); background: rgba(168,255,207,.07); } .closet-item img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,.045); } .closet-item b, .closet-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .closet-item b { font-size: 9px; } .closet-item small { margin-top: 3px; color: var(--muted); font-size: 8px; }
+    .closet-shelf { margin-top: 16px; padding: 14px; border: 1px solid rgba(213,234,244,.12); border-radius: 14px; background: rgba(6,11,15,.54); } .closet-shelf-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .closet-shelf-head strong { color: var(--ice); font: 700 12px Manrope, sans-serif; letter-spacing: 1.2px; } .closet-shelf-head button { border: 1px solid rgba(168,255,207,.42); border-radius: 8px; background: rgba(168,255,207,.1); color: var(--signal); padding: 7px 10px; font: 700 13px Manrope, sans-serif; min-height: 44px; cursor: pointer; } .closet-shelf p { margin: 7px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; } .closet-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .closet-empty { color: var(--muted); font-size: 9px; line-height: 1.45; padding: 9px 0; } .closet-item { display: grid; grid-template-columns: 42px minmax(92px, 1fr); flex: 0 0 155px; gap: 8px; align-items: center; min-height: 54px; padding: 6px; border: 1px solid rgba(213,234,244,.1); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; } .closet-item.selected { border-color: rgba(168,255,207,.58); background: rgba(168,255,207,.07); } .closet-item img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,.045); } .closet-item b, .closet-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .closet-item b { font-size: 12px; } .closet-item small { margin-top: 3px; color: var(--muted); font-size: 10px; }
     .tryon-consent { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; color: var(--muted); font-size: 9px; line-height: 1.35; } .tryon-consent input { accent-color: var(--signal); margin: 1px 0 0; } .tryon-run { width: 100%; min-height: 35px; margin-top: 10px; border: 0; border-radius: 9px; background: var(--signal); color: #05100a; font: 700 10px Manrope, sans-serif; cursor: pointer; } .tryon-run:disabled { cursor: not-allowed; opacity: .38; } .tryon-status { display: block; margin-top: 7px; color: var(--muted); font-size: 8px; line-height: 1.4; }
+    .tryon-result { display: none; width: 100%; max-height: 25vh; margin-top: 12px; object-fit: contain; border: 1px solid rgba(181,255,212,.25); border-radius: 10px; background: #030607; }
+    .tryon-result.visible { display: block; }
     .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8vw, 164px); right: clamp(30px, 3vw, 72px); width: min(300px, 34vw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
     .diagnostics.open { opacity: 1; transform: none; } .diagnostics strong { display: block; margin-bottom: 8px; color: var(--signal); font: 700 10px Manrope, sans-serif; letter-spacing: 1.5px; } .diagnostics p { display: flex; justify-content: space-between; gap: 12px; margin: 3px 0; } .diagnostics span { color: #8fa79d; } .diagnostics b { color: #e6fff2; font-weight: 600; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
@@ -156,6 +207,7 @@
     .setting input[type="range"] { accent-color: var(--gold); }
     .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; color: var(--muted); font-size: 9px; letter-spacing: 1.1px; text-transform: uppercase; }
     .toggle-row input { width: 16px; height: 16px; accent-color: var(--gold); }
+    .gesture-guide { margin: 6px 0 4px; color: var(--muted); font-size: 9px; line-height: 1.5; }
     .panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 17px; }
     .panel-actions button { height: 36px; border: 1px solid var(--line); border-radius: 9px; background: rgba(231,199,116,.07); color: #eee4cc; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
     .config-note { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.07); color: var(--muted); font-size: 9px; line-height: 1.55; }
@@ -164,15 +216,41 @@
     .loader.done { opacity: 0; pointer-events: none; }
     .loader-ring { width: 58px; height: 58px; margin: auto; border: 1px solid rgba(231,199,116,.18); border-top-color: var(--gold); border-radius: 50%; animation: spin 1.2s linear infinite; }
     .loader p { margin: 14px 0 0; color: var(--muted); font: 500 8px Cinzel, serif; letter-spacing: 2.5px; }
+    .awakening { position: absolute; z-index: 9; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; visibility: hidden; background: radial-gradient(ellipse at center, rgba(20,10,34,.94), rgba(2,1,5,.98) 58%, #000 78%); transition: opacity .35s ease, visibility .35s; }
+    .awakening.active { opacity: 1; visibility: visible; }
+    .awakening-portal { position: relative; width: min(72vw, 72vh); aspect-ratio: 1; border: 1px solid rgba(181,255,212,.45); border-radius: 50%; box-shadow: 0 0 30px rgba(181,255,212,.18), inset 0 0 45px rgba(155,123,255,.22); }
+    .awakening.active .awakening-portal { animation: portal-bloom 2.3s cubic-bezier(.2,.7,.2,1) both; }
+    .awakening-portal::before, .awakening-portal::after { content: ''; position: absolute; inset: 7%; border: 2px solid transparent; border-top-color: #d9baff; border-bottom-color: rgba(181,255,212,.8); border-radius: 43% 57% 48% 52%; filter: drop-shadow(0 0 12px rgba(155,123,255,.85)); }
+    .awakening.active .awakening-portal::before, .awakening.active .awakening-portal::after { animation: awakening-spin 1.15s linear infinite; }
+    .awakening-portal::after { inset: 17%; border-top-color: #ffe7a5; border-bottom-color: #b18cff; animation-direction: reverse; animation-duration: .78s; }
+    .awakening-vortex { position: absolute; inset: -10%; border-radius: 50%; background: conic-gradient(from 30deg, transparent 0deg, rgba(178,126,255,.12) 25deg, #b991ff 60deg, transparent 105deg, rgba(231,199,116,.08) 145deg, #ffe7a5 180deg, transparent 215deg, rgba(132,235,213,.12) 260deg, #b5ffd4 300deg, transparent 340deg); mask-image: radial-gradient(circle, transparent 35%, #000 46%, transparent 66%); }
+    .awakening-vortex::after { content: ''; position: absolute; inset: 10%; border-radius: 50%; background: conic-gradient(transparent, #d9baff 90deg, transparent 150deg, #ffe7a5 260deg, transparent 320deg); mask-image: radial-gradient(circle, transparent 34%, #000 47%, transparent 64%); transform: rotate(80deg); }
+    .awakening.active .awakening-vortex { animation: vortex-turn 2.3s cubic-bezier(.15,.45,.25,1) both; }
+    .awakening-sparks { position: absolute; inset: -5%; border-radius: 50%; }
+    .awakening-sparks i { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: #fff1ce; box-shadow: 0 0 12px 3px rgba(218,182,255,.65); transform: rotate(var(--orbit)) translateX(min(32vw,32vh)); }
+    .awakening.active .awakening-sparks { animation: awakening-spin 3s linear infinite; }
+    .awakening-title { position: absolute; top: calc(50% + min(38vw, 38vh)); color: var(--signal); font: 500 clamp(12px, 1.2vw, 22px) Cinzel, serif; letter-spacing: .28em; text-shadow: 0 0 22px rgba(181,255,212,.7); opacity: 0; }
+    .awakening.active .awakening-title { animation: title-arrive 2.3s ease both; }
     /* Converse is a room-scale mirror, not a phone-video close-up. Leave
        breathing room above the crown and around the shoulders so the face is
        centred when viewed at a normal distance from the vertical TV. */
-    #avatar-engine { position: absolute; z-index: 3; inset: 25% 28% 29%; overflow: hidden; pointer-events: none; transform-origin: 50% 52%; transition: opacity .45s ease, visibility .45s ease; }
+    #avatar-engine { position: absolute; z-index: 3; inset: 25% 28% 29%; overflow: hidden; pointer-events: none; transform-origin: 50% 52%; transition: opacity .45s ease, visibility .45s ease, inset .45s cubic-bezier(.2,.7,.2,1); }
+    #app-shell[data-mode="portal"][data-avatar-position="left"] #avatar-engine { inset: 27% 51% 29% 5%; }
+    #app-shell[data-mode="portal"][data-avatar-position="right"] #avatar-engine { inset: 27% 5% 29% 51%; }
+    #app-shell[data-mode="portal"][data-avatar-position="upper"] #avatar-engine { inset: 12% 28% 53%; }
+    #app-shell[data-mode="portal"][data-avatar-position="lower"] #avatar-engine { inset: 49% 28% 12%; }
     #avatar-engine canvas { width: 100% !important; height: 100% !important; }
     #avatar-engine .face-host-canvas { position: absolute; inset: 0; z-index: 5; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
     #avatar-engine .rig-face-canvas { position: absolute; inset: 0; z-index: 6; display: none; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
     #avatar-engine .avatar-video-host { position: absolute; inset: 0; z-index: 8; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; filter: drop-shadow(0 22px 35px rgba(0,0,0,.34)); }
-    #avatar-engine[data-mode="ar"] { inset: 16% 8% 12% 34%; }
+    #app-shell[data-mode="ar"] #avatar-engine { inset: 8% 5% 74% 67%; }
+    #app-shell[data-mode="ar"][data-avatar-position="left"] #avatar-engine { inset: 8% 67% 74% 5%; }
+    #app-shell[data-mode="ar"][data-avatar-position="upper"] #avatar-engine { inset: 3% 34% 79%; }
+    #app-shell[data-mode="ar"][data-avatar-position="lower"] #avatar-engine { inset: 63% 5% 19% 67%; }
+    #avatar-engine[data-mode="watch"] { inset: 9% 5% 73% 67%; }
+    #app-shell[data-mode="watch"][data-avatar-position="left"] #avatar-engine { inset: 9% 67% 73% 5%; }
+    #app-shell[data-mode="watch"][data-avatar-position="upper"] #avatar-engine { inset: 9% 34% 73%; }
+    #app-shell[data-mode="watch"][data-avatar-position="lower"] #avatar-engine { inset: 70% 34% 12%; }
     .fallback-presence { position: absolute; inset: 20%; display: grid; place-items: center; }
     .fallback-presence i { position: absolute; width: min(42vw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
     .fallback-presence b { color: var(--gold); font-size: 42px; text-shadow: 0 0 20px var(--gold); }
@@ -181,6 +259,16 @@
     #app-shell[data-mode="ar"] .ar-label { opacity: 1; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes awakening-spin { to { transform: rotate(360deg) scale(1.04); } }
+    @keyframes vortex-turn { from { transform: rotate(-180deg) scale(.65); } to { transform: rotate(540deg) scale(1.12); } }
+    @keyframes portal-bloom { 0% { transform: scale(.08) rotate(-90deg); opacity: 0; filter: blur(18px); } 28% { opacity: 1; filter: blur(0); } 76% { transform: scale(1.04) rotate(24deg); opacity: 1; } 100% { transform: scale(2.4) rotate(90deg); opacity: 0; } }
+    @keyframes title-arrive { 0%, 22% { opacity: 0; transform: translateY(8px); } 42%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-5px); } }
+    @media (prefers-reduced-motion: reduce) {
+      .awakening.active .awakening-portal, .awakening.active .awakening-portal::before, .awakening.active .awakening-portal::after,
+      .awakening.active .awakening-vortex, .awakening.active .awakening-sparks, .awakening.active .awakening-title { animation: none; }
+      .awakening.active .awakening-title { opacity: 1; }
+      .awakening { transition-duration: .15s; }
+    }
     @keyframes pulse { 50% { transform: scale(.88); opacity: .75; } }
     @media (max-width: 720px) {
       .topbar { left: 24px; right: 24px; top: 26px; }
@@ -232,7 +320,7 @@
     .mode-intro .eyebrow { margin-bottom: 8px; color: var(--signal); font-size: 9px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; }
     .mode-intro h1 { margin: 0; font: 400 27px/1.1 Manrope, sans-serif; letter-spacing: -1.2px; }
     .mode-intro p { margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
-    .studio-tray { position: absolute; right: 0; bottom: 0; width: min(368px, 100%); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: var(--panel); backdrop-filter: blur(24px); }
+    .studio-tray { position: absolute; right: 0; bottom: 0; width: min(368px, 100%); max-height: 72%; overflow-y: auto; padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: var(--panel); backdrop-filter: blur(24px); }
     .tray-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 13px; }
     .tray-head strong { font-size: 11px; letter-spacing: .4px; } .tray-head span { color: var(--muted); font-size: 9px; }
     .effect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
@@ -243,7 +331,13 @@
     .watch-stage { position: absolute; inset: 0; display: grid; place-items: center; }
     .watch-card { width: min(740px, 100%); padding: 22px; border: 1px solid var(--panel-line); border-radius: 20px; background: rgba(5,10,14,.8); box-shadow: 0 28px 100px rgba(0,0,0,.5); backdrop-filter: blur(26px); }
     .watch-display { position: relative; display: grid; place-items: center; min-height: 260px; overflow: hidden; border: 1px solid rgba(213,234,244,.1); border-radius: 12px; background: radial-gradient(circle at 50% 35%, #233b46, #070c11 66%); }
-    #watch-video { width: 100%; max-height: 52vh; display: none; background: #000; }
+    #watch-video { width: 100%; max-height: 52vh; object-fit: contain; display: none; background: #000; }
+    #watch-panel[data-casting="true"] #watch-video { max-height: min(75vh, calc(100vh - 420px)); }
+    #watch-panel[data-casting="true"] .watch-controls,
+    #watch-panel[data-casting="true"] .service-launcher,
+    #watch-panel[data-casting="true"] .phone-link-panel,
+    #watch-panel[data-casting="true"] .phone-link-toggle:not(#casting-toggle),
+    #watch-panel[data-casting="true"] .watch-hint:not(#casting-status) { display: none; }
     #watch-video.loaded { display: block; }
     #watch-frame { display: none; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; } #watch-frame.loaded { display: block; }
     .watch-placeholder { text-align: center; } .watch-placeholder i { display: grid; width: 54px; height: 54px; margin: auto; place-items: center; border: 1px solid rgba(168,255,207,.55); border-radius: 50%; color: var(--signal); font-style: normal; }
@@ -255,10 +349,50 @@
     .service-launcher { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
     .service-launcher button { height: 28px; padding: 0 10px; border: 1px solid rgba(213,234,244,.14); border-radius: 999px; background: rgba(255,255,255,.035); color: var(--ice); font: 600 9px Manrope, sans-serif; cursor: pointer; }
     .service-launcher button:hover { border-color: rgba(168,255,207,.55); color: var(--signal); }
+    .phone-link-toggle, .phone-link-stop { min-height: 36px; padding: 0 13px; border: 1px solid rgba(181,255,212,.36); border-radius: 9px; background: rgba(181,255,212,.09); color: var(--signal); font: 700 10px Manrope, sans-serif; cursor: pointer; }
+    .phone-link-panel { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 14px; margin-top: 12px; padding: 12px; border: 1px solid rgba(181,255,212,.24); border-radius: 12px; background: rgba(3,10,11,.68); }
+    .phone-link-panel img { width: 130px; height: 130px; border-radius: 8px; background: #fff; }
+    .phone-link-panel strong, .phone-link-panel small { display: block; }
+    .phone-link-panel strong { color: var(--signal); font-size: 10px; }
+    .phone-link-panel small, .phone-link-status { margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.4; overflow-wrap: anywhere; }
+    .phone-link-stop { margin-top: 10px; }
     .gesture-toast { position: absolute; z-index: 13; top: 92px; left: 50%; padding: 8px 12px; border: 1px solid rgba(168,255,207,.35); border-radius: 999px; background: rgba(7,16,14,.76); color: var(--signal); font: 600 9px Manrope, sans-serif; letter-spacing: .9px; opacity: 0; transform: translate(-50%, -6px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
     .gesture-toast.show { opacity: 1; transform: translate(-50%, 0); }
     #app-shell[data-mode="watch"] #scene-canvas { opacity: .12; }
-    #app-shell[data-mode="watch"] #avatar-engine, #app-shell[data-mode="watch"] #dashboard-container { opacity: 0; visibility: hidden; }
+    #app-shell[data-mode="watch"] #dashboard-container { opacity: 0; visibility: hidden; }
+    #app-shell[data-mode="spotify"] #scene-canvas { opacity: .035; }
+    #app-shell[data-mode="spotify"] #avatar-engine, #app-shell[data-mode="spotify"] #dashboard-container { opacity: 0; visibility: hidden; }
+    .spotify-panel { position: absolute; inset: 18% 8% 17%; display: none; place-items: center; pointer-events: auto; }
+    .spotify-panel.active { display: grid; }
+    .spotify-card { width: min(740px, 100%); padding: clamp(22px,3vw,52px); border: 1px solid rgba(181,255,212,.28); border-radius: 28px; background: linear-gradient(155deg,rgba(14,30,24,.88),rgba(3,9,9,.84)); box-shadow: 0 32px 110px #0009; text-align: center; backdrop-filter: blur(26px); }
+    .spotify-kicker { color: var(--signal); font: 700 clamp(10px,.85vw,16px) Manrope,sans-serif; letter-spacing: .24em; text-transform: uppercase; }
+    .spotify-cover { display: block; width: min(38vw,390px); aspect-ratio: 1; margin: clamp(18px,2vw,36px) auto; object-fit: contain; border-radius: 8px; }
+    .spotify-title { margin: 0; color: #f2fff8; font: 500 clamp(22px,2.3vw,44px)/1.16 Manrope,sans-serif; overflow-wrap: anywhere; }
+    .spotify-artist { margin: 10px 0 0; color: rgba(242,255,248,.78); font-size: clamp(13px,1vw,20px); }
+    .spotify-meta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: rgba(221,245,232,.55); font-size: 10px; }
+    .spotify-progress { display: block; width: 100%; height: 4px; margin: 26px 0 8px; appearance: none; border: 0; border-radius: 4px; background: rgba(255,255,255,.18); }
+    .spotify-progress::-webkit-progress-bar { border-radius: 4px; background: rgba(255,255,255,.18); }
+    .spotify-progress::-webkit-progress-value { border-radius: 4px; background: var(--signal); }
+    .spotify-controls { display: flex; justify-content: center; align-items: center; gap: 14px; }
+    .spotify-controls button, .spotify-tools button { min-width: 50px; min-height: 50px; border: 1px solid rgba(181,255,212,.28); border-radius: 50%; background: rgba(255,255,255,.06); color: var(--ice); font-size: 17px; cursor: pointer; }
+    .spotify-controls button:disabled { opacity: .4; cursor: not-allowed; }
+    .spotify-controls #spotify-play { width: 64px; height: 64px; background: var(--signal); color: #06110c; font-size: 22px; }
+    .spotify-tools { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .spotify-tools button { min-width: 0; min-height: 34px; padding: 0 12px; border-radius: 999px; font-size: 9px; }
+    .spotify-tools select { min-width: 0; flex: 1; max-width: 100%; border: 1px solid rgba(181,255,212,.28); border-radius: 10px; padding: 6px; background: #102019; color: var(--ice); font-size: 11px; }
+    #spotify-device-status { display: block; margin-top: 8px; color: var(--muted); font-size: 10px; }
+    .spotify-link { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 9px; margin-top: 20px; color: var(--ice); font-size: 9px; text-decoration: none; }
+    .spotify-logo { display: block; width: 92px; height: 28px; object-fit: contain; }
+    .spotify-logo-black { display: none; }
+    .spotify-card[data-view="pocket"] { width: min(580px,100%); border-radius: 38px; background: linear-gradient(155deg,#d7d8cf,#81867b); color: #172019; }
+    .spotify-card[data-view="pocket"] .spotify-kicker { color: #344c39; }
+    .spotify-card[data-view="pocket"] .spotify-cover { width: min(25vw,240px); border-radius: 8px; }
+    .spotify-card[data-view="pocket"] .spotify-title { color: #172019; font-size: clamp(17px,1.5vw,28px); }
+    .spotify-card[data-view="pocket"] .spotify-artist, .spotify-card[data-view="pocket"] .spotify-meta { color: #38493d; }
+    .spotify-card[data-view="pocket"] .spotify-controls button { border-color: #506354; background: #c1c7ba; color: #18241c; }
+    .spotify-card[data-view="pocket"] .spotify-controls #spotify-play { background: #263e2d; color: white; }
+    .spotify-card[data-view="pocket"] .spotify-logo-white { display: none; }
+    .spotify-card[data-view="pocket"] .spotify-logo-black { display: block; }
     @media (max-width: 720px) { .experience-panel { inset: 95px 22px 100px; } .mode-btn { padding: 8px 8px; } .mode-btn::before { display: none; } .mode-intro { max-width: 100%; } }
 
     /* 43-inch portrait installation profile. Two-way glass eats low-contrast
@@ -296,11 +430,11 @@
     #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(-50% + var(--viewer-x) * -.82), calc(var(--viewer-y) * -.66), 112px); }
     #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(-50% + var(--viewer-x) * -.98), calc(var(--viewer-y) * -.8), 128px); }
     #app-shell[data-depth="cube"] #dashboard-container { opacity: 0; pointer-events: none; }
-    #app-shell[data-depth="cube"] #avatar-engine { inset: 31% 32% 33%; z-index: 3; filter: drop-shadow(0 16px 28px rgba(0,0,0,.4)); }
+    #app-shell[data-depth="cube"][data-mode="portal"][data-avatar-position="center"] #avatar-engine { inset: 31% 32% 33%; z-index: 3; filter: drop-shadow(0 16px 28px rgba(0,0,0,.4)); }
     /* Conversation belongs at the edge of the mirror. Keep the center clean
        for the living host, with a single thumb-height control and a nearby
        glanceable transcript instead of a wide caption card across the face. */
-    .bottom-dock { left: auto; right: clamp(42px, 4.4vw, 96px); bottom: clamp(42px, 3.8vw, 80px); transform: none; z-index: 14; }
+    .bottom-dock { left: 50%; right: auto; bottom: clamp(42px, 3.8vw, 80px); transform: translateX(-50%); z-index: 14; }
     .oracle-card { left: auto; right: clamp(116px, 10.6vw, 220px); bottom: clamp(42px, 3.8vw, 80px); transform: none; width: min(25vw, 380px); max-height: clamp(66px, 6vw, 110px); padding: clamp(10px, .8vw, 15px) clamp(24px, 2vw, 38px) clamp(10px, .8vw, 15px) clamp(13px, 1.1vw, 22px); text-align: left; border-radius: 14px; }
     .oracle-card.empty { transform: translateX(12px); }
     .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62vw,12px); }
@@ -309,7 +443,7 @@
     #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .oracle-card.empty { transform: translate3d(calc(12px + var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(var(--viewer-x) * -1.08), calc(var(--viewer-y) * -.88), 142px); }
-    .mode-btn { min-height: clamp(42px, 3.8vw, 74px); padding: 0 clamp(13px, 1.2vw, 24px); font-size: clamp(10px, .9vw, 17px); letter-spacing: 1px; }
+    .mode-btn { white-space: nowrap; flex-shrink: 0; min-height: clamp(42px, 3.8vw, 74px); padding: 0 clamp(13px, 1.2vw, 24px); font-size: clamp(12px, 1.1vw, 21px); letter-spacing: .6px; }
     .mode-btn::before { width: clamp(5px, .5vw, 9px); height: clamp(5px, .5vw, 9px); }
     .system-state { min-width: clamp(150px, 14vw, 260px); font-size: clamp(10px, .8vw, 15px); } .state-dot { width: clamp(7px, .6vw, 11px); height: clamp(7px, .6vw, 11px); }
     .mirror-clock { top: clamp(135px, 12vw, 260px); left: clamp(42px, 4.4vw, 96px); }
@@ -332,7 +466,16 @@
     .oracle-eyebrow { font-size: clamp(10px, .8vw, 16px); } #oracle-text { font-size: clamp(18px, 1.7vw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85vw, 17px); }
     .bottom-dock { bottom: clamp(38px, 3.6vw, 76px); padding: clamp(8px, .7vw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
     .round-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); font-size: clamp(18px, 1.6vw, 31px); }
-    .wake-status { bottom: clamp(100px, 9vw, 180px); font-size: clamp(9px, .7vw, 14px); }
+    .mute-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
+    .round-btn small, .mute-btn small { font-size: clamp(9px, .7vw, 14px); }
+    .live-captions { padding: clamp(10px, .8vw, 16px) clamp(14px, 1.2vw, 24px); }
+    .caption-line b { width: clamp(74px, 7.8vw, 150px); font-size: clamp(10px, 1vw, 18px); }
+    .phone-link-toggle, .phone-link-stop { min-height: clamp(42px, 3.6vw, 70px); padding: 0 clamp(14px, 1.2vw, 24px); font-size: clamp(10px, .8vw, 16px); }
+    .phone-link-panel { grid-template-columns: clamp(130px, 12vw, 220px) 1fr; gap: clamp(12px, 1vw, 20px); padding: clamp(12px, 1vw, 20px); }
+    .phone-link-panel img { width: clamp(130px, 12vw, 220px); height: clamp(130px, 12vw, 220px); }
+    .phone-link-panel strong { font-size: clamp(10px, .8vw, 16px); }
+    .phone-link-panel small, .phone-link-status { font-size: clamp(9px, .75vw, 15px); }
+    .wake-status { bottom: clamp(112px, 10vw, 210px); font-size: clamp(10px, 1vw, 18px); }
     .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8vw, 80px); width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
     .persona-toggle { left: clamp(42px, 4.4vw, 96px); } .launcher-toggle { left: clamp(101px, 9.6vw, 202px); font-size: clamp(17px, 1.6vw, 29px); } .settings-toggle { right: clamp(42px, 4.4vw, 96px); font-size: clamp(18px, 1.6vw, 30px); }
     .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100vw - 10vw)); padding: clamp(20px, 1.8vw, 35px); bottom: clamp(115px, 10.4vw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
@@ -344,16 +487,62 @@
     .studio-tray { width: min(520px, 47vw); padding: clamp(18px, 1.7vw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1vw, 19px); } .tray-head span { font-size: clamp(10px, .8vw, 15px); } .effect-grid { gap: clamp(8px, .7vw, 14px); } .effect-chip { min-height: clamp(58px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); } .tryon-note { font-size: clamp(10px, .8vw, 15px); }
     .watch-card { width: min(980px, 86vw); padding: clamp(24px, 2.1vw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4vw, 76px); font-size: clamp(12px, 1vw, 19px); } #watch-load { font-size: clamp(11px, .9vw, 17px); padding: 0 clamp(16px, 1.4vw, 28px); } .service-launcher button { min-height: clamp(34px, 3vw, 55px); font-size: clamp(10px, .8vw, 15px); } .watch-hint { font-size: clamp(10px, .75vw, 15px); }
     @media (max-width: 720px) { .topbar { top: 26px; } .clock-time { font-size: 56px; } .mode-btn { min-height: 35px; } .persona-toggle { left: 22px; } .launcher-toggle { left: 76px; } .settings-toggle { right: 22px; } .mirror-lower { bottom: 120px; } }
+    /* A managed desktop uses the upper 68% of the portrait surface. Keep
+       controls and the host in the remaining area instead of hiding the mirror. */
+    .desktop-return { display: none; pointer-events: auto; position: absolute; left: 7%; bottom: 22%; z-index: 15; padding: 12px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(5,10,13,.9); color: var(--ice); font: 600 clamp(11px, 1vw, 20px) Manrope, sans-serif; cursor: pointer; }
+    #app-shell[data-desktop="true"] .desktop-return:not([hidden]) { display: block; }
+    #app-shell[data-desktop="true"] #avatar-engine { inset: 69% 5% 15% 64%; transition: opacity .3s ease; }
+    #app-shell[data-desktop="true"][data-avatar-position="left"] #avatar-engine { inset: 69% 64% 15% 5%; }
+    #app-shell[data-desktop="true"][data-avatar-position="upper"] #avatar-engine,
+    #app-shell[data-desktop="true"][data-avatar-position="lower"] #avatar-engine { inset: 69% 34% 15%; }
+    #app-shell[data-desktop="true"] #scene-canvas { opacity: .08; }
+    #app-shell[data-desktop="true"] .topbar { top: auto; bottom: 28%; left: 7%; right: auto; width: auto; transform: none; }
+    #app-shell[data-desktop="true"] .topbar .brand,
+    #app-shell[data-desktop="true"] .topbar .mode-switch,
+    #app-shell[data-desktop="true"] #dashboard-container,
+    #app-shell[data-desktop="true"] .experience-panel,
+    #app-shell[data-desktop="true"] .spotify-panel,
+    #app-shell[data-desktop="true"] .oracle-card,
+    #app-shell[data-desktop="true"] #camera-feed,
+    #app-shell[data-desktop="true"] #garment-canvas,
+    #app-shell[data-desktop="true"] #ar-canvas,
+    #app-shell[data-desktop="true"] #tryon-overlay { display: none !important; }
+    #app-shell[data-desktop="true"] .live-captions { bottom: clamp(140px, 13vw, 250px); }
+    #app-shell[data-desktop="true"] .settings-panel,
+    #app-shell[data-desktop="true"] .persona-panel,
+    #app-shell[data-desktop="true"] .launcher-panel { bottom: 12%; max-height: 18%; overflow-y: auto; }
+    .connections { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .connections input:not([type="checkbox"]) { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.35); color: var(--ice); font-size: 12px; }
+
+    #wardrobe-photo { width: min(620px, 90vw); max-height: 90vh; overflow-y: auto; box-sizing: border-box; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
+    #wardrobe-photo::backdrop { background: rgba(0,0,0,.78); backdrop-filter: blur(8px); }
+    #wardrobe-photo header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    #wardrobe-photo h2 { margin: 0; font-size: 26px; }
+    #wardrobe-photo p { color: #b8ccca; }
+    #wardrobe-photo button { border: 1px solid #78968b; border-radius: 10px; padding: 12px 18px; background: #233d38; color: #edfff8; font: inherit; cursor: pointer; min-height: 46px; }
+    #wardrobe-photo button:disabled { opacity: .45; cursor: default; }
+    #wardrobe-photo canvas { display: block; margin: 16px auto; width: 100%; max-height: 32vh; object-fit: contain; background: repeating-conic-gradient(#26333a 0 25%, #34424a 0 50%) 0 / 24px 24px; border-radius: 12px; }
+    #wardrobe-photo label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; }
+    #wardrobe-photo input:not([type=checkbox]), #wardrobe-photo select { width: 65%; box-sizing: border-box; min-height: 44px; background: #192b30; border: 1px solid #526b6b; border-radius: 8px; color: #fff; padding: 8px; font: inherit; }
+    #wardrobe-photo .wardrobe-check { justify-content: flex-start; }
+    #wardrobe-photo .wardrobe-help { font-size: 14px; }
+    #wardrobe-photo :focus-visible { outline: 3px solid #a8ffcf; outline-offset: 3px; }
+    .wardrobe-photo-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    #wardrobe-photo [data-action=save] { width: 100%; background: #345c4b; }
   </style>
 </head>
 <body>
   <main id="app-shell" data-mode="mirror" data-glass-profile="glass">
     <video id="camera-feed" autoplay muted playsinline></video>
+    <video id="live-tryon-video" autoplay muted playsinline hidden aria-label="Live AI outfit preview"></video>
+    <canvas id="garment-canvas" aria-hidden="true"></canvas>
     <canvas id="ar-canvas"></canvas>
     <canvas id="scene-canvas"></canvas>
+    <img id="tryon-overlay" alt="Rendered try-on look" aria-hidden="true">
     <div class="noise"></div><div class="scanline"></div><div class="vignette"></div><div class="mirror-frame"></div>
 
     <div id="avatar-engine" aria-hidden="true"></div>
+    <div class="awakening" id="awakening" aria-hidden="true"><div class="awakening-portal"><div class="awakening-vortex"></div><div class="awakening-sparks"><i style="--orbit:0deg"></i><i style="--orbit:45deg"></i><i style="--orbit:90deg"></i><i style="--orbit:135deg"></i><i style="--orbit:180deg"></i><i style="--orbit:225deg"></i><i style="--orbit:270deg"></i><i style="--orbit:315deg"></i></div></div><div class="awakening-title">THE MIRROR AWAKENS</div></div>
     <div class="loader" id="loader"><div class="loader-ring"></div><p id="loader-text">AWAKENING THE MIRROR</p></div>
 
     <section class="ui-layer">
@@ -363,6 +552,7 @@
           <button class="mode-btn active" type="button" data-mode="mirror">Ambient</button>
           <button class="mode-btn" type="button" data-mode="ar">Try on</button>
           <button class="mode-btn" type="button" data-mode="watch">Watch</button>
+          <button class="mode-btn" type="button" data-mode="spotify">Music</button>
           <div class="dimension-switch" id="dimension-switch" aria-label="Mirror depth"><button type="button" data-depth="flat">2D</button><button type="button" data-depth="cube">3D</button></div>
         </nav>
         <div class="system-state"><i class="state-dot" id="state-dot"></i><span id="state-label">Starting</span></div>
@@ -371,14 +561,40 @@
       <div id="dashboard-container"></div>
 
       <section class="experience-panel" id="studio-panel" aria-label="Try-on studio">
-        <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Face effects are ready now. The wardrobe surface is reserved for your virtual-try-on provider, so generated looks never become part of the core mirror UI.</p></div>
-        <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><span>Tap an effect</span></div><div class="effect-grid" id="effect-grid">
+        <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Select a garment to see it follow your body. Say “try on my jacket” to switch. Add a photo from your phone or camera. Swipe for clothes; say “make it blue” for starter colors.</p></div>
+        <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><button class="studio-tools-toggle" id="studio-tools-toggle" type="button" aria-expanded="false" aria-controls="studio-tools">More options</button></div>
+          <div class="tryon-view-switch" aria-label="Try-on view"><button id="tryon-live" type="button" aria-pressed="true">Live camera</button><button id="tryon-still" type="button" aria-pressed="false" disabled>Rendered still</button></div>
+          <small class="studio-summary" id="studio-summary" role="status">Choose a garment to see your live fit.</small>
+
+          <div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Swipe for clothes. Say “make it blue” for starter colors. Add a photo to wear your own clothes.</p><div class="closet-list" id="closet-list"></div></div>
+          <div class="studio-tools" id="studio-tools" hidden>          <div class="live-tryon-controls"><strong>Live AI outfit preview</strong><label class="tryon-consent"><input id="live-tryon-consent" type="checkbox"><span>Share live camera video and the selected garment with Decart while this preview runs. Uses your Decart credits; processing and retention follow its terms.</span></label><button id="live-tryon-start" type="button" disabled>Start live AI</button><button id="live-tryon-stop" type="button" hidden>Stop live AI</button><small id="live-tryon-status" role="status">Optional · add a Decart key in Settings. Local camera fit remains available.</small></div><div class="effect-grid" id="effect-grid">
           <button class="effect-chip active" data-effect="enchanted">Enchanted<br>reveal</button><button class="effect-chip" data-effect="crown">Astral<br>crown</button><button class="effect-chip" data-effect="glasses">Statement<br>glasses</button><button class="effect-chip" data-effect="mask">Evening<br>mask</button><button class="effect-chip" data-effect="halo">Soft<br>halo</button><button class="effect-chip" data-effect="aura">Color<br>aura</button><button class="effect-chip" data-effect="runes">Mirror<br>runes</button><button class="effect-chip" data-effect="scan">Skin-light<br>scan</button><button class="effect-chip" data-effect="none">Clear<br>mirror</button>
-        </div><div class="tryon-note"><span>✦</span><span><b>Wardrobe pipeline</b><br>Choose a local garment below. Your image stays on this device until you explicitly run a try-on job.</span></div><div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Use a clean front-facing PNG, JPG, or WebP. Transparent PNGs give the best eventual result.</p><div class="closet-list" id="closet-list"></div><label class="tryon-consent"><input id="tryon-consent" type="checkbox"> I consent to capture one camera frame for this try-on</label><button class="tryon-run" id="tryon-run" type="button" disabled>Prepare selected look</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
+        </div><img class="tryon-result" id="tryon-result" alt="Rendered virtual try-on preview"><div class="tryon-note"><span>✦</span><span><b>Your live fitting room</b><br>Live fit stays on this device. A rendered still uses the configured provider only after consent.</span></div>
+          <small class="live-fit-status" id="live-fit-status" role="status">Choose a garment to see your live fit.</small>
+          <div class="garment-fit" id="garment-fit"><label>Width <input id="garment-width" type="range" min="0.7" max="1.5" step="0.02" value="1" aria-label="Garment width"></label><label>Length <input id="garment-length" type="range" min="0.7" max="1.5" step="0.02" value="1" aria-label="Garment length"></label><label>Height <input id="garment-offset" type="range" min="-0.25" max="0.25" step="0.01" value="0" aria-label="Garment vertical position"></label><button id="garment-fit-reset" type="button">Reset fit</button></div>
+          <label class="tryon-consent"><input id="tryon-consent" type="checkbox"><span id="tryon-consent-copy">I consent to capture one camera frame for this local try-on sample.</span></label><button class="tryon-run" id="tryon-run" type="button" disabled>Save local try-on sample</button>
+          <button id="tryon-cancel" class="tryon-run" type="button" hidden>Cancel render</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
       </section>
 
       <section class="experience-panel" id="watch-panel" aria-label="Watch media">
-        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album/playlist, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><p class="watch-hint">YouTube and public Spotify links play here. Netflix, signed-in Spotify, and Find My block framing and open securely in their own page.</p></div></div>
+        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" sandbox="allow-scripts allow-same-origin allow-presentation" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><button class="phone-link-toggle" id="windows-cast-settings" type="button" hidden>Set up Windows phone casting</button><button class="phone-link-toggle" id="casting-toggle" type="button" aria-pressed="false">Enable LAN casting</button><p class="watch-hint" id="casting-status" role="status">Send media from a DLNA-compatible phone app on this Wi-Fi. For direct/cast video or YouTube: pinch to play/pause, swipe left/right to seek 15 seconds.</p><button class="phone-link-toggle" id="phone-link-toggle" type="button">Connect phone</button><div class="phone-link-panel hidden" id="phone-link-panel"><img id="phone-link-qr" alt="QR code to pair a phone with this mirror"><div><strong>SCAN TO SEND A MEDIA LINK</strong><small id="phone-link-address"></small><div class="phone-link-status" id="phone-link-status">Same Wi-Fi required.</div><button class="phone-link-stop" id="phone-link-stop" type="button">Stop phone link</button></div></div><p class="watch-hint">Connect phone sends media links over local Wi-Fi. On Windows, phone screen casting uses the built-in Wireless Display receiver and may take over the screen; install the Wireless Display optional feature and enable Projecting to this PC first.</p></div></div>
+      </section>
+
+      <section class="spotify-panel" id="spotify-panel" aria-label="Spotify ambient player">
+        <div class="spotify-card" id="spotify-card" data-view="classic">
+          <div class="spotify-kicker">Current track</div>
+          <img class="spotify-cover" id="spotify-cover" alt="Album artwork" src="">
+          <h1 class="spotify-title" id="spotify-title">Your soundtrack awaits</h1>
+          <p class="spotify-artist" id="spotify-artist">Connect Spotify to begin</p>
+          <div class="spotify-meta"><span id="spotify-album">Ambient Spotify player</span><span id="spotify-device"></span></div>
+          <progress class="spotify-progress" id="spotify-progress" max="1000" value="0" aria-label="Track progress, display only"></progress>
+          <div class="spotify-controls"><button type="button" data-spotify-action="previous" disabled aria-label="Previous track">⏮</button><button id="spotify-play" type="button" disabled aria-label="Play or pause">▶</button><button type="button" data-spotify-action="next" disabled aria-label="Next track">⏭</button></div>
+          <div class="spotify-tools"><button id="spotify-open-app" type="button">Open Spotify app</button><button id="spotify-connect" type="button">Connect Spotify</button><button id="spotify-disconnect" type="button" hidden>Disconnect</button><button id="spotify-views" type="button">Switch player view</button></div>
+          <div class="spotify-tools"><select id="spotify-device-select" aria-label="Spotify playback device" disabled></select><button id="spotify-device-use" type="button" disabled>Use device</button><button id="spotify-device-refresh" type="button" disabled>Refresh devices</button></div><small id="spotify-device-status" role="status">Connect Spotify to choose a playback device.</small>
+          <a class="spotify-link" id="spotify-track-link" href="#" aria-label="Open the current track in Spotify"><img class="spotify-logo spotify-logo-white" src="assets/spotify/full-logo-white.svg" alt="Spotify"><img class="spotify-logo spotify-logo-black" src="assets/spotify/full-logo-black.svg" alt="Spotify"><span>OPEN SPOTIFY</span></a>
+          <small class="spotify-status">Pinch: play/pause · swipe left/right: next/previous · swipe up/down: change mode</small>
+          <small class="spotify-status" id="spotify-status" role="status">Connect Spotify for current song, artwork, and playback controls.</small>
+        </div>
       </section>
 
       <div class="oracle-card empty" id="oracle-card">
@@ -399,18 +615,22 @@
         <button type="button" data-service="calendar">Calendar</button><button type="button" data-service="maps">Maps</button><button type="button" data-service="photos">Photos</button><button type="button" data-service="findmy">Find My</button><button type="button" data-service="spotify">Music</button><button type="button" data-service="youtube">YouTube</button>
       </div><div class="quick-note"><label for="quick-note-input">Leave a note for the mirror</label><form id="quick-note-form"><input id="quick-note-input" maxlength="140" placeholder="Remember to…"><button type="submit">Save</button></form></div></aside>
 
-      <div class="ar-label" id="vision-notice">Face tracking is local · vision sharing is active only while listening</div>
+      <div class="ar-label" id="vision-notice">Camera and try-on views are shared with the assistant only while listening</div>
       <div class="gesture-toast" id="gesture-toast" role="status" aria-live="polite"></div>
 
+      <button class="desktop-return" id="desktop-return" type="button" hidden>← Return to mirror</button>
       <div class="bottom-dock" id="prompt-form">
-        <button class="round-btn" id="mic-btn" type="button" title="Start voice conversation" aria-label="Start voice conversation">◉</button>
+        <button class="round-btn" id="mic-btn" type="button" title="Start listening" aria-label="Start listening"><span>◉</span><small id="mic-label">LISTEN</small></button>
+        <button class="mute-btn" id="mute-btn" type="button" aria-pressed="false" title="Hard mute microphone and wake word" aria-label="Hard mute microphone"><span>◉</span><small id="mute-label">MUTE</small></button>
       </div>
+      <div class="live-captions" id="live-captions" aria-live="polite" aria-label="Live captions"><div class="caption-line" id="caption-user"><b>YOU</b><span></span></div><div class="caption-line" id="caption-assistant"><b>MIRROR</b><span></span></div></div>
       <div class="wake-status" id="wake-status">Say “mirror mirror”</div>
 
       <button class="settings-toggle" id="settings-toggle" aria-label="Open settings">⚙</button>
       <aside class="settings-panel" id="settings-panel">
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
+        <p class="config-note" id="camera-notice" role="status" hidden></p>
         <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
         <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>
@@ -419,15 +639,28 @@
         <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
         <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
         <label class="toggle-row" for="gesture-toggle"><span>Hands-free navigation</span><input id="gesture-toggle" type="checkbox" checked></label>
+        <p class="gesture-guide">Hold palm: stop active voice; otherwise Converse or return from browser. Pinch: play/pause in Watch or Music; next filter in Try on. Swipe left/right: seek ±15s in video or YouTube, next/previous track in Music, next/previous garment in Try on. Swipe up/down: scroll browser; otherwise change mode. Relax or lower your hand between gestures.</p>
         <label class="toggle-row" for="face-puppet-toggle"><span>Animate host from your face</span><input id="face-puppet-toggle" type="checkbox"></label>
-        <label class="toggle-row" for="vision-toggle"><span>Share camera with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="vision-toggle"><span>Share camera and try-on view with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
         <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
         <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
         <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
         <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
         <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button type="button" disabled>Press D to toggle</button></div>
         <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
-        <p class="config-note" id="config-note">The mirror works offline. Add a Gemini key to <b>.env</b> to unlock live conversation.</p>
+        <form id="connection-form" class="connections" aria-label="Assistant, music, and try-on connections">
+          <div class="setting"><label for="gemini-key">Gemini API key</label><input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a key to enable live voice" maxlength="256"></div>
+          <div class="setting"><label for="spotify-client-id">Spotify app client ID (optional on Windows)</label><input id="spotify-client-id" type="text" autocomplete="off" spellcheck="false" placeholder="Client ID from your Spotify app" maxlength="256"></div>
+          <div class="setting"><label for="tryon-provider">Try-on still renderer</label><select id="tryon-provider"><option value="off">Off · local preview only</option><option value="custom">Custom renderer</option><option value="vertex">Google Cloud</option></select></div>
+          <div class="setting"><label for="decart-key">Decart live try-on key</label><input id="decart-key" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current key" maxlength="256"></div><p class="config-note">Decart is an optional cloud AI service that generates moving outfits from the camera and a garment photo. The local overlay works without it, but does not generate realistic fabric.</p><label class="toggle-row" for="decart-clear-key"><span>Remove live try-on key</span><input id="decart-clear-key" type="checkbox"></label>
+          <div id="tryon-custom-settings" hidden><div class="setting"><label for="tryon-endpoint">Renderer URL</label><input id="tryon-endpoint" type="url" autocomplete="off" spellcheck="false" placeholder="https://your-renderer.example/try-on" maxlength="2048"></div><div class="setting"><label for="tryon-token">Renderer token</label><input id="tryon-token" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current token" maxlength="2048"></div><label class="toggle-row" for="tryon-clear-token"><span>Remove current token</span><input id="tryon-clear-token" type="checkbox"></label></div>
+          <div id="tryon-cloud-settings" hidden><div class="setting"><label for="tryon-project">Google Cloud project ID</label><input id="tryon-project" type="text" autocomplete="off" spellcheck="false" maxlength="256"></div><div class="setting"><label for="tryon-location">Google Cloud region</label><input id="tryon-location" type="text" autocomplete="off" spellcheck="false" placeholder="us-central1" maxlength="256"></div><p class="config-note">Requires a Google Cloud project and Google Cloud sign-in on this PC. See the setup guide in the README.</p></div>
+          <p class="config-note" id="tryon-connection-note">Camera frames are sent only after consent and a render request.</p>
+          <label class="toggle-row" for="remember-connections"><span>Remember on this device</span><input id="remember-connections" type="checkbox" checked></label>
+          <div class="panel-actions"><button id="save-connections" type="submit">Save connections</button><button id="disable-gemini" type="button">Disable Gemini</button></div>
+          <p class="config-note" id="connection-status" role="status"></p>
+        </form>
+        <p class="config-note" id="config-note">Add a Gemini API key above to enable live conversation. On Windows, Music follows the installed Spotify app. An optional account connection controls other Spotify devices.</p>
       </aside>
       <aside class="diagnostics" id="diagnostics" aria-live="polite"><strong>LOCAL DIAGNOSTICS</strong><p><span>Render</span><b id="diag-render">—</b></p><p><span>Tracking</span><b id="diag-tracking">—</b></p><p><span>Face rig</span><b id="diag-rig">—</b></p><p><span>Blendshapes</span><b id="diag-blendshapes">—</b></p><p><span>Eye gaze</span><b id="diag-gaze">—</b></p><p><span>Tip</span><b>Calibrate at mirror position</b></p></aside>
     </section>

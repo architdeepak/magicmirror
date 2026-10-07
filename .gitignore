@@ -12,3 +12,7 @@ Thumbs.db
 artifacts/
 mirror-preview*.png
 dist/
+src/vendor/decart-sdk.js
+src/vendor/decart-sdk.js.LEGAL.txt
+src/vendor/frame-metadata-worker.js
+src/vendor/frame-metadata-worker.js.LEGAL.txt

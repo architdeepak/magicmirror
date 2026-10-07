@@ -1,10 +1,11 @@
-import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { FaceTracking } from './faceTracking.js';
 
-let faceLandmarker = null;
+let faceTracking = null;
 let videoElement = null;
 let mediaStream = null;
+let cameraGeneration = 0;
+let cameraEndCleanup = null;
 let currentDeviceId = '';
-let lastVideoTime = -1;
 let lastFaceAt = 0;
 let latestLandmarks = null;
 let latestMatrix = null;
@@ -16,6 +17,7 @@ const currentGaze = { x: 0, y: 0, confidence: 0 };
 const options = { sensitivity: 1, smoothing: 0.18, mount: 'top' };
 let depthCalibration = null;
 const calibrationSamples = [];
+let lastHeadUpdateAt = 0;
 const calibrationStorageKey = 'mirror.depth-calibration.v2';
 const status = {
   mode: 'mouse',
@@ -45,28 +47,20 @@ window.addEventListener('pointermove', (event) => {
 
 export async function initHeadTracking(video) {
   videoElement = video;
-  try {
-    const wasmRoot = new URL('../node_modules/@mediapipe/tasks-vision/wasm', import.meta.url).href;
-    const vision = await FilesetResolver.forVisionTasks(wasmRoot);
-    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-        delegate: 'GPU'
-      },
-      runningMode: 'VIDEO',
-      numFaces: 1,
-      outputFaceBlendshapes: true,
-      outputFacialTransformationMatrixes: true,
-      minFaceDetectionConfidence: 0.55,
-      minFacePresenceConfidence: 0.55,
-      minTrackingConfidence: 0.5
-    });
-    status.ready = true;
-  } catch (error) {
-    status.error = `Face tracker unavailable: ${error.message}`;
-    console.warn('[tracking]', status.error);
-  }
+  const generation = cameraGeneration;
+  faceTracking?.destroy();
+  const tracker = new FaceTracking(video, acceptFaceResult, (state, message) => {
+    if (faceTracking !== tracker) return;
+    status.ready = state === 'ready' || (state !== 'unavailable' && Boolean(faceTracking?.ready));
+    if (state === 'unavailable') status.error = message;
+    if (status.cameraActive) status.mode = status.ready ? 'camera' : 'camera-preview';
+  });
+  faceTracking = tracker;
+  const ready = await tracker.init();
+  if (faceTracking !== tracker) return status.cameraActive;
+  status.ready = ready;
 
+  if (generation !== cameraGeneration) return status.cameraActive;
   return startCamera();
 }
 
@@ -91,6 +85,8 @@ export async function startCamera(deviceId = '') {
   }
 
   stopCamera();
+  const generation = cameraGeneration;
+  let stream = null;
   calibrationSamples.length = 0;
   status.error = '';
 
@@ -102,11 +98,13 @@ export async function startCamera(deviceId = '') {
         audio: false
       });
       permissionStream.getTracks().forEach((track) => track.stop());
+      if (generation !== cameraGeneration) return false;
       const cameras = (await getCameraDevices()).sort((a, b) => scoreCamera(b) - scoreCamera(a));
+      if (generation !== cameraGeneration) return false;
       requestedId = cameras[0]?.deviceId || '';
     }
 
-    mediaStream = await navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
       video: {
         ...(requestedId ? { deviceId: { exact: requestedId } } : { facingMode: 'user' }),
         width: { ideal: 1280 },
@@ -116,16 +114,33 @@ export async function startCamera(deviceId = '') {
       audio: false
     });
 
-    videoElement.srcObject = mediaStream;
+    if (generation !== cameraGeneration) { stream.getTracks().forEach(track => track.stop()); return false; }
+    mediaStream = stream;
+    videoElement.srcObject = stream;
+    const tracks = stream.getVideoTracks();
+    if (!tracks.length || tracks.some(track => track.readyState === 'ended') || stream.active === false) throw new Error('The camera stream has ended.');
+    const onEnded = () => {
+      if (generation !== cameraGeneration || mediaStream !== stream) return;
+      stopCamera();
+      status.error = 'Camera disconnected. Reconnect it, then choose Camera on.';
+    };
+    tracks.forEach(track => track.addEventListener?.('ended', onEnded));
+    cameraEndCleanup = () => tracks.forEach(track => track.removeEventListener?.('ended', onEnded));
     await videoElement.play();
-    const track = mediaStream.getVideoTracks()[0];
+    if (generation !== cameraGeneration) { stream.getTracks().forEach(track => track.stop()); return false; }
+    if (tracks.some(track => track.readyState === 'ended') || stream.active === false) throw new Error('The camera stream has ended.');
+    const track = stream.getVideoTracks()[0];
     currentDeviceId = track?.getSettings().deviceId || requestedId;
     depthCalibration = loadCalibration(currentDeviceId);
     status.activeCameraLabel = track?.label || 'Camera';
     status.cameraActive = true;
+    faceTracking?.setEnabled(true);
     status.mode = status.ready ? 'camera' : 'camera-preview';
     return true;
   } catch (error) {
+    stream?.getTracks().forEach(track => track.stop());
+    if (generation !== cameraGeneration) return false;
+    stopCamera();
     status.error = error.name === 'NotAllowedError'
       ? 'Camera permission was denied'
       : `Camera unavailable: ${error.message}`;
@@ -137,12 +152,20 @@ export async function startCamera(deviceId = '') {
 }
 
 export function stopCamera() {
+  faceTracking?.setEnabled(false);
+  cameraGeneration += 1;
+  cameraEndCleanup?.();
+  cameraEndCleanup = null;
   mediaStream?.getTracks().forEach((track) => track.stop());
   mediaStream = null;
   if (videoElement) videoElement.srcObject = null;
   status.cameraActive = false;
   status.faceDetected = false;
   status.mode = 'mouse';
+  status.activeCameraLabel = 'Mouse fallback';
+  lastFaceAt = 0;
+  calibrationSamples.length = 0;
+  currentGaze.x = 0; currentGaze.y = 0; currentGaze.confidence = 0;
   latestLandmarks = null;
   latestMatrix = null;
   latestBlendshapes = Object.freeze({});
@@ -159,65 +182,73 @@ export function switchCamera(deviceId) { return startCamera(deviceId); }
 export function setTrackingOptions(next) {
   if (Number.isFinite(next.sensitivity)) options.sensitivity = Math.min(2, Math.max(0.5, next.sensitivity));
   if (Number.isFinite(next.smoothing)) options.smoothing = Math.min(0.35, Math.max(0.05, next.smoothing));
-  if (['top', 'center'].includes(next.mount)) options.mount = next.mount;
+  if (['top', 'center'].includes(next.mount) && options.mount !== next.mount) {
+    options.mount = next.mount;
+    calibrationSamples.length = 0;
+    depthCalibration = loadCalibration(currentDeviceId);
+  }
+}
+
+function acceptFaceResult(landmarks, timestamp, data = {}) {
+  if (!status.cameraActive || !videoElement?.srcObject) return;
+  latestLandmarks = landmarks;
+  latestMatrix = data.matrix || null;
+  latestBlendshapes = categoriesToBlendshapes(data.blendshapes);
+  if (!latestLandmarks?.[33] || !latestLandmarks?.[263]) {
+    status.faceDetected = false;
+    latestLandmarks = null; latestMatrix = null; latestBlendshapes = Object.freeze({});
+    currentGaze.x = 0; currentGaze.y = 0; currentGaze.confidence = 0;
+    return;
+  }
+  const now = timestamp;
+  lastFaceAt = now;
+  status.faceDetected = true;
+  const leftEye = latestLandmarks[33];
+  const rightEye = latestLandmarks[263];
+  const eyeCenter = { x: (leftEye.x + rightEye.x) / 2, y: (leftEye.y + rightEye.y) / 2 };
+  const aspect = videoElement.videoWidth / Math.max(1, videoElement.videoHeight);
+  const eyeDistance = Math.hypot(rightEye.x - leftEye.x, (rightEye.y - leftEye.y) / aspect);
+  calibrationSamples.push({ x: eyeCenter.x, y: eyeCenter.y, eyeDistance, at: now });
+  if (calibrationSamples.length > 120) calibrationSamples.shift();
+  const reference = depthCalibration || { x: .5, y: .47, eyeDistance: .14 };
+
+  // Eye midpoint is more stable than nose position for the virtual-window
+  // illusion. Calibration gives a real viewer a centered, comfortable
+  // neutral position rather than assuming every camera is mounted alike.
+  targetHead.x = clamp((reference.x - eyeCenter.x) * 2.1 * options.sensitivity, -1.25, 1.25);
+  // A camera above a portrait display sees vertical movement more
+  // aggressively than a centred camera. Its calibrated baseline handles
+  // the static offset; this factor keeps movement comfortable afterward.
+  const verticalResponse = options.mount === 'top' ? 1.42 : 1.8;
+  targetHead.y = clamp((eyeCenter.y - reference.y) * verticalResponse * options.sensitivity, -1.1, 1.1);
+  targetHead.z = clamp(reference.eyeDistance / Math.max(eyeDistance, 0.045), 0.62, 1.55);
+  updateEyeGaze(latestLandmarks);
 }
 
 export function updateHeadTracking(now = performance.now()) {
-  const canDetect = status.cameraActive && status.ready && videoElement?.readyState >= 2 &&
-    videoElement.videoWidth > 0 && videoElement.currentTime !== lastVideoTime;
-
-  if (canDetect) {
-    lastVideoTime = videoElement.currentTime;
-    try {
-      const result = faceLandmarker.detectForVideo(videoElement, now);
-      latestLandmarks = result.faceLandmarks?.[0] || null;
-      latestMatrix = result.facialTransformationMatrixes?.[0]?.data || null;
-      latestBlendshapes = categoriesToBlendshapes(result.faceBlendshapes?.[0]?.categories);
-
-      if (latestLandmarks) {
-        lastFaceAt = now;
-        status.faceDetected = true;
-        const leftEye = latestLandmarks[33];
-        const rightEye = latestLandmarks[263];
-        const eyeCenter = { x: (leftEye.x + rightEye.x) / 2, y: (leftEye.y + rightEye.y) / 2 };
-        const eyeDistance = Math.hypot(rightEye.x - leftEye.x, rightEye.y - leftEye.y);
-        calibrationSamples.push({ x: eyeCenter.x, y: eyeCenter.y, eyeDistance });
-        if (calibrationSamples.length > 60) calibrationSamples.shift();
-        const reference = depthCalibration || { x: .5, y: .47, eyeDistance: .14 };
-
-        // Eye midpoint is more stable than nose position for the virtual-window
-        // illusion. Calibration gives a real viewer a centered, comfortable
-        // neutral position rather than assuming every camera is mounted alike.
-        targetHead.x = clamp((reference.x - eyeCenter.x) * 2.1 * options.sensitivity, -1.25, 1.25);
-        // A camera above a portrait display sees vertical movement more
-        // aggressively than a centred camera. Its calibrated baseline handles
-        // the static offset; this factor keeps movement comfortable afterward.
-        const verticalResponse = options.mount === 'top' ? 1.42 : 1.8;
-        targetHead.y = clamp((eyeCenter.y - reference.y) * verticalResponse * options.sensitivity, -1.1, 1.1);
-        targetHead.z = clamp(reference.eyeDistance / Math.max(eyeDistance, 0.045), 0.62, 1.55);
-        updateEyeGaze(latestLandmarks);
-      }
-    } catch (error) {
-      console.debug('[tracking] skipped frame', error.message);
-    }
-  }
+  faceTracking?.update(now);
 
   if (now - lastFaceAt > 300) {
     status.faceDetected = false;
+    latestLandmarks = null; latestMatrix = null;
     latestBlendshapes = Object.freeze({});
     currentGaze.x = 0;
     currentGaze.y = 0;
     currentGaze.confidence = 0;
   }
   if (!status.faceDetected) {
-    targetHead.x = (mouseX - 0.5) * 1.75 * options.sensitivity;
-    targetHead.y = (mouseY - 0.5) * 1.5 * options.sensitivity;
+    const useMouse = !status.cameraActive || !status.ready;
+    targetHead.x = useMouse ? (mouseX - 0.5) * 1.75 * options.sensitivity : 0;
+    targetHead.y = useMouse ? (mouseY - 0.5) * 1.5 * options.sensitivity : 0;
     targetHead.z = 1;
   }
 
-  currentHead.x += (targetHead.x - currentHead.x) * options.smoothing;
-  currentHead.y += (targetHead.y - currentHead.y) * options.smoothing;
-  currentHead.z += (targetHead.z - currentHead.z) * options.smoothing;
+  const elapsed = lastHeadUpdateAt ? clamp(now - lastHeadUpdateAt, 1, 100) : 1000 / 60;
+  lastHeadUpdateAt = now;
+  const smoothing = 1 - Math.pow(1 - options.smoothing, elapsed / (1000 / 60));
+  currentHead.x += (targetHead.x - currentHead.x) * smoothing;
+  currentHead.y += (targetHead.y - currentHead.y) * smoothing;
+  currentHead.z += (targetHead.z - currentHead.z) * smoothing;
   return currentHead;
 }
 
@@ -238,38 +269,59 @@ export function applyOffAxisProjection(camera, head, screenWidth = 1.8, screenHe
     camera.far
   );
   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
-  camera.lookAt(eyeX * 0.12, eyeY * 0.12, -1.2);
+  // The frustum already accounts for eye displacement. Rotating toward the
+  // screen center would move the physical screen plane a second time.
+  camera.lookAt(eyeX, eyeY, eyeZ - 1);
 }
 
 export function applyFlatProjection(camera, aspect = window.innerWidth / window.innerHeight) {
   camera.position.set(0, 0, 3.1);
-  camera.fov = 45;
+  // Match the neutral 3D window so toggling depth does not change its scale.
+  camera.fov = 2 * Math.atan(1.6 / 3.1) * 180 / Math.PI;
   camera.aspect = aspect;
   camera.updateProjectionMatrix();
   camera.lookAt(0, 0, -1.2);
 }
 
 export function getHeadPosition() { return currentHead; }
-export function getTrackingStatus() { return { ...status }; }
+export function getTrackingStatus() {
+  const calibration = calibrationSample(performance.now());
+  return { ...status, lastInferenceMs: faceTracking?.inferenceMs || 0, delegate: faceTracking?.delegate || '',
+    frameAgeMs: status.faceDetected ? Math.max(0, performance.now() - lastFaceAt) : null, calibrated: Boolean(depthCalibration), canCalibrate: calibration.ready, calibrationReason: calibration.reason };
+}
 export function getFaceLandmarks() { return latestLandmarks; }
 export function getFaceMatrix() { return latestMatrix; }
 export function getFaceBlendshapes() { return latestBlendshapes; }
 export function getEyeGaze() { return { ...currentGaze }; }
 export function getVideoElement() { return videoElement; }
 
+function calibrationSample(now) {
+  if (!status.cameraActive || !status.faceDetected || !latestLandmarks || now - lastFaceAt > 300) {
+    return { ready: false, reason: 'Stand where you will use the mirror until Face Lock appears.', samples: [] };
+  }
+  const samples = calibrationSamples.filter((sample) => now - sample.at <= 2200);
+  if (samples.length < 8 || samples[samples.length - 1].at - samples[0].at < 1600) {
+    return { ready: false, reason: 'Hold still at your viewing spot for two seconds.', samples };
+  }
+  if (samples.some((sample, index) => index > 0 && sample.at - samples[index - 1].at > 350)) {
+    return { ready: false, reason: 'Keep your face in view continuously for two seconds.', samples };
+  }
+  const spread = (key) => Math.max(...samples.map((sample) => sample[key])) - Math.min(...samples.map((sample) => sample[key]));
+  const eyeMean = samples.reduce((sum, sample) => sum + sample.eyeDistance, 0) / samples.length;
+  if (spread('x') > .035 || spread('y') > .035 || spread('eyeDistance') > eyeMean * .13) {
+    return { ready: false, reason: 'Keep your head still for two seconds, then calibrate again.', samples };
+  }
+  return { ready: true, reason: 'Stable face sample ready for calibration.', samples };
+}
+
 export function calibrateDepth() {
-  if (!latestLandmarks || latestLandmarks.length < 264 || calibrationSamples.length < 8) return false;
-  // Use approximately two seconds of recent tracking samples instead of one
-  // frame. This eliminates the visible depth jump caused by blinking or a
-  // momentary head turn during calibration.
-  const samples = calibrationSamples.slice(-45);
-  const average = (key) => samples.reduce((total, sample) => total + sample[key], 0) / samples.length;
+  const sample = calibrationSample(performance.now());
+  if (!sample.ready) return false;
+  const samples = sample.samples;
+  const average = (key) => samples.reduce((total, item) => total + item[key], 0) / samples.length;
   depthCalibration = {
-    x: average('x'),
-    y: average('y'),
-    eyeDistance: Math.max(.045, average('eyeDistance')),
-    mount: options.mount,
-    calibratedAt: new Date().toISOString()
+    x: average('x'), y: average('y'), eyeDistance: Math.max(.045, average('eyeDistance')),
+    mount: options.mount, calibratedAt: new Date().toISOString()
   };
   saveCalibration(currentDeviceId, depthCalibration);
   return true;
@@ -278,8 +330,8 @@ export function calibrateDepth() {
 function loadCalibration(deviceId) {
   try {
     const all = JSON.parse(localStorage.getItem(calibrationStorageKey) || '{}');
-    const saved = all[deviceId];
-    if (!saved || !Number.isFinite(saved.x) || !Number.isFinite(saved.y) || !Number.isFinite(saved.eyeDistance)) return null;
+    const saved = all[`${deviceId}:${options.mount}`] || all[deviceId];
+    if (!saved || saved.mount !== options.mount || !Number.isFinite(saved.x) || !Number.isFinite(saved.y) || !Number.isFinite(saved.eyeDistance)) return null;
     return saved;
   } catch { return null; }
 }
@@ -288,7 +340,7 @@ function saveCalibration(deviceId, calibration) {
   if (!deviceId) return;
   try {
     const all = JSON.parse(localStorage.getItem(calibrationStorageKey) || '{}');
-    all[deviceId] = calibration;
+    all[`${deviceId}:${options.mount}`] = calibration;
     localStorage.setItem(calibrationStorageKey, JSON.stringify(all));
   } catch { /* local storage is an optional convenience */ }
 }

@@ -1,0 +1,46 @@
+// Actual application: mouse navigation, renderer CPU metrics and screenshots.
+// Sleep uses only a shortened idle timer; synthetic hidden state is labelled.
+const fs=require('fs/promises'),path=require('path'),os=require('os'),assert=require('assert/strict');
+const {spawn}=require('child_process');const {connect}=require('./cdp-client.cjs');
+const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+ const dir=path.join(root,'artifacts/power-ui',process.argv.includes('--personas')?'personas':process.argv.includes('--baseline')?'baseline':'current');await fs.mkdir(dir,{recursive:true});
+ const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-power-ui-'));
+ const wm=spawn(path.join(root,'.tools/native-companion-wm/root/usr/bin/openbox'),[],{stdio:'ignore',env:{...process.env,LD_LIBRARY_PATH:path.join(root,'.tools/native-companion-wm/root/usr/lib/aarch64-linux-gnu'),XDG_DATA_DIRS:path.join(root,'.tools/native-companion-wm/root/usr/share')+':/usr/share'}});
+ const child=spawn(path.join(root,'node_modules/electron/dist/electron'),[root,'--kiosk','--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-port=0','--remote-debugging-address=127.0.0.1'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
+ let logs='',client;for(const s of [child.stdout,child.stderr])s.on('data',b=>logs=(logs+b).slice(-10000));let exited=false;child.on('exit',()=>exited=true);
+ const until=async fn=>{for(let n=0;n<600;n++){if(exited)throw new Error('App exited: '+logs.slice(-1000));const v=await fn();if(v)return v;await delay(100)}throw new Error('Startup timed out: '+logs.slice(-1000))};
+ try{
+  const ws=await until(()=>logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1]);
+  const target=await until(async()=>(await fetch('http://'+new URL(ws).host+'/json/list').then(r=>r.json())).find(t=>t.url.endsWith('/src/index.html')));
+  client=await connect(target.webSocketDebuggerUrl);await client.call('Page.enable');await client.call('Performance.enable');
+  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');window.__shortIdle=false;const timer=window.setTimeout.bind(window);window.setTimeout=(fn,ms,...args)=>timer(fn,ms===180000&&window.__shortIdle?1200:ms,...args);`});
+  await client.call('Page.reload');await until(()=>client.evaluate('!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")'));
+  await client.evaluate(`window.__power={scene:0,head:0,face:0,rig:0};__mirrorDebug.scene.onBeforeRender=()=>__power.scene++;for(const [name,object,method] of [['head',__mirrorDebug.avatar.head?.renderer,'render'],['face',__mirrorDebug.avatar.faceHost,'update'],['rig',__mirrorDebug.avatar.rigHost,'update']]){if(object){const original=object[method].bind(object);object[method]=(...args)=>{const frame=object.info?.render.frame;const result=original(...args);if(name!=='head'||object.info?.render.frame!==frame)__power[name]++;return result}}}`);
+  const click=async selector=>{const p=await client.evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});el.scrollIntoView({block:'center'});const r=el.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()`);for(const type of ['mousePressed','mouseReleased'])await client.call('Input.dispatchMouseEvent',{type,...p,button:'left',clickCount:1});await delay(500)};
+  const metrics=async()=>Object.fromEntries((await client.call('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]));
+  const results=[];
+  const measure=async name=>{const before=await metrics(),counts=await client.evaluate('({...__power})');await delay(4000);const after=await metrics(),end=await client.evaluate('({...__power})');const snapshot=await client.evaluate('({state:__mirrorDebug.getMirrorState(),size:[innerWidth,innerHeight],power:__mirrorDebug.getPowerState?.()||null})');const duration=after.Timestamp-before.Timestamp;const row={name,durationSec:duration,rendererCpuPercent:100*(after.TaskDuration-before.TaskDuration)/duration,heapBytes:after.JSHeapUsedSize,rendersPerSec:Object.fromEntries(Object.keys(end).map(k=>[k,(end[k]-counts[k])/duration])),...snapshot};results.push(row);const shot=await client.call('Page.captureScreenshot',{format:'png'});await fs.writeFile(path.join(dir,name+'.png'),Buffer.from(shot.data,'base64'));console.log(JSON.stringify({name,cpu:row.rendererCpuPercent,renders:row.rendersPerSec,power:row.power}));return row};
+  assert(await client.evaluate('document.querySelector("#mic-btn").disabled&&document.querySelector("#wake-status").textContent.includes("Hard muted")'),'Muted startup incorrectly advertises wake');
+  await measure('ambient');await client.call('Input.dispatchKeyEvent',{type:'keyDown',key:'1',windowsVirtualKeyCode:49});await client.call('Input.dispatchKeyEvent',{type:'keyUp',key:'1',windowsVirtualKeyCode:49});await delay(500);await measure('queen');
+  if(process.argv.includes('--personas')){
+   for(const persona of ['velora','solenne','rowan']){
+    await click('#persona-toggle');await click('[data-persona="'+persona+'"]');await delay(1200);
+    await client.evaluate(`__mirrorDebug.avatar.setViseme('rest');__mirrorDebug.avatar.setSpeechLevel(0)`);
+    await measure(persona+'-rest');
+    // Deliberate viseme input exercises the production performer. No claim
+    // that these posed screenshots are recorded live microphone speech.
+    await client.evaluate(`window.__poseTimer=setInterval(()=>{__mirrorDebug.avatar.setViseme('AA');__mirrorDebug.avatar.setSpeechLevel(.65)},30)`);
+    await measure(persona+'-aa');
+    await client.evaluate(`clearInterval(__poseTimer);__mirrorDebug.avatar.setViseme('rest');__mirrorDebug.avatar.setSpeechLevel(0)`);
+   }
+   await fs.writeFile(path.join(dir,'result.json'),JSON.stringify({scope:'Actual app UI and production performer with explicit test visemes, no live speech',results},null,2));return;
+  }
+  await click('[data-mode="ar"]');await measure('try-on');await click('[data-mode="watch"]');await measure('watch');await click('[data-mode="spotify"]');await measure('music');
+  await click('[data-mode="mirror"]');await client.evaluate('__shortIdle=true');await click('[data-mode="mirror"]');await delay(1500);const sleep=await measure('sleep');assert.equal(sleep.state.display.sleeping,true);
+  await client.call('Input.dispatchKeyEvent',{type:'keyDown',key:'1',windowsVirtualKeyCode:49});await client.call('Input.dispatchKeyEvent',{type:'keyUp',key:'1',windowsVirtualKeyCode:49});await delay(500);const resume=await measure('wake-resume');assert.equal(resume.state.display.sleeping,false);assert(resume.rendersPerSec.face>0,'Face did not resume');
+  await client.evaluate(`Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));`);const hidden=await measure('synthetic-hidden');
+  if(!process.argv.includes('--baseline')){assert.equal(sleep.rendersPerSec.scene,0,'Sleep still renders scene');assert.equal(hidden.rendersPerSec.scene,0,'Hidden state still renders scene');assert.equal(hidden.rendersPerSec.face,0,'Hidden state still animates face');assert.equal(resume.rendersPerSec.head,0,'Invisible TalkingHead still renders');assert.equal(resume.rendersPerSec.rig,0,'Staged rig still renders');}
+  await fs.writeFile(path.join(dir,'result.json'),JSON.stringify({checkedAt:new Date().toISOString(),scope:'Linux software-rendered portrait app; renderer CPU excludes other processes and is not a wattage measurement; synthetic hidden state; accelerated sleep timer; no physical camera or microphone',results},null,2));
+ }finally{client?.close();child.kill('SIGTERM');wm.kill('SIGTERM');await delay(300);child.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});}
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -72,15 +72,14 @@ export class AvatarController {
       // The visible performer is our face-only host below; hide every generic
       // canvas before first paint so a body can never flash on the mirror.
       this.host.querySelectorAll('canvas').forEach((canvas) => { canvas.style.display = 'none'; });
+      // This renderer is never presented: TalkingHead owns PCM/viseme timing,
+      // while FaceHost owns the visible performer. Avoid drawing an invisible
+      // full GLB on every audio animation tick. Keep its audio clock intact.
+      this.head.renderer.render = () => {};
       this.faceHost = new FaceHost(this.host);
-      this.rigHost = new RigFaceHost(this.host);
       this.videoHost = new AvatarVideoHost(this.host);
-      this.rigHost.setPersona(this.persona)
-        // Keep the experimental GLB renderer staged until its crop, materials,
-        // and persona art meet the face-only presentation bar. A rig must never
-        // replace the polished host merely because it happened to load.
-        .then(() => { this.rigHost.canvas.style.display = 'none'; })
-        .catch((error) => console.warn('[avatar] rig fallback', error));
+      // Experimental rig previews are explicitly created by their preview
+      // tool. Normal use needs neither its WebGL context nor its model loads.
       this.head.setView('head', { cameraDistance: 0.32, cameraY: -0.035 });
       this.armature = this.head.armature;
       this._collectMorphMeshes();
@@ -105,6 +104,15 @@ export class AvatarController {
         avatarSpeakingEyeContact: 0.9
     });
     this.loadedRigUrl = url;
+  }
+
+  async ensureRigHost() {
+    if (!this.rigHost) {
+      this.rigHost = new RigFaceHost(this.host);
+      this.rigHost.canvas.style.display = 'none';
+    }
+    await this.rigHost.setPersona(this.persona);
+    return this.rigHost;
   }
 
   _collectMorphMeshes() {
@@ -247,12 +255,12 @@ export class AvatarController {
     // Never add a perpetual idle bounce to a face-only host. It makes a still
     // frame look like a sticker and fights deliberate nods from the performer.
     const offsetY = viewer.y * (this.depthEnabled ? 8 : 4);
-    const modeScale = this.displayMode === 'ar' ? 0.58 : 1;
-    const modeX = this.displayMode === 'ar' ? window.innerWidth * 0.19 : 0;
-    const modeY = this.displayMode === 'ar' ? window.innerHeight * 0.2 : 0;
     const rotateY = this.depthEnabled ? viewer.x * -.9 : 0;
     const rotateX = this.depthEnabled ? viewer.y * .45 : 0;
-    this.host.style.transform = `perspective(1400px) translate3d(${modeX + offsetX}px, ${modeY + offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${modeScale})`;
+    // Layout owns the host's size and position, including its compact Try On
+    // corner. Window-relative mode offsets can push it over the viewer's body
+    // or outside a portrait display when the surrounding desktop is wider.
+    this.host.style.transform = `perspective(1400px) translate3d(${offsetX}px, ${offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
 
     if (this.head && elapsed - this.lastLookAt > 0.1) {
       this.lastLookAt = elapsed;
@@ -282,7 +290,7 @@ export class AvatarController {
       this.faceHost?.setViseme(this.viseme);
       this.faceHost?.setPerformance(this.performance);
       this.faceHost?.update(elapsed);
-      this.rigHost?.update({ ...expression, jawOpen: Math.max(expression.jawOpen || 0, this.speechLevel) }, this.eyeGaze, this.performance);
+      if (this.rigHost?.canvas.style.display !== 'none') this.rigHost?.update({ ...expression, jawOpen: Math.max(expression.jawOpen || 0, this.speechLevel) }, this.eyeGaze, this.performance);
     }
     this.speechLevel *= 0.82;
   }

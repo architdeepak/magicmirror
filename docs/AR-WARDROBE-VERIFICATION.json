@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "starterGarments": 30,
+  "savedGarments": 5,
+  "checks": [
+    "real garment upload/cutout",
+    "real IPC persistence/reload",
+    "original retained",
+    "invalid PNG rejected",
+    "concurrent saves",
+    "camera unavailable",
+    "synthetic camera capture",
+    "voice tool commands",
+    "interpreted swipe and pinch routing",
+    "cancel",
+    "paired LAN phone photo upload",
+    "one-photo acceptance",
+    "unauthenticated/cross-origin/invalid phone requests rejected"
+  ],
+  "limits": [
+    "No physical camera/gesture recognition or garment drape accuracy measured.",
+    "Plain-background cutout only."
+  ]
+}

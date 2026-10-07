@@ -36,15 +36,18 @@ export class SpeechEngine {
   }
 
   speak(text) {
-    if (!this.synth || !text) return;
+    if (!this.synth || !text) return Promise.resolve();
     this.stop();
+    const completion = new Promise((resolve) => { this.resolveSpeech = resolve; });
     const utterance = new SpeechSynthesisUtterance(text);
+    this.utterance = utterance;
     utterance.voice = this.voice || null;
     const profile = VOICE_PROFILES[this.persona] || VOICE_PROFILES.velora;
     utterance.rate = profile.rate;
     utterance.pitch = profile.pitch;
     utterance.volume = 1;
     utterance.onstart = () => {
+      if (this.utterance !== utterance) return;
       this.isSpeaking = true;
       this.avatar.setMood('neutral');
       this.callbacks.onState?.('speaking');
@@ -75,17 +78,21 @@ export class SpeechEngine {
         });
       }, 86);
     };
-    utterance.onend = () => this._finish();
-    utterance.onerror = () => this._finish();
+    utterance.onend = () => { if (this.utterance === utterance) this._finish(); };
+    utterance.onerror = utterance.onend;
     this.synth.speak(utterance);
+    return completion;
   }
 
   stop() {
-    if (this.synth?.speaking) this.synth.cancel();
     this._finish();
+    this.synth?.cancel();
   }
 
   _finish() {
+    this.utterance = null;
+    this.resolveSpeech?.();
+    this.resolveSpeech = null;
     clearInterval(this.timer);
     this.timer = null;
     this.isSpeaking = false;

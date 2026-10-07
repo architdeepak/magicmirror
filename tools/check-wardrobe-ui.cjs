@@ -1,0 +1,76 @@
+// Real packaged Electron UI and persistence. Camera and recognized gestures
+// are synthetic; this does not claim physical-camera or fabric realism coverage.
+const assert=require('assert/strict'),fs=require('fs/promises'),path=require('path'),os=require('os');
+const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
+const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+ const temp=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-wardrobe-')),profile=path.join(temp,'profile');
+ const out=path.join(root,'artifacts/wardrobe');await fs.mkdir(out,{recursive:true});
+ const app=spawn(path.join(root,`dist/linux-${process.arch}-unpacked/magic-mirror-portal`),['--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'],{cwd:temp,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_VERTEX_PROJECT:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
+ let logs='',client;for(const stream of [app.stdout,app.stderr])stream.on('data',b=>logs=(logs+b).slice(-12000));
+ async function until(fn,label){const start=Date.now();while(Date.now()-start<60000){const value=await fn();if(value)return value;await delay(100)}throw new Error(label+' timed out '+logs.slice(-2000))}
+ async function shot(name){await delay(700);const result=await client.call('Page.captureScreenshot',{format:'png'});await fs.writeFile(path.join(out,name+'.png'),Buffer.from(result.data,'base64'))}
+ const tool=command=>client.evaluate(`__mirrorDebug.gemini.onWardrobe({command:${JSON.stringify(command)}})`);
+ try {
+  const endpoint=await until(()=>logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1],'endpoint');
+  const target=await until(async()=>(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())).find(t=>t.url.includes('app.asar/src/index.html')),'target');
+  client=await connect(target.webSocketDebuggerUrl);await client.call('Page.enable');await client.call('Runtime.enable');
+  const exceptions=[];client.onEvent(e=>{if(e.method==='Runtime.exceptionThrown')exceptions.push(e.params.exceptionDetails.exception?.description||e.params.exceptionDetails.text)});
+  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');`});
+  await client.call('Page.reload');await until(()=>client.evaluate('!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")'),'startup');
+  assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.closet.length'),30);
+  assert.equal((await tool('change style to dress')).selected,'Blue dress');
+  assert.equal((await tool('make it red')).selected,'Red dress');
+  const loaded=await until(()=>client.evaluate('!!__mirrorDebug.garmentOverlay.texture'),'starter texture');assert(loaded);
+  await shot('starter-dress');
+  await tool('add garment');assert(await client.evaluate('document.querySelector("#wardrobe-photo").open'));
+  await tool('take photo');assert.match(await client.evaluate('document.querySelector("#wardrobe-photo [data-field=status]").textContent'),/camera first/);
+  await shot('photo-empty');
+  // Genuine DOM file-input change with an author's public garment photo already on disk.
+  const doc=await client.call('DOM.getDocument');const file=await client.call('DOM.querySelector',{nodeId:doc.root.nodeId,selector:'#wardrobe-photo input[type=file]'});
+  await client.call('DOM.setFileInputFiles',{nodeId:file.nodeId,files:[path.join(root,'.tools/rtv/assets/garment_images/lab_06_white_bg.jpg')]});
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo [data-action=save]").disabled'),'photo preview');
+  await tool('name it My black festival shirt');await tool('type top');await shot('photo-preview');
+  await tool('save garment');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo").open'),false);
+  const saved=JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8'));
+  assert.equal(saved.garments.length,1);assert.equal(saved.garments[0].name,'My black festival shirt');
+  assert((await fs.stat(saved.garments[0].assetPath)).size>1000);assert((await fs.stat(path.join(path.dirname(saved.garments[0].assetPath),'original.png'))).size>1000);
+  // Invalid IPC input and parallel real saves exercise the main process boundary.
+  const bad=await client.evaluate(`window.mirrorBridge.saveClosetPhoto({name:'bad',category:'dress',imageDataUrl:'data:image/png;base64,aaaa'}).then(()=>false,()=>true)`);assert(bad);
+  const image=await client.evaluate(`(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='blue';x.fillRect(8,8,48,48);return c.toDataURL()})()`);
+  await client.evaluate(`Promise.all(['One','Two'].map(name=>window.mirrorBridge.saveClosetPhoto({name,category:'top',imageDataUrl:${JSON.stringify(image)}})))`);
+  assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,3);
+  await client.evaluate('window.__beforeWardrobeReload=true');await client.call('Page.reload');await until(()=>client.evaluate('!window.__beforeWardrobeReload&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")'),'reload');
+  assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.closet.length'),33);
+  assert.equal((await tool('add garment')).photoEditorOpen,true);
+  // A real MediaStream carrying synthetic garment frames, no physical camera.
+  await client.evaluate(`(()=>{navigator.mediaDevices.getUserMedia=async()=>{const c=document.createElement('canvas');c.width=640;c.height=480;const ctx=c.getContext('2d');ctx.fillStyle='#eeeeee';ctx.fillRect(0,0,640,480);ctx.fillStyle='#204b90';ctx.fillRect(200,90,240,340);window.__wardrobeStream=c.captureStream(1);return __wardrobeStream};document.querySelector('#camera-toggle').click()})()`);
+  await until(()=>client.evaluate('document.querySelector("#camera-feed").readyState>=2'),'synthetic camera');
+  await tool('take photo');await tool('name it Camera blue top');
+  await client.evaluate(`__mirrorDebug.gestures.onGesture('swipe-left')`);
+  assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo select").value'),'outerwear');
+  await shot('camera-photo');await client.evaluate(`__mirrorDebug.gestures.onGesture('pinch')`);
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo").open'),'gesture save');
+  assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,4);
+  await client.evaluate('__wardrobeStream.getTracks().forEach(t=>t.stop())');
+  await tool('add garment');await tool('from phone');
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo [data-field=phone]").hidden'),'phone QR');
+  const pair=await client.evaluate('window.mirrorBridge.wardrobePhone(true)'),origin=new URL(pair.url).origin;
+  assert.equal((await fetch(origin+'/wardrobe-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl:image})})).status,403);
+  const pairing=await fetch(pair.url,{redirect:'manual'}),cookie=pairing.headers.get('set-cookie').split(';')[0];
+  const page=await(await fetch(origin+'/',{headers:{Cookie:cookie}})).text();assert(page.includes('photo-form'));
+  const send=async(value,extra={})=>fetch(origin+'/wardrobe-photo',{method:'POST',headers:{'Content-Type':'application/json',Cookie:cookie,Origin:origin,...extra},body:JSON.stringify({imageDataUrl:value})});
+  assert.equal((await send(image,{Origin:'https://other.example'})).status,403);
+  assert.equal((await send('data:image/png;base64,aaaa')).status,400);
+  assert.equal((await send(image)).status,200);
+  await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo [data-action=save]").disabled'),'phone preview');
+  await tool('name it My phone shirt');await shot('phone-photo');await tool('save garment');
+  assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,5);
+  assert.equal((await send(image)).status,409,'Closed editor continued accepting photos');
+  await client.evaluate('window.mirrorBridge.stopPhoneLink()');
+  await tool('add garment');await tool('cancel photo');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo").open'),false);
+  assert.deepEqual(exceptions,[]);
+  const report={status:'passed',starterGarments:30,savedGarments:5,checks:['real garment upload/cutout','real IPC persistence/reload','original retained','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured.','Plain-background cutout only.']};
+  await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+ }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
+})().catch(e=>{console.error(e);process.exitCode=1});
