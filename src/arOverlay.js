@@ -3,6 +3,7 @@ export class AROverlay {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.effect = 'enchanted';
+    this.hasPixels = false;
     this.resize();
   }
 
@@ -21,13 +22,16 @@ export class AROverlay {
   }
 
   clear() {
+    if (!this.hasPixels) return;
     const bounds = this.canvas.parentElement?.getBoundingClientRect();
     this.ctx.clearRect(0, 0, bounds?.width || window.innerWidth, bounds?.height || window.innerHeight);
+    this.hasPixels = false;
   }
 
   render(landmarks, video, elapsed, enabled) {
     this.clear();
     if (!enabled || !landmarks || !video?.videoWidth) return;
+    this.hasPixels = this.effect !== 'none';
     const point = (index) => project(landmarks[index], video);
     const left = point(234);
     const right = point(454);

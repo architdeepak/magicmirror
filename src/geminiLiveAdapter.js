@@ -19,7 +19,7 @@ const HOST_VOICES = {
 const HOST_VOICE_PRESETS = Object.freeze({ velora: 'Gacrux', solenne: 'Aoede', rowan: 'Charon' });
 
 export class GeminiLiveAdapter {
-  constructor({ avatar, config, onState, onTranscript, onSpeechStart, onError, onSessionEnd, onRemember, onTurnComplete, onModeChange, onArEffect, onSearch, onAvatarPosition, onTryOn, onTryOnAdjust, onWardrobe, onOpenService, onOpenWebpage, onCaptureScreen, onComputerAction, onSpotify, onMirrorState, onWatchControl, onAgentTask }) {
+  constructor({ avatar, config, onState, onTranscript, onSpeechStart, onError, onSessionEnd, onRemember, onTurnComplete, onModeChange, onArEffect, onSearch, onAvatarPosition, onTryOn, onTryOnAdjust, onWardrobe, onOpenService, onOpenWebpage, onCaptureScreen, onComputerAction, onSpotify, onMirrorState, onWatchControl, onAgentTask, onMirrorCommand, onToolActivity }) {
     this.avatar = avatar;
     this.config = config;
     this.onState = onState || (() => {});
@@ -43,6 +43,8 @@ export class GeminiLiveAdapter {
     this.onSpotify = onSpotify || (async () => { throw new Error('Spotify controls are unavailable.'); });
     this.onWatchControl = onWatchControl || (async () => { throw new Error('Watch controls are unavailable.'); });
     this.onMirrorState = onMirrorState || (() => ({ available: false }));
+    this.onMirrorCommand = onMirrorCommand || (() => ({ error: 'Local mirror commands are unavailable.' }));
+    this.onToolActivity = onToolActivity || (() => {});
     this.onAgentTask = onAgentTask || (async () => ({ error: 'Codex delegation unavailable.' }));
     this.toolQueue = Promise.resolve();
     this.toolResults = new Map();
@@ -308,6 +310,12 @@ export class GeminiLiveAdapter {
               },
               required: ['effect']
             }
+          }]
+        }, {
+          functionDeclarations: [{
+            name: 'mirror_command',
+            description: 'Run a user-requested local command: getting ready, movie time, favorite this, show my favorites, show my lookbook, take a look photo, save this look, compare looks, retake, leave a note: TEXT, set a timer for N minutes, cancel timer, what can I do here, camera clarity off/natural/bright. Capture is a countdown then review. Save separately only when requested. Read current state before claiming async commands completed.',
+            parameters: { type: 'OBJECT', properties: { command: { type: 'STRING' } }, required: ['command'] }
           }]
         }, {
           functionDeclarations: [{
@@ -686,6 +694,7 @@ export class GeminiLiveAdapter {
     const results = this.toolResults;
     for (const call of toolCall.functionCalls || []) {
       if (cancelled()) return;
+      this.onToolActivity?.(call.name);
       const key = call.id && !['see_screen', 'get_mirror_state'].includes(call.name)
         ? JSON.stringify([call.id, call.name, call.args || {}]) : null;
       try {
@@ -699,7 +708,10 @@ export class GeminiLiveAdapter {
           functionResponses.push({ ...cachedResult, response: cached });
           continue;
         }
-        if (call.name === 'get_mirror_state') {
+        if (call.name === 'mirror_command') {
+          const result = await this.onMirrorCommand(String(call.args?.command || ''));
+          functionResponses.push({ name: call.name, id: call.id, response: result });
+        } else if (call.name === 'get_mirror_state') {
           functionResponses.push({ name: call.name, id: call.id, response: { mirrorState: this.onMirrorState() } });
         } else if (call.name === 'remember_user_fact') {
           const memory = await this.onRemember(call.args || {});
@@ -811,7 +823,7 @@ export class GeminiLiveAdapter {
       } catch (error) {
         if (cancelled()) return;
         functionResponses.push({ name: call.name, id: call.id, response: { error: error.message } });
-      }
+      } finally { if (!cancelled()) this.onToolActivity?.(null); }
     }
     if (!cancelled() && functionResponses.length) this._send({ toolResponse: { functionResponses } });
   }

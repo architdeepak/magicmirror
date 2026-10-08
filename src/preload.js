@@ -25,6 +25,14 @@ contextBridge.exposeInMainWorld('mirrorBridge', {
   clearMemory: () => ipcRenderer.invoke('mirror:clear-memory'),
   saveClosetPhoto: input => ipcRenderer.invoke('mirror:save-closet-photo', input),
   listCloset: () => ipcRenderer.invoke('mirror:list-closet'),
+  listLooks: () => ipcRenderer.invoke('mirror:list-looks'),
+  saveLook: input => ipcRenderer.invoke('mirror:save-look', input),
+  updateLook: input => ipcRenderer.invoke('mirror:update-look', input),
+  cancelLook: () => ipcRenderer.invoke('mirror:cancel-look'),
+  onSystemResume: callback => {
+    const listener = () => callback(); ipcRenderer.on('mirror:system-resume', listener);
+    return () => ipcRenderer.removeListener('mirror:system-resume', listener);
+  },
   importClosetGarment: (item) => ipcRenderer.invoke('mirror:import-closet-garment', item),
   queueTryOn: (request) => ipcRenderer.invoke('mirror:queue-tryon', request),
   cancelTryOn: (id) => ipcRenderer.invoke('mirror:cancel-tryon', id),

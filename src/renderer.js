@@ -7,6 +7,9 @@ import { matchGarment } from './garmentMatch.js';
 import { AROverlay } from './arOverlay.js';
 import { GarmentOverlay } from './garmentOverlay.js';
 import { CAMERA_CLARITY } from './cameraClarity.js';
+import { MirrorExperience } from './mirrorExperience.js';
+import { MagicTheatre } from './magicTheatre.js';
+import { FramingGuide, evaluateFraming } from './framingGuide.js';
 import { LiveTryOn } from './liveTryOn.js';
 import { selectAssistantVision } from './assistantVision.js';
 import { createDepthScene } from './depthScene.js';
@@ -83,6 +86,7 @@ const elements = {
   smoothingValue: document.querySelector('#smoothing-value'),
   cameraToggle: document.querySelector('#camera-toggle'),
   cameraNotice: document.querySelector('#camera-notice'),
+  cameraFormat: document.querySelector('#camera-format'),
   calibrateDepth: document.querySelector('#calibrate-depth'),
   diagnosticsToggle: document.querySelector('#diagnostics-toggle'),
   diagnostics: document.querySelector('#diagnostics'),
@@ -291,7 +295,7 @@ const dashboard = new MagicMirrorView(elements.dashboard, { city: config.city, u
 const closet = new ClosetStore({
   container: elements.closetList,
   onStopVoice: stopAssistant,
-  ensureCamera: () => toggleCamera(true),
+  ensureCamera: () => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true),
   video: elements.video,
   importButton: elements.closetImport,
   onSelect: (item) => {
@@ -312,6 +316,7 @@ const closet = new ClosetStore({
     elements.tryOnRun.disabled = tryOnRendering || !elements.tryOnConsent.checked;
     elements.tryOnStatus.textContent = `${item.name} selected · local fit stays on-device; still rendering and live AI require their sharing consent.`;
     showGesture(`${item.name} selected · step back for live fit`);
+    if (mode === 'ar' && !experience.capturing) { magic.play('selection', { muted: hardMuted }); cueQueen(); }
     updateLiveTryOnControls();
     if (restartLive) void startLiveTryOn();
   },
@@ -448,6 +453,11 @@ const gemini = new GeminiLiveAdapter({
   },
   onMirrorState: getMirrorState,
   onAgentTask: runAgentTask,
+  onMirrorCommand: command => {
+    if (hardMuted) return { error: 'The mirror is hard muted.' };
+    return { result: runVoiceNavigation(String(command).slice(0, 400)) ? 'Local command requested. Read current state to verify completion.' : 'Local command not recognized.' };
+  },
+  onToolActivity: tool => { if (tool) showAgentProgress(tool); else if (!agentRunId) document.querySelector('#agent-progress').hidden = true; },
   onWatchControl: handleWatchControl,
   onComputerAction: async (action) => window.mirrorBridge.desktopAction(action),
   onSpotify: async (action) => {
@@ -474,8 +484,10 @@ let agentRunId = null;
 window.mirrorBridge?.onCodexTool?.(async payload => {
   if (!agentRunId || payload.runId !== agentRunId || hardMuted) return;
   let result;
+  showAgentProgress(payload.tool);
   try { result = await agentTools.execute(payload.tool, payload.args); }
   catch (error) { result = { error: error.message }; }
+  if (result.error && /sign.in|credential|password|authentication/i.test(result.error)) showAgentProgress('sign_in');
   if (payload.runId !== agentRunId) return;
   await window.mirrorBridge.codexToolResult({ id: payload.id, runId: payload.runId, result }).catch(() => {});
 });
@@ -487,9 +499,10 @@ async function runAgentTask(task) {
   if (agentRunId) return { error: 'An agent task is already running.' };
   if (!window.mirrorBridge?.codexTask) return { error: 'Install and sign in to Codex on the mirror PC.' };
   const runId = crypto.randomUUID(); agentRunId = runId; agentTools.cancel(); setState('thinking');
+  showAgentProgress('thinking');
   try { return await window.mirrorBridge.codexTask({ task, runId }); }
   catch (error) { return { error: error.message }; }
-  finally { if (agentRunId === runId) { agentRunId = null; agentTools.cancel(); } if (!agentRunId && !gemini.listening && state === 'thinking') setState('ready'); }
+  finally { if (agentRunId === runId) { agentRunId = null; agentTools.cancel(); document.querySelector('#agent-progress').hidden = true; } if (!agentRunId && !gemini.listening && state === 'thinking') setState('ready'); }
 }
 function cancelAgentTask() {
   agentRunId = null; agentTools.cancel();
@@ -511,6 +524,54 @@ elements.mute.setAttribute('aria-label', hardMuted ? 'Unmute and arm wake word' 
 if (hardMuted) elements.mic.disabled = true;
 
 let gestureToastTimer = null;
+let queenCueTimer = null;
+const magic = new MagicTheatre(elements.shell);
+const framing = new FramingGuide(elements.shell, garmentOverlay, elements.video);
+const experience = new MirrorExperience({
+  shell: elements.shell, bridge: window.mirrorBridge, magic, closet,
+  context: () => ({ mode, muted: hardMuted, sleeping, desktopActive }),
+  editorOpen: () => closet.photo.open,
+  notice: showGesture, help: text => showOracle(text, '', 'A little guidance'), stop: stopAssistant,
+  mode: setAssistantMode, clarity: setCameraClarity,
+  ensureCamera: () => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true),
+  note: text => { localStorage.setItem('mirror.quick-note', text); elements.quickNoteInput.value = text; dashboard.refreshNow(); showGesture(text ? 'Note saved to this mirror' : 'Note cleared'); },
+  prepareCapture: async () => {
+    if (desktopActive) await window.mirrorBridge.closeDesktop();
+    if (!closet.selectedId) throw new Error('Choose a garment before taking a look photo.');
+    setMode('ar');
+    if (tryOnView !== 'live' || liveTryOn.session) throw new Error('Use the local Live camera view to take a look photo.');
+    if (!getTrackingStatus().cameraActive && !await toggleCamera(true)) throw new Error('Turn on the camera to take a look photo.');
+    await garmentSelection;
+  },
+  captureContext: () => ({ garmentId: closet.selectedId, revision: garmentRevision, mode, clarity: garmentOverlay.cameraClarity?.mode || 'off' }),
+  captureLook: snapshot => {
+    if (mode !== 'ar' || desktopActive || snapshot.garmentId !== closet.selectedId || snapshot.revision !== garmentRevision || liveTryOn.session || tryOnView !== 'live') throw new Error('The view changed. Take another photo when your look is ready.');
+    const fit = garmentOverlay.getLiveState();
+    if (!fit.visible || fit.frameAgeMs > 400 || garmentOverlay.cameraCanvas?.style.display !== 'block') throw new Error('Hold your pose until the garment is visible, then try again.');
+    const frame = evaluateFraming(garmentOverlay.tracker.getPose(), { width: elements.video.videoWidth, height: elements.video.videoHeight }, garmentOverlay.viewport, garmentOverlay.item?.category);
+    if (!frame.ready) throw new Error(frame.message);
+    const canvas = document.createElement('canvas'), aspect = garmentOverlay.viewport.width / garmentOverlay.viewport.height;
+    canvas.width = Math.round(aspect > 1 ? 1024 : 1024 * aspect); canvas.height = Math.round(aspect > 1 ? 1024 / aspect : 1024);
+    const context = canvas.getContext('2d');
+    for (const layer of [garmentOverlay.cameraCanvas, elements.garmentCanvas, elements.arCanvas]) {
+      context.save(); context.filter = getComputedStyle(layer).filter || 'none';
+      context.drawImage(layer, 0, 0, canvas.width, canvas.height); context.restore();
+    }
+    const item = closet.items.find(item => item.id === closet.selectedId);
+    return { imageDataUrl: canvas.toDataURL('image/png'), garment: item?.name || 'My outfit', name: `My look · ${new Date().toLocaleDateString()}` };
+  }
+});
+document.querySelector('#capture-cancel').addEventListener('click', stopAssistant);
+document.querySelector('#closet-favorite').addEventListener('click', () => closet.favoriteCurrent(closet.favorites.has(closet.selectedId)));
+document.querySelector('#closet-filter').addEventListener('click', () => { closet.favoritesOnly = !closet.favoritesOnly; closet.render(); });
+for (const [selector, key, object, property] of [['#framing-toggle','mirror.framing',framing,'enabled'],['#reduced-motion-toggle','mirror.reduced-motion',magic,'reduced'],['#magic-sounds-toggle','mirror.magic-sounds',magic,'sound']]) {
+  const field = document.querySelector(selector); field.checked = object[property]; field.addEventListener('change', () => { object[property] = field.checked; localStorage.setItem(key, String(field.checked)); magic.applyPreferences(); if (property === 'reduced' || property === 'sound') magic.cancel(); });
+}
+document.querySelector('#routine-movie').value = localStorage.getItem('mirror.routine.movie') || 'youtube';
+document.querySelector('#routine-movie').addEventListener('change', event => localStorage.setItem('mirror.routine.movie', event.target.value));
+document.querySelector('#routine-music').checked = localStorage.getItem('mirror.routine.music') === 'true';
+document.querySelector('#routine-music').addEventListener('change', event => localStorage.setItem('mirror.routine.music', String(event.target.checked)));
+elements.citySelect.value = dashboard.city;
 await initialize();
 
 async function initialize() {
@@ -534,7 +595,8 @@ async function initialize() {
   else updateWakeStatus('paused');
 }
 
-window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools,
+window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic,
+  getWakeState: () => ({ enabled: wake.enabled, assistantActive: wake.assistantActive, microphoneReady: Boolean(wake.processor && wake.stream?.active), generation: wake.generation }),
   getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
 function setDepthMode(enabled, announce = true) {
@@ -551,9 +613,12 @@ setDepthMode(depthEnabled, false);
 
 function setMode(nextMode) {
   if (!['portal', 'mirror', 'ar', 'watch', 'spotify'].includes(nextMode)) return;
+  const changed = mode !== nextMode;
   if (mode === 'ar' && nextMode !== 'ar') { cancelTryOnRender(); liveTryOn.stop(); }
   if (mode === 'watch' && nextMode !== 'watch') { elements.watchVideo.pause(); youtubePlayer.pause(); }
   mode = nextMode;
+  if (experience.capturing && nextMode !== 'ar') experience.cancel();
+  if (changed) magic.cancel();
   sceneBudget.invalidate();
   elements.shell.dataset.mode = nextMode;
   document.querySelectorAll('.mode-btn').forEach((button) => button.classList.toggle('active', button.dataset.mode === nextMode));
@@ -623,6 +688,9 @@ function getMirrorState() {
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
       avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
     agent: { active: Boolean(agentRunId), provider: 'codex' },
+    lookbook: { open: experience.dialog.open, capturing: experience.capturing, draftReady: Boolean(experience.draft), saving: experience.saving, savedCount: experience.looks.length, comparison: Boolean(experience.comparing) },
+    localTimers: experience.timers.tick().map(item => ({ label: item.label, seconds: item.seconds, state: item.state })),
+    routine: { active: experience.routineActive },
     voice: { state, connecting: voiceStarting, listening: Boolean(gemini.listening || browserRecognition), hardMuted,
       wakeEnabled: elements.wakeToggle.checked, persona: avatar.persona },
     vision: { ...vision, enabled: elements.visionToggle.checked, sharedWithAssistant: sharingVision },
@@ -639,7 +707,7 @@ function getMirrorState() {
       liveFit: garmentOverlay.getLiveState(),
       renderedStillAvailable: !elements.tryOnStill.disabled,
       photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
-      closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category })) },
+      closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category, favorite: closet.favorites.has(item.id) })) },
     watch: { ...watchPlayback.snapshot(), castingEnabled, castActive: castPlayer.active },
     services: { findmy: { web: 'Apple Find Devices', peopleLocations: false, note: 'No Find My People bridge is configured; friends locations require the Find My app on an Apple device.' }, browserSignIn: 'User enters credentials directly; agent observation/input pauses on sign-in prompts.' },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }
@@ -675,8 +743,8 @@ function setState(next) {
   state = next;
   if (mode === 'watch') avatar.setVisible(desktopActive || Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(next)));
   const labels = {
-    starting: 'Awakening', connecting: 'Opening the veil', ready: config.hasGeminiKey ? 'AI ready' : 'Demo ready',
-    listening: 'Listening', thinking: 'Consulting', speaking: 'Speaking', offline: 'Demo ready', error: 'Needs attention'
+    starting: 'Awakening', connecting: 'Opening the veil', ready: config.hasGeminiKey ? 'AI ready' : 'Local ready',
+    listening: 'Listening', thinking: 'Consulting', speaking: 'Speaking', offline: 'Local ready', error: 'Needs attention'
   };
   elements.stateLabel.textContent = labels[next] || next;
   elements.stateDot.className = `state-dot${['starting', 'connecting', 'thinking', 'speaking'].includes(next) ? ' busy' : next === 'error' ? ' error' : ''}`;
@@ -701,7 +769,8 @@ async function askMirror(text) {
   const prompt = text.trim();
   if (!prompt) return;
   if (hardMuted) { showOracle('Unmute the mirror before starting an assistant task.', '', 'Hard muted'); return; }
-  appendCaption('user', prompt);
+  captionUserTurnActive = false; captionAssistantTurnActive = false;
+  appendCaption('user', prompt, { replace: true });
   if (runVoiceNavigation(prompt)) return;
   showAssistant();
   showOracle('The answer is taking shape…', prompt, 'Your question enters the glass');
@@ -744,11 +813,13 @@ async function handleWakeWord(command) {
     return;
   }
   elements.awakening.classList.add('active');
+  magic.play('wake', { muted: hardMuted });
   setState('starting');
-  await new Promise((resolve) => setTimeout(resolve, 2350));
+  await new Promise((resolve) => setTimeout(resolve, magic.reduced ? 700 : 2350));
   if (cancelled()) return;
   elements.awakening.classList.remove('active');
   showAssistant();
+  magic.play('arrival', { muted: hardMuted });
   const greeting = 'Yes, yes, your evil highness. What shall we conjure?';
   if (config.hasGeminiKey) {
     await toggleVoice();
@@ -895,6 +966,9 @@ window.addEventListener('resize', () => {
 });
 
 function stopAssistant() {
+  experience.cancel(); magic.cancel();
+  clearTimeout(queenCueTimer); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 });
+  document.querySelector('#agent-progress').hidden = true;
   cancelAgentTask();
   liveTryOn.stop();
   cancelTryOnRender();
@@ -924,6 +998,7 @@ function stopAssistant() {
 }
 
 async function setHardMute(muted) {
+  if (muted) { experience.cancel(); magic.cancel(); clearTimeout(queenCueTimer); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
   if (muted) liveTryOn.stop();
   if (muted) cancelTryOnRender();
   localCaptionsAllowed = false;
@@ -1027,6 +1102,13 @@ function updateTrackingUi() {
   elements.cameraToggle.textContent = tracking.cameraActive ? 'Camera off' : 'Camera on';
   elements.cameraNotice.textContent = tracking.error || '';
   elements.cameraNotice.hidden = !tracking.error;
+  if (elements.cameraFormat) {
+    const settings = elements.video.srcObject?.getVideoTracks?.()[0]?.getSettings?.() || {};
+    const width = settings.width || elements.video.videoWidth, height = settings.height || elements.video.videoHeight;
+    elements.cameraFormat.hidden = !tracking.cameraActive || !width || !height;
+    const format = width && height ? `Camera capture · ${width} × ${height}${Number.isFinite(settings.frameRate) ? ` · ${Math.round(settings.frameRate)} fps negotiated` : ''}. Portrait view crops the sides.` : '';
+    if (elements.cameraFormat.textContent !== format) elements.cameraFormat.textContent = format;
+  }
 }
 
 function refreshConnectionSettings() {
@@ -1631,7 +1713,7 @@ function resetIdle() {
     if (state === 'ready') elements.form.classList.add('dim');
   }, 6000);
   sleepTimer = setTimeout(() => {
-    if (agentRunId || desktopActive || state !== 'ready' || !['mirror', 'portal'].includes(mode) || gemini.listening || closet.photo.open ||
+    if (agentRunId || desktopActive || state !== 'ready' || !['mirror', 'portal'].includes(mode) || gemini.listening || closet.photo.open || experience.dialog.open || experience.capturing || experience.routineActive ||
         elements.settings.classList.contains('open') || elements.personaPanel.classList.contains('open') ||
         elements.launcherPanel.classList.contains('open')) return;
     sleeping = true;
@@ -1703,7 +1785,7 @@ function animate() {
     const viewport = viewportSize();
     applyFlatProjection(camera, viewport.width / Math.max(viewport.height, 1));
   }
-  depthScene.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
+  if (depthEnabled || sceneBudget.dirty || elements.awakening.classList.contains('active')) depthScene.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
   if (depthEnabled && elapsed - cubeContentTick > 1) {
     cubeContentTick = elapsed;
     depthScene.setCubeContent({
@@ -1719,6 +1801,8 @@ function animate() {
   avatar.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
   arOverlay.render(getFaceLandmarks(), elements.video, elapsed, mode === 'ar' && !desktopActive);
   garmentOverlay.render(performance.now());
+  framing.update({ mode, desktopActive, sleeping, liveAI: Boolean(liveTryOn.session), rendered: tryOnView !== 'live', editorOpen: closet.photo.open || experience.dialog.open });
+  updateGestureHold();
   if (sceneBudget.shouldRender({ hidden: document.hidden, sleeping, depthEnabled, awakening: elements.awakening.classList.contains('active'), mode, now: performance.now() })) renderer.render(scene, camera);
   updateRenderQuality(frameDelta);
   diagnosticsTimer += dt;
@@ -1872,6 +1956,7 @@ function spotifyEmbedUrl(url) {
 }
 
 function runVoiceNavigation(prompt) {
+  if (experience.voice(prompt)) return true;
   const clarity = prompt.toLowerCase().replace(/[.,!?]/g, ' ');
   if (/\b(?:camera clarity|enhance (?:the )?camera|brighten (?:the )?camera|natural camera|original camera)\b/.test(clarity)) {
     const preset = /\b(?:off|original|disable)\b/.test(clarity) ? 'off' : /\b(?:bright|brighten)\b/.test(clarity) ? 'bright' : 'natural';
@@ -2006,6 +2091,8 @@ async function dispatchSpotifyGesture(type) {
 }
 
 async function dispatchGesture(type) {
+  if (type === 'palm' && (experience.capturing || experience.routineActive)) { stopAssistant(); return; }
+  if (experience.gesture(type)) return;
   if (type !== 'palm' && closet.photo.gesture(type)) return;
   if (type === 'palm') {
     if (voiceStarting || gemini.listening || browserRecognition || speech.isSpeaking || ['thinking', 'speaking'].includes(state) || elements.awakening.classList.contains('active')) {
@@ -2042,10 +2129,8 @@ async function dispatchGesture(type) {
     return;
   }
   if (mode === 'ar' && closet.items.length && ['swipe-left', 'swipe-right'].includes(type)) {
-    const current = closet.items.findIndex((item) => item.id === closet.selectedId);
-    const delta = type === 'swipe-left' ? 1 : -1;
-    const item = closet.items[(Math.max(0, current) + delta + closet.items.length) % closet.items.length];
-    closet.select(item.id);
+    const item = closet.cycle(type === 'swipe-left' ? 1 : -1);
+    if (!item) return;
     showGesture(`Live fit · ${item.name}`);
     return;
   }
@@ -2075,6 +2160,31 @@ function showGesture(text) {
   elements.gestureToast.classList.add('show');
   clearTimeout(gestureToastTimer);
   gestureToastTimer = setTimeout(() => elements.gestureToast.classList.remove('show'), 1400);
+}
+
+function showAgentProgress(tool) {
+  const messages = { thinking: 'A little thought behind the glass…', see_screen: 'Looking at what is on your screen…', get_mirror_state: 'Checking your mirror…', computer_action: 'Working on the page…', search_web: 'Finding what you asked for…', open_service: 'Opening your app…', open_webpage: 'Opening the page…', wardrobe_command: 'Choosing your clothes…', request_try_on: 'Preparing your look…', set_display_mode: 'Setting the scene…', set_avatar_position: 'Making room for you…', sign_in: 'Waiting for you to sign in directly' };
+  const element = document.querySelector('#agent-progress'); element.textContent = messages[tool] || 'Conjuring your request…'; element.hidden = false;
+}
+
+function cueQueen() {
+  if (magic.reduced || !avatar.visible) return;
+  clearTimeout(queenCueTimer);
+  const pose = { turn: .16, nod: .45, lean: -.035 };
+  avatar.setPerformance(pose);
+  queenCueTimer = setTimeout(() => { if (avatar.performance === pose) avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); }, 600);
+}
+
+function updateGestureHold() {
+  const element = document.querySelector('#gesture-hold'), now = performance.now();
+  const active = gestures.enabled && !gestures.latched && now - gestures.lastSampleAt < 250 && !sleeping;
+  const start = gestures.pinchSince || gestures.openSince;
+  element.hidden = !active || !start || now - start < 70;
+  if (element.hidden) return;
+  const pinch = Boolean(gestures.pinchSince), progress = Math.min(1, (now - start) / (pinch ? 250 : 700));
+  element.style.setProperty('--hold', String(Math.round(progress * 20) / 20));
+  element.querySelector('span').textContent = pinch ? experience.dialog.open ? experience.draft ? 'Hold pinch · save look' : 'Hold pinch · take photo' : ['watch', 'spotify'].includes(mode) ? 'Hold pinch · play / pause' : 'Hold pinch · next effect'
+    : experience.capturing || experience.routineActive || agentRunId || gemini.listening || speech.isSpeaking || voiceStarting ? 'Hold palm · Stop' : experience.dialog.open ? 'Hold palm · Stop' : desktopActive ? 'Hold palm · return to mirror' : 'Hold palm · Converse';
 }
 
 function setPersona(persona, announce = true) {

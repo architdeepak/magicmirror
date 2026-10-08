@@ -1,0 +1,42 @@
+const assert = require('assert/strict'), fs = require('fs/promises'), sync = require('fs'), vm = require('vm'), os = require('os'), path = require('path');
+const read = name => sync.readFileSync(path.join(__dirname, '../src', name), 'utf8').replace(/^import .*;\n/gm, '').replaceAll('export ', '');
+const storage = () => { const values = new Map(); return { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) }; };
+(async () => {
+  const scope = vm.createContext({ console }); vm.runInContext(read('localTimers.js') + ';globalThis.Timers=LocalTimers', scope);
+  assert.equal(scope.parseMinutes('set a ten-minute timer'), 10); assert.equal(scope.parseMinutes('leaving in 20 minutes'), 20); assert.equal(scope.parseMinutes('two hours'), 120); assert.equal(scope.parseMinutes('900 minutes'), null);
+  let now = 1000, alerts = 0; const saved = storage(), timers = new scope.Timers(saved, () => alerts++, () => now);
+  timers.add(1, 'Leaving'); now += 30000; assert.equal(timers.tick()[0].seconds, 30);
+  now += 45000; timers.tick(); timers.tick(); assert.equal(alerts, 1, 'Expiry repeated');
+  const restored = new scope.Timers(saved, () => alerts++, () => now); restored.tick(); assert.equal(alerts, 1, 'Reload repeated an expired timer');
+  restored.clear(true); for (let i = 0; i < 4; i++) restored.add(1); assert.throws(() => restored.add(1), /Four/); assert.throws(() => restored.add(NaN), /Choose/);
+  vm.runInContext(read('garmentGeometry.js') + read('framingGuide.js'), scope);
+  const pose = Array.from({ length: 33 }, () => ({ x: .5, y: .5, visibility: 1 }));
+  for (const [i, x, y] of [[11,.7,.3],[12,.3,.3],[23,.65,.65],[24,.35,.65]]) Object.assign(pose[i], { x, y });
+  const video = { width: 540, height: 960 }, view = { width: 540, height: 960 };
+  assert(scope.evaluateFraming(pose, video, view).ready);
+  pose[11].visibility = .1; assert.equal(scope.evaluateFraming(pose, video, view).reason, 'missing'); pose[11].visibility = 1;
+  pose[11].x = .99; assert.equal(scope.evaluateFraming(pose, video, view).reason, 'center'); pose[11].x = .7;
+  pose[23].y = .99; assert.equal(scope.evaluateFraming(pose, video, view).reason, 'close'); pose[23].y = .65;
+  assert(!scope.evaluateFraming(pose, { width: 1920, height: 1080 }, view).ready, 'Landscape portrait crop ignored');
+  const closetScope = vm.createContext({ localStorage: storage(), WardrobePhoto: class { voice() { return false; } }, document: { querySelector: () => null } });
+  vm.runInContext(read('garmentMatch.js') + read('closetStore.js') + ';globalThis.Closet=ClosetStore', closetScope);
+  const closet = new closetScope.Closet({ container: null }); closet.items = [{ id: 'a', name: 'Blue jacket' }, { id: 'b', name: 'Red dress' }]; closet.select('a'); closet.favoriteCurrent();
+  closet.voice('show my favorites'); assert.equal(closet.visibleItems().length, 1); closet.cycle(); assert.equal(closet.selectedId, 'a');
+  assert(closet.voice('try my red dress')); assert.equal(closet.selectedId, 'b'); assert.equal(closet.favoritesOnly, false);
+  closet.favoriteCurrent(); closet.favoriteCurrent(true); assert(!closet.favorites.has('b'));
+  const { LookbookStore } = require('../src/lookbookStore.cjs');
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'mirror-looks-unit-'));
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jGZkAAAAASUVORK5CYII=';
+  try {
+    const store = new LookbookStore(directory, bytes => bytes);
+    const items = await Promise.all([store.save({ imageDataUrl: png, garment: 'Blue jacket' }), store.save({ imageDataUrl: png, garment: 'Red dress' })]);
+    assert.equal((await store.list()).length, 2); assert.notEqual(items[0].id, items[1].id);
+    assert((await store.update(items[0].id, 'favorite'))[0].favorite);
+    await assert.rejects(store.update('../outside', 'delete'), /Choose/);
+    await assert.rejects(store.save({ imageDataUrl: 'data:image/png;base64,aaaa' }), /PNG/);
+    const controller = new AbortController(); controller.abort(); await assert.rejects(store.save({ imageDataUrl: png }, controller.signal)); assert.equal((await store.list()).length, 2);
+    await store.update(items[0].id, 'delete'); await assert.rejects(fs.stat(path.join(directory, items[0].id + '.png')), /ENOENT/);
+    await fs.writeFile(path.join(directory, 'index.json'), '{broken'); await assert.rejects(store.save({ imageDataUrl: png }), /could not be read/);
+  } finally { await fs.rm(directory, { recursive: true, force: true }); }
+  console.log('Experience: absolute timers/reload/expiry/caps, framing/crop/missing pose, favorite recall/filter, lookbook concurrency/native validation/path bounds/cancellation/deletion/corruption passed.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

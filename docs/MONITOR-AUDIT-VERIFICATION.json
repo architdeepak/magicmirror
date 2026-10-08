@@ -11,17 +11,42 @@
     }
   },
   "newAuditBuildRun": {
-    "status": "monitoring",
-    "pid": 2241195,
-    "startedAt": "2026-10-08T16-25-22-326Z",
-    "plannedDurationSec": 7200,
-    "sampleCountAtSnapshot": 21,
-    "errorsAtSnapshot": [],
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 2327,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-08T18:25:27.717Z",
+      "elapsedSec": 7201.022,
+      "cpuPercent": 29.54808806488992,
+      "summedRssBytes": 492883968,
+      "processCount": 5,
+      "rendererHeapBytes": 12844864,
+      "gpu": {
+        "deviceWide": "38.20, 96, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "power": {
+        "targetFps": 12,
+        "frames": 104780,
+        "scene": {
+          "frames": 128,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      },
+      "eventLoopLagMs": 0.5,
+      "cameraActive": false,
+      "hardMuted": true
+    },
+    "appExit": null,
     "build": {
       "archiveSha256": "a45aa5d5cc281fa8c7f86c1e382fbfe8ef1ae94b3b6b33daeb65ac25fbdcd750",
       "gitRevision": "5d479abc8410097fdd34c10b494027dc6e6d3908",
       "isolatedCopy": true
     }
   },
-  "limits": "Muted, camera-off, software rendering. No live accounts or sensor inputs. The new run is ongoing; its final outcome is not established."
+  "limits": "Muted, camera-off, software rendering. No live accounts or sensor inputs. This completed two-hour run tests revision 5d479ab and predates the magic-experience implementation."
 }

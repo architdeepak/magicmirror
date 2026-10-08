@@ -1,5 +1,6 @@
 import { WardrobePhoto } from "./wardrobePhoto.js";
 import { starterWardrobe } from "./starterWardrobe.js";
+import { matchGarment } from './garmentMatch.js';
 // Renderer-side closet view. Live fit remains local; a still-image provider
 // receives only an explicit consented request built by the renderer.
 export class ClosetStore {
@@ -9,6 +10,8 @@ export class ClosetStore {
     this.onSelect = onSelect || (() => {});
     this.onNotice = onNotice || (() => {});
     this.items = [];
+    try { this.favorites = new Set(JSON.parse(localStorage.getItem('mirror.closet.favorites') || '[]').filter(id => typeof id === 'string').slice(0, 500)); } catch { this.favorites = new Set(); }
+    this.favoritesOnly = false;
     this.photo = new WardrobePhoto({ video, onStopVoice, ensureCamera, suggestName: category => this.nextPhotoName(category), onSave: input => this.savePhoto(input), onNotice: this.onNotice });
     this.selectedId = localStorage.getItem('mirror.closet.selected') || '';
     this.importButton?.addEventListener('click', () => this.importGarment());
@@ -44,14 +47,27 @@ export class ClosetStore {
   }
 
   cycle(delta = 1) {
-    if (!this.items.length) return null;
-    const index = this.items.findIndex(item => item.id === this.selectedId);
-    return this.select(this.items[(Math.max(0, index) + delta + this.items.length) % this.items.length].id);
+    const items = this.visibleItems();
+    if (!items.length) { this.onNotice('No favorite garments yet. Select a garment and say “favorite this”.'); return null; }
+    const index = items.findIndex(item => item.id === this.selectedId);
+    return this.select(items[(index < 0 ? 0 : index + delta + items.length) % items.length].id);
+  }
+
+  visibleItems() { return this.favoritesOnly ? this.items.filter(item => this.favorites.has(item.id)) : this.items; }
+  favoriteCurrent(remove = false) {
+    const item = this.items.find(item => item.id === this.selectedId);
+    if (!item) { this.onNotice('Choose a garment to favorite.'); return; }
+    if (remove) this.favorites.delete(item.id); else this.favorites.add(item.id);
+    localStorage.setItem('mirror.closet.favorites', JSON.stringify([...this.favorites])); this.render();
+    this.onNotice(`${item.name} ${remove ? 'removed from favorites' : 'saved to favorites'}`);
   }
 
   voice(command) {
     const text = String(command).trim().toLowerCase().replace(/[.!?]+$/, '');
     if (this.photo.voice(command.trim().replace(/[.!?]+$/, ''))) return true;
+    if (/^(?:favorite|favourite|pin) (?:this|it|this garment)$/.test(text)) { this.favoriteCurrent(); return true; }
+    if (/^(?:unfavorite|unfavourite|unpin|remove from favorites)(?: this| it)?$/.test(text)) { this.favoriteCurrent(true); return true; }
+    if (/^(?:show|open) (?:my )?(?:favorites|favourites|all clothes|all garments|wardrobe)$/.test(text)) { this.favoritesOnly = /favou?rites/.test(text); this.render(); return true; }
     if (/^(?:add|scan|upload)(?: a| my| new)? (?:garment|clothes|clothing|photo)$/.test(text)) { this.importGarment(); return true; }
     if (/^(?:next|previous)(?: garment|outfit|clothes|style)$/.test(text)) { this.cycle(text.startsWith('previous') ? -1 : 1); return true; }
     const color = text.match(/^(?:make it|change (?:the )?color to) (black|white|blue|red|green|purple)$/);
@@ -59,11 +75,17 @@ export class ClosetStore {
     const current = this.items.find(item => item.id === this.selectedId);
     if (color || style) {
       if (color && !current?.starter) { this.onNotice('Color changes apply to starter clothes. Your garment photo keeps its original colors.'); return true; }
-      const selectedStyle = style ? style[1].replace('t shirt', 't-shirt') : current.style;
+      const selectedStyle = style ? style[1].replace('t shirt', 't-shirt') : current?.style;
       const selectedColor = color ? color[1] : current?.color || 'blue';
       const item = this.items.find(item => item.starter && item.style === selectedStyle && item.color === selectedColor);
       if (item) this.select(item.id);
       return true;
+    }
+    const recall = text.match(/^(?:try(?: on)?|wear|put on) (.+)$/);
+    if (recall) {
+      const { item, choices } = matchGarment(this.items, recall[1]);
+      if (item) { this.select(item.id); return true; }
+      if (choices.length) { this.onNotice(`Which garment: ${choices.slice(0, 3).map(item => item.name).join(', ')}?`); return true; }
     }
     return false;
   }
@@ -72,6 +94,7 @@ export class ClosetStore {
     const item = this.items.find((candidate) => candidate.id === id);
     if (!item) return null;
     this.selectedId = item.id;
+    if (this.favoritesOnly && !this.favorites.has(id)) this.favoritesOnly = false;
     localStorage.setItem('mirror.closet.selected', item.id);
     this.render();
     this.onSelect(item);
@@ -84,11 +107,14 @@ export class ClosetStore {
       this.container.innerHTML = '<div class="closet-empty">Your closet is local and empty. Add a front-facing garment PNG, JPG, or WebP to begin.</div>';
       return;
     }
-    this.container.innerHTML = this.items.map((item) => `
+    const visible = this.visibleItems();
+    document.querySelector('#closet-favorite')?.setAttribute('aria-pressed', String(this.favorites.has(this.selectedId)));
+    document.querySelector('#closet-filter')?.setAttribute('aria-pressed', String(this.favoritesOnly));
+    this.container.innerHTML = visible.length ? visible.map((item) => `
       <button class="closet-item${item.id === this.selectedId ? ' selected' : ''}" type="button" data-closet-id="${escapeAttribute(item.id)}">
         <img src="${escapeAttribute(item.imageUrl)}" alt="${escapeAttribute(item.name)}">
-        <span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.category)} · ${item.backImageUrl ? 'front + back · ' : ''}local</small></span>
-      </button>`).join('');
+        <span><b>${this.favorites.has(item.id) ? '★ ' : ''}${escapeHtml(item.name)}</b><small>${escapeHtml(item.category)} · ${item.backImageUrl ? 'front + back · ' : ''}local</small></span>
+      </button>`).join('') : '<div class="closet-empty">Favorite a garment to keep it close at hand.</div>';
     this.container.querySelector('.selected')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     this.container.querySelectorAll('[data-closet-id]').forEach((button) => button.addEventListener('click', () => {
       this.select(button.dataset.closetId);

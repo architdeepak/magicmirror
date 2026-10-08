@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createFirePlane } from './fireShader.js';
 
 export function createDepthScene(scene) {
+  let avatarSourceRevision = null;
   const root = new THREE.Group();
   root.name = 'depth-room';
   scene.add(root);
@@ -132,6 +133,7 @@ export function createDepthScene(scene) {
       avatarAnchor = { center: { x: 0, y: -.26 }, left: { x: -.95, y: -.26 }, right: { x: .95, y: -.26 }, upper: { x: 0, y: .72 }, lower: { x: 0, y: -1.2 } }[position] || { x: 0, y: -.26 };
     },
     setAvatarCanvas(canvas) {
+      avatarSourceRevision = null;
       avatarSource = canvas || null;
       if (!avatarSource) { avatarPlane.visible = false; return; }
       // Copy into a fixed-size staging surface. Uploading a resizing DOM canvas
@@ -153,10 +155,12 @@ export function createDepthScene(scene) {
       avatarPlane.position.y = avatarAnchor.y - head.y * .025;
       avatarPlane.rotation.y = head.x * .055;
       avatarPlane.rotation.x = -head.y * .025;
-      if (depthEnabled && avatarPlane.visible && avatarSource?.width && avatarStageContext && avatarTexture) {
+      if (depthEnabled && avatarPlane.visible && avatarSource?.width && avatarStageContext && avatarTexture
+        && (avatarSource._mirrorRevision == null || avatarSource._mirrorRevision !== avatarSourceRevision)) {
         avatarStageContext.clearRect(0, 0, 1024, 1024);
         avatarStageContext.drawImage(avatarSource, 0, 0, 1024, 1024);
         avatarTexture.needsUpdate = true;
+        avatarSourceRevision = avatarSource._mirrorRevision;
       }
       halo.rotation.z = elapsed * 0.035;
       innerHalo.rotation.z = -elapsed * 0.025;

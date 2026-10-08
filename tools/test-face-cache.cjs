@@ -1,0 +1,13 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+let clears=0,images=0;
+const ctx=new Proxy({clearRect(){clears++},drawImage(){images++}}, {get:(target,key)=>target[key]||(()=>{}),set:(target,key,value)=>{target[key]=value;return true}});
+const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/faceHost.js','utf8').replace('export class','class')+';globalThis.Host=FaceHost',scope);
+const host=Object.create(scope.Host.prototype);Object.assign(host,{ctx,canvas:{},width:200,height:200,ready:true,personality:'velora',persona:'velora',image:{},speech:0,blendshapes:{},gaze:{x:0,y:0,confidence:0},viewer:{x:0,y:0},performance:{turn:0,nod:0,lean:0},performanceSmooth:{turn:0,nod:0,lean:0},poseBlend:{AA:0,O:0},viseme:'rest',drawCount:0,lastIdleSignature:null});
+host.draw(0);for(let i=0;i<100;i++)host.draw(i/30);assert.equal(images,1,'Resting head repainted identical pixels');assert.equal(clears,1);
+host.setFace({eyeBlinkLeft:1},host.gaze,0,host.viewer);host.draw(4);assert.equal(images,2,'Blink did not invalidate');host.setFace({},host.gaze,0,host.viewer);host.draw(5);
+host.setViseme('AA');host.setFace({},host.gaze,.7,host.viewer);const beforeSpeech=images;for(let i=0;i<10;i++)host.draw(6+i/30);assert(images>beforeSpeech+5,'Speaking head stopped painting');
+host.setViseme('rest');host.setFace({},host.gaze,0,host.viewer);for(let i=0;i<160;i++)host.draw(7+i/30);const settled=images;for(let i=0;i<100;i++)host.draw(12+i/30);assert.equal(images,settled,'Speech tail did not settle to cached rest');
+host.setPerformance({turn:.4,nod:.2,lean:.1});host.draw(16);assert(images>settled,'Performance did not invalidate');
+host.ready=false;host.draw(17);const blank=clears;host.draw(18);assert.equal(clears,blank,'Unloaded head repeatedly cleared');assert.equal(host.canvas._mirrorRevision,host.drawCount);
+host.ready=true;host.lastIdleSignature=null;host.draw(19);assert(images>settled);
+console.log('Face raster cache: idle reuse, blink/speech/performance invalidation, settling, loading clear-once and revision tracking passed.');

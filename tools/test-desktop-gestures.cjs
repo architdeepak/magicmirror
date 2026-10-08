@@ -45,7 +45,7 @@ const renderer = fs.readFileSync(path.join(__dirname,'../src/renderer.js'),'utf8
   assert.equal(JSON.parse(Buffer.from(invocation[2].env.MIRROR_DESKTOP_INPUT,'base64').toString('utf8')).op,'gesture_scroll');
 
   const actions=[],notices=[];let refreshes=0,reads=0,stops=0,returns=0;
-  const routing=vm.createContext({closet:{photo:{gesture:()=>false}},desktopActive:true,desktopKind:'native',desktopLabel:'Spotify',mode:'mirror',spotifySnapshot:{isPlaying:false},voiceStarting:false,gemini:{listening:false},browserRecognition:null,speech:{isSpeaking:false},state:'ready',
+  const routing=vm.createContext({experience:{capturing:false,routineActive:false,gesture:()=>false},closet:{photo:{gesture:()=>false}},desktopActive:true,desktopKind:'native',desktopLabel:'Spotify',mode:'mirror',spotifySnapshot:{isPlaying:false},voiceStarting:false,gemini:{listening:false},browserRecognition:null,speech:{isSpeaking:false},state:'ready',
     elements:{awakening:{classList:{contains:()=>false}}},window:{mirrorBridge:{spotifyCurrent:async()=>{reads++;return{connected:true,isPlaying:true}},spotifyControl:async action=>actions.push(action),scrollDesktopGesture:async direction=>{actions.push(direction);return{result:'Scroll requested'}},closeDesktop:async()=>returns++}},
     refreshSpotify:async()=>{refreshes++;routing.spotifySnapshot={isPlaying:true}},showGesture:message=>notices.push(message),stopAssistant:()=>stops++});
   vm.runInContext(renderer.slice(renderer.indexOf('async function dispatchSpotifyGesture('),renderer.indexOf("  if (mode === 'watch'",renderer.indexOf('async function dispatchGesture(')))+'}',routing);

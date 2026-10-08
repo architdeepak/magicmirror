@@ -1,5 +1,7 @@
 # Local AR wardrobe progress — 2026-10-07
 
+2026-10-08 experience update: [framing, theatrical reveal, local lookbook, favorites, routines, notes and timers](MAGIC-EXPERIENCE-2026-10-08.md) are implemented and exercised locally. Physical inputs, Windows Spotify/runtime, moving cloth realism and Apple People remain unfinished.
+
 ## Camera and photo clarity — 2026-10-08
 
 Local camera clarity and reversible photo touch-up are implemented, with Original/Natural/Bright options and voice commands. The photo editor retains originals and separate front/back presets. Starter vectors rasterize at twice the resolution, and clothing/head sampling remains sharp after resizing. See [implementation and audit](CAMERA-CLARITY-2026-10-08.md) and [verification](CAMERA-CLARITY-VERIFICATION.json). These changes improve rendering; moving fabric drape and photorealistic 3D avatars remain unfinished.

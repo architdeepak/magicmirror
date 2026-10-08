@@ -7,6 +7,8 @@ vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('expor
   let captures = 0, actions = [], resolveCapture;
   const adapter = { onMirrorState: () => ({ display: { mode: 'ar' } }), onCaptureScreen: async () => ({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: `s${++captures}`, width: 540, height: 960, url: 'https://example.org/' }), onComputerAction: async args => { actions.push(args); return { result: 'delivered' }; }, onWardrobe: async args => ({ command: args.command }), onOpenService: async service => ({ service }) };
   const tools = new context.MirrorAgentTools(adapter);
+  adapter.onMirrorCommand = async command => ({ command });
+  assert.equal((await tools.execute('mirror_command', {command:'set a timer for ten minutes'})).command,'set a timer for ten minutes');
   await assert.rejects(tools.execute('computer_action', { action: 'click', snapshotId: 'invented', x: 500, y: 500 }), /Observe/);
   const observation = await tools.execute('see_screen');
   assert(observation.imageUrl); assert(!observation.observation.dataUrl);

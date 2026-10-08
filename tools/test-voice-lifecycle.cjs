@@ -249,7 +249,7 @@ async function cameraFrames() {
 }
 async function awakeningCancellation() {
   const source=read('renderer.js');const timers=[];let opened=0;
-  const active=new Set();const context=vm.createContext({
+  const active=new Set();const context=vm.createContext({magic:{play(){},cancel(){}},
     agentRunId:null,hardMuted:false,voiceStartGeneration:0,wake:{pause(){},setAssistantActive(){},resume(){}},wakeFromSleep:async()=>{},
     elements:{wakeToggle:{checked:true},awakening:{classList:{add:x=>active.add(x),remove:x=>active.delete(x)}}},
     config:{hasGeminiKey:false},setState(next){this.state=next;},appendCaption(){},showAssistant(){},showOracle(){},avatar:{persona:'velora'},

@@ -81,6 +81,17 @@ const root=path.resolve(__dirname,'..');const delay=ms=>new Promise(resolve=>set
     await until(()=>client.evaluate('__fixture.samples>24000&&/highness/i.test(document.querySelector("#caption-assistant span").textContent)'),30000,'Real live greeting');
     await until(()=>client.evaluate('document.querySelector("#state-label").textContent==="Listening"'),20000,'Greeting complete');
     console.log('Journey greeting: live PCM and streamed assistant captions received');
+    let localCommandAudit=null;
+    if(process.env.MIRROR_AUDIT_LOCAL_COMMANDS==='true'){
+      const commandSamples=await client.evaluate('__fixture.samples');
+      await client.evaluate("__mirrorDebug.gemini.askText('Please set a timer for ten minutes using the local mirror command tool.')");
+      await until(()=>client.evaluate('__mirrorDebug.experience.timers.items.length===1'),30000,'Real Live local timer tool');
+      await until(()=>client.evaluate('__fixture.samples>'+commandSamples+'+6000&&document.querySelector(\"#state-label\").textContent===\"Listening\"'),30000,'Timer voice response complete');
+      localCommandAudit=await client.evaluate('({scope:\"Real Gemini Live text request invoking production mirror_command and replying with live audio; new command acoustic recognition not tested\",timer:__mirrorDebug.experience.timers.tick()[0],badgeVisible:!document.querySelector(\"#local-timer-badge\").hidden})');
+      assert(localCommandAudit.badgeVisible&&localCommandAudit.timer.seconds>550&&localCommandAudit.timer.seconds<=600);
+      await client.evaluate('__mirrorDebug.experience.timers.clear(true);__mirrorDebug.experience.tick()');
+      console.log('Real local timer tool passed');
+    }
     await client.evaluate(`(()=>{const toggle=document.querySelector('#wake-toggle');toggle.checked=false;toggle.dispatchEvent(new Event('change'))})()`);
     const before=await client.evaluate('__fixture.samples');const storyInputAt=Date.now();
     await client.evaluate(`__fixture.play(${JSON.stringify(fixtures.story)})`);
@@ -108,7 +119,8 @@ const root=path.resolve(__dirname,'..');const delay=ms=>new Promise(resolve=>set
     assert.equal(await client.evaluate('document.querySelector("#mic-label").textContent'),'LISTEN','Ordinary speech restarted a stopped assistant');
     assert.equal(await client.evaluate('__fixture.samples'),stopped.samples);
     await client.evaluate(`(()=>{const toggle=document.querySelector('#wake-toggle');toggle.checked=true;toggle.dispatchEvent(new Event('change'))})()`);
-    await until(()=>client.evaluate('document.querySelector("#wake-status").textContent.includes("mirror mirror")'),10000,'Standby wake rearmed');
+    await until(()=>client.evaluate('document.querySelector("#wake-status").textContent.includes("mirror mirror")&&__mirrorDebug.getWakeState().microphoneReady&&!__mirrorDebug.getWakeState().assistantActive'),10000,'Standby wake rearmed');
+    console.log('Rearmed wake state:',await client.evaluate('__mirrorDebug.getWakeState()'));
     const resumedAt=await client.evaluate('performance.now()');await client.evaluate(`__fixture.play(${JSON.stringify(fixtures.wake)})`);
     await until(()=>client.evaluate('__fixture.events.some(event=>event.at>'+resumedAt+'&&event.reveal)'),15000,'Second spoken wake');
     await until(()=>client.evaluate('__fixture.samples>'+stopped.samples+'+24000&&__fixture.meters.slice(-8).some(sample=>sample.rms>.005)'),30000,'Resumed live speech');
@@ -127,8 +139,9 @@ const root=path.resolve(__dirname,'..');const delay=ms=>new Promise(resolve=>set
     const staleObservation=await client.evaluate(`(async()=>{try{await window.mirrorBridge.desktopAction({action:'click',snapshotId:${JSON.stringify(observation.snapshotId)},x:1,y:1});return ''}catch(error){return error.message}})()`);
     assert.match(staleObservation,/missing, expired, or already used/,'Microphone loss left desktop observation authorized');
     const evidence={runtime:'actual packaged app',input:'synthetic WAV through MediaStream',greeting:'real Gemini Live '+configuredVoice,conversation:'real microphone transcription and response',reveal:'passed',captionRows:2,speakerColors:'distinct',heardCaptionLatencyMs,interimHeardCaptions:interimTexts,correctedHeardCaption,stopWithStandbyWakeDisabled:'passed',stopLatencyMs:stopEvent.at-spokenStopAt,localStopResponseMs:stopEvent.at-stopped.localStopAt,outputPeakRms:activeRms,stoppedOutputPeakRms:Math.max(...stopped.meters.map(sample=>sample.rms)),stopGate:'ordinary speech ignored; wake phrase restored live speech',hardMute:'active playback silenced; no live microphone tracks; wake ignored',events:stopped.events};
+    evidence.localCommandAudit=localCommandAudit;
     evidence.microphoneLoss='synthetic ended event: stopped controls and invalidated desktop observation';
     await fs.writeFile(path.join(directory,'result.json'),JSON.stringify(evidence,null,2)+'\n');console.log('Full voice journey passed:',JSON.stringify({...evidence,events:undefined}));
-  }catch(error){console.error('Microphone frame evidence:',JSON.stringify({frames:microphoneFrames.length,endMarkers:endMarkers.length,peakRms:Math.max(0,...microphoneFrames.map(frame=>frame.rms)),nonSilent:microphoneFrames.filter(frame=>frame.rms>.003).length}));if(client&&!exit)console.error('Journey state:',await client.evaluate('JSON.stringify(window.__fixture?.snapshot?.()||{wake:document.querySelector("#wake-status")?.textContent})').catch(()=> 'unavailable'));throw error}
+  }catch(error){console.error('Microphone frame evidence:',JSON.stringify({frames:microphoneFrames.length,endMarkers:endMarkers.length,peakRms:Math.max(0,...microphoneFrames.map(frame=>frame.rms)),nonSilent:microphoneFrames.filter(frame=>frame.rms>.003).length}));if(client&&!exit)console.error('Journey state:',await client.evaluate('JSON.stringify({snapshot:window.__fixture?.snapshot?.(),wake:window.__mirrorDebug?.getWakeState?.(),label:document.querySelector("#wake-status")?.textContent})').catch(()=> 'unavailable'));throw error}
   finally{if(client&&!exit)await client.call('Browser.close').catch(()=>{});client?.close();if(!exit)child.kill('SIGTERM');const deadline=Date.now()+5000;while(!exit&&Date.now()<deadline)await delay(50);if(!exit){child.kill('SIGKILL');await delay(100)}await fs.rm(temporary,{recursive:true,force:true})}
 })().catch(error=>{console.error(error);process.exitCode=1});

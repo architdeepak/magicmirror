@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, session, shell, dialog, nativeImage, safeStorage, desktopCapturer, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, session, shell, dialog, nativeImage, safeStorage, desktopCapturer, screen, powerMonitor } = require('electron');
 const { assertBrowserAccountReady } = require('./browserAccountBoundary.cjs');
 const { wardrobePhotoBytes } = require('./wardrobePhotoValidation.cjs');
+const { LookbookStore } = require('./lookbookStore.cjs');
 const {createWakeModelServer}=require('./wakeModelServer.cjs');
 let wakeModelServer;
 const path = require('path');
@@ -52,6 +53,13 @@ const { LiveTryOnTokens, DESTINATION: liveTryOnDestinationId } = require('./live
 const decartApiKey = () => integrationSettings.value('decartApiKey', process.env.DECART_API_KEY || '');
 const liveTryOnTokens = new LiveTryOnTokens({ key: decartApiKey });
 const spotifyTokenPath = () => path.join(app.getPath('userData'), 'spotify-tokens.bin');
+const lookCaptures = new TryOnRequests();
+const lookbook = new LookbookStore(path.join(writableDataDirectory, 'lookbook'), bytes => {
+  const image = nativeImage.createFromBuffer(bytes);
+  if (image.isEmpty()) throw new Error('Invalid look photo.');
+  return image.toPNG();
+});
+
 const serviceUrls = Object.freeze({
   youtube: 'https://www.youtube.com/',
   netflix: 'https://www.netflix.com/',
@@ -1229,6 +1237,10 @@ function registerBridge() {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use the mirror Try On controls.');
   };
   ipcMain.handle('mirror:queue-tryon', (event, input) => { assertTryOnFrame(event); return queueTryOn(input); });
+  ipcMain.handle('mirror:list-looks', event => { assertTryOnFrame(event); return lookbook.list(); });
+  ipcMain.handle('mirror:save-look', (event, input) => { assertTryOnFrame(event); return lookCaptures.run(input?.requestId, signal => lookbook.save(input, signal)); });
+  ipcMain.handle('mirror:update-look', (event, input) => { assertTryOnFrame(event); return lookbook.update(input?.id, input?.action); });
+  ipcMain.handle('mirror:cancel-look', event => { assertTryOnFrame(event); lookCaptures.cancelAll(); return true; });
   ipcMain.handle('mirror:cancel-tryon', (event, id) => { assertTryOnFrame(event); return tryOnRequests.cancel(id); });
   ipcMain.handle('mirror:live-tryon-token', (event, input) => { assertTryOnFrame(event); return liveTryOnTokens.create(input); });
   ipcMain.handle('mirror:cancel-live-tryon-token', event => { assertTryOnFrame(event); liveTryOnTokens.cancel(); });
@@ -1386,6 +1398,7 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   if (!ownsInstanceLock) return;
+  powerMonitor.on('resume', () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:system-resume'); });
   await integrationSettings.load();
   registerBridge();
   await loadSpotifyTokens();

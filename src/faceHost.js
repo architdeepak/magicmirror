@@ -41,12 +41,14 @@ export class FaceHost {
     this.blendshapes = {};
     this.gaze = { x: 0, y: 0, confidence: 0 };
     this.viewer = { x: 0, y: 0 };
+    this.lastIdleSignature = null; this.drawCount = 0;
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.setPersona(this.persona);
   }
 
   setPersona(persona) {
+    this.lastIdleSignature = null;
     this.persona = HEADS[persona] ? persona : 'velora';
     this.ready = false;
     this.image = new Image();
@@ -96,6 +98,7 @@ export class FaceHost {
   }
 
   resize() {
+    this.lastIdleSignature = null;
     // The source art is ~1.2K; retain it for close viewing on the TV while
     // keeping the host canvas bounded on high-density desktop previews.
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -118,8 +121,22 @@ export class FaceHost {
   draw(elapsed) {
     const { ctx, width: w, height: h } = this;
     if (!ctx || !w || !h) return;
+    if (!this.ready) {
+      if (this.lastIdleSignature !== 'loading') { ctx.clearRect(0, 0, w, h); this.canvas._mirrorRevision = ++this.drawCount; this.lastIdleSignature = 'loading'; }
+      return;
+    }
+    // The poised resting performer has no idle bounce. Repainting identical
+    // pixels forces costly full-window composition on software graphics.
+    const settled = this.speech < .001 && (this.blendshapes.jawOpen || 0) < .01 && this.poseBlend.AA < .001 && this.poseBlend.O < .001
+      && ['turn','nod','lean'].every(key => Math.abs(this.performanceSmooth[key] - this.performance[key]) < .0005);
+    const stable = value => Number.isFinite(value) ? Number(value.toFixed(4)) : 0;
+    const signature = settled ? [this.persona, w, h, this.speakingReady, this.roundedReady, this.viseme,
+      ...Object.entries(this.blendshapes).flatMap(([key,value]) => [key, typeof value === 'number' ? Math.abs(value) < .001 ? 0 : stable(value) : value]), stable(this.gaze.x), stable(this.gaze.y), stable(this.gaze.confidence), stable(this.viewer.x), stable(this.viewer.y),
+      ...Object.values(this.performanceSmooth).map(value => value.toFixed(4))].join(':') : null;
+    if (settled && signature === this.lastIdleSignature) return;
+    this.lastIdleSignature = signature;
     ctx.clearRect(0, 0, w, h);
-    if (!this.ready) return;
+    this.canvas._mirrorRevision = ++this.drawCount;
     const base = Math.min(w, h) * 1.03;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.

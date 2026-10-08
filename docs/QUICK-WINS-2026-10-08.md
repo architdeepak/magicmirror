@@ -1,6 +1,6 @@
 # Mirror quick wins: product and implementation review
 
-These are proposals, not implemented features. Reviewed against the current local AR branch on 2026-10-08. Prioritize additions that improve getting ready, work at TV distance, reuse existing controls and avoid another continuously running model.
+Implementation update: all ten quick wins below now have a local implementation. See [the magic experience implementation and audit](MAGIC-EXPERIENCE-2026-10-08.md) for current behavior, test evidence and remaining limits. The original review below explains the choices; findings describe the pre-implementation state.
 
 ## Recommended order
 
@@ -66,4 +66,4 @@ Photorealistic moving fabric, complete side/back geometry, genuine 3D speaking a
 4. Add visible gesture hold progress and body framing guidance.
 5. Combine these into one “Getting ready” routine after individual actions work.
 
-This review changed documentation only. No new implementation or tests were run for these proposals.
+The initial review changed documentation only. The subsequent implementation and tests are recorded in [MAGIC-EXPERIENCE-2026-10-08.md](MAGIC-EXPERIENCE-2026-10-08.md).

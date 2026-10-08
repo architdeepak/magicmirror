@@ -1,0 +1,24 @@
+const assert = require('assert/strict'), fs = require('fs'), vm = require('vm');
+const nodes = new Map();
+const container = { querySelector(selector) { if (!nodes.has(selector)) nodes.set(selector, { textContent: '', setAttribute() {} }); return nodes.get(selector); } };
+const intervals = [], storage = new Map([['mirror.weather-city','Tokyo']]);
+const now = Date.now() / 1000;
+const valid = (temp = 55, chance = 70) => ({ current: { temperature_2m: temp, weather_code: 0 }, hourly: { time: [now, now + 3600], apparent_temperature: [temp - 2, temp], precipitation_probability: [chance, chance - 10] } });
+const scope = vm.createContext({ console: { warn() {} }, Date, AbortController, setTimeout, clearTimeout, setInterval: (_fn, ms) => { intervals.push(ms); return ms; }, clearInterval() {}, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document: { hidden: false, addEventListener() {} }, window: { addEventListener() {} }, fetch: async () => ({ ok: true, json: async () => valid() }) });
+vm.runInContext(fs.readFileSync('src/magicMirrorView.js','utf8').replace('export class','class') + ';globalThis.View=MagicMirrorView', scope);
+(async () => {
+  const view = new scope.View(container); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(view.city, 'Tokyo'); assert(intervals.includes(900000), 'Periodic weather refresh missing');
+  assert(container.querySelector('#weather-advice').textContent.includes('umbrella'));
+  scope.fetch = async () => ({ ok: true, json: async () => ({ current: { temperature_2m: null, weather_code: 0 } }) });
+  await view.fetchWeather(); assert(!container.querySelector('#weather-temp').textContent.includes('NaN')); assert(container.querySelector('#weather-age').textContent.includes('stale'));
+  let first; scope.fetch = () => new Promise(resolve => first = resolve);
+  const pending = view.setCity('London');
+  scope.fetch = async () => ({ ok: true, json: async () => valid(80, 5) }); await view.setCity('Paris');
+  first({ ok: true, json: async () => valid(10, 100) }); await pending;
+  assert.equal(container.querySelector('#weather-temp').textContent, '80°', 'Old city response replaced new city');
+  assert.equal(storage.get('mirror.weather-city'),'Paris'); assert.equal(container.querySelector('#weather-city').textContent,'PARIS');
+  scope.fetch = async () => { throw new Error('Offline'); }; await view.setCity('New York');
+  assert.equal(container.querySelector('#weather-temp').textContent,'--°'); assert(container.querySelector('#weather-advice').textContent.includes('unavailable'));
+  console.log('Weather: hourly advice, persisted city, periodic refresh, malformed data, honest stale state, city response ownership and offline new-city clearing passed.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

@@ -571,6 +571,7 @@
       .weather-icon, .mirror-weather strong { font-size: 28px; }
     }
   </style>
+  <link rel="stylesheet" href="experience.css">
 </head>
 <body>
   <main id="app-shell" data-mode="mirror" data-glass-profile="glass">
@@ -581,6 +582,11 @@
     <canvas id="scene-canvas"></canvas>
     <img id="tryon-overlay" alt="Rendered try-on look" aria-hidden="true">
     <div class="noise"></div><div class="scanline"></div><div class="vignette"></div><div class="mirror-frame"></div>
+    <div class="spell-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div id="gesture-hold" class="gesture-hold" hidden><i aria-hidden="true"></i><span></span></div>
+    <div id="agent-progress" class="agent-progress" role="status" hidden></div>
+    <div id="local-timer-badge" class="local-timer-badge" hidden><span></span><button id="timer-dismiss" type="button" aria-label="Dismiss latest timer">✕</button></div>
+    <div id="look-countdown" hidden><strong>3</strong><p>Hold your pose. A little magic in three…</p><button id="capture-cancel" type="button">Stop photo</button></div>
 
     <div id="avatar-engine" aria-hidden="true"></div>
     <div class="awakening" id="awakening" aria-hidden="true"><div class="awakening-portal"><div class="awakening-vortex"></div><div class="awakening-sparks"><i style="--orbit:0deg"></i><i style="--orbit:45deg"></i><i style="--orbit:90deg"></i><i style="--orbit:135deg"></i><i style="--orbit:180deg"></i><i style="--orbit:225deg"></i><i style="--orbit:270deg"></i><i style="--orbit:315deg"></i></div></div><div class="awakening-title">THE MIRROR AWAKENS</div></div>
@@ -606,6 +612,8 @@
         <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><button class="studio-tools-toggle" id="studio-tools-toggle" type="button" aria-expanded="false" aria-controls="studio-tools">More options</button></div>
           <div class="tryon-view-switch" aria-label="Try-on view"><button id="tryon-live" type="button" aria-pressed="true">Live camera</button><button id="tryon-still" type="button" aria-pressed="false" disabled>Rendered still</button></div>
           <small class="studio-summary" id="studio-summary" role="status">Choose a garment to see your live fit.</small>
+          <div class="experience-actions"><button type="button" data-experience-action="capture">✧ Take look photo</button><button type="button" data-experience-action="lookbook">Lookbook</button><button type="button" data-experience-action="help">Help</button></div>
+          <div class="closet-shortcuts"><button type="button" id="closet-favorite" aria-pressed="false">☆ Favorite garment</button><button type="button" id="closet-filter" aria-pressed="false">Favorites only</button></div>
 
           <div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Swipe for clothes. Say “make it blue” for starter colors. Add a photo to wear your own clothes.</p><div class="closet-list" id="closet-list"></div></div>
           <div class="studio-tools" id="studio-tools" hidden>          <div class="live-tryon-controls"><strong>Live AI outfit preview</strong><label class="tryon-consent"><input id="live-tryon-consent" type="checkbox"><span>Share live camera video and the selected garment with Decart while this preview runs. Uses your Decart credits; processing and retention follow its terms.</span></label><button id="live-tryon-start" type="button" disabled>Start live AI</button><button id="live-tryon-stop" type="button" hidden>Stop live AI</button><small id="live-tryon-status" role="status">Optional · add a Decart key in Settings. Local camera fit remains available.</small></div><div class="effect-grid" id="effect-grid">
@@ -672,10 +680,19 @@
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
         <p class="config-note" id="camera-notice" role="status" hidden></p>
+        <small class="config-note" id="camera-format" hidden></small>
         <div class="setting"><label for="camera-clarity"><span>Camera clarity</span></label><select id="camera-clarity"><option value="off">Original · lowest power</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></div>
         <p class="config-note">Local display enhancement; no generated facial or clothing details. Bright mode changes apparent colors. Say “mirror, brighten the camera” or “camera clarity off”.</p>
         <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
+        <label class="toggle-row" for="framing-toggle"><span>Body framing guide</span><input id="framing-toggle" type="checkbox" checked></label>
+        <label class="toggle-row" for="reduced-motion-toggle"><span>Reduce motion</span><input id="reduced-motion-toggle" type="checkbox"></label>
+        <label class="toggle-row" for="magic-sounds-toggle"><span>Soft magic wake chime</span><input id="magic-sounds-toggle" type="checkbox"></label>
+        <div class="experience-actions"><button type="button" data-experience-action="ready">Getting ready</button><button type="button" data-experience-action="movie">Movie time</button><button type="button" data-experience-action="help">What can I do?</button></div>
+        <div class="setting"><label for="routine-movie"><span>Movie time service</span></label><select id="routine-movie"><option value="youtube">YouTube</option><option value="netflix">Netflix</option></select></div>
+        <label class="toggle-row" for="routine-music"><span>Resume Spotify when getting ready</span><input id="routine-music" type="checkbox"></label>
+        <p class="config-note">Say “remember my getting ready setup” to save your selected garment and clarity. Timers and look photos stay on this mirror.</p>
+        <form id="local-timer-form"><input id="local-timer-minutes" type="number" min="1" max="360" value="10" aria-label="Timer minutes"><button type="submit">Start timer</button></form>
         <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>
         <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="enchanted">Enchanted reveal</option><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
         <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
