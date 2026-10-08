@@ -92,8 +92,8 @@ Location information must not be stored as durable personal memory.
 The previous frozen paired-photo monitor completed 30 minutes, 589 samples,
 zero errors. The next frozen harness build monitor also completed: 30 minutes, 583 samples,
 zero errors. A fresh audit-build monitor started for two hours after publishing
-`5d479ab`; its outcome is still pending. See `MONITOR-AUDIT-VERIFICATION.json`. Its software-rendered active CPU remains high; it predates the new
-15-FPS room governor. Monitor records contain an archive hash and revision,
+`5d479ab`; its outcome is still pending. See `MONITOR-AUDIT-VERIFICATION.json`. The completed harness run had high active
+software-rendered CPU and predates the new 15-FPS room governor. Monitor records contain an archive hash and revision,
 no account credentials or display images. Short renderer measurements exclude
 other processes; process-tree CPU and summed RSS are not full-device wattage.
 The original goal remains incomplete; these findings and tests are progress.
