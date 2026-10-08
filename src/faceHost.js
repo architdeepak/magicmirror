@@ -1,8 +1,9 @@
+import { FaceFeatures } from './faceFeatures.js';
 const HEADS = Object.freeze({
   // V2 is an original, deliberately simplified avatar family: large face
   // planes, sculpted hair masses and matte materials. Do not pair it with the
   // older illustrative speaking frames—the mismatch is visibly uncanny.
-  velora: { image: 'assets/personas/evil-queen-head-v3.png', speaking: 'assets/personas/evil-queen-head-v3-speaking.png', rounded: 'assets/personas/evil-queen-head-v3-o.png', mouth: '#3c0c1f', lip: '#6f1e39', lid: '#e4b39d', mouthY: .232, eyeY: .085, eyeX: .125 },
+  velora: { image: 'assets/personas/evil-queen-head-v3.png', speaking: 'assets/personas/evil-queen-head-v3-speaking.png', rounded: 'assets/personas/evil-queen-head-v3-o.png', mouth: '#3c0c1f', lip: '#6f1e39', lid: '#e4b39d', mouthY: .232, eyeY: .066, eyeX: .114 },
   // Keep the last coherent Snow performance live while the next host moves to
   // a real feature rig. The current raster experiment is retained as an asset
   // for art direction, but is deliberately not used as the speaking performer.
@@ -32,7 +33,7 @@ export class FaceHost {
     this.roundedReady = false;
     this.speakingPatch = null;
     this.roundedPatch = null;
-    this.fallbackMouthPatch = null;
+    this.fallbackMouthPatch = null; this.features = null;
     this.viseme = 'rest';
     this.poseBlend = { AA: 0, O: 0 };
     this.performance = { turn: 0, nod: 0, lean: 0 };
@@ -58,12 +59,13 @@ export class FaceHost {
     this.roundedReady = false;
     this.speakingPatch = null;
     this.roundedPatch = null;
-    this.fallbackMouthPatch = null;
+    this.fallbackMouthPatch = null; this.features = null;
     this.poseBlend = { AA: 0, O: 0 };
     const neutral = this.image;
     this.image.onload = () => {
       if (this.image !== neutral) return;
       if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
+      this.features = new FaceFeatures(neutral, HEADS[this.persona]);
       this.ready = true;
       this.draw(0);
     };
@@ -152,8 +154,8 @@ export class FaceHost {
     ctx.rotate((this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13);
     const jaw = Math.max(this.blendshapes.jawOpen || 0, this.speech);
     const mouthStrength = Math.max(0, Math.min(1, jaw * 1.5));
-    const targetAA = this.viseme === 'AA' || (this.viseme === 'rest' && jaw > .12) ? mouthStrength : 0;
-    const targetO = this.viseme === 'O' ? mouthStrength : 0;
+    const targetAA = this.viseme === 'AA' || this.viseme === 'EE' || (this.viseme === 'rest' && jaw > .12) ? mouthStrength : 0;
+    const targetO = ['O','OU'].includes(this.viseme) ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
     this.poseBlend.AA += (targetAA - this.poseBlend.AA) * .2;
@@ -189,13 +191,24 @@ export class FaceHost {
     // Blinks come from the camera puppet. Avoid a timer-driven full eyelid
     // overlay: it can freeze an otherwise beautiful still frame mid-blink.
     const lid = Math.max(this.blendshapes.eyeBlinkLeft || 0, this.blendshapes.eyeBlinkRight || 0);
-    if (lid > .08) this.drawLids(ctx, cx, cy, base, lid);
+    if (this.features) this.features.draw(ctx, base, this.blendshapes, this.gaze, jaw);
+    else if (lid > .08) this.drawLids(ctx, cx, cy, base, lid);
     if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) this.drawMouth(ctx, cx, cy, base, jaw);
     // The generated hosts already contain sculpted brows. Drawing a second
     // eyebrow layer on top produces a visible double-brow artifact; reserve
     // the procedural fallback for the unstyled reference host only.
-    if (this.persona === 'rowan') this.drawBrows(ctx, cx, cy, base);
+    if (!this.features && this.persona === 'rowan') this.drawBrows(ctx, cx, cy, base);
     ctx.restore();
+    // The soft glass glow shares the texture's actual facial center and all
+    // layout moves; it never uses an unrelated world-space ring position.
+    const faceCenter = ((spec.eyeY ?? .06) + (spec.mouthY ?? .23)) * .5;
+    const angle = (this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13;
+    const anchorX = w / 2 + gazeX + turn * base * .038 - Math.sin(angle) * base * faceCenter;
+    const anchorY = h / 2 + bob + gazeY + Math.cos(angle) * base * faceCenter;
+    this.faceAnchor = { x: anchorX, y: anchorY, size: base };
+    this.host?.style?.setProperty('--face-center-x', anchorX + 'px');
+    this.host?.style?.setProperty('--face-center-y', anchorY + 'px');
+    this.host?.style?.setProperty('--face-glow-size', base * 1.45 + 'px');
   }
 
   drawLids(ctx, cx, cy, size, amount) {

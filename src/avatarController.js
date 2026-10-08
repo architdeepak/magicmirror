@@ -1,4 +1,5 @@
 import { TalkingHead } from 'talkinghead';
+import { AvatarPresence } from './avatarPresence.js';
 import { FaceHost } from './faceHost.js';
 import { RigFaceHost } from './rigFaceHost.js';
 import { ExpressionMixer } from './expressionMixer.js';
@@ -22,10 +23,12 @@ export class AvatarController {
     this.faceBlendshapes = {};
     this.smoothedBlendshapes = {};
     this.eyeGaze = { x: 0, y: 0, confidence: 0 };
+    this.gazeOverride = null;
     this.viseme = 'rest';
     this.performance = { turn: 0, nod: 0, lean: 0 };
     this.expression = {};
     this.expressionMixer = new ExpressionMixer();
+    this.presence = new AvatarPresence();
     this.fallbackRigUrl = 'assets/avatar.glb';
     this.loadedRigUrl = null;
     this.lastRigError = null;
@@ -76,6 +79,7 @@ export class AvatarController {
       // while FaceHost owns the visible performer. Avoid drawing an invisible
       // full GLB on every audio animation tick. Keep its audio clock intact.
       this.head.renderer.render = () => {};
+      const aura = document.createElement('div'); aura.className = 'host-aura'; aura.setAttribute('aria-hidden','true'); this.host.append(aura);
       this.faceHost = new FaceHost(this.host);
       this.videoHost = new AvatarVideoHost(this.host);
       // Experimental rig previews are explicitly created by their preview
@@ -167,11 +171,15 @@ export class AvatarController {
     this.eyeGaze = gaze || { x: 0, y: 0, confidence: 0 };
   }
 
+  setGazeOverride(gaze) { this.gazeOverride = gaze ? { x: clamp(Number(gaze.x) || 0,-1,1), y: clamp(Number(gaze.y) || 0,-1,1), confidence: 1 } : null; }
+
   setSpeechLevel(level) { this.speechLevel = Math.min(1, Math.max(0, level)); }
 
   setViseme(viseme) { this.viseme = viseme || 'rest'; }
 
   setPerformance(performance) { this.performance = performance || { turn: 0, nod: 0, lean: 0 }; }
+
+  setActivity(activity) { this.presence.setActivity(activity); }
 
   setExpression(expression = {}) { this.expression = expression || {}; }
 
@@ -276,9 +284,14 @@ export class AvatarController {
         this.head.setValue('eyesRotateX', clamp(-viewer.y * .22 + gazeY, -.24, .28), 90);
       } catch (error) { /* avatar can still be settling during first frames */ }
     }
+    const presence = this.presence.update(elapsed, { reduced: this.host.closest('#app-shell')?.dataset.reducedMotion === 'true', trackedEyes: this.facePuppetEnabled && this.faceBlendshapes.eyeBlinkLeft != null });
+    const tracking = this.facePuppetEnabled ? { ...this.faceBlendshapes } : {};
+    // An explicit close request may accent the camera. It cannot reopen or
+    // erase a tracked blink; automatic blinks remain disabled for tracked eyes.
+    for (const key of ['eyeBlinkLeft','eyeBlinkRight']) if (this.expression[key] > 0) tracking[key] = Math.max(tracking[key] || 0,this.expression[key]);
     const expression = this.expressionMixer.update({
-      tracking: this.facePuppetEnabled ? this.faceBlendshapes : {},
-      manual: this.expression,
+      tracking,
+      manual: { ...presence.expression, ...this.expression },
       speech: this.speechLevel,
       viseme: this.viseme,
       dt
@@ -286,9 +299,9 @@ export class AvatarController {
     this.smoothedBlendshapes = expression;
     this._applyFacialMorphs(expression);
     if (!this.videoHost?.active) {
-      this.faceHost?.setFace(expression, this.eyeGaze, this.speechLevel, viewer);
+      this.faceHost?.setFace(expression, this.gazeOverride || (this.eyeGaze.confidence > .15 ? this.eyeGaze : presence.gaze), this.speechLevel, viewer);
       this.faceHost?.setViseme(this.viseme);
-      this.faceHost?.setPerformance(this.performance);
+      this.faceHost?.setPerformance({ turn: (this.performance.turn || 0) + (this.gazeOverride ? this.gazeOverride.x * .12 : presence.performance.turn), nod: (this.performance.nod || 0) + presence.performance.nod, lean: (this.performance.lean || 0) + presence.performance.lean });
       this.faceHost?.update(elapsed);
       if (this.rigHost?.canvas.style.display !== 'none') this.rigHost?.update({ ...expression, jawOpen: Math.max(expression.jawOpen || 0, this.speechLevel) }, this.eyeGaze, this.performance);
     }

@@ -1,0 +1,1055 @@
+{
+  "recordedAt": "2026-10-08T23:13:05.409855+00:00",
+  "packagedArchiveSha256": "bf2d3b962168755d450c8c2bb4164faecfa9523819d53bea92865512000f672a",
+  "unitRegression": {
+    "passed": true,
+    "command": "npm test",
+    "log": "/tmp/mirror-glass-tests.log"
+  },
+  "acting": {
+    "passed": true,
+    "anchors": [
+      {
+        "dx": -0.007680133650950438,
+        "dy": -0.010235000000022865,
+        "position": "center",
+        "visible": "visible",
+        "legacyRings": 0
+      },
+      {
+        "dx": -0.006284847876841582,
+        "dy": -0.010235000000022865,
+        "position": "left",
+        "visible": "visible",
+        "legacyRings": 0
+      },
+      {
+        "dx": -0.001181750518668423,
+        "dy": -0.010235000000022865,
+        "position": "right",
+        "visible": "visible",
+        "legacyRings": 0
+      },
+      {
+        "dx": -0.0002222065379697824,
+        "dy": -0.010235000000022865,
+        "position": "upper",
+        "visible": "visible",
+        "legacyRings": 0
+      },
+      {
+        "dx": -4.1781869128953986e-05,
+        "dy": -0.010235000000022865,
+        "position": "lower",
+        "visible": "visible",
+        "legacyRings": 0
+      }
+    ],
+    "cadence": {
+      "medianMs": 33.30000000000291,
+      "p95Ms": 50,
+      "fogPaintHz": 27.220485935646074
+    },
+    "scope": "Actual packaged Linux app, production textured feature poses and halo geometry at five positions. Explicit acting inputs, no physical tracking or live lip-sync. RAF cadence sampled without screenshot readback; software graphics."
+  },
+  "animation": {
+    "passed": true,
+    "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+    "frames": 60,
+    "captureTimesMs": [
+      260,
+      591,
+      850,
+      1149,
+      1405,
+      1695,
+      1933,
+      2225,
+      2481,
+      2773,
+      3021,
+      3299,
+      3616,
+      3982,
+      4279,
+      4439,
+      4542,
+      4627,
+      4740,
+      4855,
+      4935,
+      5019,
+      5096,
+      5189,
+      5282,
+      5387,
+      5515,
+      5674,
+      5857,
+      6044,
+      6211,
+      6347,
+      6513,
+      6656,
+      6791,
+      6947,
+      7116,
+      7281,
+      7440,
+      7559,
+      7709,
+      7878,
+      8022,
+      8165,
+      8328,
+      8495,
+      8641,
+      8762,
+      8902,
+      9003,
+      9094,
+      9203,
+      9301,
+      9405,
+      9489,
+      9583,
+      9687,
+      9839,
+      9992,
+      10105
+    ],
+    "renderedFrames": 144,
+    "renderedFps": 30,
+    "renderedScope": "Deterministic production fog at 30 Hz, posed host and equivalent fade; offline export is not a live FPS measurement. Original timed screen capture retained separately.",
+    "cancelledCleanly": true,
+    "reducedMotionNoParticleLoop": true
+  },
+  "voice": {
+    "runtime": "actual packaged app",
+    "input": "synthetic WAV through MediaStream",
+    "greeting": "real Gemini Live Gacrux",
+    "conversation": "real microphone transcription and response",
+    "reveal": "passed",
+    "captionRows": 2,
+    "speakerColors": "distinct",
+    "heardCaptionLatencyMs": 1527.5,
+    "interimHeardCaptions": [
+      "tell me",
+      "tell me a lot",
+      "tell me a long",
+      "tell me a long story"
+    ],
+    "correctedHeardCaption": "Tell me a long story about a dragon.",
+    "stopWithStandbyWakeDisabled": "passed",
+    "stopLatencyMs": 1151.9000000953674,
+    "localStopResponseMs": 5,
+    "outputPeakRms": 0.26970778117969557,
+    "stoppedOutputPeakRms": 0,
+    "stopGate": "ordinary speech ignored; wake phrase restored live speech",
+    "hardMute": "active playback silenced; no live microphone tracks; wake ignored",
+    "events": [
+      {
+        "at": 2312.600000023842,
+        "reveal": false,
+        "state": "AI ready",
+        "mic": "LISTEN",
+        "user": "",
+        "assistant": ""
+      },
+      {
+        "at": 6934.799999952316,
+        "reveal": true,
+        "state": "Awakening",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": ""
+      },
+      {
+        "at": 10042,
+        "reveal": false,
+        "state": "Opening the veil",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": ""
+      },
+      {
+        "at": 11332.399999976158,
+        "reveal": false,
+        "state": "AI ready",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": ""
+      },
+      {
+        "at": 11345.100000023842,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": ""
+      },
+      {
+        "at": 11345.600000023842,
+        "reveal": false,
+        "state": "Consulting",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": ""
+      },
+      {
+        "at": 12003.199999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes,"
+      },
+      {
+        "at": 12340.899999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your"
+      },
+      {
+        "at": 12557,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil"
+      },
+      {
+        "at": 12698.799999952316,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness."
+      },
+      {
+        "at": 12797.600000023842,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness. What"
+      },
+      {
+        "at": 13064.899999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness. What shall"
+      },
+      {
+        "at": 13080.199999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness. What shall we conjure?"
+      },
+      {
+        "at": 16223.399999976158,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness. What shall we conjure?"
+      },
+      {
+        "at": 16301.100000023842,
+        "reveal": false,
+        "state": "Consulting",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "Yes, yes, your evil highness. What shall we conjure?"
+      },
+      {
+        "at": 17568.399999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is"
+      },
+      {
+        "at": 17672,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done."
+      },
+      {
+        "at": 17933,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute"
+      },
+      {
+        "at": 18109.199999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer"
+      },
+      {
+        "at": 18182.399999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has"
+      },
+      {
+        "at": 18342.799999952316,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set,"
+      },
+      {
+        "at": 18472.699999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking"
+      },
+      {
+        "at": 18575.899999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away"
+      },
+      {
+        "at": 18699.899999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away the moments"
+      },
+      {
+        "at": 18815.600000023842,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away the moments until"
+      },
+      {
+        "at": 18901.299999952316,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away the moments until your next"
+      },
+      {
+        "at": 19229.5,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away the moments until your next command."
+      },
+      {
+        "at": 23872.899999976158,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "Mirror mirror",
+        "assistant": "It is done. A ten-minute timer has been set, ticking away the moments until your next command."
+      },
+      {
+        "at": 25468.899999976158,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me",
+        "assistant": ""
+      },
+      {
+        "at": 25657.899999976158,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a lot",
+        "assistant": ""
+      },
+      {
+        "at": 25777.5,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a long",
+        "assistant": ""
+      },
+      {
+        "at": 26034.399999976158,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a long story",
+        "assistant": ""
+      },
+      {
+        "at": 26691.799999952316,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a long story about en route",
+        "assistant": ""
+      },
+      {
+        "at": 26789.699999928474,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a long story about a",
+        "assistant": ""
+      },
+      {
+        "at": 26974.100000023842,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "tell me a long story about a dragon",
+        "assistant": ""
+      },
+      {
+        "at": 27390.600000023842,
+        "reveal": false,
+        "state": "Consulting",
+        "mic": "STOP",
+        "user": "tell me a long story about a dragon",
+        "assistant": ""
+      },
+      {
+        "at": 27675.299999952316,
+        "reveal": false,
+        "state": "Consulting",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": ""
+      },
+      {
+        "at": 29581.600000023842,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a"
+      },
+      {
+        "at": 29613.100000023842,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale"
+      },
+      {
+        "at": 29674.100000023842,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient"
+      },
+      {
+        "at": 29836.5,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame?"
+      },
+      {
+        "at": 29892.799999952316,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very"
+      },
+      {
+        "at": 29896.199999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well."
+      },
+      {
+        "at": 29941.199999928474,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the"
+      },
+      {
+        "at": 29986.899999976158,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest"
+      },
+      {
+        "at": 30024.799999952316,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest reaches"
+      },
+      {
+        "at": 30036.299999952316,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest reaches"
+      },
+      {
+        "at": 30066,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest reaches of the"
+      },
+      {
+        "at": 30075,
+        "reveal": false,
+        "state": "Speaking",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest reaches of the Northern"
+      },
+      {
+        "at": 30151.100000023842,
+        "reveal": false,
+        "state": "Listening",
+        "mic": "STOP",
+        "user": "Tell me a long story about a dragon.",
+        "assistant": "Ah, a tale of ancient flame? Very well. In the farthest reaches of the Northern"
+      },
+      {
+        "at": 30794.100000023842,
+        "reveal": false,
+        "state": "AI ready",
+        "mic": "LISTEN",
+        "user": "mirror stop",
+        "assistant": ""
+      }
+    ],
+    "localCommandAudit": {
+      "scope": "Real Gemini Live text request invoking production mirror_command and replying with live audio; new command acoustic recognition not tested",
+      "timer": {
+        "id": "1791501084778-2kuaw",
+        "deadline": 1791501684778,
+        "label": "Getting ready",
+        "state": "pending",
+        "seconds": 593
+      },
+      "badgeVisible": true
+    },
+    "microphoneLoss": "synthetic ended event: stopped controls and invalidated desktop observation"
+  },
+  "layout": {
+    "checkedAt": "2026-10-08T23:06:16.896Z",
+    "passed": true,
+    "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+    "checks": [
+      {
+        "width": 1280,
+        "height": 1024,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 400,
+        "height": 710,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 540,
+        "height": 960,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "checks": [
+          "typing does not invoke mode/camera/fullscreen shortcuts",
+          "two long colored caption rows and one caption container",
+          "editor Stop leaves review open",
+          "command center accessible",
+          "typed task draft retained while muted",
+          "friends request explains missing Apple People bridge"
+        ]
+      },
+      {
+        "checks": [
+          "camera clarity selectable by real keyboard input",
+          "typed voice navigation bright/off updates renderer and persistence"
+        ]
+      }
+    ],
+    "rendererErrors": []
+  },
+  "experience": {
+    "passed": true,
+    "checkedAt": "2026-10-08T23:11:43.482Z",
+    "scope": "Actual packaged Linux app and native IPC with Chromium mouse/keyboard; synthetic canvas camera, injected pose/gesture state, explicit reveal. No physical sensors, Windows Spotify or acoustic recognition.",
+    "colors": {
+      "blue": 5427,
+      "red": 31414,
+      "width": 576,
+      "height": 1024
+    },
+    "checks": [
+      "camera-off framing",
+      "favorite UI and name recall",
+      "typed local note and timer",
+      "synthetic camera plus garment pixels in reviewed capture",
+      "two distinct native persisted looks",
+      "comparison and look favorites",
+      "Stop and hard mute cancel countdown without late dialog/save",
+      "missing body rejects capture",
+      "getting-ready routine",
+      "movie service request selection (fixture, no playback)",
+      "Stop cancels queued routine before Spotify request",
+      "informational timer question does not start timer",
+      "contextual help",
+      "timer expiry badge",
+      "production reveal screenshot and immediate cancel",
+      "reload and single caption container",
+      "invalid native image rejected"
+    ],
+    "rendererErrors": []
+  },
+  "rendererPower": {
+    "checkedAt": "2026-10-08T23:07:02.018Z",
+    "scope": "Linux software-rendered portrait app; renderer CPU excludes other processes and is not a wattage measurement; synthetic hidden state; accelerated sleep timer; no physical camera or microphone",
+    "results": [
+      {
+        "name": "ambient",
+        "durationSec": 4.012293000007048,
+        "rendererCpuPercent": 10.243967726167503,
+        "rendersPerSec": {
+          "scene": 0.49846808296315515,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 14399340,
+        "power": {
+          "targetFps": 12,
+          "frames": 48,
+          "scene": {
+            "frames": 4,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "queen",
+        "durationSec": 4.010484999977052,
+        "rendererCpuPercent": 10.16408239906975,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 24.934640074846858,
+          "facePaint": 8.477777625447931,
+          "rig": 0
+        },
+        "heapBytes": 15126560,
+        "power": {
+          "targetFps": 30,
+          "frames": 163,
+          "scene": {
+            "frames": 5,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "flat-avatar-cache",
+        "durationSec": 4.008398999925703,
+        "rendererCpuPercent": 9.330583108291679,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 27.691854030014834,
+          "facePaint": 1.9958092994605285,
+          "rig": 0
+        },
+        "heapBytes": 15752008,
+        "power": {
+          "targetFps": 30,
+          "frames": 299,
+          "scene": {
+            "frames": 6,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "speech-raster-invalidates",
+        "durationSec": 4.00644300004933,
+        "rendererCpuPercent": 13.353940140753604,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 22.713414367527392,
+          "facePaint": 22.214218447361954,
+          "rig": 0
+        },
+        "heapBytes": 13856648,
+        "power": {
+          "targetFps": 30,
+          "frames": 398,
+          "scene": {
+            "frames": 6,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "idle-raster-reuse",
+        "durationSec": 4.009782999986783,
+        "rendererCpuPercent": 10.401934468807301,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 23.94144521045564,
+          "facePaint": 11.72133255095224,
+          "rig": 0
+        },
+        "heapBytes": 16608432,
+        "power": {
+          "targetFps": 30,
+          "frames": 564,
+          "scene": {
+            "frames": 6,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "settled-raster-reuse",
+        "durationSec": 4.009535999968648,
+        "rendererCpuPercent": 6.308435689365987,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 28.681623010966664,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 13985000,
+        "power": {
+          "targetFps": 30,
+          "frames": 759,
+          "scene": {
+            "frames": 6,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "depth-dynamic",
+        "durationSec": 4.096390999970026,
+        "rendererCpuPercent": 54.44690216379051,
+        "rendersPerSec": {
+          "scene": 10.741162159647834,
+          "head": 0,
+          "face": 15.623508595851396,
+          "facePaint": 6.34705036706463,
+          "rig": 0
+        },
+        "heapBytes": 13921284,
+        "power": {
+          "targetFps": 30,
+          "frames": 834,
+          "scene": {
+            "frames": 53,
+            "dynamic": true,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "try-on",
+        "durationSec": 4.01527500001248,
+        "rendererCpuPercent": 8.740297987034733,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 20.422013436127074,
+          "facePaint": 14.693887716237773,
+          "rig": 0
+        },
+        "heapBytes": 14099448,
+        "power": {
+          "targetFps": 30,
+          "frames": 965,
+          "scene": {
+            "frames": 60,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "watch",
+        "durationSec": 4.007463000016287,
+        "rendererCpuPercent": 5.73145653494661,
+        "rendersPerSec": {
+          "scene": 0.499068862268191,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 13726972,
+        "power": {
+          "targetFps": 12,
+          "frames": 1022,
+          "scene": {
+            "frames": 64,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "music",
+        "durationSec": 4.009364000055939,
+        "rendererCpuPercent": 5.583005184784354,
+        "rendersPerSec": {
+          "scene": 0.2494161168669265,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 14150240,
+        "power": {
+          "targetFps": 12,
+          "frames": 1076,
+          "scene": {
+            "frames": 68,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "sleep",
+        "durationSec": 4.0088790000882,
+        "rendererCpuPercent": 3.251831746409202,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 13805488,
+        "power": {
+          "targetFps": 0,
+          "frames": 1099,
+          "scene": {
+            "frames": 71,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "wake-resume",
+        "durationSec": 4.009980999981053,
+        "rendererCpuPercent": 5.5178316306497495,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 28.42906238222541,
+          "facePaint": 1.4962664411697586,
+          "rig": 0
+        },
+        "heapBytes": 14453752,
+        "power": {
+          "targetFps": 30,
+          "frames": 1226,
+          "scene": {
+            "frames": 73,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "stopped-converse-sleep",
+        "durationSec": 4.008002000045963,
+        "rendererCpuPercent": 3.247802770520254,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 13785684,
+        "power": {
+          "targetFps": 0,
+          "frames": 1258,
+          "scene": {
+            "frames": 74,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 15
+          }
+        }
+      },
+      {
+        "name": "synthetic-hidden",
+        "durationSec": 4.007809999980964,
+        "rendererCpuPercent": 4.4987911103783595,
+        "rendersPerSec": {
+          "scene": 0,
+          "head": 0,
+          "face": 0,
+          "facePaint": 0,
+          "rig": 0
+        },
+        "heapBytes": 14146884,
+        "power": {
+          "targetFps": 0,
+          "frames": 1260,
+          "scene": {
+            "frames": 76,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 15
+          }
+        }
+      }
+    ]
+  },
+  "priorBuildSoakSnapshot": {
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "pid": 2370860,
+    "startedAt": "2026-10-08T21-59-15-478Z",
+    "updatedAt": "2026-10-08T23:13:04.912Z",
+    "status": "monitoring",
+    "sampleCount": 1441,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-08T23:13:04.833Z",
+      "elapsedSec": 4425.826,
+      "cpuPercent": 14.64367068011715,
+      "summedRssBytes": 834793472,
+      "processCount": 5,
+      "rendererHeapBytes": 12626524,
+      "gpu": {
+        "deviceWide": "40.52, 96, [N/A]"
+      },
+      "mode": "watch",
+      "sleeping": false,
+      "power": {
+        "targetFps": 12,
+        "frames": 74233,
+        "scene": {
+          "frames": 60,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      },
+      "eventLoopLagMs": 0.20000004768371582,
+      "cameraActive": false,
+      "hardMuted": true
+    },
+    "appExit": null
+  },
+  "auditFindings": [
+    "Tracking loop initially overwrote requested gaze on the next frame. Separate gaze override and delayed production checks fixed this.",
+    "Explicit blink closure now combines with camera blinks without reopening a tracked eye. Production-controller ownership is exercised in the unit regression.",
+    "Natural glances made an earlier four-second cache sample exceed the previous repaint limit; settled zero-paint is now tested separately from natural acting.",
+    "A one-off flat-room frame invalidation failed a strict zero-frame assertion; flat cache now requires sparse drawing. Sleep/hidden still require zero."
+  ],
+  "limits": [
+    "Current Linux arm64 DGX Spark only; software rendering, concurrent audit load.",
+    "Smooth video is an offline 30 Hz production fog export with posed host fade, not proof of live 30 fps. Actual timed capture and runtime cadence are recorded separately.",
+    "Voice uses real Gemini Gacrux with recorded WAV through MediaStream; no physical microphone/room echo test.",
+    "Eye/brow/mouth poses and positions are explicitly driven; gaze/closure ownership tests use simulated tracking values.",
+    "Lookbook tests use synthetic camera/pose input; no Windows native Spotify playback or physical-TV validation.",
+    "Renderer CPU excludes other application processes and is not device watts. Prior soak predates this visual revision.",
+    "Textured front-facing performer remains a localized 2D deformation, not a complete 3D facial rig."
+  ]
+}

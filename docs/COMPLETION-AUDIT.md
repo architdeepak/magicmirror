@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+2026-10-08 visual revision: [dark glass, advected smoke, face-following glow and textured eye/brow/mouth acting](GLASS-AND-EXPRESSIONS-2026-10-08.md). Local visual/voice checks remain distinct from physical Windows installation readiness.
+
 2026-10-08 experience update: [framing, theatrical reveal, local lookbook, favorites, routines, notes and timers](MAGIC-EXPERIENCE-2026-10-08.md) are implemented and exercised locally. Physical inputs, Windows Spotify/runtime, moving cloth realism and Apple People remain unfinished.
 
 2026-10-08 update: [camera/photo clarity and avatar rendering audit](CAMERA-CLARITY-2026-10-08.md). Local enhancement, exact original restoration, separate front/back drafts, doubled starter SVG rasterization, speech-level mouth blending and common feature transforms are implemented. The full goal remains incomplete; cloth simulation, physical inputs, Windows runtime and Apple People integration still need work.

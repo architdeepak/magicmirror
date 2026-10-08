@@ -48,7 +48,8 @@ export class ExpressionMixer {
     for (const name of new Set([...Object.keys(this.values), ...Object.keys(target)])) {
       const next = clamp(target[name] || 0, 0, 1);
       const previous = this.values[name] || 0;
-      this.values[name] = previous + (next - previous) * alpha;
+      const response = name.startsWith('eyeBlink') ? Math.min(.94, 1 - Math.exp(-Math.max(.001, dt) * 65)) : alpha;
+      this.values[name] = previous + (next - previous) * response;
     }
     return { ...this.values };
   }

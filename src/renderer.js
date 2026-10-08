@@ -525,6 +525,7 @@ if (hardMuted) elements.mic.disabled = true;
 
 let gestureToastTimer = null;
 let queenCueTimer = null;
+let avatarExpressionTimer;
 const magic = new MagicTheatre(elements.shell);
 const framing = new FramingGuide(elements.shell, garmentOverlay, elements.video);
 const experience = new MirrorExperience({
@@ -741,6 +742,7 @@ function setArEffect(effect, { openStudio = false } = {}) {
 
 function setState(next) {
   state = next;
+  avatar.setActivity?.(next);
   if (mode === 'watch') avatar.setVisible(desktopActive || Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(next)));
   const labels = {
     starting: 'Awakening', connecting: 'Opening the veil', ready: config.hasGeminiKey ? 'AI ready' : 'Local ready',
@@ -815,7 +817,7 @@ async function handleWakeWord(command) {
   elements.awakening.classList.add('active');
   magic.play('wake', { muted: hardMuted });
   setState('starting');
-  await new Promise((resolve) => setTimeout(resolve, magic.reduced ? 700 : 2350));
+  await new Promise((resolve) => setTimeout(resolve, magic.reduced ? 700 : 3100));
   if (cancelled()) return;
   elements.awakening.classList.remove('active');
   showAssistant();
@@ -967,7 +969,7 @@ window.addEventListener('resize', () => {
 
 function stopAssistant() {
   experience.cancel(); magic.cancel();
-  clearTimeout(queenCueTimer); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 });
+  clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 });
   document.querySelector('#agent-progress').hidden = true;
   cancelAgentTask();
   liveTryOn.stop();
@@ -998,7 +1000,7 @@ function stopAssistant() {
 }
 
 async function setHardMute(muted) {
-  if (muted) { experience.cancel(); magic.cancel(); clearTimeout(queenCueTimer); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
+  if (muted) { experience.cancel(); magic.cancel(); clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
   if (muted) liveTryOn.stop();
   if (muted) cancelTryOnRender();
   localCaptionsAllowed = false;
@@ -1957,6 +1959,20 @@ function spotifyEmbedUrl(url) {
 
 function runVoiceNavigation(prompt) {
   if (experience.voice(prompt)) return true;
+  const faceCommand = prompt.toLowerCase().replace(/[.,!?]/g, '').trim();
+  const expressionCommands = {
+    blink: {eyeBlinkLeft:1,eyeBlinkRight:1}, 'raise an eyebrow': {browOuterUpLeft:.65},
+    'look surprised': {browInnerUp:.55,eyeWideLeft:.4,eyeWideRight:.4}, smile: {mouthSmileLeft:.5,mouthSmileRight:.5,cheekSquintLeft:.18,cheekSquintRight:.18},
+    'look thoughtful': {browOuterUpLeft:.4,browInnerUp:.12}, 'look at me': {}
+  };
+  if (Object.hasOwn(expressionCommands,faceCommand) || /^(?:look|glance) (?:left|right)$/.test(faceCommand)) {
+    showAssistant();clearTimeout(avatarExpressionTimer);avatar.setExpression(expressionCommands[faceCommand] || {});
+    if (/^(?:look|glance) (?:left|right)$/.test(faceCommand)) avatar.setGazeOverride({x:faceCommand.endsWith('left')?-1:1,y:0});
+    else avatar.setGazeOverride(faceCommand==='look at me'?{x:0,y:0}:null);
+    avatarExpressionTimer=setTimeout(()=>{avatar.setExpression({});avatar.setGazeOverride(null)},faceCommand==='blink'?160:1800);
+    return true;
+  }
+
   const clarity = prompt.toLowerCase().replace(/[.,!?]/g, ' ');
   if (/\b(?:camera clarity|enhance (?:the )?camera|brighten (?:the )?camera|natural camera|original camera)\b/.test(clarity)) {
     const preset = /\b(?:off|original|disable)\b/.test(clarity) ? 'off' : /\b(?:bright|brighten)\b/.test(clarity) ? 'bright' : 'natural';
@@ -2024,7 +2040,7 @@ function runVoiceNavigation(prompt) {
       .catch((error) => showOracle(error.message, '', 'Web search'));
     return true;
   }
-  const positionMatch = text.match(/\bmove (?:yourself|your face|the face) to (center|left|right|upper|lower)\b/);
+  const positionMatch = text.match(/\bmove (?:yourself|your face|the face) (?:to )?(center|left|right|upper|lower)\b/);
   if (positionMatch) {
     showAssistant();
     setAvatarPosition(positionMatch[1]);

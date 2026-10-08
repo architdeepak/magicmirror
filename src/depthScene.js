@@ -89,7 +89,7 @@ export function createDepthScene(scene) {
     })
   );
   halo.position.set(0, 0.45, -1.55);
-  root.add(halo);
+  halo.visible = false;
 
   const innerHalo = new THREE.Mesh(
     new THREE.RingGeometry(1.27, 1.285, 96),
@@ -103,7 +103,7 @@ export function createDepthScene(scene) {
     })
   );
   innerHalo.position.copy(halo.position);
-  root.add(innerHalo);
+  innerHalo.visible = false;
 
   const particles = makeParticles(180);
   root.add(particles);
@@ -125,8 +125,8 @@ export function createDepthScene(scene) {
       avatarPlane.visible = Boolean(depthEnabled && avatarSource && mode === 'portal');
       cube.visible = depthEnabled;
       corridor.visible = depthEnabled;
-      halo.visible = !depthEnabled;
-      innerHalo.visible = !depthEnabled;
+      halo.visible = false;
+      innerHalo.visible = false;
     },
     setCubeContent(content = {}) { infoWall.draw(content); },
     setAvatarPosition(position) {

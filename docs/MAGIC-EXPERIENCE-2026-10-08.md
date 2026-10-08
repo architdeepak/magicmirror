@@ -1,5 +1,7 @@
 # Magic mirror experience: implementation and local audit
 
+Visual revision: the earlier ribbon/spark reveal below has been superseded by [the dark-glass and expressive-face pass](GLASS-AND-EXPRESSIONS-2026-10-08.md). Its archived evidence remains a record of the previous build.
+
 [Wake animation preview](media/mirror-awakens.mp4) · [portal still](media/mirror-wake.jpg) · [queen still](media/mirror-queen.jpg). These are an explicit silent preview from the packaged Linux app.
 
 Implemented all ten additions from [the quick-win review](QUICK-WINS-2026-10-08.md), plus clearer framing and a theatrical wake reveal. This completes this feature batch, while the full installation goal remains incomplete. Evidence and explicit scopes are saved in [MAGIC-EXPERIENCE-VERIFICATION.json](MAGIC-EXPERIENCE-VERIFICATION.json).
