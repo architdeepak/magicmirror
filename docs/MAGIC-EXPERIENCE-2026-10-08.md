@@ -45,7 +45,7 @@ Resting face pixels are reused; blinks, speech, gaze and deliberate poses invali
 
 The actual source app rendered zero new resting-face frames in the idle sample, then about 29 face paints/second during an explicit speech pulse. Short camera-off samples measured renderer CPU around 2–3% for flat avatar/watch/music, about 27% for dynamic software-rendered depth. These exclude other processes, use synthetic state and are not device watts or a Windows PC stick estimate. Persona rest/AA screenshots also confirmed repainting during speech for all three hosts. Concurrent audit load affects timings.
 
-The older frozen `5d479ab` build completed a two-hour process-tree monitor: 2,327 samples and zero recorded errors. It predates this feature batch. A fresh isolated packaged monitor will log separately in `artifacts/monitor-magic-experience.log`; its current state is recorded after launch. Camera, live voice and accounts are disabled in this soak, and software graphics are used.
+The older frozen `5d479ab` build completed a two-hour process-tree monitor: 2,327 samples and zero recorded errors. It predates this feature batch. A fresh two-hour isolated packaged monitor started at 2026-10-08T21-59-15-478Z for commit `6b681b6`. Its archive hash matches the audited package. It logs separately in `artifacts/monitor-magic-experience.log`; 11 samples and zero errors were recorded at this snapshot. The run is ongoing, so its final stability result is not established. Camera, live voice and accounts are disabled in this soak, and software graphics are used.
 
 ## Remaining installation work
 

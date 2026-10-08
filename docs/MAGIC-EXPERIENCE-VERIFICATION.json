@@ -1299,5 +1299,21 @@
     "Power samples measure renderer CPU only; no full-device energy claim. Earlier complete-process monitor predates this implementation.",
     "Movie service requests use a fixture; no account sign-in, Netflix DRM or Windows native Spotify playback proof.",
     "Lookbook is single local profile, up to 100 photos, no phone export or automatic identity selection."
-  ]
+  ],
+  "freshSoak": {
+    "statusAtSnapshot": "monitoring",
+    "startedAt": "2026-10-08T21-59-15-478Z",
+    "plannedDurationSec": 7200,
+    "sampleCountAtSnapshot": 11,
+    "errorsAtSnapshot": [],
+    "build": {
+      "archiveSha256": "7f719388f4f74ee7f808de25fb742b5f823f55862b7cd5375e2758af1f496eeb",
+      "gitRevision": "6b681b6e7bb020d29239930d55b921c55de7a516",
+      "isolatedCopy": true
+    },
+    "directory": "artifacts/monitor/2026-10-08T21-59-15-478Z",
+    "log": "artifacts/monitor-magic-experience.log",
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "limits": "Ongoing at snapshot; not a completed two-hour stability result. Live voice, sensors and accounts are disabled. All CPU samples include the application process tree, not full-device energy."
+  }
 }
