@@ -1,0 +1,27 @@
+{
+  "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+  "completedHarnessRun": {
+    "status": "finished",
+    "sampleCount": 583,
+    "errors": [],
+    "build": {
+      "archiveSha256": "72002c5c662d7b689bf34dabfd39702c36658b1b3ca94a2ce4edd145c60c5d1b",
+      "gitRevision": "2ecd806e1feb5bc481737abdfbaf6a5be1f05b3a",
+      "isolatedCopy": true
+    }
+  },
+  "newAuditBuildRun": {
+    "status": "monitoring",
+    "pid": 2241195,
+    "startedAt": "2026-10-08T16-25-22-326Z",
+    "plannedDurationSec": 7200,
+    "sampleCountAtSnapshot": 21,
+    "errorsAtSnapshot": [],
+    "build": {
+      "archiveSha256": "a45aa5d5cc281fa8c7f86c1e382fbfe8ef1ae94b3b6b33daeb65ac25fbdcd750",
+      "gitRevision": "5d479abc8410097fdd34c10b494027dc6e6d3908",
+      "isolatedCopy": true
+    }
+  },
+  "limits": "Muted, camera-off, software rendering. No live accounts or sensor inputs. The new run is ongoing; its final outcome is not established."
+}

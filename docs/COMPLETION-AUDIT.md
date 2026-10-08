@@ -118,3 +118,8 @@ accounts, realistic cloth, native phone screen mirroring and Windows remain
 unproven. Software 3D now has a 15-FPS room governor; short renderer CPU fell from
 roughly 98% to 60% in this check, without establishing whole-device efficiency.
 The prior paired-photo 30-minute monitor finished with 589 samples and no errors.
+
+The frozen pre-audit harness monitor also completed 30 minutes with 583 samples
+and no recorded errors. A fresh frozen audit build (`5d479ab`) is running a
+two-hour monitor with no paid services or physical sensors. Its start snapshot
+is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
