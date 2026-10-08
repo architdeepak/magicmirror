@@ -197,5 +197,18 @@
   "unitRegression": {
     "command": "npm test",
     "passed": true
+  },
+  "monitor": {
+    "directory": "artifacts/monitor/2026-10-08T23-56-13-023Z",
+    "build": {
+      "archiveSha256": "7f7423e27896f8d60077f7da86ab8b2f81d90d03348035d37b2b99ed1ec0e2d2",
+      "gitRevision": "22fa19b4f72baa8c75539f0527b10f7ac2796b52",
+      "isolatedCopy": true
+    },
+    "status": "monitoring",
+    "sampleCount": 3,
+    "errors": [],
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "plannedDurationSeconds": 7200
   }
 }
