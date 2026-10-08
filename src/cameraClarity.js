@@ -34,14 +34,16 @@ export class CameraClarity {
   constructor(ownerDocument) {
     this.canvas = ownerDocument.createElement('canvas');
     this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+    this.quality='auto';
     this.mode = 'off'; this.lastFrame = null; this.lastCostMs = 0; this.failed = false;
   }
+  setQuality(id) { this.quality=id;this.lastFrame=null;this.lastCostMs=0;this.failed=false; }
   setMode(mode) {
     this.mode = CAMERA_CLARITY[mode] ? mode : 'off';
     this.lastFrame = null; this.failed = false; this.lastCostMs = 0;
   }
   process(frame) {
-    if (this.mode === 'off' || this.failed) return frame;
+    if (this.mode === 'off' || this.failed || this.quality==='hd') return frame; // Preserve HD source pixels; CSS tone remains active.
     if (this.lastFrame === frame) return this.canvas;
     const start = performance.now();
     // Process once per analyzed frame, bounded independently of TV resolution.

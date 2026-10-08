@@ -16,10 +16,10 @@ export class FaceFeatures {
     gradient.addColorStop(0, '#fff'); gradient.addColorStop(.74, '#fff'); gradient.addColorStop(1, 'rgba(255,255,255,0)');m.fillStyle=gradient;m.fillRect(-1,-1,2,2);
     return { source, pass: make(), output: make(), mask, x, y, width, height };
   }
-  warp(ctx, feature, size, { blink = 0, dx = 0, lift = 0, smile = 0, wide = 0 } = {}) {
+  warp(ctx, feature, size, { blink = 0, dx = 0, lift = 0, smile = 0, wide = 0, headHeight = size } = {}) {
     const { source, pass, output, mask } = feature, w = source.width, h = source.height;
     const a = pass.getContext('2d'), b = output.getContext('2d'); a.clearRect(0,0,w,h); b.clearRect(0,0,w,h);
-    const columns = 20, rows = 28;
+    const columns=Math.min(48,Math.round(20*(this.detail||1))),rows=Math.min(64,Math.round(28*(this.detail||1)));
     // First pass: gaze in the textured iris / asymmetric mouth corners. At the
     // crop boundary displacement is zero, so the original face stays seamless.
     const mapX = t => t * w + dx * w * Math.sin(t * Math.PI) ** 2;
@@ -36,17 +36,17 @@ export class FaceFeatures {
     };
     for(let i=0;i<rows;i++){const top=i/rows,bottom=(i+1)/rows,y=mapY(top),next=mapY(bottom);b.drawImage(pass,0,top*h,w,h/rows,0,y,w,next-y+.5);}
     b.globalCompositeOperation='destination-in';b.drawImage(mask,0,0);b.globalCompositeOperation='source-over';
-    ctx.drawImage(output,(feature.x-feature.width/2)*size,(feature.y-feature.height/2)*size,feature.width*size,feature.height*size);
+    ctx.drawImage(output,(feature.x-feature.width/2)*size,(feature.y-feature.height/2)*headHeight,feature.width*size,feature.height*headHeight);
   }
-  draw(ctx,size,values,gaze,jaw) {
+  draw(ctx,size,values,gaze,jaw,headHeight=size) {
     for(let i=0;i<2;i++) {
       const side=i===0?'Left':'Right',blink=Math.max(values['eyeBlink'+side]||0,(values['cheekSquint'+side]||0)*.45),wide=values['eyeWide'+side]||0;
       const gx=Math.max(-1,Math.min(1,(gaze.x||0)*(gaze.confidence||0)))*.06;
-      if(blink>.008||Math.abs(gx)>.003||wide>.03)this.warp(ctx,this.eyes[i],size,{blink,wide,dx:gx});
+      if(blink>.008||Math.abs(gx)>.003||wide>.03)this.warp(ctx,this.eyes[i],size,{blink,wide,dx:gx,headHeight});
       const lift=Math.max(values.browInnerUp||0,values['browOuterUp'+side]||0)-(values['browDown'+side]||0)*.55;
-      if(Math.abs(lift)>.015)this.warp(ctx,this.brows[i],size,{lift});
+      if(Math.abs(lift)>.015)this.warp(ctx,this.brows[i],size,{lift,headHeight});
     }
     const smile=Math.max(values.mouthSmileLeft||0,values.mouthSmileRight||0);
-    if(jaw<.055&&smile>.03)this.warp(ctx,this.mouth,size,{smile});
+    if(jaw<.055&&smile>.03)this.warp(ctx,this.mouth,size,{smile,headHeight});
   }
 }

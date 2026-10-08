@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+2026-10-08 HD update: [bounded high-resolution surfaces, time-based acting, GPU smoke and full-resolution camera preservation](HD-FLUIDITY-2026-10-08.md). Physical performance and the full suite goal remain unverified.
+
 2026-10-08 visual revision: [dark glass, advected smoke, face-following glow and textured eye/brow/mouth acting](GLASS-AND-EXPRESSIONS-2026-10-08.md). Local visual/voice checks remain distinct from physical Windows installation readiness.
 
 2026-10-08 experience update: [framing, theatrical reveal, local lookbook, favorites, routines, notes and timers](MAGIC-EXPERIENCE-2026-10-08.md) are implemented and exercised locally. Physical inputs, Windows Spotify/runtime, moving cloth realism and Apple People remain unfinished.

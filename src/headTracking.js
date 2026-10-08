@@ -14,7 +14,7 @@ let latestBlendshapes = Object.freeze({});
 const currentHead = { x: 0, y: 0, z: 1 };
 const targetHead = { x: 0, y: 0, z: 1 };
 const currentGaze = { x: 0, y: 0, confidence: 0 };
-const options = { sensitivity: 1, smoothing: 0.18, mount: 'top' };
+const options = { sensitivity: 1, smoothing: 0.18, mount: 'top', cameraQuality:'auto' };
 let depthCalibration = null;
 const calibrationSamples = [];
 let lastHeadUpdateAt = 0;
@@ -107,8 +107,8 @@ export async function startCamera(deviceId = '') {
     stream = await navigator.mediaDevices.getUserMedia({
       video: {
         ...(requestedId ? { deviceId: { exact: requestedId } } : { facingMode: 'user' }),
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
+        width: { ideal: options.cameraQuality==='hd'?3840:options.cameraQuality==='eco'?960:1280 },
+        height: { ideal: options.cameraQuality==='hd'?2160:options.cameraQuality==='eco'?540:720 },
         frameRate: { ideal: 30, max: 30 }
       },
       audio: false
@@ -179,7 +179,22 @@ export async function toggleCamera(enable) {
 
 export function switchCamera(deviceId) { return startCamera(deviceId); }
 
+let cameraQualityQueue=Promise.resolve();
+export function setCameraQuality(id) {
+  setTrackingOptions({cameraQuality:id});const requested=options.cameraQuality;
+  const job=cameraQualityQueue.then(async()=>{
+    if(options.cameraQuality!==requested)return;
+    const stream=mediaStream,track=stream?.getVideoTracks()[0],generation=cameraGeneration;
+    if(!track?.applyConstraints||track.readyState==='ended')return;
+    try{await track.applyConstraints({width:{ideal:requested==='hd'?3840:requested==='eco'?960:1280},height:{ideal:requested==='hd'?2160:requested==='eco'?540:720},frameRate:{ideal:30,max:30}})}
+    catch{return {applied:false};}
+    if(generation!==cameraGeneration||mediaStream!==stream)return;
+    return {applied:true,settings:track.getSettings()};
+  });cameraQualityQueue=job.catch(()=>{});return job;
+}
+
 export function setTrackingOptions(next) {
+  if(['eco','auto','hd'].includes(next.cameraQuality))options.cameraQuality=next.cameraQuality;
   if (Number.isFinite(next.sensitivity)) options.sensitivity = Math.min(2, Math.max(0.5, next.sensitivity));
   if (Number.isFinite(next.smoothing)) options.smoothing = Math.min(0.35, Math.max(0.05, next.smoothing));
   if (['top', 'center'].includes(next.mount) && options.mount !== next.mount) {

@@ -16,6 +16,7 @@ export class GarmentOverlay {
       Object.assign(this.cameraCanvas.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: '0', display: 'none' });
       canvas.parentElement.insertBefore(this.cameraCanvas, canvas);
     }
+    this.quality='auto';
     this.lastCameraFrame = null;
     this.cameraClarity = this.cameraCanvas ? new CameraClarity(canvas.ownerDocument) : null;
     this.video = video;
@@ -36,12 +37,15 @@ export class GarmentOverlay {
     this.resize();
   }
 
+  setQuality(id) { this.quality=id;this.tracker.setQuality(id);this.cameraClarity?.setQuality(id);this.resize(); }
+
   resize() {
     const bounds = this.canvas.parentElement.getBoundingClientRect();
     this.viewport = { width: bounds.width, height: bounds.height };
     // The photographic camera layer sets the useful resolution here. Avoid
     // another full 4K/DPR canvas in addition to the face and 3D renderers.
-    const scale = Math.min(window.devicePixelRatio || 1, 1280 / Math.max(bounds.width, 1), 2560 / Math.max(bounds.height, 1));
+    const budget=this.quality==='hd'?6_000_000:this.quality==='eco'?1_500_000:3_000_000;
+    const scale=Math.min(window.devicePixelRatio||1,Math.sqrt(budget/Math.max(1,bounds.width*bounds.height)));
     this.canvas.width = Math.round(bounds.width * scale);
     this.canvas.height = Math.round(bounds.height * scale);
     this.ctx.setTransform(scale, 0, 0, scale, 0, 0);

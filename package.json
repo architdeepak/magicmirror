@@ -88,7 +88,7 @@
     "check:codex:lifecycle": "node tools/check-codex-lifecycle.cjs",
     "check:ui:audit": "node tools/check-adversarial-ui.cjs",
     "check:account:ipc": "node tools/check-account-ipc.cjs",
-    "test:experience": "node tools/test-experience.cjs && node tools/test-weather.cjs && node tools/test-magic-theatre.cjs && node tools/test-face-cache.cjs && node tools/test-avatar-presence.mjs",
+    "test:experience": "node tools/test-experience.cjs && node tools/test-weather.cjs && node tools/test-magic-theatre.cjs && node tools/test-face-cache.cjs && node tools/test-avatar-presence.mjs && node tools/test-hd-quality.cjs",
     "check:experience:ui": "node tools/check-experience-ui.cjs"
   },
   "devDependencies": {

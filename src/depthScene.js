@@ -1,8 +1,9 @@
+import { displayProfile } from './displayQuality.js';
 import * as THREE from 'three';
 import { createFirePlane } from './fireShader.js';
 
 export function createDepthScene(scene) {
-  let avatarSourceRevision = null;
+  let avatarSourceRevision = null;let textureSize=1536;
   const root = new THREE.Group();
   root.name = 'depth-room';
   scene.add(root);
@@ -72,7 +73,7 @@ export function createDepthScene(scene) {
     makeLattice(2.25, 2.05, new THREE.Vector3(0, -2.47, -2.25), new THREE.Euler(-Math.PI / 2, 0, 0))
   ];
   faceDecorations.forEach((wall) => cube.add(wall));
-  const avatarPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 1.62), new THREE.MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide }));
+  const avatarPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.62, 1.62), new THREE.MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: false, side: THREE.DoubleSide }));
   avatarPlane.name = 'cube-avatar';
   avatarPlane.position.set(0, -.26, -2.16); avatarPlane.visible = false; cube.add(avatarPlane);
   let avatarSource = null; let avatarStage = null; let avatarStageContext = null; let avatarTexture = null;
@@ -128,6 +129,10 @@ export function createDepthScene(scene) {
       halo.visible = false;
       innerHalo.visible = false;
     },
+    setQuality(id) {
+      const next=displayProfile(id).depthTexture;if(next===textureSize)return;textureSize=next;avatarSourceRevision=null;
+      if(avatarStage){avatarStage.width=textureSize;avatarStage.height=textureSize;avatarTexture.needsUpdate=true;}
+    },
     setCubeContent(content = {}) { infoWall.draw(content); },
     setAvatarPosition(position) {
       avatarAnchor = { center: { x: 0, y: -.26 }, left: { x: -.95, y: -.26 }, right: { x: .95, y: -.26 }, upper: { x: 0, y: .72 }, lower: { x: 0, y: -1.2 } }[position] || { x: 0, y: -.26 };
@@ -140,7 +145,7 @@ export function createDepthScene(scene) {
       // directly caused Chromium texture-overflow errors in the remote build.
       // The portrait assets are ~1.2K square. A 1K staging surface retains
       // their detail on a 4K TV while avoiding a resizing texture each frame.
-      avatarStage = document.createElement('canvas'); avatarStage.width = 1024; avatarStage.height = 1024;
+      avatarStage = document.createElement('canvas'); avatarStage.width = textureSize; avatarStage.height = textureSize;
       avatarStageContext = avatarStage.getContext('2d');
       avatarTexture?.dispose(); avatarTexture = new THREE.CanvasTexture(avatarStage); avatarTexture.colorSpace = THREE.SRGBColorSpace;
       avatarPlane.material.map = avatarTexture; avatarPlane.material.needsUpdate = true; avatarPlane.visible = depthEnabled && mode === 'portal';
@@ -157,8 +162,9 @@ export function createDepthScene(scene) {
       avatarPlane.rotation.x = -head.y * .025;
       if (depthEnabled && avatarPlane.visible && avatarSource?.width && avatarStageContext && avatarTexture
         && (avatarSource._mirrorRevision == null || avatarSource._mirrorRevision !== avatarSourceRevision)) {
-        avatarStageContext.clearRect(0, 0, 1024, 1024);
-        avatarStageContext.drawImage(avatarSource, 0, 0, 1024, 1024);
+        avatarStageContext.clearRect(0, 0, textureSize, textureSize);
+        const scale=Math.min(textureSize/avatarSource.width,textureSize/avatarSource.height),w=avatarSource.width*scale,h=avatarSource.height*scale;
+        avatarStageContext.drawImage(avatarSource,(textureSize-w)/2,(textureSize-h)/2,w,h);
         avatarTexture.needsUpdate = true;
         avatarSourceRevision = avatarSource._mirrorRevision;
       }

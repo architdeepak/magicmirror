@@ -8,6 +8,7 @@ const fs = require('fs/promises');
   for (const mode of ['watch', 'spotify']) assert.equal(renderFrameRate({ ...ambient, mode }), 12);
   for (const input of [{ avatarVisible: true }, { depthEnabled: true }, { mode: 'ar' }]) assert.equal(renderFrameRate({ ...ambient, ...input }), 30);
   for (const input of [{ sleeping: true }, { hidden: true }]) assert.equal(renderFrameRate({ ...ambient, avatarVisible: true, ...input }), 0);
+  assert.equal(renderFrameRate({...ambient,avatarVisible:true,motionFps:60}),60);assert.equal(renderFrameRate({...ambient,mode:'ar',motionFps:60}),30);assert.equal(renderFrameRate({...ambient,hidden:true,motionFps:60}),0);
   const budget = new RenderBudget();
   assert(budget.shouldRender(0, ambient));
   assert(!budget.shouldRender(16, ambient));

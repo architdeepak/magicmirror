@@ -51,12 +51,16 @@ self.onmessage = async ({ data }) => {
     return;
   }
   if (data.type === 'frame') {
-    let result, segmentationResult, segmentationFrame;
+    let result, segmentationResult, segmentationFrame, analysisFrame;
     try {
       if (!landmarker) throw new Error('Body tracker is not ready.');
       const started = performance.now();
       const usedSegmentationDelegate = segmentationDelegate;
-      result = landmarker.detectForVideo(data.frame, data.timestamp);
+      // Analyze a smaller copy of the SAME retained HD frame, then return the
+      // original for synchronized display. Never mix newer video with old pose.
+      const analysisScale=Math.min(1,960/data.frame.width,720/data.frame.height);
+      analysisFrame=analysisScale<1?await createImageBitmap(data.frame,{resizeWidth:Math.round(data.frame.width*analysisScale),resizeHeight:Math.round(data.frame.height*analysisScale),resizeQuality:'high'}):null;
+      result = landmarker.detectForVideo(analysisFrame || data.frame, data.timestamp);
       let segmentation = null;
       poseFrames++;
       if (segmenter && result.landmarks?.[0] && (poseFrames - 1) % segmentationStride === 0) {
@@ -98,6 +102,6 @@ self.onmessage = async ({ data }) => {
       }
       self.postMessage({ type: 'pose', requestId: data.requestId, epoch: data.epoch, timestamp: data.timestamp, landmarks: result.landmarks?.[0] || null, worldLandmarks: result.worldLandmarks?.[0] || null, frame: data.frame, segmentation, inferenceMs, segmentationDelegate: usedSegmentationDelegate }, [data.frame, ...(segmentation ? [segmentation.classes.buffer] : [])]);
     } catch (error) { self.postMessage({ type: 'error', message: `Body tracker failed: ${error.message}` }); }
-    finally { segmentationFrame?.close(); segmentationResult?.close(); result?.close(); data.frame.close(); }
+    finally { analysisFrame?.close(); segmentationFrame?.close(); segmentationResult?.close(); result?.close(); data.frame.close(); }
   }
 };

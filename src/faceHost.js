@@ -1,3 +1,4 @@
+import { displayProfile, boundedSurface } from './displayQuality.js';
 import { FaceFeatures } from './faceFeatures.js';
 const HEADS = Object.freeze({
   // V2 is an original, deliberately simplified avatar family: large face
@@ -42,7 +43,7 @@ export class FaceHost {
     this.blendshapes = {};
     this.gaze = { x: 0, y: 0, confidence: 0 };
     this.viewer = { x: 0, y: 0 };
-    this.lastIdleSignature = null; this.drawCount = 0;
+    this.lastIdleSignature = null; this.drawCount = 0; this.quality='auto';this.lastElapsed=null;this.gazeSmooth={x:0,y:0};
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.setPersona(this.persona);
@@ -65,7 +66,7 @@ export class FaceHost {
     this.image.onload = () => {
       if (this.image !== neutral) return;
       if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
-      this.features = new FaceFeatures(neutral, HEADS[this.persona]);
+      this.features = new FaceFeatures(neutral, HEADS[this.persona]);this.features.detail=displayProfile(this.quality).featureDetail;
       this.ready = true;
       this.draw(0);
     };
@@ -99,18 +100,20 @@ export class FaceHost {
     };
   }
 
+  setQuality(id) { this.quality=id;if(this.features)this.features.detail=displayProfile(id).featureDetail;this.resize(); }
+
   resize() {
     this.lastIdleSignature = null;
     // The source art is ~1.2K; retain it for close viewing on the TV while
     // keeping the host canvas bounded on high-density desktop previews.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const profile=displayProfile(this.quality);
     const width = Math.max(1, this.host.clientWidth);
     const height = Math.max(1, this.host.clientHeight);
-    this.canvas.width = Math.round(width * dpr);
-    this.canvas.height = Math.round(height * dpr);
+    const surface=boundedSurface(width,height,window.devicePixelRatio||1,profile.avatarPixels,profile.avatarDpr);
+    this.canvas.width=surface.width;this.canvas.height=surface.height;
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.ctx.setTransform(this.canvas.width/width, 0, 0, this.canvas.height/height, 0, 0);
     // Resizing resets canvas state, including the high-quality sampler.
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
@@ -123,6 +126,9 @@ export class FaceHost {
   draw(elapsed) {
     const { ctx, width: w, height: h } = this;
     if (!ctx || !w || !h) return;
+    const dt=this.lastElapsed==null?1/30:Math.min(.06,Math.max(.001,elapsed-this.lastElapsed));this.lastElapsed=elapsed;
+    this.gazeSmooth ||= {x:0,y:0};const gazeTarget={x:(this.gaze.x||0)*(this.gaze.confidence||0),y:(this.gaze.y||0)*(this.gaze.confidence||0)};
+    const gazeAlpha=1-Math.exp(-dt*22);for(const key of ['x','y'])this.gazeSmooth[key]+=(gazeTarget[key]-this.gazeSmooth[key])*gazeAlpha;
     if (!this.ready) {
       if (this.lastIdleSignature !== 'loading') { ctx.clearRect(0, 0, w, h); this.canvas._mirrorRevision = ++this.drawCount; this.lastIdleSignature = 'loading'; }
       return;
@@ -133,19 +139,20 @@ export class FaceHost {
       && ['turn','nod','lean'].every(key => Math.abs(this.performanceSmooth[key] - this.performance[key]) < .0005);
     const stable = value => Number.isFinite(value) ? Number(value.toFixed(4)) : 0;
     const signature = settled ? [this.persona, w, h, this.speakingReady, this.roundedReady, this.viseme,
-      ...Object.entries(this.blendshapes).flatMap(([key,value]) => [key, typeof value === 'number' ? Math.abs(value) < .001 ? 0 : stable(value) : value]), stable(this.gaze.x), stable(this.gaze.y), stable(this.gaze.confidence), stable(this.viewer.x), stable(this.viewer.y),
+      ...Object.entries(this.blendshapes).flatMap(([key,value]) => [key, typeof value === 'number' ? Math.abs(value) < .001 ? 0 : stable(value) : value]), stable(this.gaze.x), stable(this.gaze.y), stable(this.gaze.confidence), stable(this.viewer.x), stable(this.viewer.y),stable(this.gazeSmooth.x),stable(this.gazeSmooth.y),
       ...Object.values(this.performanceSmooth).map(value => value.toFixed(4))].join(':') : null;
     if (settled && signature === this.lastIdleSignature) return;
     this.lastIdleSignature = signature;
     ctx.clearRect(0, 0, w, h);
     this.canvas._mirrorRevision = ++this.drawCount;
-    const base = Math.min(w, h) * 1.03;
+    const aspect=(this.image.naturalHeight||1)/(this.image.naturalWidth||1);
+    const base = Math.min(w, h/aspect) * 1.02,headHeight=base*aspect;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.
-    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * .13;
+    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * (1-Math.exp(-dt*4.2));
     const bob = this.performanceSmooth.nod * h * .032;
-    const gazeX = (this.gaze.x || 0) * (this.gaze.confidence || 0) * w * .006;
-    const gazeY = (this.gaze.y || 0) * (this.gaze.confidence || 0) * h * .004;
+    const gazeX = this.gazeSmooth.x * w * .006;
+    const gazeY = this.gazeSmooth.y * h * .004;
     ctx.save();
     const turn = Math.max(-1, Math.min(1, this.performanceSmooth.turn));
     ctx.translate(w / 2 + gazeX + turn * base * .038, h / 2 + bob + gazeY);
@@ -158,26 +165,26 @@ export class FaceHost {
     const targetO = ['O','OU'].includes(this.viseme) ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
-    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * .2;
-    this.poseBlend.O += (targetO - this.poseBlend.O) * .2;
+    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * (1-Math.exp(-dt*6.7));
+    this.poseBlend.O += (targetO - this.poseBlend.O) * (1-Math.exp(-dt*6.7));
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));
     const rounded = Math.max(0, Math.min(1 - aa, this.poseBlend.O));
     // Do not squeeze the face to fake a turn. Width distortion is more
     // distracting than a stable front-on pose; real turns belong to the GLB.
-    ctx.drawImage(this.image, -base / 2, -base / 2, base, base);
+    ctx.drawImage(this.image, -base / 2, -headHeight / 2, base, headHeight);
     // Only the mouth region crossfades. Blending entire head renders changes
     // cheeks, eyes and hair simultaneously, which reads as a melting face.
     const spec = HEADS[this.persona];
-    const mouthY = base * (spec.mouthY ?? .323);
+    const mouthY = headHeight * (spec.mouthY ?? .323);
     if ((this.speakingReady && aa > .015) || (this.roundedReady && rounded > .015)) {
       ctx.save();
       if (this.speakingPatch && aa > .015) {
         ctx.globalAlpha = aa;
-        ctx.drawImage(this.speakingPatch, -base * .11, mouthY - base * .05, base * .22, base * .10);
+        ctx.drawImage(this.speakingPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
       }
       if (this.roundedPatch && rounded > .015) {
         ctx.globalAlpha = rounded;
-        ctx.drawImage(this.roundedPatch, -base * .11, mouthY - base * .05, base * .22, base * .10);
+        ctx.drawImage(this.roundedPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
       }
       ctx.restore();
     }
@@ -191,9 +198,9 @@ export class FaceHost {
     // Blinks come from the camera puppet. Avoid a timer-driven full eyelid
     // overlay: it can freeze an otherwise beautiful still frame mid-blink.
     const lid = Math.max(this.blendshapes.eyeBlinkLeft || 0, this.blendshapes.eyeBlinkRight || 0);
-    if (this.features) this.features.draw(ctx, base, this.blendshapes, this.gaze, jaw);
-    else if (lid > .08) this.drawLids(ctx, cx, cy, base, lid);
-    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) this.drawMouth(ctx, cx, cy, base, jaw);
+    if (this.features) this.features.draw(ctx, base, this.blendshapes, {...this.gazeSmooth,confidence:1}, jaw,headHeight);
+    else if (lid > .08) {ctx.save();ctx.scale(1,aspect);this.drawLids(ctx,cx,cy,base,lid);ctx.restore();}
+    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) {ctx.save();ctx.scale(1,aspect);this.drawMouth(ctx,cx,cy,base,jaw);ctx.restore();}
     // The generated hosts already contain sculpted brows. Drawing a second
     // eyebrow layer on top produces a visible double-brow artifact; reserve
     // the procedural fallback for the unstyled reference host only.
@@ -203,8 +210,8 @@ export class FaceHost {
     // layout moves; it never uses an unrelated world-space ring position.
     const faceCenter = ((spec.eyeY ?? .06) + (spec.mouthY ?? .23)) * .5;
     const angle = (this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13;
-    const anchorX = w / 2 + gazeX + turn * base * .038 - Math.sin(angle) * base * faceCenter;
-    const anchorY = h / 2 + bob + gazeY + Math.cos(angle) * base * faceCenter;
+    const anchorX = w / 2 + gazeX + turn * base * .038 - Math.sin(angle) * headHeight * faceCenter;
+    const anchorY = h / 2 + bob + gazeY + Math.cos(angle) * headHeight * faceCenter;
     this.faceAnchor = { x: anchorX, y: anchorY, size: base };
     this.host?.style?.setProperty('--face-center-x', anchorX + 'px');
     this.host?.style?.setProperty('--face-center-y', anchorY + 'px');

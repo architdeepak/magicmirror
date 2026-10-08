@@ -63,5 +63,12 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
     Vision:{FilesetResolver:{forVisionTasks:async()=>({})},PoseLandmarker:{createFromOptions:async()=>landmarker},ImageSegmenter:{createFromOptions:async(_vision,options)=>{initialDelegate=options.baseOptions.delegate;return segmenter}}}});
   vm.runInContext(read('poseTrackingWorker.js').replace("await import('../node_modules/@mediapipe/tasks-vision/vision_bundle.mjs')",'Vision'),softwareContext);
   await softwareContext.self.onmessage({data:{type:'init'}});assert.equal(initialDelegate,'CPU');assert(probeClosed,'Renderer probe leaked its WebGL context');
+  // Full HD display and smaller analysis must refer to the same captured image.
+  const captured=[],analysis=[],messages=[];let outputFrame;
+  context.createImageBitmap=(video,options)=>{captured.push(options);const pending=deferred();bitmaps.push(pending);return pending.promise};
+  const hd=new context.Subject({srcObject:{active:true},readyState:2,videoWidth:3840,videoHeight:2160,currentTime:1});hd.setQuality('hd');hd.setEnabled(true);workers.at(-1).send({type:'ready'});hd.update(2000);assert.equal(captured[0].resizeWidth,3840);assert.equal(captured[0].resizeHeight,2160);bitmaps.at(-1).resolve(frame());await tick();hd.destroy();
+  workerContext.createImageBitmap=async(original,options)=>{const image={...options,width:options.resizeWidth,height:options.resizeHeight,close(){this.closed=true}};analysis.push(image);return image};
+  landmarker.detectForVideo=image=>{assert(image.width<=960&&image.height<=720,'HD source enlarged ML work');return{landmarks:[[{x:.5,y:.5,visibility:1}]],close(){}}};
+  const full={width:3840,height:2160,close(){this.closed=true}};await workerContext.self.onmessage({data:{type:'frame',frame:full,timestamp:15000,requestId:100,epoch:1}});assert.equal(workerMessages.at(-1).frame,full,'Worker substituted analysis pixels for HD display');assert(analysis[0].closed,'Resized analysis bitmap leaked');
   console.log('Body tracking passed: immediate camera invalidation, request identity, worker watchdog, late bitmap isolation, disposal, motion-adaptive pose smoothing, mask freshness across camera changes, and GPU/CPU frame-budget recovery.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

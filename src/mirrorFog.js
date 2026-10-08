@@ -1,9 +1,9 @@
 // A bounded, advected density field. Soft transmitted light replaces outlines
 // and star sprites. It runs only during an explicit summon/arrival cue.
 export class MirrorFog {
-  constructor() {
-    this.canvas = document.createElement('canvas'); this.canvas.width = 160; this.canvas.height = 240;
-    this.ctx = this.canvas.getContext('2d'); this.image = this.ctx.createImageData(160, 240);
+  constructor(width = 240, height = 360) {
+    this.canvas = document.createElement('canvas'); this.canvas.width = width; this.canvas.height = height;
+    this.ctx = this.canvas.getContext('2d'); this.image = this.ctx.createImageData(width, height);
     this.noise = new Float32Array(128 * 128);
     let seed = 71391;
     for (let i = 0; i < this.noise.length; i++) { seed = (Math.imul(seed, 1664525) + 1013904223) | 0; this.noise[i] = (seed >>> 0) / 4294967296; }
@@ -17,7 +17,7 @@ export class MirrorFog {
     return (a + (b - a) * fx) * (1 - fy) + (c + (d - c) * fx) * fy;
   }
   render(progress, arrival = false) {
-    const pixels = this.image.data, w = 160, h = 240, time = arrival ? 3 + progress * 1.1 : progress * 3.0;
+    const pixels = this.image.data, w = this.canvas.width, h = this.canvas.height, time = arrival ? 3 + progress * 1.1 : progress * 3.0;
     const envelope = arrival ? .54 * Math.pow(1 - progress, 1.6) : smooth(0, .22, progress) * (1 - .46 * smooth(.65, 1, progress));
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const u = (x / w - .5) * 2, v = (y / h - .48) * 2;

@@ -1,5 +1,6 @@
 import { MirrorAgentTools } from './mirrorAgentTools.js';
 import * as THREE from 'three';
+import { displayProfile } from './displayQuality.js';
 import { RenderBudget, SceneRenderBudget } from './renderBudget.js';
 import { AvatarController } from './avatarController.js';
 import { ClosetStore } from './closetStore.js';
@@ -33,6 +34,7 @@ import {
   getTrackingStatus,
   initHeadTracking,
   setTrackingOptions,
+  setCameraQuality,
   switchCamera,
   toggleCamera,
   updateHeadTracking
@@ -236,10 +238,11 @@ const viewportSize = () => ({ width: elements.shell.clientWidth || window.innerW
 // native detail, but cap Retina/browser scaling by a pixel budget rather than
 // a blunt DPR value that can turn a 4K panel into a 33MP render target.
 const RENDER_PIXEL_BUDGET = 12_000_000;
+let displayQualityId=['eco','auto','hd'].includes(localStorage.getItem('mirror.display-quality'))?localStorage.getItem('mirror.display-quality'):'auto';
 const preferredPixelRatio = () => {
   const { width, height } = viewportSize();
-  const budgetRatio = Math.sqrt(RENDER_PIXEL_BUDGET / Math.max(1, width * height));
-  return Math.min(window.devicePixelRatio || 1, Math.max(.8, budgetRatio));
+  const budgetRatio = Math.sqrt((softwareGraphics?2_000_000:RENDER_PIXEL_BUDGET) / Math.max(1, width * height));
+  return Math.min(window.devicePixelRatio || 1,budgetRatio);
 };
 const softwareGraphics = (() => { try { const gl = renderer.getContext(); const info = gl.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software/i.test(String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '')); } catch { return false; } })();
 const sceneBudget = new SceneRenderBudget({ maxDynamicFps: softwareGraphics ? 15 : 30 });
@@ -526,7 +529,9 @@ if (hardMuted) elements.mic.disabled = true;
 let gestureToastTimer = null;
 let queenCueTimer = null;
 let avatarExpressionTimer;
-const magic = new MagicTheatre(elements.shell);
+const magic = new MagicTheatre(elements.shell,{softwareGraphics,quality:displayQualityId});
+avatar.setQuality(displayQualityId);
+depthScene.setQuality(displayQualityId);
 const framing = new FramingGuide(elements.shell, garmentOverlay, elements.video);
 const experience = new MirrorExperience({
   shell: elements.shell, bridge: window.mirrorBridge, magic, closet,
@@ -568,6 +573,13 @@ document.querySelector('#closet-filter').addEventListener('click', () => { close
 for (const [selector, key, object, property] of [['#framing-toggle','mirror.framing',framing,'enabled'],['#reduced-motion-toggle','mirror.reduced-motion',magic,'reduced'],['#magic-sounds-toggle','mirror.magic-sounds',magic,'sound']]) {
   const field = document.querySelector(selector); field.checked = object[property]; field.addEventListener('change', () => { object[property] = field.checked; localStorage.setItem(key, String(field.checked)); magic.applyPreferences(); if (property === 'reduced' || property === 'sound') magic.cancel(); });
 }
+const displayQualitySelect=document.querySelector('#display-quality');displayQualitySelect.value=displayQualityId;
+function applyDisplayQuality(id) {
+  displayQualityId=['eco','auto','hd'].includes(id)?id:'auto';localStorage.setItem('mirror.display-quality',displayQualityId);
+  displayQualitySelect.value=displayQualityId;avatar.setQuality(displayQualityId);garmentOverlay.setQuality(displayQualityId);void setCameraQuality(displayQualityId).then(()=>updateTrackingUi()).catch(()=>{});magic.setQuality(displayQualityId);depthScene.setQuality(displayQualityId);sceneBudget.maxDynamicFps=softwareGraphics?15:displayProfile(displayQualityId).motionFps;sceneBudget.invalidate();
+  document.querySelector('#display-quality-status').textContent=displayQualityId==='hd'?'More texture detail and smooth motion when available':displayQualityId==='eco'?'Lower graphics work for a small PC':'Detail and smoothness balanced for this display';
+}
+displayQualitySelect.addEventListener('change',event=>applyDisplayQuality(event.target.value));applyDisplayQuality(displayQualityId);
 document.querySelector('#routine-movie').value = localStorage.getItem('mirror.routine.movie') || 'youtube';
 document.querySelector('#routine-movie').addEventListener('change', event => localStorage.setItem('mirror.routine.movie', event.target.value));
 document.querySelector('#routine-music').checked = localStorage.getItem('mirror.routine.music') === 'true';
@@ -687,7 +699,7 @@ function getMirrorState() {
   return {
     observedAt: new Date().toISOString(),
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
-      avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
+      quality:displayQualityId,graphics:softwareGraphics?'software':'accelerated-or-unknown',effects:magic.snapshot(),avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
     agent: { active: Boolean(agentRunId), provider: 'codex' },
     lookbook: { open: experience.dialog.open, capturing: experience.capturing, draftReady: Boolean(experience.draft), saving: experience.saving, savedCount: experience.looks.length, comparison: Boolean(experience.comparing) },
     localTimers: experience.timers.tick().map(item => ({ label: item.label, seconds: item.seconds, state: item.state })),
@@ -1769,7 +1781,7 @@ function animate() {
     return;
   }
   animationFrame = requestAnimationFrame(animate);
-  if (!renderBudget.shouldRender(performance.now(), { hidden: false, sleeping: false, mode, depthEnabled, avatarVisible: avatar.visible })) return;
+  if (!renderBudget.shouldRender(performance.now(), { hidden: false, sleeping: false, mode, depthEnabled, avatarVisible: avatar.visible,motionFps:softwareGraphics?30:displayProfile(displayQualityId).motionFps })) return;
   const frameDelta = clock.getDelta();
   const dt = Math.min(frameDelta, 0.05);
   const elapsed = clock.elapsedTime;
@@ -1959,6 +1971,8 @@ function spotifyEmbedUrl(url) {
 
 function runVoiceNavigation(prompt) {
   if (experience.voice(prompt)) return true;
+  const qualityCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim();
+  if(/^(?:set |use |switch to )?(?:maximum detail|hd quality|balanced quality|efficient quality)$/.test(qualityCommand)) {applyDisplayQuality(/maximum|hd/.test(qualityCommand)?'hd':/efficient/.test(qualityCommand)?'eco':'auto');showGesture('Display quality updated');return true;}
   const faceCommand = prompt.toLowerCase().replace(/[.,!?]/g, '').trim();
   const expressionCommands = {
     blink: {eyeBlinkLeft:1,eyeBlinkRight:1}, 'raise an eyebrow': {browOuterUpLeft:.65},
@@ -2230,7 +2244,7 @@ function updateRenderQuality(dt) {
   if (renderQuality.elapsed < 2) return;
   renderQuality.fps = renderQuality.frames / renderQuality.elapsed;
   const previous = renderQuality.pixelRatio;
-  if (renderQuality.fps < renderBudget.targetFps * .7 && renderQuality.pixelRatio > .8) renderQuality.pixelRatio = Math.max(.8, renderQuality.pixelRatio - .1);
+  if (renderQuality.fps < renderBudget.targetFps * .7 && renderQuality.pixelRatio > (softwareGraphics?.3:.8)) renderQuality.pixelRatio = Math.max(softwareGraphics?.3:.8, renderQuality.pixelRatio - .1);
   else if (renderQuality.fps > renderBudget.targetFps * .95 && renderQuality.pixelRatio < renderQuality.maxPixelRatio) renderQuality.pixelRatio = Math.min(renderQuality.maxPixelRatio, renderQuality.pixelRatio + .05);
   if (renderQuality.pixelRatio !== previous) {
     renderer.setPixelRatio(renderQuality.pixelRatio);

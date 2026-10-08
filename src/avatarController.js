@@ -32,6 +32,7 @@ export class AvatarController {
     this.fallbackRigUrl = 'assets/avatar.glb';
     this.loadedRigUrl = null;
     this.lastRigError = null;
+    this.quality='auto';
     this.faceHost = null;
     this.rigHost = null;
     this.videoHost = null;
@@ -80,7 +81,7 @@ export class AvatarController {
       // full GLB on every audio animation tick. Keep its audio clock intact.
       this.head.renderer.render = () => {};
       const aura = document.createElement('div'); aura.className = 'host-aura'; aura.setAttribute('aria-hidden','true'); this.host.append(aura);
-      this.faceHost = new FaceHost(this.host);
+      this.faceHost = new FaceHost(this.host);this.faceHost.setQuality(this.quality);
       this.videoHost = new AvatarVideoHost(this.host);
       // Experimental rig previews are explicitly created by their preview
       // tool. Normal use needs neither its WebGL context nor its model loads.
@@ -178,6 +179,8 @@ export class AvatarController {
   setViseme(viseme) { this.viseme = viseme || 'rest'; }
 
   setPerformance(performance) { this.performance = performance || { turn: 0, nod: 0, lean: 0 }; }
+
+  setQuality(id) { this.quality=id;this.faceHost?.setQuality(id); }
 
   setActivity(activity) { this.presence.setActivity(activity); }
 

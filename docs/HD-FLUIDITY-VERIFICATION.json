@@ -1,0 +1,201 @@
+{
+  "date": "2026-10-08",
+  "archiveSha256": "7f7423e27896f8d60077f7da86ab8b2f81d90d03348035d37b2b99ed1ec0e2d2",
+  "checks": {
+    "hd": {
+      "artifact": "artifacts/hd-ui/result.json",
+      "passed": true,
+      "scope": "Actual packaged Linux app. Native profile routing/persistence and high-DPR surface bounds; shader compiled/rendered on software GL with acceleration detection overridden for a small fixture; forced context loss; no physical GPU/Windows/camera proof.",
+      "details": {
+        "passed": true,
+        "face": {
+          "canvas": [
+            950,
+            1766
+          ],
+          "source": [
+            1215,
+            1295
+          ],
+          "anchor": {
+            "x": 237.5,
+            "y": 518.4437839506173,
+            "size": 484.5
+          },
+          "profile": "hd"
+        },
+        "gpu": {
+          "quality": "hd",
+          "backend": "gpu",
+          "resolution": [
+            360,
+            639
+          ],
+          "field": null,
+          "frames": 36,
+          "targetFps": 60,
+          "fallbackReason": null
+        },
+        "fallback": {
+          "quality": "hd",
+          "backend": "cpu",
+          "resolution": [
+            360,
+            639
+          ],
+          "field": [
+            320,
+            480
+          ],
+          "frames": 12,
+          "targetFps": 30,
+          "fallbackReason": "Smoke graphics context lost"
+        },
+        "eco": {
+          "quality": "eco",
+          "backend": "cpu",
+          "resolution": [
+            360,
+            639
+          ],
+          "field": [
+            160,
+            240
+          ],
+          "frames": 1,
+          "targetFps": 30,
+          "fallbackReason": "Smoke graphics context lost"
+        },
+        "scope": "Actual packaged Linux app. Native profile routing/persistence and high-DPR surface bounds; shader compiled/rendered on software GL with acceleration detection overridden for a small fixture; forced context loss; no physical GPU/Windows/camera proof."
+      }
+    },
+    "animation": {
+      "artifact": "artifacts/magic-animation/result.json",
+      "passed": true,
+      "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+      "details": {
+        "passed": true,
+        "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+        "frames": 60,
+        "captureTimesMs": [
+          858,
+          1556,
+          2271,
+          2961,
+          3690,
+          4251,
+          4641,
+          5028,
+          5320,
+          5602,
+          5975,
+          6314,
+          6678,
+          7129,
+          7452,
+          7822,
+          8192,
+          8585,
+          8966,
+          9311,
+          9623,
+          9996,
+          10313,
+          10582,
+          10920,
+          11299,
+          11676,
+          12056,
+          12417,
+          12803,
+          13193,
+          13462,
+          13819,
+          14264,
+          14685,
+          15027,
+          15385,
+          15809,
+          16108,
+          16481,
+          16764,
+          17114,
+          17344,
+          17721,
+          17949,
+          18282,
+          18580,
+          18931,
+          19252,
+          19650,
+          19969,
+          20331,
+          20550,
+          20952,
+          21234,
+          21608,
+          21919,
+          22299,
+          22671,
+          22976
+        ],
+        "renderedFrames": 288,
+        "renderedFps": 60,
+        "hdGpuPreview": true,
+        "renderer": {
+          "quality": "hd",
+          "backend": "gpu",
+          "resolution": [
+            1080,
+            1919
+          ],
+          "field": null,
+          "frames": 316,
+          "targetFps": 60,
+          "fallbackReason": null
+        },
+        "renderedScope": "Deterministic production fog at the recorded export cadence, posed host and equivalent fade; offline export is not a live FPS measurement. Original timed screen capture retained separately.",
+        "cancelledCleanly": true,
+        "reducedMotionNoParticleLoop": true
+      }
+    },
+    "layout": {
+      "artifact": "artifacts/adversarial-ui/result.json",
+      "passed": true,
+      "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition."
+    },
+    "power": {
+      "artifact": "artifacts/power-ui/current/result.json",
+      "passed": null,
+      "scope": "Linux software-rendered portrait app; renderer CPU excludes other processes and is not a wattage measurement; synthetic hidden state; accelerated sleep timer; no physical camera or microphone"
+    },
+    "voice": {
+      "artifact": "artifacts/voice-journey/result.json",
+      "passed": null,
+      "scope": null
+    },
+    "acting": {
+      "artifact": "artifacts/avatar-acting/result.json",
+      "passed": true,
+      "scope": "Actual packaged Linux app, production textured feature poses and halo geometry at five positions. Explicit acting inputs, no physical tracking or live lip-sync. RAF cadence sampled without screenshot readback; software graphics.",
+      "checkedAt": null
+    },
+    "experience": {
+      "artifact": "artifacts/experience-ui/result.json",
+      "passed": true,
+      "scope": "Actual packaged Linux app and native IPC with Chromium mouse/keyboard; synthetic canvas camera, injected pose/gesture state, explicit reveal. No physical sensors, Windows Spotify or acoustic recognition.",
+      "checkedAt": "2026-10-08T23:55:55.954Z"
+    }
+  },
+  "limits": [
+    "Software GL fixture explicitly overrides GPU detection; no physical accelerated GPU proof.",
+    "60 fps movie is offline export, not live throughput.",
+    "4K camera is an ideal request, not physical camera proof.",
+    "Earlier high-DPR PNG CDP capture disconnected; JPEG passed; exact cause unproved.",
+    "Physical Windows stick/TV, camera/microphone/gesture inputs and cloth realism remain unverified."
+  ],
+  "unitRegression": {
+    "command": "npm test",
+    "passed": true
+  }
+}

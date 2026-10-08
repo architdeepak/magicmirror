@@ -23,8 +23,10 @@ export class BodyTracking {
     this.pending = null;
     this.requestNumber = 0;
     this.initTimeout = null;
-    this.warmedUp = false;
+    this.warmedUp = false;this.quality='auto';
   }
+
+  setQuality(id) { this.quality=['eco','auto','hd'].includes(id)?id:'auto'; }
 
   setEnabled(enabled) {
     if (this.disposed) return;
@@ -127,10 +129,12 @@ export class BodyTracking {
     request.timeout = setTimeout(() => {
       if (this.pending === request) this._fail('Body tracking stalled. Select Live camera to retry.');
     }, this.warmedUp ? 5000 : 20000);
-    const scale = Math.min(1, 960 / this.video.videoWidth, 720 / this.video.videoHeight);
+    const w=this.video.videoWidth,h=this.video.videoHeight;
+    const longSide=this.quality==='hd'?3840:this.quality==='eco'?960:1280,shortSide=this.quality==='hd'?2160:this.quality==='eco'?720:720;
+    const scale=Math.min(1,longSide/Math.max(w,h),shortSide/Math.min(w,h));
     createImageBitmap(this.video, {
       resizeWidth: Math.round(this.video.videoWidth * scale),
-      resizeHeight: Math.round(this.video.videoHeight * scale), resizeQuality: 'low'
+      resizeHeight: Math.round(this.video.videoHeight * scale), resizeQuality: 'high'
     }).then((frame) => {
       if (!this.enabled || this.worker !== worker || this.epoch !== epoch) {
         frame.close();
