@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+2026-10-08 update: [camera/photo clarity and avatar rendering audit](CAMERA-CLARITY-2026-10-08.md). Local enhancement, exact original restoration, separate front/back drafts, doubled starter SVG rasterization, speech-level mouth blending and common feature transforms are implemented. The full goal remains incomplete; cloth simulation, physical inputs, Windows runtime and Apple People integration still need work.
+
 Reviewed 2026-10-06 (Pacific time). The full user goal remains incomplete.
 Evidence below distinguishes implemented software from the requested experience
 on a portrait TV and PC stick. The referenced `artifacts` files are local,

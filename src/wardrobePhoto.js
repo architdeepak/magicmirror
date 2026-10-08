@@ -1,3 +1,4 @@
+import { enhanceCameraPixels } from './cameraClarity.js';
 // Bounded CPU work when editing a photo; never runs in the camera render loop.
 export function cutoutPhoto(source, { removeBackground = true, tolerance = 35, topPercent = 0, bottomPercent = 100 } = {}) {
   const width = source.width, height = source.height;
@@ -51,6 +52,8 @@ export class WardrobePhoto {
       <canvas width="480" height="540" aria-label="Garment cutout preview"></canvas>
       <label>Name <input data-field="name" maxlength="80" placeholder="My blue summer dress"></label>
       <label>Clothing type <select data-field="category"><option value="top">Top / T-shirt</option><option value="outerwear">Jacket / coat</option><option value="dress">Dress</option><option value="skirt">Skirt</option><option value="bottoms">Trousers</option></select></label>
+      <label>Photo clarity <select data-field="clarity"><option value="off">Original</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></label>
+      <p>Original photo is retained. Bright changes apparent colors. Say “enhance photo”, “brighten photo”, or “original photo”.</p>
       <details class="wardrobe-refine"><summary>Adjust cutout</summary>
       <label class="wardrobe-check"><input data-field="remove" type="checkbox" checked> Remove plain background</label>
       <label>Cutout strength <input data-field="tolerance" type="range" min="8" max="80" value="35"></label>
@@ -84,12 +87,17 @@ export class WardrobePhoto {
     this.button('restore').onclick = () => {
       this.cancelExtraction(); this.generation++; this.captureOwner = null; this.loadingOwner = null;
       if (!this.source && this.views[this.activeView]?.source) { this.source = this.views[this.activeView].source; this.original = this.views[this.activeView].original; }
+      this.field('clarity').value = 'off';
       this.clothingSource = null; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100'; this.field('remove').checked = true; this.button('capture').disabled = false; this.button('extract').disabled = !this.source; this.preview(); this.syncViews();
     };
     this.field('name').oninput = () => { this.nameAutomatic = false; };
     this.field('category').onchange = () => this.updateSuggestedName();
     this.field('file').onchange = () => void this.upload(this.field('file').files?.[0]);
     for (const name of ['remove', 'tolerance', 'crop-top', 'crop-bottom']) this.field(name).oninput = () => this.preview();
+    this.field('clarity').onchange = () => {
+      if (this.saving || this.extracting || this.photoLoading || this.capturePending) { this.field('clarity').value = this.views[this.activeView]?.clarity || 'off'; return; }
+      this.preview();
+    };
     this.dialog.addEventListener('close', () => { if (this.open) return; this.restoreVoiceUi(); this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null; this.original = null; this.views = {}; this.waitingPhone = false; void window.mirrorBridge?.wardrobePhone?.(false); });
     this.dialog.addEventListener('cancel', event => { if (this.saving) event.preventDefault(); });
     this.dialog.querySelector('form').onsubmit = event => { event.preventDefault(); void this.save(); };
@@ -110,6 +118,7 @@ export class WardrobePhoto {
     this.nameAutomatic = true;
     this.field('name').value = ''; this.field('file').value = ''; this.field('remove').checked = true;
     this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
+    this.field('clarity').value = 'off';
     this.field('tolerance').value = '35'; this.field('category').value = 'top';
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.button('capture').disabled = false; this.button('extract').disabled = true; this.button('restore').disabled = true;
@@ -124,11 +133,12 @@ export class WardrobePhoto {
   }
   rememberView() {
     this.views[this.activeView] = { source: this.source, output: this.output, original: this.original, clothingSource: this.clothingSource,
-      remove: this.field('remove').checked, tolerance: this.field('tolerance').value, top: this.field('crop-top').value, bottom: this.field('crop-bottom').value };
+      clarity: this.field('clarity').value, remove: this.field('remove').checked, tolerance: this.field('tolerance').value, top: this.field('crop-top').value, bottom: this.field('crop-bottom').value };
   }
   clearPhoto() {
     this.cancelExtraction(); this.generation++; this.source = null; this.output = null; this.original = null; this.clothingSource = null;
     this.field('file').value = ''; this.field('remove').checked = true; this.field('tolerance').value = '35'; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
+    this.field('clarity').value = 'off';
     this.button('capture').disabled = false; this.button('extract').disabled = true; this.button('restore').disabled = true; this.button('save').disabled = !this.views.front?.output;
     this.waitingPhone = false; this.field('phone').hidden = true; void window.mirrorBridge?.wardrobePhone?.(false);
     this.canvas.getContext('2d').clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -140,6 +150,7 @@ export class WardrobePhoto {
     if (saved?.source) {
       Object.assign(this, { source: saved.source, output: saved.output, original: saved.original, clothingSource: saved.clothingSource });
       this.field('remove').checked = saved.remove; this.field('tolerance').value = saved.tolerance; this.field('crop-top').value = saved.top; this.field('crop-bottom').value = saved.bottom;
+      this.field('clarity').value = saved.clarity || 'off';
       this.button('extract').disabled = false; this.button('restore').disabled = false; this.preview();
     } else this.status(`Add the ${view} of this garment using upload, camera, or phone. ${view === 'back' ? 'The back photo is optional; save with the reviewed front, or add a back photo first.' : 'A reviewed front photo is required.'}`);
     this.syncViews();
@@ -269,6 +280,7 @@ export class WardrobePhoto {
     if (!this.source) return;
     try {
       const result = cutoutPhoto(this.clothingSource || this.source, { removeBackground: this.field('remove').checked, tolerance: Number(this.field('tolerance').value), topPercent: Number(this.field('crop-top').value), bottomPercent: Number(this.field('crop-bottom').value) });
+      enhanceCameraPixels(result.data, result.width, result.height, this.field('clarity').value || 'off');
       const temp = document.createElement('canvas'); temp.width = result.width; temp.height = result.height;
       temp.getContext('2d').putImageData(new ImageData(result.data, result.width, result.height), 0, 0);
       const crop = document.createElement('canvas'); crop.width = result.bounds.width; crop.height = result.bounds.height;
@@ -300,6 +312,12 @@ export class WardrobePhoto {
   }
   voice(text) {
     if (!this.open) return false;
+    if (/^(?:enhance|brighten|original|restore original) photo[.!]?$/i.test(text.trim())) {
+      if (!this.saving && !this.extracting && !this.photoLoading && !this.capturePending) {
+        this.field('clarity').value = /brighten/i.test(text) ? 'bright' : /original/i.test(text) ? 'off' : 'natural'; this.preview();
+      }
+      return true;
+    }
     if (/^(?:take|capture) (front|back) photo[.!]?$/i.test(text.trim())) { this.switchView(text.toLowerCase().includes('back') ? 'back' : 'front'); void this.capture(); return true; }
     if (/^(?:add|edit|show|switch to)(?: the)? (front|back)(?: photo| view)?[.!]?$/i.test(text.trim())) { this.switchView(text.toLowerCase().includes('back') ? 'back' : 'front'); return true; }
     if (/^remove back(?: photo)?[.!]?$/i.test(text.trim())) { this.button('remove-back').click(); return true; }

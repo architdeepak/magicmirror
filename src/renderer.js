@@ -6,6 +6,7 @@ import { ClosetStore } from './closetStore.js';
 import { matchGarment } from './garmentMatch.js';
 import { AROverlay } from './arOverlay.js';
 import { GarmentOverlay } from './garmentOverlay.js';
+import { CAMERA_CLARITY } from './cameraClarity.js';
 import { LiveTryOn } from './liveTryOn.js';
 import { selectAssistantVision } from './assistantVision.js';
 import { createDepthScene } from './depthScene.js';
@@ -1142,6 +1143,16 @@ elements.personaList.addEventListener('click', (event) => {
   }
 });
 elements.cameraSelect.addEventListener('change', async () => { liveTryOn.stop(); cancelTryOnRender(); await switchCamera(elements.cameraSelect.value); updateTrackingUi(); });
+function setCameraClarity(preset, announce = true) {
+  const mode = CAMERA_CLARITY[preset] ? preset : 'off';
+  document.querySelector('#camera-clarity').value = mode;
+  elements.shell.style.setProperty('--camera-clarity-filter', CAMERA_CLARITY[mode].filter);
+  garmentOverlay.setCameraClarity(mode);
+  localStorage.setItem('mirror.camera-clarity', mode);
+  if (announce) showGesture(mode === 'off' ? 'Original camera · clarity off' : `${mode === 'bright' ? 'Bright' : 'Natural'} camera clarity · local enhancement`);
+}
+setCameraClarity(localStorage.getItem('mirror.camera-clarity') || 'off', false);
+document.querySelector('#camera-clarity').addEventListener('change', event => setCameraClarity(event.target.value));
 elements.cameraMount.addEventListener('change', () => {
   const mount = elements.cameraMount.value === 'center' ? 'center' : 'top';
   localStorage.setItem('mirror.camera-mount', mount);
@@ -1861,6 +1872,11 @@ function spotifyEmbedUrl(url) {
 }
 
 function runVoiceNavigation(prompt) {
+  const clarity = prompt.toLowerCase().replace(/[.,!?]/g, ' ');
+  if (/\b(?:camera clarity|enhance (?:the )?camera|brighten (?:the )?camera|natural camera|original camera)\b/.test(clarity)) {
+    const preset = /\b(?:off|original|disable)\b/.test(clarity) ? 'off' : /\b(?:bright|brighten)\b/.test(clarity) ? 'bright' : 'natural';
+    setCameraClarity(preset); return true;
+  }
   if (closet.voice(prompt)) { setAssistantMode('ar'); return true; }
   if (/\b(?:return|go back) to (?:the )?mirror\b|\bclose (?:the )?(?:desktop browser|browser window)\b/i.test(prompt)) {
     window.mirrorBridge?.closeDesktop().catch((error) => showOracle(error.message, '', 'Desktop browser'));

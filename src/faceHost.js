@@ -106,6 +106,9 @@ export class FaceHost {
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Resizing resets canvas state, including the high-quality sampler.
+    this.ctx.imageSmoothingEnabled = true;
+    this.ctx.imageSmoothingQuality = 'high';
     this.width = width;
     this.height = height;
   }
@@ -131,8 +134,9 @@ export class FaceHost {
     // without exposing a body or turning it into a flat sliding sticker.
     ctx.rotate((this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13);
     const jaw = Math.max(this.blendshapes.jawOpen || 0, this.speech);
-    const targetAA = this.viseme === 'AA' || (this.viseme === 'rest' && jaw > .12) ? 1 : 0;
-    const targetO = this.viseme === 'O' ? 1 : 0;
+    const mouthStrength = Math.max(0, Math.min(1, jaw * 1.5));
+    const targetAA = this.viseme === 'AA' || (this.viseme === 'rest' && jaw > .12) ? mouthStrength : 0;
+    const targetO = this.viseme === 'O' ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
     this.poseBlend.AA += (targetAA - this.poseBlend.AA) * .2;
@@ -158,13 +162,13 @@ export class FaceHost {
       }
       ctx.restore();
     }
-    ctx.restore();
-
     // Face proportions are held across the three deliberately front-on head
     // assets. The overlays sit inside existing features, so resting frames
     // retain the full-resolution art rather than a drawn approximation.
-    const cx = w * .5 + gazeX;
-    const cy = h * .5 + bob + gazeY;
+    // Every feature follows the same head transform, including turn/lean.
+    // Screen-space lids and fallback mouths used to drift off the face.
+    const cx = 0;
+    const cy = 0;
     // Blinks come from the camera puppet. Avoid a timer-driven full eyelid
     // overlay: it can freeze an otherwise beautiful still frame mid-blink.
     const lid = Math.max(this.blendshapes.eyeBlinkLeft || 0, this.blendshapes.eyeBlinkRight || 0);
@@ -174,6 +178,7 @@ export class FaceHost {
     // eyebrow layer on top produces a visible double-brow artifact; reserve
     // the procedural fallback for the unstyled reference host only.
     if (this.persona === 'rowan') this.drawBrows(ctx, cx, cy, base);
+    ctx.restore();
   }
 
   drawLids(ctx, cx, cy, size, amount) {

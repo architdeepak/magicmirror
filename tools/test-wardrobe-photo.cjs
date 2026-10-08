@@ -1,6 +1,8 @@
 const assert = require('assert/strict'), fs = require('fs'), vm = require('vm');
-const source = fs.readFileSync('src/wardrobePhoto.js','utf8');
+const source = fs.readFileSync('src/wardrobePhoto.js','utf8').replace(/^import .*;\n/gm,'');
 const context = vm.createContext({ Uint8ClampedArray, Uint32Array, Uint8Array });
+const claritySource = fs.readFileSync('src/cameraClarity.js','utf8').replaceAll('export ', '');
+vm.runInContext(claritySource, context);
 vm.runInContext(source.slice(0,source.indexOf('export class')).replace('export function','function'), context);
 function picture(bg,fg) {
  const data = new Uint8ClampedArray(20*20*4);
@@ -42,6 +44,7 @@ console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimens
 
 (async()=>{
  const scope=vm.createContext({Uint8ClampedArray,Uint32Array,Uint8Array});
+ vm.runInContext(claritySource, scope);
  vm.runInContext(source.replaceAll('export function','function').replace('export class','class')+';globalThis.Subject=WardrobePhoto;',scope);
  const subject=Object.create(scope.Subject.prototype),buttons={capture:{},save:{}},pending=[],notices=[];
  Object.assign(subject,{generation:0,dialog:{open:true},video:{},button:name=>buttons[name],status:message=>notices.push(message),syncViews:()=>{},ensureCamera:()=>new Promise(resolve=>pending.push(resolve)),setSource:()=>{throw new Error('Old capture replaced a new photo')}});
@@ -54,12 +57,12 @@ console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimens
  assert.equal(notices.filter(n=>n.includes('unavailable')).length,1,'Stale capture changed the new editor notice');
  console.log('Wardrobe capture ownership: closed/uploaded/reopened photo scopes ignore stale camera completion and preserve the current capture.');
  scope.window={};
- const view=Object.create(scope.Subject.prototype),fields=Object.fromEntries(['file','phone','remove','tolerance','crop-top','crop-bottom'].map(key=>[key,{}])),controls=Object.fromEntries(['front','back','remove-back','capture','extract','restore','save'].map(key=>[key,{setAttribute(){}}]));
+ const view=Object.create(scope.Subject.prototype),fields=Object.fromEntries(['file','phone','remove','tolerance','crop-top','crop-bottom','clarity'].map(key=>[key,{}])),controls=Object.fromEntries(['front','back','remove-back','capture','extract','restore','save'].map(key=>[key,{setAttribute(){}}]));
  let finishCamera;
  const front={width:1,height:1,data:new Uint8ClampedArray(4)};
  Object.assign(view,{generation:10,activeView:'front',views:{},dialog:{open:true},source:front,output:'front-png',original:'front-original',video:{},field:key=>fields[key],button:key=>controls[key],canvas:{width:480,height:540,getContext:()=>({clearRect(){}})},status(){},ensureCamera:()=>new Promise(resolve=>finishCamera=resolve),preview(){this.syncViews()}});
- const camera=view.capture();view.switchView('back');assert(view.readyToSave,'Optional empty back blocked the reviewed front');assert.equal(view.views.front.source,front);
+ fields.clarity.value='natural';const camera=view.capture();view.switchView('back');assert(view.readyToSave,'Optional empty back blocked the reviewed front');assert.equal(view.views.front.source,front);assert.equal(fields.clarity.value,'off');
  finishCamera(false);await camera;assert.equal(controls.save.disabled,false,'Old front capture changed the back editor readiness');assert.equal(view.source,null,'Old front capture populated the back view');
- view.switchView('front');assert.equal(view.source,front);assert.equal(view.original,'front-original');assert(view.readyToSave);
+ view.switchView('front');assert.equal(view.source,front);assert.equal(view.original,'front-original');assert.equal(fields.clarity.value,'natural');assert(view.readyToSave);
  console.log('Paired photo ownership: view changes preserve drafts, ignore old camera completion and allow a reviewed front with an optional empty back.');
 })().catch(error=>{console.error(error);process.exitCode=1});

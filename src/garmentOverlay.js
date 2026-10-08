@@ -2,6 +2,7 @@ import { GarmentOcclusion } from './garmentOcclusion.js';
 import { GarmentFacing } from './garmentFacing.js';
 import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
+import { CameraClarity } from './cameraClarity.js';
 import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint, visiblePoint, distance } from './garmentGeometry.js';
 
 export class GarmentOverlay {
@@ -16,6 +17,7 @@ export class GarmentOverlay {
       canvas.parentElement.insertBefore(this.cameraCanvas, canvas);
     }
     this.lastCameraFrame = null;
+    this.cameraClarity = this.cameraCanvas ? new CameraClarity(canvas.ownerDocument) : null;
     this.video = video;
     this.onStatus = onStatus;
     this.tracker = new BodyTracking(video, (_state, message) => { this.trackingMessage = message; });
@@ -43,6 +45,7 @@ export class GarmentOverlay {
     this.canvas.width = Math.round(bounds.width * scale);
     this.canvas.height = Math.round(bounds.height * scale);
     this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    this.ctx.imageSmoothingEnabled = true; this.ctx.imageSmoothingQuality = 'high';
     if (this.cameraCanvas) {
       this.cameraCanvas.width = this.canvas.width; this.cameraCanvas.height = this.canvas.height;
       this.cameraCanvas.getContext('2d').setTransform(scale, 0, 0, scale, 0, 0);
@@ -77,7 +80,7 @@ export class GarmentOverlay {
       image.src = item.imageUrl;
       await image.decode();
       if (generation !== this.generation) return false;
-      this.texture = prepareTexture(image);
+      this.texture = prepareTexture(image, { vector: Boolean(item.starter) });
       if (item.backImageUrl) {
         try { const back = new Image(); back.src = item.backImageUrl; await back.decode(); if (generation !== this.generation) return false; this.backTexture = prepareTexture(back); }
         catch (error) { if (generation !== this.generation) return false; this.backMessage = `Back photo unavailable: ${error.message}`; }
@@ -117,6 +120,7 @@ export class GarmentOverlay {
         ? (!this.tracker.ready && this.trackingMessage) || `Step back so your ${this.item?.category === 'bottoms' ? 'hips, knees, and feet' : 'shoulders and hips'} are visible.`
         : this.facing.view === 'back' && !this.backTexture ? this.backMessage || 'Add a back photo to see this garment from behind.' : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? 'The garment overlay is visible on the live camera.' : 'Body detected; positioning the garment.';
     return { imageReady: Boolean(this.texture), visible, garmentView: this.facing.view, backImageReady: Boolean(this.backTexture), curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
+      cameraClarity: this.cameraClarity?.mode || 'off', clarityCostMs: this.cameraClarity?.lastCostMs || 0,
       bodyDetected: Boolean(pose), frameAgeMs: pose ? Math.max(0, now - this.tracker.lastPoseAt) : null, status };
   }
 
@@ -221,10 +225,12 @@ export class GarmentOverlay {
     this.cameraCanvas.style.display = 'block';
     if (frame === this.lastCameraFrame) return;
     const { width, height } = this.viewport;
-    const scale = Math.max(width/frame.width, height/frame.height), w = frame.width*scale, h = frame.height*scale;
+    const displayFrame = this.cameraClarity?.process(frame) || frame;
+    const scale = Math.max(width/displayFrame.width, height/displayFrame.height), w = displayFrame.width*scale, h = displayFrame.height*scale;
     const ctx = this.cameraCanvas.getContext('2d');
     ctx.save(); ctx.translate(width, 0); ctx.scale(-1, 1);
-    ctx.drawImage(frame, (width-w)/2, (height-h)/2, w, h); ctx.restore();
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(displayFrame, (width-w)/2, (height-h)/2, w, h); ctx.restore();
     this.lastCameraFrame = frame;
   }
 
@@ -234,7 +240,9 @@ export class GarmentOverlay {
     this.onStatus(message);
   }
 
-  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.backTexture = null; this.clear(); this.cameraCanvas?.remove(); }
+  setCameraClarity(mode) { this.cameraClarity?.setMode(mode); this.lastCameraFrame = null; }
+
+  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.backTexture = null; this.clear(); this.cameraClarity?.destroy(); this.cameraCanvas?.remove(); }
 }
 
 function readFit(id) {
@@ -248,12 +256,15 @@ function clamp(value, min, max, fallback) { return Number.isFinite(value) ? Math
 // Preserve photographic pixels. Transparent product images work directly; a
 // uniform pale backdrop can be removed with a border-connected flood fill.
 // Complex backgrounds require a cutout rather than showing a floating photo.
-export function prepareTexture(image) {
-  const scale = Math.min(1, 1024 / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
+export function prepareTexture(image, { vector = false } = {}) {
+  // Known bundled SVGs can genuinely rasterize more detail; small photos
+  // remain at their source resolution instead of inventing extra pixels.
+  const scale = Math.min(vector ? 2 : 1, 1024 / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
   canvas.height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
   const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = pixels.data;

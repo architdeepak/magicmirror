@@ -45,7 +45,7 @@
     "test:audio-turns": "node tools/test-audio-turns.cjs",
     "test:tryon": "node tools/test-tryon.cjs",
     "test:garment-geometry": "node tools/test-garment-geometry.cjs",
-    "test:camera": "node tools/test-camera-lifecycle.cjs",
+    "test:camera": "node tools/test-camera-lifecycle.cjs && node tools/test-camera-clarity.cjs",
     "test:garment-cache": "node tools/test-garment-cache.cjs",
     "test:hand": "node tools/test-hand-tracking.cjs",
     "check:hand:worker": "electron --no-sandbox tools/check-hand-worker.cjs",

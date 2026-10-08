@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-08T16:19:57.108Z",
+  "checkedAt": "2026-10-08T16:51:31.519Z",
   "passed": true,
   "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
   "checks": [
@@ -59,6 +59,12 @@
         "command center accessible",
         "typed task draft retained while muted",
         "friends request explains missing Apple People bridge"
+      ]
+    },
+    {
+      "checks": [
+        "camera clarity selectable by real keyboard input",
+        "typed voice navigation bright/off updates renderer and persistence"
       ]
     }
   ],

@@ -23,7 +23,7 @@ app.whenReady().then(async()=>{
    try{
     const start=performance.now();while(!overlay.getLiveState().visible){if(performance.now()-start>30000)throw new Error('No live photo fit: '+overlay.getLiveState().status);await new Promise(r=>setTimeout(r,50))}
     const warm=performance.now();ticks=0;visible=0;for(let second=0;second<20;second++){
-     await new Promise(r=>setTimeout(r,1000));const pose=overlay.tracker.getPose();samples.push({second,visible:overlay.getLiveState().visible,poseAgeMs:overlay.getLiveState().frameAgeMs,shoulderX:pose?.[11]?.x,elbowX:pose?.[13]?.x,worldLandmarks:overlay.tracker.getWorldPose()?.length||0,curvedTorso:overlay.getLiveState().curvedTorso,inferenceMs:overlay.tracker.inferenceMs,status:overlay.getLiveState().status});
+     overlay.setCameraClarity(second < 7 ? 'natural' : second < 14 ? 'bright' : 'off');await new Promise(r=>setTimeout(r,1000));const pose=overlay.tracker.getPose();samples.push({second,visible:overlay.getLiveState().visible,poseAgeMs:overlay.getLiveState().frameAgeMs,shoulderX:pose?.[11]?.x,elbowX:pose?.[13]?.x,worldLandmarks:overlay.tracker.getWorldPose()?.length||0,curvedTorso:overlay.getLiveState().curvedTorso,cameraClarity:overlay.getLiveState().cameraClarity,clarityCostMs:overlay.getLiveState().clarityCostMs,inferenceMs:overlay.tracker.inferenceMs,status:overlay.getLiveState().status});
      if([1,6,12,18].includes(second)){
       overlay.render();
       const out=document.createElement('canvas');out.width=540;out.height=960;const c=out.getContext('2d');const cover=Math.max(540/canvas.width,960/canvas.height),w=canvas.width*cover,h=canvas.height*cover;

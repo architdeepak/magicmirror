@@ -66,7 +66,7 @@
     #app-shell[data-mode="ar"] #camera-feed,
     #app-shell[data-mode="ar"] #garment-canvas,
     #app-shell[data-mode="ar"] #ar-canvas { display: block; }
-    #app-shell[data-mode="ar"] #camera-feed { filter: none; }
+    #app-shell[data-mode="ar"] #camera-feed { filter: var(--camera-clarity-filter, none); }
     #app-shell[data-mode="ar"][data-tryon-view="rendered"] #ar-canvas { display: none; }
     .tryon-view-switch { display: flex; gap: 6px; margin-top: 10px; }
     .tryon-view-switch button { flex: 1; min-height: 34px; border: 1px solid var(--panel-line); border-radius: 8px; background: rgba(255,255,255,.03); color: var(--ice); font: 600 10px Manrope, sans-serif; cursor: pointer; }
@@ -672,6 +672,8 @@
         <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
         <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
         <p class="config-note" id="camera-notice" role="status" hidden></p>
+        <div class="setting"><label for="camera-clarity"><span>Camera clarity</span></label><select id="camera-clarity"><option value="off">Original · lowest power</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></div>
+        <p class="config-note">Local display enhancement; no generated facial or clothing details. Bright mode changes apparent colors. Say “mirror, brighten the camera” or “camera clarity off”.</p>
         <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
         <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
         <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">Glass ready · daytime</option><option value="night">Night calm · low glow</option></select></div>

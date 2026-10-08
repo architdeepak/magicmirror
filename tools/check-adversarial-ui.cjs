@@ -49,6 +49,18 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   await click('[data-mode="mirror"]');
   await click('#launcher-toggle');await shot('command-center');await click('#assistant-task-input');await client.call('Input.insertText',{text:'show my friends'});await click('#assistant-task-form button');assert.equal(await client.evaluate('document.querySelector("#assistant-task-input").value'),'show my friends','Muted submit lost the draft');await click('#mute-btn');await click('#launcher-toggle');await click('#assistant-task-form button');assert(await client.evaluate('document.querySelector("#oracle-text").textContent.includes("Friends’ shared locations")'),'Friends request silently opened device locations');await click('#mute-btn');
   checks.push({checks:['typing does not invoke mode/camera/fullscreen shortcuts','two long colored caption rows and one caption container','editor Stop leaves review open','command center accessible','typed task draft retained while muted','friends request explains missing Apple People bridge']});
+  await click('#settings-toggle'); await click('#camera-clarity');
+  for (const type of ['keyDown','keyUp']) await client.call('Input.dispatchKeyEvent',{type,key:'ArrowDown',windowsVirtualKeyCode:40});
+  for (const type of ['keyDown','keyUp']) await client.call('Input.dispatchKeyEvent',{type,key:'Enter',windowsVirtualKeyCode:13});
+  assert.equal(await client.evaluate('__mirrorDebug.garmentOverlay.getLiveState().cameraClarity'),'natural');
+  await click('#settings-toggle'); await click('#mute-btn'); await click('#launcher-toggle');
+  await click('#assistant-task-input'); await client.call('Input.insertText',{text:'brighten the camera'}); await click('#assistant-task-form button');
+  assert.equal(await client.evaluate('__mirrorDebug.garmentOverlay.getLiveState().cameraClarity'),'bright');
+  await click('#launcher-toggle');
+  await click('#assistant-task-input'); await client.call('Input.insertText',{text:'camera clarity off'}); await click('#assistant-task-form button');
+  assert.equal(await client.evaluate('__mirrorDebug.garmentOverlay.getLiveState().cameraClarity'),'off');
+  assert.equal(await client.evaluate('localStorage.getItem("mirror.camera-clarity")'),'off');
+  checks.push({checks:['camera clarity selectable by real keyboard input','typed voice navigation bright/off updates renderer and persistence']});
   assert.deepEqual(errors,[]);
   const report={checkedAt:new Date().toISOString(),passed:true,scope:'Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.',checks,rendererErrors:errors};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
  }catch(error){if(client)await shot('failure').catch(()=>{});throw error;}finally{client?.close();child.kill('SIGTERM');await delay(200);if(!exited)child.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true});}

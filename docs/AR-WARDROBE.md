@@ -1,5 +1,9 @@
 # Local AR wardrobe progress — 2026-10-07
 
+## Camera and photo clarity — 2026-10-08
+
+Local camera clarity and reversible photo touch-up are implemented, with Original/Natural/Bright options and voice commands. The photo editor retains originals and separate front/back presets. Starter vectors rasterize at twice the resolution, and clothing/head sampling remains sharp after resizing. See [implementation and audit](CAMERA-CLARITY-2026-10-08.md) and [verification](CAMERA-CLARITY-VERIFICATION.json). These changes improve rendering; moving fabric drape and photorealistic 3D avatars remain unfinished.
+
 ## Front/back photo ingestion
 
 One garment can now have a required front and an optional back photo. The editor retains each source, local cutout, crop controls, and original separately. **Front** and **Back (optional)** clearly highlight the active view; **Remove back** drops the optional draft. Cutout sliders are collapsed under **Adjust cutout**, and Save remains visible while scrolling. Voice, Stop/mute controls, and the existing two bottom captions stay available.

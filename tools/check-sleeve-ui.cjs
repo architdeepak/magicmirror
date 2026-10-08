@@ -8,7 +8,8 @@ app.whenReady().then(async()=>{
   const result=await win.webContents.executeJavaScript(`(async()=>{
    const {buildGarmentMesh,drawTexturedTriangle}=await import(${JSON.stringify(pathToFileURL(path.join(root,'src/garmentGeometry.js')).href)});
    const {prepareTexture}=await import(${JSON.stringify(pathToFileURL(path.join(root,'src/garmentOverlay.js')).href)});
-   const image=new Image();image.src=${JSON.stringify(pathToFileURL(path.join(root,'src/assets/wardrobe/long-sleeve-blue.svg')).href)};await image.decode();const texture=prepareTexture(image);
+   const image=new Image();image.src=${JSON.stringify(pathToFileURL(path.join(root,'src/assets/wardrobe/long-sleeve-blue.svg')).href)};await image.decode();const texture=prepareTexture(image,{vector:true});
+   if(texture.sourceBounds.scale!==2)throw new Error('Starter SVG was not rasterized at 2x');
    const pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
    for(const [i,x,y] of [[11,.7,.3],[12,.3,.3],[23,.64,.62],[24,.36,.62],[13,.86,.47],[14,.14,.47],[15,.9,.66],[16,.1,.66]])Object.assign(pose[i],{x,y,visibility:1});
    const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');const frames=[];
