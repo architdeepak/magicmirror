@@ -11,6 +11,7 @@ const fs = require('fs/promises');
 const dotenv = require('dotenv');
 const QRCode = require('qrcode');
 const { GoogleAuth } = require('google-auth-library');
+const { CodexMirrorAgent } = require('./codexMirrorAgent');
 const { TryOnRequests } = require('./tryOnRequests.cjs');
 const tryOnRequests = new TryOnRequests();
 const { createNativeDesktop, nativeAction, sameForeground, NATIVE_KEYS } = require('./nativeDesktop.cjs');
@@ -1144,6 +1145,51 @@ async function createGeminiToken() {
 }
 
 function registerBridge() {
+  const assertAgentFrame = event => {
+    if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Agent controls are only available to the mirror.');
+  };
+  const toolWaiters = new Map(); let toolSequence = 0, activeRunId = null;
+  const codex = new CodexMirrorAgent({ cwd: app.getPath('userData'), executeTool: (tool, args, generation) => new Promise((resolve, reject) => {
+    if (!activeRunId || !mainWindow || mainWindow.isDestroyed()) return reject(new Error('Mirror unavailable'));
+    const id = ++toolSequence;
+    const timer = setTimeout(() => { toolWaiters.delete(id); reject(new Error('Mirror tool timed out')); }, 15000);
+    toolWaiters.set(id, { resolve, timer, runId: activeRunId });
+    mainWindow.webContents.send('mirror:codex-tool', { id, tool, args, generation, runId: activeRunId });
+  }) });
+  const cancelCodex = () => {
+    activeRunId = null; codex.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
+    for (const waiter of toolWaiters.values()) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); }
+    toolWaiters.clear();
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { all: true });
+  };
+  ipcMain.handle('mirror:codex-task', async (event, input) => {
+    assertAgentFrame(event);
+    if (codex.child) return { error: 'An agent task is already running.' };
+    if (!input || typeof input.runId !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(input.runId)) throw new Error('Invalid agent run.');
+    activeRunId = input.runId;
+    try { return await codex.run(input.task); }
+    finally {
+      if (activeRunId === input.runId) {
+        activeRunId = null; invalidateDesktopObservation(); desktopActionAbort?.abort();
+        for (const [id, waiter] of toolWaiters) { if (waiter.runId === input.runId) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); toolWaiters.delete(id); } }
+        if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { runId: input.runId });
+      }
+    }
+  });
+  ipcMain.handle('mirror:codex-cancel', event => { assertAgentFrame(event); cancelCodex(); return { cancelled: true }; });
+  ipcMain.handle('mirror:codex-tool-result', (event, input) => {
+    assertAgentFrame(event);
+    const waiter = toolWaiters.get(input?.id);
+    if (waiter && input.runId === waiter.runId && input.runId === activeRunId) {
+      clearTimeout(waiter.timer); toolWaiters.delete(input.id); waiter.resolve(input.result);
+    }
+  });
+  app.on('before-quit', cancelCodex);
+  app.on('web-contents-created', (_event, contents) => {
+    contents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame && contents === mainWindow?.webContents) cancelCodex(); });
+    contents.on('destroyed', () => { if (contents === mainWindow?.webContents) cancelCodex(); });
+  });
+
   ipcMain.handle('mirror:youtube-player-url', async () => {
     if (!youtubePlayerServer) youtubePlayerServer = createYouTubePlayerServer().catch((error) => { youtubePlayerServer = null; throw error; });
     return (await youtubePlayerServer).url;

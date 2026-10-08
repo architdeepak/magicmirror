@@ -1,3 +1,4 @@
+import { MirrorAgentTools } from './mirrorAgentTools.js';
 import * as THREE from 'three';
 import { RenderBudget, SceneRenderBudget } from './renderBudget.js';
 import { AvatarController } from './avatarController.js';
@@ -442,6 +443,7 @@ const gemini = new GeminiLiveAdapter({
     return window.mirrorBridge.captureScreen();
   },
   onMirrorState: getMirrorState,
+  onAgentTask: runAgentTask,
   onWatchControl: handleWatchControl,
   onComputerAction: async (action) => window.mirrorBridge.desktopAction(action),
   onSpotify: async (action) => {
@@ -462,6 +464,33 @@ gemini.setVideoSource(() => selectAssistantVision({ mode, desktopActive, camera:
 gemini.setPersona(savedPersona);
 gemini.setVisionEnabled(visionEnabled);
 gemini.setSpeakingPace(savedPace);
+
+const agentTools = new MirrorAgentTools(gemini);
+let agentRunId = null;
+window.mirrorBridge?.onCodexTool?.(async payload => {
+  if (!agentRunId || payload.runId !== agentRunId || hardMuted) return;
+  let result;
+  try { result = await agentTools.execute(payload.tool, payload.args); }
+  catch (error) { result = { error: error.message }; }
+  if (payload.runId !== agentRunId) return;
+  await window.mirrorBridge.codexToolResult({ id: payload.id, runId: payload.runId, result }).catch(() => {});
+});
+window.mirrorBridge?.onCodexCancelled?.(payload => {
+  if (payload?.all || payload?.runId === agentRunId) { agentRunId = null; agentTools.cancel(); }
+});
+async function runAgentTask(task) {
+  if (hardMuted) return { cancelled: true };
+  if (agentRunId) return { error: 'An agent task is already running.' };
+  if (!window.mirrorBridge?.codexTask) return { error: 'Install and sign in to Codex on the mirror PC.' };
+  const runId = crypto.randomUUID(); agentRunId = runId; agentTools.cancel(); setState('thinking');
+  try { return await window.mirrorBridge.codexTask({ task, runId }); }
+  catch (error) { return { error: error.message }; }
+  finally { if (agentRunId === runId) { agentRunId = null; agentTools.cancel(); } if (!agentRunId && !gemini.listening && state === 'thinking') setState('ready'); }
+}
+function cancelAgentTask() {
+  agentRunId = null; agentTools.cancel();
+  void window.mirrorBridge?.cancelCodex?.()?.catch(() => {});
+}
 
 const wake = new WakeWordListener({
   phrase: 'mirror mirror',
@@ -501,7 +530,7 @@ async function initialize() {
   else updateWakeStatus('paused');
 }
 
-window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant,
+window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools,
   getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
 function setDepthMode(enabled, announce = true) {
@@ -589,6 +618,7 @@ function getMirrorState() {
     observedAt: new Date().toISOString(),
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
       avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
+    agent: { active: Boolean(agentRunId), provider: 'codex' },
     voice: { state, connecting: voiceStarting, listening: Boolean(gemini.listening || browserRecognition), hardMuted,
       wakeEnabled: elements.wakeToggle.checked, persona: avatar.persona },
     vision: { ...vision, enabled: elements.visionToggle.checked, sharedWithAssistant: sharingVision },
@@ -645,7 +675,7 @@ function setState(next) {
   };
   elements.stateLabel.textContent = labels[next] || next;
   elements.stateDot.className = `state-dot${['starting', 'connecting', 'thinking', 'speaking'].includes(next) ? ' busy' : next === 'error' ? ' error' : ''}`;
-  const micActive = Boolean(voiceStarting || gemini?.listening || browserRecognition || speech.isSpeaking || elements.awakening.classList.contains('active'));
+  const micActive = Boolean(agentRunId || voiceStarting || gemini?.listening || browserRecognition || speech.isSpeaking || elements.awakening.classList.contains('active'));
   elements.mic.classList.toggle('listening', micActive);
   elements.micLabel.textContent = micActive ? 'STOP' : 'LISTEN';
   elements.mic.setAttribute('aria-label', micActive ? 'Stop listening' : 'Start listening');
@@ -777,7 +807,7 @@ function handleTranscript(role, text) {
 
 async function toggleVoice() {
   if (hardMuted) return;
-  if (voiceStarting || browserRecognition || gemini.listening || speech.isSpeaking || elements.awakening.classList.contains('active')) {
+  if (agentRunId || voiceStarting || browserRecognition || gemini.listening || speech.isSpeaking || elements.awakening.classList.contains('active')) {
     stopAssistant();
     return;
   }
@@ -855,6 +885,7 @@ window.addEventListener('resize', () => {
 });
 
 function stopAssistant() {
+  cancelAgentTask();
   liveTryOn.stop();
   cancelTryOnRender();
   localCaptionsAllowed = false;
@@ -900,6 +931,7 @@ async function setHardMute(muted) {
   elements.mute.querySelector('span').textContent = hardMuted ? '⊘' : '◉';
   elements.mute.setAttribute('aria-label', hardMuted ? 'Unmute and arm wake word' : 'Hard mute microphone');
   if (hardMuted) {
+    cancelAgentTask();
     void window.mirrorBridge?.cancelDesktopActions?.();
     browserRecognition?.abort?.();
     browserRecognition = null;
@@ -1568,7 +1600,7 @@ function resetIdle() {
     if (state === 'ready') elements.form.classList.add('dim');
   }, 6000);
   sleepTimer = setTimeout(() => {
-    if (desktopActive || state !== 'ready' || !['mirror', 'portal'].includes(mode) || gemini.listening || closet.photo.open ||
+    if (agentRunId || desktopActive || state !== 'ready' || !['mirror', 'portal'].includes(mode) || gemini.listening || closet.photo.open ||
         elements.settings.classList.contains('open') || elements.personaPanel.classList.contains('open') ||
         elements.launcherPanel.classList.contains('open')) return;
     sleeping = true;

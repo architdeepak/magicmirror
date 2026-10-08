@@ -250,7 +250,7 @@ async function cameraFrames() {
 async function awakeningCancellation() {
   const source=read('renderer.js');const timers=[];let opened=0;
   const active=new Set();const context=vm.createContext({
-    hardMuted:false,voiceStartGeneration:0,wake:{pause(){},setAssistantActive(){},resume(){}},wakeFromSleep:async()=>{},
+    agentRunId:null,hardMuted:false,voiceStartGeneration:0,wake:{pause(){},setAssistantActive(){},resume(){}},wakeFromSleep:async()=>{},
     elements:{wakeToggle:{checked:true},awakening:{classList:{add:x=>active.add(x),remove:x=>active.delete(x)}}},
     config:{hasGeminiKey:false},setState(next){this.state=next;},appendCaption(){},showAssistant(){},showOracle(){},avatar:{persona:'velora'},
     speech:{setPersona(){},speak:async()=>{}},toggleVoice:async()=>opened++,setTimeout:callback=>timers.push(callback)
@@ -273,5 +273,6 @@ async function awakeningCancellation() {
   context.speech.isSpeaking=false;active.add('active');context.setState('starting');
   assert.equal(context.elements.micLabel.textContent,'STOP','Reveal had no visible Stop control');
   active.clear();context.setState('ready');assert.equal(context.elements.micLabel.textContent,'LISTEN');
+  context.agentRunId='running';context.setState('thinking');assert.equal(context.elements.micLabel.textContent,'STOP');await context.toggleVoice();assert.equal(stops,3,'Button did not stop a delegated agent task');
 }
 (async()=>{await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});

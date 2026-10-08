@@ -356,3 +356,12 @@ The packaged portrait app was explored using screenshots and actual mouse/keyboa
 Try on includes 30 bundled starter garments in five styles and six colors. **Add garment** opens a photo preview: upload a photo, take one with the mirror camera, or choose **From phone** to scan a QR and upload over local Wi-Fi, choose a name/type, adjust a plain-background cutout, and save on this device. Say “add garment”, “take photo”, “name it my blue dress”, “type dress”, and “save garment”. In the editor, swipe changes type and pinch captures/saves; outside it, swipe selects clothes. Say “make it red” or “change style to blouse” for starter variations. Your own photos retain their original colors.
 
 See [AR wardrobe progress and limitations](docs/AR-WARDROBE.md). This front-image mesh preview does not yet provide realistic 3D fabric or measured fit.
+
+### Verified assistant delegation
+
+The live voice host can delegate longer screen/computer/wardrobe tasks to an
+installed Codex signed in with ChatGPT. Stop and hard mute cancel its task.
+Actual local-screen and packaged cancellation checks passed; Windows and real
+service accounts remain unverified. See [assistant harness](docs/ASSISTANT-HARNESS.md)
+for setup, test evidence and limits. Local AR does not require Codex or a paid
+generative API.

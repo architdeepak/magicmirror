@@ -1,0 +1,15 @@
+const object = (properties = {}, required = []) => ({ type: 'object', properties, required, additionalProperties: false });
+const string = values => ({ type: 'string', ...(values ? { enum: values } : {}) });
+const tool = (name, description, inputSchema = object()) => ({ name, description, inputSchema });
+const MIRROR_TOOLS = [
+  tool('get_mirror_state', 'Read current display, voice, camera, garment and player state. No pixels or Spotify metadata.'),
+  tool('see_screen', 'Observe the current screen image. Required immediately before every computer action. Spotify content stays local.'),
+  tool('computer_action', 'Perform one action on the observed target, then inspect the attached resulting screenshot. Coordinates use 0–1000 on the full image. Each snapshotId permits one action. Never repeat activation because its outcome is off-screen. close_browser returns to mirror.', object({ action: string(['click','double_click','type_text','press_key','scroll','close_browser']), snapshotId: string(), x: { type: 'integer', minimum: 0, maximum: 1000 }, y: { type: 'integer', minimum: 0, maximum: 1000 }, text: string(), key: string(['enter','tab','escape','backspace','space','up','down','left','right','home','end','pageup','pagedown','win','ctrl+a','ctrl+l','ctrl+f','alt+tab']), deltaY: { type: 'integer' } }, ['action'])),
+  tool('open_webpage', 'Open a website explicitly requested by the user in the managed browser. HTTP or HTTPS URL.', object({ url: string() }, ['url'])),
+  tool('search_web', 'Open web search results in the managed browser.', object({ query: string() }, ['query'])),
+  tool('set_display_mode', 'Change the mirror display.', object({ mode: string(['mirror','portal','ar','watch','spotify']) }, ['mode'])),
+  tool('set_avatar_position', 'Move the avatar to make room for content.', object({ position: string(['center','left','right','upper','lower']) }, ['position'])),
+  tool('wardrobe_command', 'Control the local wardrobe photo editor. Commands include add garment, front photo, back photo, take front photo, take back photo, extract clothing, trim top, trim bottom, save, cancel. Check state and review before saving.', object({ command: string() }, ['command'])),
+  tool('request_try_on', 'Select an available local garment by name. Check returned visible fit state; selection alone is not proof of visibility. No hidden fabric reconstruction or accurate sizing.', object({ garmentName: string() }, ['garmentName']))
+];
+module.exports = { MIRROR_TOOLS };

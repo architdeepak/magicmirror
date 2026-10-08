@@ -1,0 +1,27 @@
+const assert = require('assert/strict');
+const fs = require('fs');
+const vm = require('vm');
+const context = vm.createContext({ setTimeout: resolve => resolve(), URL });
+vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('export class', 'globalThis.MirrorAgentTools = class'), context);
+(async () => {
+  let captures = 0, actions = [], resolveCapture;
+  const adapter = { onMirrorState: () => ({ display: { mode: 'ar' } }), onCaptureScreen: async () => ({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: `s${++captures}`, width: 540, height: 960, url: 'https://example.org/' }), onComputerAction: async args => { actions.push(args); return { result: 'delivered' }; }, onWardrobe: async args => ({ command: args.command }) };
+  const tools = new context.MirrorAgentTools(adapter);
+  await assert.rejects(tools.execute('computer_action', { action: 'click', snapshotId: 'invented', x: 500, y: 500 }), /Observe/);
+  const observation = await tools.execute('see_screen');
+  assert(observation.imageUrl); assert(!observation.observation.dataUrl);
+  const result = await tools.execute('computer_action', { action: 'click', snapshotId: 's1', x: 500, y: 500 });
+  assert.equal(actions[0].x, 270); assert.equal(actions[0].y, 480); assert.equal(result.observation.snapshotId, 's2'); assert(result.imageUrl);
+  await assert.rejects(tools.execute('computer_action', { action: 'click', snapshotId: 's2', x: 500, y: 500 }), /already activated/);
+  assert.equal(actions.length, 1);
+  tools.cancel(); await assert.rejects(tools.execute('computer_action', { action: 'type_text', snapshotId: 's2', text: 'no' }), /Observe/);
+  adapter.onCaptureScreen = () => new Promise(resolve => { resolveCapture = resolve; });
+  const pending = tools.execute('see_screen'); tools.cancel();
+  resolveCapture({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: 'late', width: 540, height: 960 });
+  await assert.rejects(pending, /cancelled/); assert.equal(tools.observation, null);
+  adapter.onCaptureScreen = async () => ({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: 'private', width: 540, height: 960, url: 'https://open.spotify.com/' });
+  await assert.rejects(tools.execute('see_screen'), /stays local/);
+  await assert.rejects(tools.execute('shell', {}), /unavailable/);
+  assert.equal((await tools.execute('wardrobe_command', { command: 'back photo' })).command, 'back photo');
+  console.log('Mirror agent tools: screenshot pixels, normalized coordinates, one-use observations, repeated activation guard, late cancellation, local Spotify and wardrobe callbacks passed.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

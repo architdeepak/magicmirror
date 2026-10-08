@@ -1,6 +1,19 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('mirrorBridge', {
+  codexTask: input => ipcRenderer.invoke('mirror:codex-task', input),
+  cancelCodex: () => ipcRenderer.invoke('mirror:codex-cancel'),
+  codexToolResult: input => ipcRenderer.invoke('mirror:codex-tool-result', input),
+  onCodexTool: callback => {
+    const listener = (_event, payload) => callback(payload);
+    ipcRenderer.on('mirror:codex-tool', listener);
+    return () => ipcRenderer.removeListener('mirror:codex-tool', listener);
+  },
+  onCodexCancelled: callback => {
+    const listener = (_event, payload) => callback(payload);
+    ipcRenderer.on('mirror:codex-cancelled', listener);
+    return () => ipcRenderer.removeListener('mirror:codex-cancelled', listener);
+  },
   wakeModelUrl:()=>ipcRenderer.invoke('mirror:wake-model-url'),
   youtubePlayerUrl: () => ipcRenderer.invoke('mirror:youtube-player-url'),
   saveConnections: (input) => ipcRenderer.invoke('mirror:save-connections', input),

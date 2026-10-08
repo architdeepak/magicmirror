@@ -82,3 +82,21 @@ The worker now also forwards complete finite world landmarks. Recognizable photo
 Personal front/back ingestion is now implemented: optional back view, independent cutout/crop drafts, voice/gesture switching, native validation and four-file persistence, and paired reload. Synthetic orientation tests exercise distinct-frame hysteresis, missing-back clearing/recovery, different rear texture output, and raster invalidation. The packaged eight-garment workflow passed, and the real front-facing replay retained over 80% visibility. This does not verify rear-facing recognition on a real person or continuous sewn side/back geometry. Cloth behavior, physical fitting, Windows runtime, and reconciliation with remote main remain outstanding.
 
 Flat views now cache the room scene while animating the face separately; short development checks show a large renderer CPU reduction and no repeated flat scene draws. The prior 30-minute muted camera-off monitor finished with zero recorded errors. Whole-process PC-stick efficiency, physical input testing, and reconciliation with remote main remain outstanding.
+
+## Assistant harness integration (2026-10-07)
+
+Codex delegation now uses the existing screenshot/input/wardrobe callbacks. The
+real installed Codex completed a local packaged-app task using actual display
+screenshots and one Chromium activation, then read a randomized visible result.
+Packaged Stop/hard-mute controls cancelled a synthetic delayed task without late
+input. See `ASSISTANT-HARNESS.md` and its verification JSON files for scopes. This
+is a selective port from remote main, not a full reconciliation of its embedded
+browser/media, multi-slot outfits, or clap/face navigation. Live audio still uses
+Gemini; local AR remains independent of paid generative APIs. Windows runtime,
+physical inputs, realistic cloth and full-device efficiency remain outstanding.
+
+The paired-photo build's frozen monitor is running separately from subsequent
+rebuilds. Early samples show no errors, sleep around 5% process-tree CPU, and
+active software-rendered AR around 110–135% process-tree CPU. These are development
+observations, not a PC-stick power or wattage claim; active-view efficiency still
+needs work. Its final report must be checked when the run finishes.
