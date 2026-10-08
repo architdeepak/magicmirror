@@ -1,5 +1,19 @@
 # Local AR wardrobe progress — 2026-10-07
 
+## Front/back photo ingestion
+
+One garment can now have a required front and an optional back photo. The editor retains each source, local cutout, crop controls, and original separately. **Front** and **Back (optional)** clearly highlight the active view; **Remove back** drops the optional draft. Cutout sliders are collapsed under **Adjust cutout**, and Save remains visible while scrolling. Voice, Stop/mute controls, and the existing two bottom captions stay available.
+
+Say **add back photo**, **show front photo**, **show back photo**, **take back photo**, **take front photo**, or **remove back photo**. Upload, camera, and paired phone transfer target the selected view. Vertical swipes switch front/back for plain photo editing; when worn-clothing extraction is active they keep their documented crop behavior. Pinch captures or saves. The existing one-photo workflow is still valid; selecting an empty optional back does not prevent saving the reviewed front. Replacing a photo or switching views invalidates older camera/decode/extraction completion. The capture-ownership test covers an old front capture finishing after switching to the back.
+
+The native save queue validates both cutouts/originals before creating files, stores `front.png`, `back.png`, `original.png`, and `back-original.png` in one local garment directory, and rolls the directory back on failure. A back original without a back cutout is rejected. Closet entries expose the back file URL and show **front + back**. Personal images remain local; no image-generation API is involved.
+
+Body orientation now chooses front/back using confident world shoulder orientation, falling back to image landmarks. Two distinct analyzed frames confirm a change; repeated display ticks do not count, and near-profile ambiguity retains the current view. A first confident rear frame can select the back immediately. Real photo tops with no back photo clear the front overlay and request a back photo when rear-facing; they recover when facing front again. Changed back textures invalidate the raster cache. Generic bundled starter clothes retain their existing preview behavior.
+
+The packaged check saved eight garments, including a pair made from an actual public front garment photo and a separate synthetic red back fixture. It verified voice/swipe view switching, four persisted image files, distinct front/back raster output with synthetic poses, invalid-back rejection, back removal, and reload. This proves paired image plumbing and orientation routing, not rear-pose recognition on a real moving person or physical fit. `AR-WARDROBE-VERIFICATION.json` records scope. The existing actual front-facing motion replay still passed above 80% visibility after the orientation change. Complete side seams, prepared back geometry, accurate sizing, fabric simulation, and physical front/rear fitting remain unfinished.
+
+The frozen monitor for `609279f` completed 30 minutes with 587 samples and zero recorded errors. It was muted and camera-off, and predates paired-photo behavior. A new immutable build monitor is started after publishing this change.
+
 ## World-pose curvature follow-up
 
 The pose worker now forwards its 33 world landmarks with the analyzed camera frame. The tracker accepts finite complete world coordinates only with a full pose and applies the same 400 ms freshness/camera/disable boundaries as image landmarks. [MediaPipe's official guide](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker) describes normalized image landmarks and estimated world coordinates in meters. These estimates are not body measurements validated for sizing.

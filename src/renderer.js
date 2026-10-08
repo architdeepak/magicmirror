@@ -425,6 +425,7 @@ const gemini = new GeminiLiveAdapter({
     setAssistantMode('ar');
     if (/^save(?: (?:garment|photo|it))?$/i.test(command.trim()) && closet.photo.open) await closet.photo.save();
     else if (/^(?:take|capture)(?: a)? photo$/i.test(command.trim()) && closet.photo.open) await closet.photo.capture();
+    else if (/^(?:take|capture) (front|back) photo[.!]?$/i.test(command.trim()) && closet.photo.open) { closet.photo.switchView(command.toLowerCase().includes('back') ? 'back' : 'front'); await closet.photo.capture(); }
     else if (/^(?:extract|isolate)(?: worn)? clothing[.!]?$/i.test(command.trim()) && closet.photo.open) await closet.photo.extractClothing();
     else if (!closet.voice(command)) return { result: 'Command not recognized.' };
     return { result: closet.photo.open ? closet.photo.field('status').textContent : 'Wardrobe updated.', photoEditorOpen: closet.photo.open, selected: closet.items.find(item => item.id === closet.selectedId)?.name };
@@ -603,7 +604,7 @@ function getMirrorState() {
       fit: { ...garmentOverlay.fit }, contourOcclusion: Boolean(garmentOverlay.tracker.getSegmentation()), trackingInferenceMs: garmentOverlay.tracker.inferenceMs || 0, previewReady: Boolean(garmentOverlay.texture),
       liveFit: garmentOverlay.getLiveState(),
       renderedStillAvailable: !elements.tryOnStill.disabled,
-      photoEditor: { open: closet.photo.open, readyToSave: Boolean(closet.photo.output) && !closet.photo.extracting, extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
+      photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category })) },
     watch: { ...watchPlayback.snapshot(), castingEnabled, castActive: castPlayer.active },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }

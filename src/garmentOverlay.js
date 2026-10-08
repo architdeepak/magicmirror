@@ -1,4 +1,5 @@
 import { GarmentOcclusion } from './garmentOcclusion.js';
+import { GarmentFacing } from './garmentFacing.js';
 import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
 import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint, visiblePoint, distance } from './garmentGeometry.js';
@@ -21,7 +22,7 @@ export class GarmentOverlay {
     this.occlusion = new GarmentOcclusion();
     this.enabled = false;
     this.item = null;
-    this.texture = null;
+    this.texture = null; this.backTexture = null; this.backMessage = ''; this.facing = new GarmentFacing();
     this.generation = 0;
     this.fit = { width: 1, length: 1, offset: 0 };
     this.imageMessage = '';
@@ -60,7 +61,7 @@ export class GarmentOverlay {
   async select(item) {
     const generation = ++this.generation;
     this.item = item;
-    this.texture = null;
+    this.texture = null; this.backTexture = null; this.backMessage = ''; this.facing.reset();
     this.tracker.setEnabled(false);
     this.clear();
     this.imageMessage = '';
@@ -77,6 +78,10 @@ export class GarmentOverlay {
       await image.decode();
       if (generation !== this.generation) return false;
       this.texture = prepareTexture(image);
+      if (item.backImageUrl) {
+        try { const back = new Image(); back.src = item.backImageUrl; await back.decode(); if (generation !== this.generation) return false; this.backTexture = prepareTexture(back); }
+        catch (error) { if (generation !== this.generation) return false; this.backMessage = `Back photo unavailable: ${error.message}`; }
+      }
       this.tracker.setEnabled(this.enabled);
       return true;
     } catch (error) {
@@ -110,16 +115,16 @@ export class GarmentOverlay {
     const status = !this.enabled ? 'Live fit is hidden.' : !cameraActive ? 'Turn on the camera to see your live fit.'
       : !this.texture ? this.imageMessage || 'The garment image is loading.' : !pose
         ? (!this.tracker.ready && this.trackingMessage) || `Step back so your ${this.item?.category === 'bottoms' ? 'hips, knees, and feet' : 'shoulders and hips'} are visible.`
-        : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? 'The garment overlay is visible on the live camera.' : 'Body detected; positioning the garment.';
-    return { imageReady: Boolean(this.texture), visible, curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
+        : this.facing.view === 'back' && !this.backTexture ? this.backMessage || 'Add a back photo to see this garment from behind.' : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? 'The garment overlay is visible on the live camera.' : 'Body detected; positioning the garment.';
+    return { imageReady: Boolean(this.texture), visible, garmentView: this.facing.view, backImageReady: Boolean(this.backTexture), curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
       bodyDetected: Boolean(pose), frameAgeMs: pose ? Math.max(0, now - this.tracker.lastPoseAt) : null, status };
   }
 
   _sameDraw(pose, segmentation, worldPose) {
     const previous = this.lastDraw;
-    if (!previous || !pose || previous.texture !== this.texture || previous.category !== this.item.category
+    if (!previous || !pose || previous.texture !== this.texture || previous.backTexture !== this.backTexture || previous.category !== this.item.category
       || previous.stream !== this.video.srcObject || previous.width !== this.video.videoWidth || previous.height !== this.video.videoHeight
-      || previous.worldPose !== worldPose || previous.segmentation !== segmentation || previous.notice !== this.tracker.segmentationNotice
+      || previous.view !== this.facing.view || previous.worldPose !== worldPose || previous.segmentation !== segmentation || previous.notice !== this.tracker.segmentationNotice
       || previous.fitWidth !== this.fit.width || previous.fitLength !== this.fit.length || previous.fitOffset !== this.fit.offset) return false;
     for (let index = 0; index < 33; index += 1) {
       const point = pose[index]; const start = index * 4;
@@ -135,9 +140,9 @@ export class GarmentOverlay {
       this.drawPose[start] = point?.x ?? 0; this.drawPose[start + 1] = point?.y ?? 0;
       this.drawPose[start + 2] = point?.z ?? 0; this.drawPose[start + 3] = point?.visibility ?? 1;
     }
-    this.lastDraw = { texture: this.texture, category: this.item.category,
+    this.lastDraw = { texture: this.texture, backTexture: this.backTexture, category: this.item.category,
       stream: this.video.srcObject, width: this.video.videoWidth, height: this.video.videoHeight,
-      segmentation, worldPose, notice: this.tracker.segmentationNotice,
+      segmentation, worldPose, view: this.facing.view, notice: this.tracker.segmentationNotice,
       fitWidth: this.fit.width, fitLength: this.fit.length, fitOffset: this.fit.offset };
   }
 
@@ -154,10 +159,13 @@ export class GarmentOverlay {
     const pose = this.tracker.getPose(now);
     const segmentation = this.tracker.getSegmentation(now);
     const worldPose = this.tracker.getWorldPose(now);
+    if (pose && !this.item.starter) this.facing.update(pose,worldPose,this.tracker.lastPoseAt);
+    const texture = this.facing.view === 'back' ? this.backTexture : this.texture;
+    if (!texture) { this.clear(); this._status(this.backMessage || 'Add a back photo to see this garment from behind.'); return; }
     // Tracking still advances and freshness is checked on every display tick.
     // Reuse only the raster drawing, not the camera or inference lifecycle.
     if (this._sameDraw(pose, segmentation, worldPose)) return;
-    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, worldPose, photoPattern: this.item.starter ? null : this.texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: this.texture.sourceBounds });
+    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, worldPose, photoPattern: this.item.starter ? null : texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: texture.sourceBounds });
     if (!mesh) {
       this.clear();
       this.occlusion.clear();
@@ -174,7 +182,7 @@ export class GarmentOverlay {
     }
     this.clear(true);
     this.hasPixels = true; this.curvedTorso = Boolean(mesh.curvedTorso);
-    for (const triangle of mesh) drawTexturedTriangle(this.ctx, this.texture, triangle);
+    for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
     const coverage = { coverForearms: mesh.sleeveStyle === 'long sleeve' };
     const detailedOcclusion = this.occlusion.erase(this.ctx, segmentation, pose,
       { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, coverage);
@@ -226,7 +234,7 @@ export class GarmentOverlay {
     this.onStatus(message);
   }
 
-  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.clear(); this.cameraCanvas?.remove(); }
+  destroy() { this.generation += 1; this.tracker.destroy(); this.texture = null; this.backTexture = null; this.clear(); this.cameraCanvas?.remove(); }
 }
 
 function readFit(id) {

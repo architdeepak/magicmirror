@@ -38,7 +38,7 @@ export class ClosetStore {
   async savePhoto(input) {
     const item = window.mirrorBridge?.saveClosetPhoto
       ? await window.mirrorBridge.saveClosetPhoto(input)
-      : { id: `preview-${Date.now()}`, name: input.name, category: input.category, imageUrl: input.imageDataUrl, previewOnly: true };
+      : { id: `preview-${Date.now()}`, name: input.name, category: input.category, imageUrl: input.imageDataUrl, backImageUrl: input.backImageDataUrl, previewOnly: true };
     this.items.push(item); this.select(item.id);
     return item;
   }
@@ -87,7 +87,7 @@ export class ClosetStore {
     this.container.innerHTML = this.items.map((item) => `
       <button class="closet-item${item.id === this.selectedId ? ' selected' : ''}" type="button" data-closet-id="${escapeAttribute(item.id)}">
         <img src="${escapeAttribute(item.imageUrl)}" alt="${escapeAttribute(item.name)}">
-        <span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.category)} · local</small></span>
+        <span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.category)} · ${item.backImageUrl ? 'front + back · ' : ''}local</small></span>
       </button>`).join('');
     this.container.querySelector('.selected')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     this.container.querySelectorAll('[data-closet-id]').forEach((button) => button.addEventListener('click', () => {

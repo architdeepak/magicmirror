@@ -865,7 +865,7 @@ async function writeCloset(closet) {
 }
 
 function publicGarment(item) {
-  return { id: item.id, name: item.name, category: item.category, createdAt: item.createdAt, imageUrl: pathToFileURL(item.assetPath).href };
+  return { id: item.id, name: item.name, category: item.category, createdAt: item.createdAt, imageUrl: pathToFileURL(item.assetPath).href, ...(item.backAssetPath ? { backImageUrl: pathToFileURL(item.backAssetPath).href } : {}) };
 }
 
 async function importClosetGarment(event, input = {}) {
@@ -904,15 +904,20 @@ function saveClosetPhoto(input = {}) {
     };
     const image = decode(input.imageDataUrl);
     const original = input.originalDataUrl ? decode(input.originalDataUrl) : null;
+    if (input.backOriginalDataUrl && !input.backImageDataUrl) throw new Error('A back original needs a reviewed back cutout.');
+    const backImage = input.backImageDataUrl ? decode(input.backImageDataUrl) : null;
+    const backOriginal = input.backOriginalDataUrl ? decode(input.backOriginalDataUrl) : null;
     const id = `garment-${crypto.randomUUID()}`, directory = path.join(closetAssetDirectory, id);
-    const assetPath = path.join(directory, 'front.png');
+    const assetPath = path.join(directory, 'front.png'), backAssetPath = backImage ? path.join(directory,'back.png') : null;
     await fs.mkdir(directory, { recursive: true });
     try {
       await fs.writeFile(assetPath, image);
       if (original) await fs.writeFile(path.join(directory, 'original.png'), original);
+      if (backImage) await fs.writeFile(backAssetPath, backImage);
+      if (backOriginal) await fs.writeFile(path.join(directory,'back-original.png'),backOriginal);
       const raw = await readClosetRaw();
       if (raw.garments.length >= 500) throw new Error('Your wardrobe has reached 500 garments.');
-      const item = { id, name, category: input.category, assetPath, createdAt: new Date().toISOString(), render: { source: 'local-photo-cutout' } };
+      const item = { id, name, category: input.category, assetPath, ...(backAssetPath ? {backAssetPath} : {}), createdAt: new Date().toISOString(), render: { source: 'local-photo-cutout' } };
       raw.garments.push(item); await writeCloset(raw); return publicGarment(item);
     } catch (error) { await fs.rm(directory, { recursive: true, force: true }); throw error; }
   });

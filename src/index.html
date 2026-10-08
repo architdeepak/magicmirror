@@ -533,7 +533,10 @@
     #wardrobe-photo .live-captions:not(:has(.caption-line.visible)) { display: none; }
     #wardrobe-photo .caption-line { font-size: clamp(16px, 1.5vw, 32px); }
     .wardrobe-photo-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    #wardrobe-photo [data-action=save] { width: 100%; background: #345c4b; }
+    #wardrobe-photo [data-action=save] { position: sticky; bottom: -24px; z-index: 2; width: 100%; background: #345c4b; box-shadow: 0 -12px 0 #111d23; }
+    #wardrobe-photo [data-action=front][aria-pressed=true], #wardrobe-photo [data-action=back][aria-pressed=true] { background: #a8ffcf; color: #10241b; border-color: #a8ffcf; }
+    #wardrobe-photo .wardrobe-refine { margin: 12px 0; }
+    #wardrobe-photo .wardrobe-refine summary { cursor: pointer; padding: 8px 0; }
   </style>
 </head>
 <body>

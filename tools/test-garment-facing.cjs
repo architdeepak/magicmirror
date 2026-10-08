@@ -1,0 +1,16 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/garmentFacing.js','utf8').replace('export class','class')+';globalThis.Subject=GarmentFacing',scope);
+const facing=new scope.Subject(),pose=Array.from({length:33},()=>({x:0,y:0,z:0,visibility:1}));
+pose[11].x=.7;pose[12].x=.3;
+assert.equal(facing.update(pose,null,1),'front');
+pose[11].x=.3;pose[12].x=.7;assert.equal(facing.update(pose,null,2),'front');
+for(let i=0;i<20;i++)assert.equal(facing.update(pose,null,2),'front','Display ticks counted as new pose evidence');
+assert.equal(facing.update(pose,null,3),'back');
+pose[11].x=.5;pose[12].x=.501;pose[11].z=-.4;pose[12].z=.4;
+assert.equal(facing.update(pose,null,4),'back','Profile noise flipped views');
+const world=pose.map(p=>({...p}));world[11].x=.2;world[12].x=-.2;world[11].z=world[12].z=0;
+assert.equal(facing.update(pose,world,5),'back');assert.equal(facing.update(pose,world,6),'front');
+facing.reset();world[11].x=-.2;world[12].x=.2;assert.equal(facing.update(pose,world,7),'back','First confident rear pose showed a front photo');
+pose[11].visibility=0;assert.equal(facing.update(pose,world,8),'back');
+facing.reset();assert.equal(facing.view,'front');
+console.log('Garment facing: world/image orientation, distinct-frame hysteresis, profile ambiguity, confidence, rear-first startup and reset.');
