@@ -32,7 +32,7 @@ export class MagicMirrorView {
   _render() {
     this.container.innerHTML = `
       <div class="mirror-clock">
-        <div class="clock-time" id="clock-time">00:00</div>
+        <div class="clock-time" id="clock-time"><span class="clock-value">00:00</span><small class="clock-period"></small></div>
         <div class="clock-date" id="clock-date">—</div>
       </div>
       <div class="mirror-weather">
@@ -64,7 +64,10 @@ export class MagicMirrorView {
   _startClock() {
     const update = () => {
       const now = new Date();
-      this.container.querySelector('#clock-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const parts = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit' }).formatToParts(now);
+      this.container.querySelector('.clock-value').textContent = parts.filter(part => part.type !== 'dayPeriod').map(part => part.value).join('').trim();
+      this.container.querySelector('.clock-period').textContent = parts.find(part => part.type === 'dayPeriod')?.value || '';
+      this.container.querySelector('#clock-time').setAttribute('aria-label', now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       this.container.querySelector('#clock-date').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
       const hour = now.getHours();
       this.container.querySelector('#mirror-greeting').textContent = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';

@@ -100,3 +100,21 @@ rebuilds. Early samples show no errors, sleep around 5% process-tree CPU, and
 active software-rendered AR around 110–135% process-tree CPU. These are development
 observations, not a PC-stick power or wattage claim; active-view efficiency still
 needs work. Its final report must be checked when the run finishes.
+
+## Adversarial UI/account audit (2026-10-08)
+
+See `ADVERSARIAL-AUDIT-2026-10-08.md` for fixes, actual tests and remaining proof.
+The audit repaired portrait-container scaling, clock/weather overlap, scrolling
+behind photo Save, misleading camera-off depth feedback, absent typed input and
+raw media URL errors. Typed Command Center requests now use the connected voice
+host or Codex with honest failure/cancellation. Account prompt detection is
+checked through actual packaged capture/input IPC. Find Devices is correctly
+labeled; no Find My People bridge is configured. A real Codex typed task read a
+synthetic stale map and preserved its age/accuracy/current-unavailable status.
+
+Real Gemini wake/conversation/stop/caption and YouTube play/pause/seek checks
+passed again on this machine. Physical sensors, actual signed-in Spotify/Apple
+accounts, realistic cloth, native phone screen mirroring and Windows remain
+unproven. Software 3D now has a 15-FPS room governor; short renderer CPU fell from
+roughly 98% to 60% in this check, without establishing whole-device efficiency.
+The prior paired-photo 30-minute monitor finished with 589 samples and no errors.

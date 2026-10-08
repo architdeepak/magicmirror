@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-08T16:08:20.523Z",
+  "passed": true,
+  "scope": "Electron browser and fixed isolated-world credential inspection. Synthetic sign-in/map/session only, not actual Apple login or friends data.",
+  "checks": [
+    {
+      "kind": "password",
+      "expected": "capture/input paused"
+    },
+    {
+      "kind": "otp",
+      "expected": "capture/input paused"
+    },
+    {
+      "kind": "iframe",
+      "expected": "capture/input paused"
+    },
+    {
+      "kind": "email",
+      "expected": "capture/input paused"
+    },
+    {
+      "kind": "signin-path",
+      "expected": "capture/input paused"
+    },
+    {
+      "kind": "hidden",
+      "expected": "capture permitted"
+    },
+    {
+      "kind": "map",
+      "expected": "capture permitted"
+    },
+    {
+      "kind": "window recreation",
+      "expected": "persistent synthetic session retained"
+    }
+  ]
+}

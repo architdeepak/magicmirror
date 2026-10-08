@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, session, shell, dialog, nativeImage, safeStorage, desktopCapturer, screen } = require('electron');
+const { assertBrowserAccountReady } = require('./browserAccountBoundary.cjs');
 const { wardrobePhotoBytes } = require('./wardrobePhotoValidation.cjs');
 const {createWakeModelServer}=require('./wakeModelServer.cjs');
 let wakeModelServer;
@@ -268,6 +269,7 @@ async function captureCurrentScreen({ recordObservation = false, signal } = {}) 
     if (signal?.aborted || generation !== desktopObservationGeneration) throw new Error('Screen observation cancelled or superseded. Inspect again.');
   };
   assertCurrent();
+  await assertBrowserAccountReady(desktopWindow); assertCurrent();
   if (nativeCompanion.active && /spotify/i.test(nativeCompanion.label)) throw new Error('Spotify content stays local. Return to the mirror before sharing the screen.');
   const targetWindow = desktopWindow && !desktopWindow.isDestroyed() && desktopWindow.isVisible()
     ? desktopWindow : mainWindow;
@@ -287,6 +289,7 @@ async function captureCurrentScreen({ recordObservation = false, signal } = {}) 
   assertCurrent();
   const displaySource = displays.find((source) => source.display_id === String(targetDisplay.id)) || (displays.length === 1 ? displays[0] : null);
   if (!displaySource) throw new Error('The TV display could not be captured. Check screen-recording permission and try again.');
+  await assertBrowserAccountReady(desktopWindow); assertCurrent();
   const image = resizeForAssistant(displaySource.thumbnail);
   if (foreground && !sameForeground(foreground, await nativeDesktop.inspect(signal))) throw new Error('Desktop focus changed during capture. Inspect the screen again.');
   assertCurrent();

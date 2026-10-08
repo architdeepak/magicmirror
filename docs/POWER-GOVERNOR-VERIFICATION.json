@@ -1,0 +1,2998 @@
+{
+  "checkedAt": "2026-10-08T16:13:06.563Z",
+  "scope": "Linux software-rendered portrait app; renderer CPU excludes other processes and is not a wattage measurement; synthetic hidden state; accelerated sleep timer; no physical camera or microphone",
+  "results": [
+    {
+      "name": "ambient",
+      "durationSec": 4.004698000033386,
+      "rendererCpuPercent": 5.787852167580868,
+      "heapBytes": 15066700,
+      "rendersPerSec": {
+        "scene": 0.24970671945591486,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:13.997Z",
+        "display": {
+          "mode": "mirror",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 12,
+        "frames": 50,
+        "scene": {
+          "frames": 3,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "queen",
+      "durationSec": 4.006648999988101,
+      "rendererCpuPercent": 8.416684366436925,
+      "heapBytes": 12488400,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 27.953534237796376,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:18.779Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 30,
+        "frames": 177,
+        "scene": {
+          "frames": 4,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "flat-avatar-cache",
+      "durationSec": 4.005842000013217,
+      "rendererCpuPercent": 7.929244338617244,
+      "heapBytes": 14299816,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 28.458436453465676,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:23.790Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 30,
+        "frames": 319,
+        "scene": {
+          "frames": 5,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "depth-dynamic",
+      "durationSec": 4.172144999960437,
+      "rendererCpuPercent": 59.578130674355045,
+      "heapBytes": 15725844,
+      "rendersPerSec": {
+        "scene": 10.546133943191627,
+        "head": 0,
+        "face": 19.65415871231167,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:29.020Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": true
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 30,
+        "frames": 411,
+        "scene": {
+          "frames": 52,
+          "dynamic": true,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "try-on",
+      "durationSec": 4.007809999980964,
+      "rendererCpuPercent": 8.230929110950045,
+      "heapBytes": 14392416,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 27.945436535297826,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:35.052Z",
+        "display": {
+          "mode": "ar",
+          "requestedMode": "ar",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Turn on the camera to see your live fit."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 30,
+        "frames": 573,
+        "scene": {
+          "frames": 58,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "watch",
+      "durationSec": 4.005339000024833,
+      "rendererCpuPercent": 4.028572862346969,
+      "heapBytes": 13868432,
+      "rendersPerSec": {
+        "scene": 0.49933351458830333,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:39.812Z",
+        "display": {
+          "mode": "watch",
+          "requestedMode": "watch",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 12,
+        "frames": 633,
+        "scene": {
+          "frames": 62,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "music",
+      "durationSec": 4.007221999927424,
+      "rendererCpuPercent": 4.725842491467403,
+      "heapBytes": 12996576,
+      "rendersPerSec": {
+        "scene": 0.24954943849332814,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:44.563Z",
+        "display": {
+          "mode": "spotify",
+          "requestedMode": "spotify",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 12,
+        "frames": 689,
+        "scene": {
+          "frames": 66,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "sleep",
+      "durationSec": 4.004958000034094,
+      "rendererCpuPercent": 1.9764002518709811,
+      "heapBytes": 12744992,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:51.366Z",
+        "display": {
+          "mode": "mirror",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": true,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 0,
+        "frames": 713,
+        "scene": {
+          "frames": 69,
+          "dynamic": false,
+          "dirty": true,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "wake-resume",
+      "durationSec": 4.004147000028752,
+      "rendererCpuPercent": 6.643112752805779,
+      "heapBytes": 13539824,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 28.969965388175574,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:12:56.191Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 30,
+        "frames": 844,
+        "scene": {
+          "frames": 71,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "stopped-converse-sleep",
+      "durationSec": 4.00881099991966,
+      "rendererCpuPercent": 2.786886186508669,
+      "heapBytes": 12844104,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:13:01.934Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": true,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 0,
+        "frames": 885,
+        "scene": {
+          "frames": 72,
+          "dynamic": false,
+          "dirty": true,
+          "maxDynamicFps": 15
+        }
+      }
+    },
+    {
+      "name": "synthetic-hidden",
+      "durationSec": 4.006435999996029,
+      "rendererCpuPercent": 3.592145238315119,
+      "heapBytes": 13222964,
+      "rendersPerSec": {
+        "scene": 0,
+        "head": 0,
+        "face": 0,
+        "rig": 0
+      },
+      "state": {
+        "observedAt": "2026-10-08T16:13:06.289Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 1280,
+          "height": 1024,
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera unavailable: Requested device not found",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top"
+            },
+            {
+              "name": "Black blouse",
+              "category": "top"
+            },
+            {
+              "name": "White blouse",
+              "category": "top"
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top"
+            },
+            {
+              "name": "Red blouse",
+              "category": "top"
+            },
+            {
+              "name": "Green blouse",
+              "category": "top"
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top"
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top"
+            },
+            {
+              "name": "Black dress",
+              "category": "dress"
+            },
+            {
+              "name": "White dress",
+              "category": "dress"
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress"
+            },
+            {
+              "name": "Red dress",
+              "category": "dress"
+            },
+            {
+              "name": "Green dress",
+              "category": "dress"
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress"
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt"
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt"
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      },
+      "size": [
+        1280,
+        1024
+      ],
+      "power": {
+        "targetFps": 0,
+        "frames": 887,
+        "scene": {
+          "frames": 74,
+          "dynamic": false,
+          "dirty": true,
+          "maxDynamicFps": 15
+        }
+      }
+    }
+  ]
+}

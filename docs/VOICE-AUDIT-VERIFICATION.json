@@ -1,0 +1,276 @@
+{
+  "runtime": "actual packaged app",
+  "input": "synthetic WAV through MediaStream",
+  "greeting": "real Gemini Live Gacrux",
+  "conversation": "real microphone transcription and response",
+  "reveal": "passed",
+  "captionRows": 2,
+  "speakerColors": "distinct",
+  "heardCaptionLatencyMs": 1163.0999999046326,
+  "interimHeardCaptions": [
+    "tell me",
+    "tell me a",
+    "tell me a long",
+    "tell me a long story",
+    "tell me a long story about on"
+  ],
+  "correctedHeardCaption": "Tell me a long story about a dragon.",
+  "stopWithStandbyWakeDisabled": "passed",
+  "stopLatencyMs": 1124.5999999046326,
+  "localStopResponseMs": 2.399999976158142,
+  "outputPeakRms": 0.2848158621341215,
+  "stoppedOutputPeakRms": 0,
+  "stopGate": "ordinary speech ignored; wake phrase restored live speech",
+  "hardMute": "active playback silenced; no live microphone tracks; wake ignored",
+  "events": [
+    {
+      "at": 1510.9000000953674,
+      "reveal": false,
+      "state": "AI ready",
+      "mic": "LISTEN",
+      "user": "",
+      "assistant": ""
+    },
+    {
+      "at": 4036,
+      "reveal": true,
+      "state": "Awakening",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": ""
+    },
+    {
+      "at": 6386.600000023842,
+      "reveal": false,
+      "state": "Opening the veil",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": ""
+    },
+    {
+      "at": 7074,
+      "reveal": false,
+      "state": "AI ready",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": ""
+    },
+    {
+      "at": 7082.700000047684,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": ""
+    },
+    {
+      "at": 7083.200000047684,
+      "reveal": false,
+      "state": "Consulting",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": ""
+    },
+    {
+      "at": 7809.200000047684,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes,"
+    },
+    {
+      "at": 8291.5,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your"
+    },
+    {
+      "at": 8504.5,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil"
+    },
+    {
+      "at": 8516.800000071526,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil highness."
+    },
+    {
+      "at": 8645.900000095367,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil highness. What"
+    },
+    {
+      "at": 8648.5,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil highness. What shall"
+    },
+    {
+      "at": 8763.300000071526,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil highness. What shall we conjure?"
+    },
+    {
+      "at": 11796.700000047684,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "Mirror mirror",
+      "assistant": "Yes, yes, your evil highness. What shall we conjure?"
+    },
+    {
+      "at": 13049.5,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me",
+      "assistant": ""
+    },
+    {
+      "at": 13432.5,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a",
+      "assistant": ""
+    },
+    {
+      "at": 13571.800000071526,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a long",
+      "assistant": ""
+    },
+    {
+      "at": 13803.5,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a long story",
+      "assistant": ""
+    },
+    {
+      "at": 14452.600000023842,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a long story about on",
+      "assistant": ""
+    },
+    {
+      "at": 14587.800000071526,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a long story about en route",
+      "assistant": ""
+    },
+    {
+      "at": 14863.100000023842,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "tell me a long story about a dragon",
+      "assistant": ""
+    },
+    {
+      "at": 15282.900000095367,
+      "reveal": false,
+      "state": "Consulting",
+      "mic": "STOP",
+      "user": "tell me a long story about a dragon",
+      "assistant": ""
+    },
+    {
+      "at": 15558.200000047684,
+      "reveal": false,
+      "state": "Consulting",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": ""
+    },
+    {
+      "at": 16348.200000047684,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a"
+    },
+    {
+      "at": 16601,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long"
+    },
+    {
+      "at": 16799.300000071526,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long tale"
+    },
+    {
+      "at": 16904.300000071526,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long tale"
+    },
+    {
+      "at": 16949.300000071526,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long tale"
+    },
+    {
+      "at": 16950.100000023842,
+      "reveal": false,
+      "state": "Speaking",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long tale indeed!"
+    },
+    {
+      "at": 16984,
+      "reveal": false,
+      "state": "Listening",
+      "mic": "STOP",
+      "user": "Tell me a long story about a dragon.",
+      "assistant": "Ah, a long tale indeed!"
+    },
+    {
+      "at": 17610.5,
+      "reveal": false,
+      "state": "AI ready",
+      "mic": "LISTEN",
+      "user": "unk mirror stop",
+      "assistant": ""
+    }
+  ],
+  "microphoneLoss": "synthetic ended event: stopped controls and invalidated desktop observation"
+}

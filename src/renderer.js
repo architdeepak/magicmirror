@@ -181,6 +181,8 @@ const elements = {
   personaList: document.querySelector('#persona-list'),
   launcherToggle: document.querySelector('#launcher-toggle'),
   launcherPanel: document.querySelector('#launcher-panel'),
+  assistantTaskForm: document.querySelector('#assistant-task-form'),
+  assistantTaskInput: document.querySelector('#assistant-task-input'),
   quickNoteForm: document.querySelector('#quick-note-form'),
   quickNoteInput: document.querySelector('#quick-note-input'),
   dimensionSwitch: document.querySelector('#dimension-switch')
@@ -234,7 +236,8 @@ const preferredPixelRatio = () => {
   const budgetRatio = Math.sqrt(RENDER_PIXEL_BUDGET / Math.max(1, width * height));
   return Math.min(window.devicePixelRatio || 1, Math.max(.8, budgetRatio));
 };
-const sceneBudget = new SceneRenderBudget();
+const softwareGraphics = (() => { try { const gl = renderer.getContext(); const info = gl.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software/i.test(String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '')); } catch { return false; } })();
+const sceneBudget = new SceneRenderBudget({ maxDynamicFps: softwareGraphics ? 15 : 30 });
 elements.canvas.addEventListener('webglcontextrestored', () => sceneBudget.invalidate());
 const renderQuality = {
   // A 4K portrait panel at DPR 2 would otherwise request ~33 million pixels
@@ -541,7 +544,7 @@ function setDepthMode(enabled, announce = true) {
   elements.dimensionSwitch?.querySelectorAll('button').forEach((button) => button.classList.toggle('active', button.dataset.depth === (depthEnabled ? 'cube' : 'flat')));
   depthScene.setDepthEnabled(depthEnabled);
   avatar.setDepthEnabled(depthEnabled && mode === 'portal' && !desktopActive);
-  if (announce) showGesture(depthEnabled ? 'Depth Cube · head tracking active' : '2D surface · stable front view');
+  if (announce) { const tracking = getTrackingStatus(); showGesture(depthEnabled ? !tracking.cameraActive ? '3D enabled · turn camera on for head tracking' : !tracking.faceDetected ? '3D enabled · looking for your face' : '3D enabled · head tracking active' : '2D surface · stable front view'); }
 }
 setDepthMode(depthEnabled, false);
 
@@ -637,6 +640,7 @@ function getMirrorState() {
       photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category })) },
     watch: { ...watchPlayback.snapshot(), castingEnabled, castActive: castPlayer.active },
+    services: { findmy: { web: 'Apple Find Devices', peopleLocations: false, note: 'No Find My People bridge is configured; friends locations require the Find My app on an Apple device.' }, browserSignIn: 'User enters credentials directly; agent observation/input pauses on sign-in prompts.' },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }
   };
 }
@@ -695,6 +699,7 @@ function showOracle(text, user = '', eyebrow = 'The mirror answers') {
 async function askMirror(text) {
   const prompt = text.trim();
   if (!prompt) return;
+  if (hardMuted) { showOracle('Unmute the mirror before starting an assistant task.', '', 'Hard muted'); return; }
   appendCaption('user', prompt);
   if (runVoiceNavigation(prompt)) return;
   showAssistant();
@@ -711,9 +716,13 @@ async function askMirror(text) {
     }
   }
   if (hardMuted || generation !== voiceStartGeneration) return;
-  const response = speech.respond(prompt);
+  const result = await runAgentTask(prompt);
+  if (hardMuted || generation !== voiceStartGeneration || result.cancelled) return;
+  if (!result.completed || !result.summary?.trim()) { showOracle(result.error || 'The assistant did not return a completed answer.', prompt, 'Assistant unavailable'); return; }
+  const response = result.summary.trim();
   appendCaption('assistant', response);
   showOracle(response, prompt);
+  speech.speak(response);
   if (elements.wakeToggle.checked) wake.resume();
 }
 
@@ -957,7 +966,7 @@ async function setHardMute(muted) {
 function startBrowserRecognition() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
-    showOracle('Type your question below, or add a Gemini key to unlock live voice.', '', 'Demo voice is unavailable');
+    showOracle('Open Command Center to type a question. Live voice can be connected in Settings.', '', 'Microphone conversation unavailable');
     return;
   }
   const recognition = new Recognition();
@@ -1342,6 +1351,17 @@ document.querySelectorAll('[data-service]').forEach((button) => button.addEventL
     showOracle(error.message, '', 'Service launcher');
   }
 }));
+elements.assistantTaskForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const prompt = elements.assistantTaskInput.value.trim();
+  if (!prompt) return;
+  if (hardMuted) { showOracle('Unmute the mirror before starting an assistant task.', '', 'Hard muted'); return; }
+  if (agentRunId) { showOracle('The current task is still running. Use Stop before starting another.', '', 'Task in progress'); return; }
+  elements.assistantTaskInput.value = '';
+  elements.launcherPanel.classList.remove('open');
+  void askMirror(prompt);
+});
+
 elements.quickNoteInput.value = localStorage.getItem('mirror.quick-note') || '';
 elements.quickNoteForm.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -1688,7 +1708,7 @@ function animate() {
   avatar.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
   arOverlay.render(getFaceLandmarks(), elements.video, elapsed, mode === 'ar' && !desktopActive);
   garmentOverlay.render(performance.now());
-  if (sceneBudget.shouldRender({ hidden: document.hidden, sleeping, depthEnabled, awakening: elements.awakening.classList.contains('active'), mode })) renderer.render(scene, camera);
+  if (sceneBudget.shouldRender({ hidden: document.hidden, sleeping, depthEnabled, awakening: elements.awakening.classList.contains('active'), mode, now: performance.now() })) renderer.render(scene, camera);
   updateRenderQuality(frameDelta);
   diagnosticsTimer += dt;
   if (diagnosticsTimer > .25 && elements.diagnostics.classList.contains('open')) {
@@ -1792,7 +1812,7 @@ async function loadWatchVideo() {
   const url = elements.watchUrl.value.trim();
   if (!url) return;
   try {
-    const parsed = new URL(url);
+    let parsed; try { parsed = new URL(url); } catch { throw new Error('Paste a complete YouTube, Spotify, or video link beginning with https://.'); }
     if (!['https:', 'http:'].includes(parsed.protocol)) throw new Error('Use an http(s) video URL.');
     const videoId = youtubeId(parsed);
     if (videoId && !/^[A-Za-z0-9_-]{11}$/.test(videoId)) throw new Error('Paste a complete YouTube video link.');
@@ -1919,9 +1939,15 @@ function runVoiceNavigation(prompt) {
       .catch((error) => showOracle(error.message, '', 'Service launcher'));
     return true;
   }
-  if (/\b(?:open|show|where is)\s+(?:my\s+)?(?:find my|friends|family|people)\b/.test(text)) {
+  if (!/\bgoogle(?: maps)?\b/.test(text) && /\b(?:open|show|where is|where are)\s+(?:my\s+)?(?:find my|friends|family|people)\b/.test(text)) {
+    if (/\b(?:friends|family|people)\b/.test(text) && !/\b(?:google|maps)\b/.test(text)) {
+      const response = 'Apple’s website locates devices. Friends’ shared locations need the Find My app on an Apple device; a friends-map connection is not configured on this mirror yet.';
+      appendCaption('assistant', response, { replace: true });
+      showOracle(response, prompt, 'Friends map');
+      return true;
+    }
     window.mirrorBridge?.openService('findmy')
-      .then(() => showGesture('Opening Find My'))
+      .then(() => showGesture('Opening Apple Find Devices · sign in directly'))
       .catch((error) => showOracle(error.message, '', 'Find My'));
     return true;
   }

@@ -365,3 +365,10 @@ Actual local-screen and packaged cancellation checks passed; Windows and real
 service accounts remain unverified. See [assistant harness](docs/ASSISTANT-HARNESS.md)
 for setup, test evidence and limits. Local AR does not require Codex or a paid
 generative API.
+
+### October 8 local audit
+
+[Adversarial UI and account audit](docs/ADVERSARIAL-AUDIT-2026-10-08.md) records
+current-machine evidence, repaired portrait layouts, typed assistant input,
+account prompt protection, software 3D cadence, and the remaining integration
+gaps. Find Devices on iCloud.com is not a configured friends-location connector.

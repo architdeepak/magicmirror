@@ -25,16 +25,18 @@ export class RenderBudget {
 // Flat UI, video and the 2D avatar own their animation clocks. The room needs
 // new pixels only after a change, during the reveal, or while depth is enabled.
 export class SceneRenderBudget {
-  constructor() { this.dirty = true; this.dynamic = false; this.frames = 0; }
+  constructor({ maxDynamicFps = 30 } = {}) { this.dirty = true; this.dynamic = false; this.frames = 0; this.maxDynamicFps = maxDynamicFps; this.lastDrawAt = null; }
   invalidate() { this.dirty = true; }
-  shouldRender({ hidden, sleeping, depthEnabled, awakening, mode }) {
+  shouldRender({ hidden, sleeping, depthEnabled, awakening, mode, now }) {
     if (hidden || sleeping) return false;
     const dynamic = Boolean(awakening || (depthEnabled && mode !== 'ar'));
+    const changed = this.dirty || dynamic !== this.dynamic;
+    if (!changed && dynamic && Number.isFinite(now) && this.lastDrawAt !== null && now - this.lastDrawAt < 1000 / this.maxDynamicFps - 1) return false;
     const draw = this.dirty || dynamic || this.dynamic;
     this.dynamic = dynamic;
     this.dirty = false;
-    if (draw) this.frames++;
+    if (draw) { this.frames++; if (Number.isFinite(now)) this.lastDrawAt = now; }
     return draw;
   }
-  snapshot() { return { frames: this.frames, dynamic: this.dynamic, dirty: this.dirty }; }
+  snapshot() { return { frames: this.frames, dynamic: this.dynamic, dirty: this.dirty, maxDynamicFps: this.maxDynamicFps }; }
 }

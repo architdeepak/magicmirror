@@ -382,3 +382,18 @@ service and packaged portrait kiosk: one `double_click` command, exactly two
 underlying click events and one Chromium `dblclick` event on the requested
 shuffled button, followed by `OPENED: FEATHER` readback. Evidence is in
 `artifacts/live-computer-double/result.json`. It does not execute Windows input.
+
+## Shared maps and account prompts
+
+The managed browser has a persistent session partition. Users complete sign-in
+and verification directly; agent capture/input pauses for recognized visible
+credential/OTP prompts. Synthetic session/prompt and actual packaged IPC checks
+passed. Real Apple account sign-in, external popups, DRM streaming, and arbitrary
+native credential dialogs remain unverified.
+
+iCloud.com opens Apple Find Devices. Friends in Find My People need an Apple
+device connection, which is not configured. Google Maps desktop Location Sharing
+is an alternative supported visible source after people share with the signed-in
+user. No actual shared-location account is connected or tested here. Questions
+must preserve displayed update age and accuracy; stale positions are last known,
+not current. See `ADVERSARIAL-AUDIT-2026-10-08.md` for sources and evidence.

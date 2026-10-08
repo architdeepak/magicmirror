@@ -31,7 +31,7 @@
 
     /* The browser preview represents the actual 43-inch portrait installation,
        never a stretched desktop canvas. Wide viewports receive a black matte. */
-    #app-shell { --viewer-x: 0px; --viewer-y: 0px; position: relative; width: min(100vw, 56.25vh); height: min(100vh, 177.777vw); isolation: isolate; background: radial-gradient(circle at 50% 34%, #120d1b 0, #030306 42%, #000 76%); }
+    #app-shell { --viewer-x: 0px; --viewer-y: 0px; position: relative; width: min(100vw, 56.25vh); height: min(100vh, 177.777vw); isolation: isolate; container-type: inline-size; background: radial-gradient(circle at 50% 34%, #120d1b 0, #030306 42%, #000 76%); }
     /* Install profile: daylight needs firm whites and black voids through
        two-way glass; night mode reduces the reflected light in the room. */
     #app-shell[data-glass-profile="glass"] { --signal: #c8ffe4; --ice: #fbffff; --muted: rgba(237,255,247,.80); }
@@ -85,7 +85,7 @@
 
     .noise, .vignette, .mirror-frame, .scanline { position: absolute; inset: 0; pointer-events: none; }
     .noise { z-index: 4; opacity: .055; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
-    .vignette { z-index: 5; box-shadow: inset 0 0 16vw 5vw rgba(0,0,0,.96), inset 0 0 3vw 1vw rgba(0,0,0,.85); background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 18%, transparent 72%, rgba(0,0,0,.82)); }
+    .vignette { z-index: 5; box-shadow: inset 0 0 16cqw 5cqw rgba(0,0,0,.96), inset 0 0 3cqw 1cqw rgba(0,0,0,.85); background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 18%, transparent 72%, rgba(0,0,0,.82)); }
     .scanline { z-index: 6; opacity: .035; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,.16) 4px); }
     .mirror-frame { z-index: 7; inset: 12px; border: 1px solid rgba(231,199,116,.22); border-radius: 42px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), inset 0 0 34px rgba(198,147,255,.08), 0 0 40px rgba(0,0,0,.9); }
     .mirror-frame::before, .mirror-frame::after { content: ""; position: absolute; left: 50%; width: 64px; height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 12px var(--gold); }
@@ -111,7 +111,7 @@
     #dashboard-container { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s ease, transform .5s ease; }
     #app-shell:not([data-mode="mirror"]) #dashboard-container { opacity: 0; transform: translateY(14px); }
     .mirror-clock { position: absolute; top: 112px; left: 42px; }
-    .clock-time { font: 300 clamp(54px, 10vw, 92px)/.9 Unbounded, sans-serif; letter-spacing: -5px; text-shadow: 0 0 30px rgba(255,255,255,.13); }
+    .clock-time { font: 300 clamp(54px, 10cqw, 92px)/.9 Unbounded, sans-serif; letter-spacing: -5px; text-shadow: 0 0 30px rgba(255,255,255,.13); }
     .clock-date { margin-top: 14px; color: var(--gold); font: 500 9px Cinzel, serif; letter-spacing: 2.6px; }
     .mirror-weather { position: absolute; top: 120px; right: 42px; display: flex; align-items: flex-start; gap: 13px; text-align: right; }
     .weather-icon { color: var(--gold); font: 300 44px/1 Cinzel, serif; text-shadow: 0 0 20px rgba(231,199,116,.35); }
@@ -135,17 +135,17 @@
     .quote-widget { display: flex; flex-direction: column; justify-content: space-between; }
     .quote-widget p { margin: 0; font: italic 16px/1.45 Georgia, serif; color: rgba(255,255,255,.82); transition: opacity .4s; }
 
-    .oracle-card { pointer-events: auto; position: absolute; left: 50%; bottom: 148px; transform: translateX(-50%); width: min(68vw, 430px); max-height: 150px; overflow: auto; padding: 12px 30px 13px; border: 1px solid rgba(231,199,116,.12); border-radius: 14px; background: rgba(7,5,11,.56); backdrop-filter: blur(15px); text-align: center; cursor: pointer; transition: opacity .35s ease, transform .35s ease; }
+    .oracle-card { pointer-events: auto; position: absolute; left: 50%; bottom: 148px; transform: translateX(-50%); width: min(68cqw, 430px); max-height: 150px; overflow: auto; padding: 12px 30px 13px; border: 1px solid rgba(231,199,116,.12); border-radius: 14px; background: rgba(7,5,11,.56); backdrop-filter: blur(15px); text-align: center; cursor: pointer; transition: opacity .35s ease, transform .35s ease; }
     .oracle-card.empty { opacity: 0; transform: translate(-50%, 8px); }
     .oracle-eyebrow { color: var(--gold); font: 500 7px/1 Cinzel, serif; letter-spacing: 2.4px; text-transform: uppercase; margin-bottom: 7px; }
-    #oracle-text { margin: 0; font: 400 clamp(12px, 1.55vw, 17px)/1.45 Manrope, sans-serif; text-shadow: 0 3px 18px #000; }
+    #oracle-text { margin: 0; font: 400 clamp(12px, 1.55cqw, 17px)/1.45 Manrope, sans-serif; text-shadow: 0 3px 18px #000; }
     #oracle-user { margin-top: 7px; color: var(--muted); font-size: 8px; letter-spacing: .3px; }
     .oracle-close { position: absolute; top: 5px; right: 7px; width: 22px; height: 22px; border: 0; background: transparent; color: rgba(255,255,255,.42); cursor: pointer; font-size: 16px; }
     .oracle-close:hover { color: var(--gold); }
 
     .persona-toggle { pointer-events: auto; position: absolute; left: 34px; bottom: 40px; width: 34px; height: 34px; overflow: hidden; padding: 0; border: 1px solid rgba(213,234,244,.2); border-radius: 50%; background: #17222a; cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.45); }
     .persona-toggle img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
-    .persona-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(340px, calc(100vw - 56px)); padding: 15px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .persona-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(340px, calc(100cqw - 56px)); padding: 15px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .persona-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .persona-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .persona-panel p { margin: 5px 0 12px; color: var(--muted); font-size: 9px; line-height: 1.45; }
     .persona-list { display: grid; gap: 7px; }
@@ -155,7 +155,7 @@
     .persona-card strong { display: block; font-size: 10px; } .persona-card span { display: block; margin-top: 3px; color: var(--muted); font-size: 8px; } .persona-card i { color: var(--signal); font-style: normal; opacity: 0; } .persona-card.active i { opacity: 1; }
     .launcher-toggle { pointer-events: auto; position: absolute; left: 80px; bottom: 40px; width: 34px; height: 34px; border: 1px solid rgba(213,234,244,.16); border-radius: 50%; background: rgba(8,14,19,.76); color: var(--ice); cursor: pointer; backdrop-filter: blur(12px); }
     .launcher-toggle:hover { border-color: rgba(168,255,207,.55); color: var(--signal); }
-    .launcher-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(360px, calc(100vw - 56px)); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .launcher-panel { pointer-events: auto; position: absolute; left: 28px; bottom: 84px; width: min(360px, calc(100cqw - 56px)); padding: 16px; border: 1px solid var(--panel-line); border-radius: 18px; background: rgba(7,12,17,.95); box-shadow: 0 22px 70px rgba(0,0,0,.72); backdrop-filter: blur(28px); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .launcher-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .launcher-panel h2 { margin: 0; color: var(--ice); font: 600 12px Manrope, sans-serif; } .launcher-panel > p { margin: 5px 0 13px; color: var(--muted); font-size: 9px; }
     .launcher-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
@@ -176,26 +176,26 @@
     .round-btn:disabled { opacity: .44; cursor: not-allowed; }
     .mute-btn { width: 74px; height: 58px; border: 1px solid rgba(255,255,255,.16); border-radius: 15px; background: rgba(255,255,255,.045); color: var(--ice); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
     .mute-btn span { font-size: 19px; line-height: 1; } .mute-btn[aria-pressed="true"] { color: #fff; background: #8f3039; border-color: #ff7b83; box-shadow: 0 0 20px rgba(255,75,90,.32); }
-    .live-captions { position: absolute; left: 50%; bottom: clamp(140px, 13vw, 260px); z-index: 12; width: min(82%, 920px); transform: translateX(-50%); padding: 10px 16px; border: 1px solid rgba(232,248,255,.2); border-radius: 12px; background: rgba(2,7,9,.76); box-shadow: 0 8px 35px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; opacity: 0; transition: opacity .2s ease; }
+    .live-captions { position: absolute; left: 50%; bottom: clamp(140px, 13cqw, 260px); z-index: 12; width: min(82%, 920px); transform: translateX(-50%); padding: 10px 16px; border: 1px solid rgba(232,248,255,.2); border-radius: 12px; background: rgba(2,7,9,.76); box-shadow: 0 8px 35px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; opacity: 0; transition: opacity .2s ease; }
     .live-captions.visible { opacity: 1; }
-    .caption-line { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 clamp(16px, 1.7vw, 32px)/1.45 Manrope, sans-serif; }
+    .caption-line { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 clamp(16px, 1.7cqw, 32px)/1.45 Manrope, sans-serif; }
     .caption-line.visible { display: flex; align-items: baseline; }
     .caption-line span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
-    .caption-line b { flex-shrink: 0; display: inline-block; width: clamp(74px, 7.8vw, 150px); font: 700 clamp(10px, 1vw, 18px) Manrope, sans-serif; letter-spacing: 1.4px; }
+    .caption-line b { flex-shrink: 0; display: inline-block; width: clamp(74px, 7.8cqw, 150px); font: 700 clamp(10px, 1cqw, 18px) Manrope, sans-serif; letter-spacing: 1.4px; }
     #caption-user { color: #ffd58a; } #caption-user b { color: #ffd58a; }
     #caption-assistant { color: #b5ffd4; } #caption-assistant b { color: #b5ffd4; }
-    .wake-status { position: absolute; left: 50%; bottom: clamp(112px, 10vw, 210px); transform: translateX(-50%); color: rgba(255,255,255,.65); font: 500 clamp(10px, 1vw, 18px) Cinzel, serif; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+    .wake-status { position: absolute; left: 50%; bottom: clamp(112px, 10cqw, 210px); transform: translateX(-50%); color: rgba(255,255,255,.65); font: 500 clamp(10px, 1cqw, 18px) Cinzel, serif; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
     .wake-status.armed { color: rgba(231,199,116,.72); }
 
     .settings-toggle { pointer-events: auto; position: absolute; right: 34px; bottom: 40px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(8,6,12,.5); color: rgba(255,255,255,.5); cursor: pointer; backdrop-filter: blur(12px); }
     .settings-toggle:hover { color: var(--gold); border-color: var(--line); transform: rotate(24deg); }
-    .settings-panel { z-index: 30; pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100vw - 56px)); max-height: calc(100% - 150px); overflow-y: auto; overscroll-behavior: contain; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
+    .settings-panel { z-index: 30; pointer-events: auto; position: absolute; right: 28px; bottom: 84px; width: min(330px, calc(100cqw - 56px)); max-height: calc(100% - 150px); overflow-y: auto; overscroll-behavior: contain; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(9,7,14,.94); backdrop-filter: blur(32px); box-shadow: 0 22px 70px rgba(0,0,0,.72); opacity: 0; transform: translateY(10px) scale(.98); pointer-events: none; transition: .22s ease; }
     .settings-panel.open { opacity: 1; transform: none; pointer-events: auto; }
     .closet-shelf { margin-top: 16px; padding: 14px; border: 1px solid rgba(213,234,244,.12); border-radius: 14px; background: rgba(6,11,15,.54); } .closet-shelf-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .closet-shelf-head strong { color: var(--ice); font: 700 12px Manrope, sans-serif; letter-spacing: 1.2px; } .closet-shelf-head button { border: 1px solid rgba(168,255,207,.42); border-radius: 8px; background: rgba(168,255,207,.1); color: var(--signal); padding: 7px 10px; font: 700 13px Manrope, sans-serif; min-height: 44px; cursor: pointer; } .closet-shelf p { margin: 7px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; } .closet-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; } .closet-empty { color: var(--muted); font-size: 9px; line-height: 1.45; padding: 9px 0; } .closet-item { display: grid; grid-template-columns: 42px minmax(92px, 1fr); flex: 0 0 155px; gap: 8px; align-items: center; min-height: 54px; padding: 6px; border: 1px solid rgba(213,234,244,.1); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--ice); text-align: left; cursor: pointer; } .closet-item.selected { border-color: rgba(168,255,207,.58); background: rgba(168,255,207,.07); } .closet-item img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,.045); } .closet-item b, .closet-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .closet-item b { font-size: 12px; } .closet-item small { margin-top: 3px; color: var(--muted); font-size: 10px; }
     .tryon-consent { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; color: var(--muted); font-size: 9px; line-height: 1.35; } .tryon-consent input { accent-color: var(--signal); margin: 1px 0 0; } .tryon-run { width: 100%; min-height: 35px; margin-top: 10px; border: 0; border-radius: 9px; background: var(--signal); color: #05100a; font: 700 10px Manrope, sans-serif; cursor: pointer; } .tryon-run:disabled { cursor: not-allowed; opacity: .38; } .tryon-status { display: block; margin-top: 7px; color: var(--muted); font-size: 8px; line-height: 1.4; }
     .tryon-result { display: none; width: 100%; max-height: 25vh; margin-top: 12px; object-fit: contain; border: 1px solid rgba(181,255,212,.25); border-radius: 10px; background: #030607; }
     .tryon-result.visible { display: block; }
-    .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8vw, 164px); right: clamp(30px, 3vw, 72px); width: min(300px, 34vw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
+    .diagnostics { position: absolute; z-index: 20; top: clamp(100px, 8cqw, 164px); right: clamp(30px, 3cqw, 72px); width: min(300px, 34cqw); padding: 15px 16px; border: 1px solid rgba(168,255,207,.28); border-radius: 14px; background: rgba(4,10,12,.87); box-shadow: 0 20px 55px rgba(0,0,0,.45); color: #c9e8db; font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: .18s ease; }
     .diagnostics.open { opacity: 1; transform: none; } .diagnostics strong { display: block; margin-bottom: 8px; color: var(--signal); font: 700 10px Manrope, sans-serif; letter-spacing: 1.5px; } .diagnostics p { display: flex; justify-content: space-between; gap: 12px; margin: 3px 0; } .diagnostics span { color: #8fa79d; } .diagnostics b { color: #e6fff2; font-weight: 600; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
     .panel-head strong { font: 500 11px Cinzel, serif; letter-spacing: 2px; color: var(--gold); }
@@ -218,7 +218,7 @@
     .loader p { margin: 14px 0 0; color: var(--muted); font: 500 8px Cinzel, serif; letter-spacing: 2.5px; }
     .awakening { position: absolute; z-index: 9; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; visibility: hidden; background: radial-gradient(ellipse at center, rgba(20,10,34,.94), rgba(2,1,5,.98) 58%, #000 78%); transition: opacity .35s ease, visibility .35s; }
     .awakening.active { opacity: 1; visibility: visible; }
-    .awakening-portal { position: relative; width: min(72vw, 72vh); aspect-ratio: 1; border: 1px solid rgba(181,255,212,.45); border-radius: 50%; box-shadow: 0 0 30px rgba(181,255,212,.18), inset 0 0 45px rgba(155,123,255,.22); }
+    .awakening-portal { position: relative; width: min(72cqw, 72vh); aspect-ratio: 1; border: 1px solid rgba(181,255,212,.45); border-radius: 50%; box-shadow: 0 0 30px rgba(181,255,212,.18), inset 0 0 45px rgba(155,123,255,.22); }
     .awakening.active .awakening-portal { animation: portal-bloom 2.3s cubic-bezier(.2,.7,.2,1) both; }
     .awakening-portal::before, .awakening-portal::after { content: ''; position: absolute; inset: 7%; border: 2px solid transparent; border-top-color: #d9baff; border-bottom-color: rgba(181,255,212,.8); border-radius: 43% 57% 48% 52%; filter: drop-shadow(0 0 12px rgba(155,123,255,.85)); }
     .awakening.active .awakening-portal::before, .awakening.active .awakening-portal::after { animation: awakening-spin 1.15s linear infinite; }
@@ -227,9 +227,9 @@
     .awakening-vortex::after { content: ''; position: absolute; inset: 10%; border-radius: 50%; background: conic-gradient(transparent, #d9baff 90deg, transparent 150deg, #ffe7a5 260deg, transparent 320deg); mask-image: radial-gradient(circle, transparent 34%, #000 47%, transparent 64%); transform: rotate(80deg); }
     .awakening.active .awakening-vortex { animation: vortex-turn 2.3s cubic-bezier(.15,.45,.25,1) both; }
     .awakening-sparks { position: absolute; inset: -5%; border-radius: 50%; }
-    .awakening-sparks i { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: #fff1ce; box-shadow: 0 0 12px 3px rgba(218,182,255,.65); transform: rotate(var(--orbit)) translateX(min(32vw,32vh)); }
+    .awakening-sparks i { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: #fff1ce; box-shadow: 0 0 12px 3px rgba(218,182,255,.65); transform: rotate(var(--orbit)) translateX(min(32cqw,32vh)); }
     .awakening.active .awakening-sparks { animation: awakening-spin 3s linear infinite; }
-    .awakening-title { position: absolute; top: calc(50% + min(38vw, 38vh)); color: var(--signal); font: 500 clamp(12px, 1.2vw, 22px) Cinzel, serif; letter-spacing: .28em; text-shadow: 0 0 22px rgba(181,255,212,.7); opacity: 0; }
+    .awakening-title { position: absolute; top: calc(50% + min(38cqw, 38vh)); color: var(--signal); font: 500 clamp(12px, 1.2cqw, 22px) Cinzel, serif; letter-spacing: .28em; text-shadow: 0 0 22px rgba(181,255,212,.7); opacity: 0; }
     .awakening.active .awakening-title { animation: title-arrive 2.3s ease both; }
     /* Converse is a room-scale mirror, not a phone-video close-up. Leave
        breathing room above the crown and around the shoulders so the face is
@@ -252,7 +252,7 @@
     #app-shell[data-mode="watch"][data-avatar-position="upper"] #avatar-engine { inset: 9% 34% 73%; }
     #app-shell[data-mode="watch"][data-avatar-position="lower"] #avatar-engine { inset: 70% 34% 12%; }
     .fallback-presence { position: absolute; inset: 20%; display: grid; place-items: center; }
-    .fallback-presence i { position: absolute; width: min(42vw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
+    .fallback-presence i { position: absolute; width: min(42cqw, 360px); aspect-ratio: 1; border: 1px solid rgba(231,199,116,.45); border-radius: 50%; box-shadow: inset 0 0 80px rgba(155,123,255,.18), 0 0 90px rgba(155,123,255,.22); animation: spin 12s linear infinite; }
     .fallback-presence b { color: var(--gold); font-size: 42px; text-shadow: 0 0 20px var(--gold); }
 
     .ar-label { position: absolute; left: 34px; bottom: 40px; opacity: 0; color: rgba(255,255,255,.58); font-size: 9px; letter-spacing: 1.3px; text-transform: uppercase; transition: opacity .3s; }
@@ -270,12 +270,12 @@
       .awakening { transition-duration: .15s; }
     }
     @keyframes pulse { 50% { transform: scale(.88); opacity: .75; } }
-    @media (max-width: 720px) {
+    @container (max-width: 720px) {
       .topbar { left: 24px; right: 24px; top: 26px; }
       .brand-copy, .system-state span { display: none; }
       .brand, .system-state { min-width: 30px; }
       .mode-btn { padding: 8px 10px; font-size: 8px; }
-      .bottom-dock { bottom: 30px; width: calc(100vw - 90px); }
+      .bottom-dock { bottom: 30px; width: calc(100cqw - 90px); }
       .settings-toggle { right: 22px; bottom: 34px; }
       .oracle-card { bottom: 124px; }
       .mirror-clock { left: 28px; } .mirror-weather { right: 28px; }
@@ -364,11 +364,11 @@
     #app-shell[data-mode="spotify"] #avatar-engine, #app-shell[data-mode="spotify"] #dashboard-container { opacity: 0; visibility: hidden; }
     .spotify-panel { position: absolute; inset: 18% 8% 17%; display: none; place-items: center; pointer-events: auto; }
     .spotify-panel.active { display: grid; }
-    .spotify-card { width: min(740px, 100%); padding: clamp(22px,3vw,52px); border: 1px solid rgba(181,255,212,.28); border-radius: 28px; background: linear-gradient(155deg,rgba(14,30,24,.88),rgba(3,9,9,.84)); box-shadow: 0 32px 110px #0009; text-align: center; backdrop-filter: blur(26px); }
-    .spotify-kicker { color: var(--signal); font: 700 clamp(10px,.85vw,16px) Manrope,sans-serif; letter-spacing: .24em; text-transform: uppercase; }
-    .spotify-cover { display: block; width: min(38vw,390px); aspect-ratio: 1; margin: clamp(18px,2vw,36px) auto; object-fit: contain; border-radius: 8px; }
-    .spotify-title { margin: 0; color: #f2fff8; font: 500 clamp(22px,2.3vw,44px)/1.16 Manrope,sans-serif; overflow-wrap: anywhere; }
-    .spotify-artist { margin: 10px 0 0; color: rgba(242,255,248,.78); font-size: clamp(13px,1vw,20px); }
+    .spotify-card { width: min(740px, 100%); padding: clamp(22px,3cqw,52px); border: 1px solid rgba(181,255,212,.28); border-radius: 28px; background: linear-gradient(155deg,rgba(14,30,24,.88),rgba(3,9,9,.84)); box-shadow: 0 32px 110px #0009; text-align: center; backdrop-filter: blur(26px); }
+    .spotify-kicker { color: var(--signal); font: 700 clamp(10px,.85cqw,16px) Manrope,sans-serif; letter-spacing: .24em; text-transform: uppercase; }
+    .spotify-cover { display: block; width: min(38cqw,390px); aspect-ratio: 1; margin: clamp(18px,2cqw,36px) auto; object-fit: contain; border-radius: 8px; }
+    .spotify-title { margin: 0; color: #f2fff8; font: 500 clamp(22px,2.3cqw,44px)/1.16 Manrope,sans-serif; overflow-wrap: anywhere; }
+    .spotify-artist { margin: 10px 0 0; color: rgba(242,255,248,.78); font-size: clamp(13px,1cqw,20px); }
     .spotify-meta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: rgba(221,245,232,.55); font-size: 10px; }
     .spotify-progress { display: block; width: 100%; height: 4px; margin: 26px 0 8px; appearance: none; border: 0; border-radius: 4px; background: rgba(255,255,255,.18); }
     .spotify-progress::-webkit-progress-bar { border-radius: 4px; background: rgba(255,255,255,.18); }
@@ -386,14 +386,14 @@
     .spotify-logo-black { display: none; }
     .spotify-card[data-view="pocket"] { width: min(580px,100%); border-radius: 38px; background: linear-gradient(155deg,#d7d8cf,#81867b); color: #172019; }
     .spotify-card[data-view="pocket"] .spotify-kicker { color: #344c39; }
-    .spotify-card[data-view="pocket"] .spotify-cover { width: min(25vw,240px); border-radius: 8px; }
-    .spotify-card[data-view="pocket"] .spotify-title { color: #172019; font-size: clamp(17px,1.5vw,28px); }
+    .spotify-card[data-view="pocket"] .spotify-cover { width: min(25cqw,240px); border-radius: 8px; }
+    .spotify-card[data-view="pocket"] .spotify-title { color: #172019; font-size: clamp(17px,1.5cqw,28px); }
     .spotify-card[data-view="pocket"] .spotify-artist, .spotify-card[data-view="pocket"] .spotify-meta { color: #38493d; }
     .spotify-card[data-view="pocket"] .spotify-controls button { border-color: #506354; background: #c1c7ba; color: #18241c; }
     .spotify-card[data-view="pocket"] .spotify-controls #spotify-play { background: #263e2d; color: white; }
     .spotify-card[data-view="pocket"] .spotify-logo-white { display: none; }
     .spotify-card[data-view="pocket"] .spotify-logo-black { display: block; }
-    @media (max-width: 720px) { .experience-panel { inset: 95px 22px 100px; } .mode-btn { padding: 8px 8px; } .mode-btn::before { display: none; } .mode-intro { max-width: 100%; } }
+    @container (max-width: 720px) { .experience-panel { inset: 95px 22px 100px; } .mode-btn { padding: 8px 8px; } .mode-btn::before { display: none; } .mode-intro { max-width: 100%; } }
 
     /* 43-inch portrait installation profile. Two-way glass eats low-contrast
        detail, so this uses bright type, thin luminous structure, and generous
@@ -402,19 +402,19 @@
     /* Restraint reads better through two-way glass: keep one luminous edge,
        reserve animation for state, and let type/space establish hierarchy. */
     .noise { opacity: .018; } .scanline { display: none; }
-    .vignette { box-shadow: inset 0 0 9vw 2vw rgba(0,0,0,.72); background: linear-gradient(180deg, rgba(0,0,0,.22), transparent 18%, transparent 78%, rgba(0,0,0,.42)); }
+    .vignette { box-shadow: inset 0 0 9cqw 2cqw rgba(0,0,0,.72); background: linear-gradient(180deg, rgba(0,0,0,.22), transparent 18%, transparent 78%, rgba(0,0,0,.42)); }
     .mirror-frame { border-color: rgba(232,248,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), inset 0 0 34px rgba(168,255,207,.035), 0 0 40px rgba(0,0,0,.9); }
     .mirror-frame::before, .mirror-frame::after { opacity: .48; background: linear-gradient(90deg, transparent, var(--signal), transparent); box-shadow: 0 0 10px rgba(181,255,212,.5); }
     #scene-canvas { opacity: .18; } #app-shell[data-depth="cube"] #scene-canvas { opacity: 1; } #app-shell[data-mode="watch"] #scene-canvas { opacity: .05; }
     #camera-feed { filter: saturate(.92) contrast(1.16) brightness(.9); } #ar-canvas { filter: brightness(1.22) contrast(1.1); }
-    .topbar { top: clamp(34px, 3.1vw, 68px); left: clamp(34px, 3.7vw, 80px); right: clamp(34px, 3.7vw, 80px); }
-    .brand { min-width: clamp(170px, 16vw, 290px); gap: clamp(11px, 1vw, 18px); }
-    .brand-mark { width: clamp(36px, 3.1vw, 62px); height: clamp(36px, 3.1vw, 62px); font-size: clamp(16px, 1.4vw, 27px); }
-    .brand-copy strong { font-size: clamp(11px, 1vw, 19px); } .brand-copy span { margin-top: 4px; font-size: clamp(9px, .75vw, 14px); }
-    .mode-switch { gap: clamp(4px, .4vw, 8px); padding: clamp(4px, .4vw, 8px); border-color: rgba(216,255,235,.32); background: rgba(2, 7, 9, .82); box-shadow: 0 12px 36px rgba(0,0,0,.42); }
+    .topbar { top: clamp(34px, 3.1cqw, 68px); left: clamp(34px, 3.7cqw, 80px); right: clamp(34px, 3.7cqw, 80px); }
+    .brand { min-width: clamp(170px, 16cqw, 290px); gap: clamp(11px, 1cqw, 18px); }
+    .brand-mark { width: clamp(36px, 3.1cqw, 62px); height: clamp(36px, 3.1cqw, 62px); font-size: clamp(16px, 1.4cqw, 27px); }
+    .brand-copy strong { font-size: clamp(11px, 1cqw, 19px); } .brand-copy span { margin-top: 4px; font-size: clamp(9px, .75cqw, 14px); }
+    .mode-switch { gap: clamp(4px, .4cqw, 8px); padding: clamp(4px, .4cqw, 8px); border-color: rgba(216,255,235,.32); background: rgba(2, 7, 9, .82); box-shadow: 0 12px 36px rgba(0,0,0,.42); }
     .mode-btn.active { color: #06110c; background: var(--signal); box-shadow: none; }
-    .dimension-switch { pointer-events: auto; display: flex; margin-left: clamp(4px,.4vw,8px); padding: 3px; border-left: 1px solid rgba(232,248,255,.18); }
-    .dimension-switch button { min-width: clamp(72px, 6vw, 118px); height: clamp(28px, 2.4vw, 46px); border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 clamp(8px,.65vw,12px) Manrope, sans-serif; letter-spacing: .7px; cursor: pointer; }
+    .dimension-switch { pointer-events: auto; display: flex; margin-left: clamp(4px,.4cqw,8px); padding: 3px; border-left: 1px solid rgba(232,248,255,.18); }
+    .dimension-switch button { min-width: clamp(72px, 6cqw, 118px); height: clamp(28px, 2.4cqw, 46px); border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 clamp(8px,.65cqw,12px) Manrope, sans-serif; letter-spacing: .7px; cursor: pointer; }
     .dimension-switch button.active { color: #06110c; background: var(--signal); }
     #app-shell[data-depth="cube"] .dimension-switch { border-color: rgba(181,255,212,.45); }
     /* HTML cannot be occluded by WebGL geometry, but each interface family is
@@ -434,62 +434,62 @@
     /* Conversation belongs at the edge of the mirror. Keep the center clean
        for the living host, with a single thumb-height control and a nearby
        glanceable transcript instead of a wide caption card across the face. */
-    .bottom-dock { left: 50%; right: auto; bottom: clamp(42px, 3.8vw, 80px); transform: translateX(-50%); z-index: 14; }
-    .oracle-card { left: auto; right: clamp(116px, 10.6vw, 220px); bottom: clamp(42px, 3.8vw, 80px); transform: none; width: min(25vw, 380px); max-height: clamp(66px, 6vw, 110px); padding: clamp(10px, .8vw, 15px) clamp(24px, 2vw, 38px) clamp(10px, .8vw, 15px) clamp(13px, 1.1vw, 22px); text-align: left; border-radius: 14px; }
+    .bottom-dock { left: 50%; right: auto; bottom: clamp(42px, 3.8cqw, 80px); transform: translateX(-50%); z-index: 14; }
+    .oracle-card { left: auto; right: clamp(116px, 10.6cqw, 220px); bottom: clamp(42px, 3.8cqw, 80px); transform: none; width: min(25cqw, 380px); max-height: clamp(66px, 6cqw, 110px); padding: clamp(10px, .8cqw, 15px) clamp(24px, 2cqw, 38px) clamp(10px, .8cqw, 15px) clamp(13px, 1.1cqw, 22px); text-align: left; border-radius: 14px; }
     .oracle-card.empty { transform: translateX(12px); }
-    .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62vw,12px); }
-    #oracle-text { font-size: clamp(12px, 1vw, 19px); line-height: 1.35; }
-    #oracle-user { margin-top: 5px; font-size: clamp(8px,.65vw,12px); }
+    .oracle-eyebrow { margin-bottom: 5px; font-size: clamp(8px,.62cqw,12px); }
+    #oracle-text { font-size: clamp(12px, 1cqw, 19px); line-height: 1.35; }
+    #oracle-user { margin-top: 5px; font-size: clamp(8px,.65cqw,12px); }
     #app-shell[data-depth="cube"] .oracle-card { transform: translate3d(calc(var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .oracle-card.empty { transform: translate3d(calc(12px + var(--viewer-x) * -.95), calc(var(--viewer-y) * -.78), 128px); }
     #app-shell[data-depth="cube"] .bottom-dock { transform: translate3d(calc(var(--viewer-x) * -1.08), calc(var(--viewer-y) * -.88), 142px); }
-    .mode-btn { white-space: nowrap; flex-shrink: 0; min-height: clamp(42px, 3.8vw, 74px); padding: 0 clamp(13px, 1.2vw, 24px); font-size: clamp(12px, 1.1vw, 21px); letter-spacing: .6px; }
-    .mode-btn::before { width: clamp(5px, .5vw, 9px); height: clamp(5px, .5vw, 9px); }
-    .system-state { min-width: clamp(150px, 14vw, 260px); font-size: clamp(10px, .8vw, 15px); } .state-dot { width: clamp(7px, .6vw, 11px); height: clamp(7px, .6vw, 11px); }
-    .mirror-clock { top: clamp(135px, 12vw, 260px); left: clamp(42px, 4.4vw, 96px); }
-    .clock-time { font-size: clamp(86px, 9vw, 184px); letter-spacing: clamp(-9px, -.48vw, -4px); color: #f8fdff; text-shadow: 0 0 30px rgba(225,247,255,.24); }
-    .clock-date { margin-top: clamp(13px, 1.2vw, 24px); font-size: clamp(11px, .95vw, 19px); letter-spacing: clamp(1px, .15vw, 3px); color: var(--signal); }
-    .mirror-weather { top: clamp(145px, 13vw, 278px); right: clamp(42px, 4.4vw, 96px); gap: clamp(12px, 1vw, 20px); }
-    .weather-icon { font-size: clamp(48px, 4.4vw, 88px); } .mirror-weather strong { font-size: clamp(48px, 4.4vw, 88px); }
-    .mirror-weather span, .mirror-weather small { margin-top: clamp(6px, .65vw, 12px); font-size: clamp(10px, .8vw, 16px); letter-spacing: clamp(1px, .13vw, 3px); }
+    .mode-btn { white-space: nowrap; flex-shrink: 0; min-height: clamp(42px, 3.8cqw, 74px); padding: 0 clamp(13px, 1.2cqw, 24px); font-size: clamp(12px, 1.1cqw, 21px); letter-spacing: .6px; }
+    .mode-btn::before { width: clamp(5px, .5cqw, 9px); height: clamp(5px, .5cqw, 9px); }
+    .system-state { min-width: clamp(150px, 14cqw, 260px); font-size: clamp(10px, .8cqw, 15px); } .state-dot { width: clamp(7px, .6cqw, 11px); height: clamp(7px, .6cqw, 11px); }
+    .mirror-clock { top: clamp(135px, 12cqw, 260px); left: clamp(42px, 4.4cqw, 96px); }
+    .clock-time { font-size: clamp(86px, 9cqw, 184px); letter-spacing: clamp(-9px, -.48cqw, -4px); color: #f8fdff; text-shadow: 0 0 30px rgba(225,247,255,.24); }
+    .clock-date { margin-top: clamp(13px, 1.2cqw, 24px); font-size: clamp(11px, .95cqw, 19px); letter-spacing: clamp(1px, .15cqw, 3px); color: var(--signal); }
+    .mirror-weather { top: clamp(145px, 13cqw, 278px); right: clamp(42px, 4.4cqw, 96px); gap: clamp(12px, 1cqw, 20px); }
+    .weather-icon { font-size: clamp(48px, 4.4cqw, 88px); } .mirror-weather strong { font-size: clamp(48px, 4.4cqw, 88px); }
+    .mirror-weather span, .mirror-weather small { margin-top: clamp(6px, .65cqw, 12px); font-size: clamp(10px, .8cqw, 16px); letter-spacing: clamp(1px, .13cqw, 3px); }
     /* Ambient is reflection-first: reserve the centre for the person, not a
        decorative widget. The greeting is intentionally quiet and low. */
-    .mirror-center { top: auto; bottom: clamp(248px, 22vw, 450px); } .celestial-dial { display: none; }
-    .mirror-center p { margin: 0; font-size: clamp(16px, 1.25vw, 25px); color: rgba(244,251,255,.82); } .mirror-center span { display: none; }
-    .mirror-lower { left: clamp(42px, 4.4vw, 96px); right: clamp(42px, 4.4vw, 96px); bottom: clamp(150px, 13vw, 285px); gap: clamp(13px, 1.2vw, 24px); }
-    .glass-widget { padding: clamp(18px, 1.7vw, 34px); border-color: rgba(216,255,235,.32); background: rgba(2,7,9,.74); box-shadow: 0 12px 34px rgba(0,0,0,.34); backdrop-filter: none; }
-    .glass-widget label { margin-bottom: clamp(12px, 1.1vw, 22px); font-size: clamp(10px, .85vw, 16px); letter-spacing: 2px; color: var(--signal); }
-    .agenda-row { grid-template-columns: clamp(62px, 5vw, 104px) 1fr; gap: clamp(10px, .9vw, 18px); margin-top: clamp(9px, .9vw, 17px); font-size: clamp(12px, 1vw, 20px); color: var(--ice); } .agenda-row time { font-size: clamp(11px, .9vw, 18px); }
-    .now-card { min-height: clamp(82px, 7.5vw, 145px); } .now-card .now-kicker { margin-bottom: clamp(7px, .65vw, 12px); font-size: clamp(9px, .75vw, 14px); } .now-card p { font-size: clamp(15px, 1.25vw, 24px); } .now-card small { margin-top: clamp(8px, .75vw, 14px); font-size: clamp(10px, .8vw, 16px); }
-    .quote-widget p { font-size: clamp(17px, 1.45vw, 28px); color: var(--ice); }
-    .oracle-card { bottom: clamp(190px, 16vw, 345px); width: min(78vw, 820px); max-height: 230px; padding: clamp(17px, 1.5vw, 30px) clamp(38px, 3.4vw, 66px); border-color: rgba(175,255,221,.3); background: rgba(4,11,14,.78); box-shadow: 0 18px 58px rgba(0,0,0,.38); backdrop-filter: blur(18px); }
-    .oracle-eyebrow { font-size: clamp(10px, .8vw, 16px); } #oracle-text { font-size: clamp(18px, 1.7vw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85vw, 17px); }
-    .bottom-dock { bottom: clamp(38px, 3.6vw, 76px); padding: clamp(8px, .7vw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
-    .round-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); font-size: clamp(18px, 1.6vw, 31px); }
-    .mute-btn { width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
-    .round-btn small, .mute-btn small { font-size: clamp(9px, .7vw, 14px); }
-    .live-captions { padding: clamp(10px, .8vw, 16px) clamp(14px, 1.2vw, 24px); }
-    .caption-line b { width: clamp(74px, 7.8vw, 150px); font-size: clamp(10px, 1vw, 18px); }
-    .phone-link-toggle, .phone-link-stop { min-height: clamp(42px, 3.6vw, 70px); padding: 0 clamp(14px, 1.2vw, 24px); font-size: clamp(10px, .8vw, 16px); }
-    .phone-link-panel { grid-template-columns: clamp(130px, 12vw, 220px) 1fr; gap: clamp(12px, 1vw, 20px); padding: clamp(12px, 1vw, 20px); }
-    .phone-link-panel img { width: clamp(130px, 12vw, 220px); height: clamp(130px, 12vw, 220px); }
-    .phone-link-panel strong { font-size: clamp(10px, .8vw, 16px); }
-    .phone-link-panel small, .phone-link-status { font-size: clamp(9px, .75vw, 15px); }
-    .wake-status { bottom: clamp(112px, 10vw, 210px); font-size: clamp(10px, 1vw, 18px); }
-    .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8vw, 80px); width: clamp(48px, 4.4vw, 84px); height: clamp(48px, 4.4vw, 84px); }
-    .persona-toggle { left: clamp(42px, 4.4vw, 96px); } .launcher-toggle { left: clamp(101px, 9.6vw, 202px); font-size: clamp(17px, 1.6vw, 29px); } .settings-toggle { right: clamp(42px, 4.4vw, 96px); font-size: clamp(18px, 1.6vw, 30px); }
-    .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100vw - 10vw)); padding: clamp(20px, 1.8vw, 35px); bottom: clamp(115px, 10.4vw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
-    .persona-panel h2, .launcher-panel h2, .panel-head strong { font-size: clamp(13px, 1.05vw, 21px); } .persona-panel p, .launcher-panel > p, .panel-head span { font-size: clamp(10px, .8vw, 16px); }
-    .persona-card { grid-template-columns: clamp(55px, 4.7vw, 90px) 1fr auto; gap: clamp(10px, .9vw, 18px); padding: clamp(8px, .8vw, 15px); } .persona-card img { width: clamp(55px, 4.7vw, 90px); height: clamp(55px, 4.7vw, 90px); } .persona-card strong { font-size: clamp(11px, .95vw, 18px); } .persona-card span { font-size: clamp(9px, .75vw, 15px); }
-    .launcher-grid { gap: clamp(8px, .7vw, 14px); } .launcher-grid button { min-height: clamp(55px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); }
-    .quick-note label, .setting label, .toggle-row { font-size: clamp(9px, .75vw, 15px); } .quick-note input { height: clamp(40px, 3.6vw, 68px); font-size: clamp(11px, .9vw, 17px); } .quick-note button { font-size: clamp(10px, .8vw, 15px); }
-    .mode-intro { max-width: min(520px, 46vw); padding: clamp(20px, 1.8vw, 34px); background: rgba(5,10,13,.3); border-color: var(--panel-line); } .mode-intro .eyebrow { font-size: clamp(10px, .8vw, 15px); } .mode-intro h1 { font-size: clamp(29px, 2.5vw, 48px); } .mode-intro p { font-size: clamp(13px, 1vw, 19px); }
-    .studio-tray { width: min(520px, 47vw); padding: clamp(18px, 1.7vw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1vw, 19px); } .tray-head span { font-size: clamp(10px, .8vw, 15px); } .effect-grid { gap: clamp(8px, .7vw, 14px); } .effect-chip { min-height: clamp(58px, 5vw, 96px); padding: clamp(9px, .8vw, 16px); font-size: clamp(10px, .85vw, 16px); } .tryon-note { font-size: clamp(10px, .8vw, 15px); }
-    .watch-card { width: min(980px, 86vw); padding: clamp(24px, 2.1vw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4vw, 76px); font-size: clamp(12px, 1vw, 19px); } #watch-load { font-size: clamp(11px, .9vw, 17px); padding: 0 clamp(16px, 1.4vw, 28px); } .service-launcher button { min-height: clamp(34px, 3vw, 55px); font-size: clamp(10px, .8vw, 15px); } .watch-hint { font-size: clamp(10px, .75vw, 15px); }
-    @media (max-width: 720px) { .topbar { top: 26px; } .clock-time { font-size: 56px; } .mode-btn { min-height: 35px; } .persona-toggle { left: 22px; } .launcher-toggle { left: 76px; } .settings-toggle { right: 22px; } .mirror-lower { bottom: 120px; } }
+    .mirror-center { top: auto; bottom: clamp(248px, 22cqw, 450px); } .celestial-dial { display: none; }
+    .mirror-center p { margin: 0; font-size: clamp(16px, 1.25cqw, 25px); color: rgba(244,251,255,.82); } .mirror-center span { display: none; }
+    .mirror-lower { left: clamp(42px, 4.4cqw, 96px); right: clamp(42px, 4.4cqw, 96px); bottom: clamp(150px, 13cqw, 285px); gap: clamp(13px, 1.2cqw, 24px); }
+    .glass-widget { padding: clamp(18px, 1.7cqw, 34px); border-color: rgba(216,255,235,.32); background: rgba(2,7,9,.74); box-shadow: 0 12px 34px rgba(0,0,0,.34); backdrop-filter: none; }
+    .glass-widget label { margin-bottom: clamp(12px, 1.1cqw, 22px); font-size: clamp(10px, .85cqw, 16px); letter-spacing: 2px; color: var(--signal); }
+    .agenda-row { grid-template-columns: clamp(62px, 5cqw, 104px) 1fr; gap: clamp(10px, .9cqw, 18px); margin-top: clamp(9px, .9cqw, 17px); font-size: clamp(12px, 1cqw, 20px); color: var(--ice); } .agenda-row time { font-size: clamp(11px, .9cqw, 18px); }
+    .now-card { min-height: clamp(82px, 7.5cqw, 145px); } .now-card .now-kicker { margin-bottom: clamp(7px, .65cqw, 12px); font-size: clamp(9px, .75cqw, 14px); } .now-card p { font-size: clamp(15px, 1.25cqw, 24px); } .now-card small { margin-top: clamp(8px, .75cqw, 14px); font-size: clamp(10px, .8cqw, 16px); }
+    .quote-widget p { font-size: clamp(17px, 1.45cqw, 28px); color: var(--ice); }
+    .oracle-card { bottom: clamp(190px, 16cqw, 345px); width: min(78cqw, 820px); max-height: 230px; padding: clamp(17px, 1.5cqw, 30px) clamp(38px, 3.4cqw, 66px); border-color: rgba(175,255,221,.3); background: rgba(4,11,14,.78); box-shadow: 0 18px 58px rgba(0,0,0,.38); backdrop-filter: blur(18px); }
+    .oracle-eyebrow { font-size: clamp(10px, .8cqw, 16px); } #oracle-text { font-size: clamp(18px, 1.7cqw, 32px); font-weight: 500; } #oracle-user { font-size: clamp(11px, .85cqw, 17px); }
+    .bottom-dock { bottom: clamp(38px, 3.6cqw, 76px); padding: clamp(8px, .7cqw, 14px); border-radius: 999px; background: rgba(6,12,16,.38); backdrop-filter: none; }
+    .round-btn { width: clamp(48px, 4.4cqw, 84px); height: clamp(48px, 4.4cqw, 84px); font-size: clamp(18px, 1.6cqw, 31px); }
+    .mute-btn { width: clamp(48px, 4.4cqw, 84px); height: clamp(48px, 4.4cqw, 84px); }
+    .round-btn small, .mute-btn small { font-size: clamp(9px, .7cqw, 14px); }
+    .live-captions { padding: clamp(10px, .8cqw, 16px) clamp(14px, 1.2cqw, 24px); }
+    .caption-line b { width: clamp(74px, 7.8cqw, 150px); font-size: clamp(10px, 1cqw, 18px); }
+    .phone-link-toggle, .phone-link-stop { min-height: clamp(42px, 3.6cqw, 70px); padding: 0 clamp(14px, 1.2cqw, 24px); font-size: clamp(10px, .8cqw, 16px); }
+    .phone-link-panel { grid-template-columns: clamp(130px, 12cqw, 220px) 1fr; gap: clamp(12px, 1cqw, 20px); padding: clamp(12px, 1cqw, 20px); }
+    .phone-link-panel img { width: clamp(130px, 12cqw, 220px); height: clamp(130px, 12cqw, 220px); }
+    .phone-link-panel strong { font-size: clamp(10px, .8cqw, 16px); }
+    .phone-link-panel small, .phone-link-status { font-size: clamp(9px, .75cqw, 15px); }
+    .wake-status { bottom: clamp(112px, 10cqw, 210px); font-size: clamp(10px, 1cqw, 18px); }
+    .persona-toggle, .launcher-toggle, .settings-toggle { bottom: clamp(42px, 3.8cqw, 80px); width: clamp(48px, 4.4cqw, 84px); height: clamp(48px, 4.4cqw, 84px); }
+    .persona-toggle { left: clamp(42px, 4.4cqw, 96px); } .launcher-toggle { left: clamp(101px, 9.6cqw, 202px); font-size: clamp(17px, 1.6cqw, 29px); } .settings-toggle { right: clamp(42px, 4.4cqw, 96px); font-size: clamp(18px, 1.6cqw, 30px); }
+    .persona-panel, .launcher-panel, .settings-panel { width: min(560px, calc(100cqw - 10cqw)); padding: clamp(20px, 1.8cqw, 35px); bottom: clamp(115px, 10.4cqw, 220px); background: rgba(5,10,13,.84); backdrop-filter: blur(18px); }
+    .persona-panel h2, .launcher-panel h2, .panel-head strong { font-size: clamp(13px, 1.05cqw, 21px); } .persona-panel p, .launcher-panel > p, .panel-head span { font-size: clamp(10px, .8cqw, 16px); }
+    .persona-card { grid-template-columns: clamp(55px, 4.7cqw, 90px) 1fr auto; gap: clamp(10px, .9cqw, 18px); padding: clamp(8px, .8cqw, 15px); } .persona-card img { width: clamp(55px, 4.7cqw, 90px); height: clamp(55px, 4.7cqw, 90px); } .persona-card strong { font-size: clamp(11px, .95cqw, 18px); } .persona-card span { font-size: clamp(9px, .75cqw, 15px); }
+    .launcher-grid { gap: clamp(8px, .7cqw, 14px); } .launcher-grid button { min-height: clamp(55px, 5cqw, 96px); padding: clamp(9px, .8cqw, 16px); font-size: clamp(10px, .85cqw, 16px); }
+    .quick-note label, .setting label, .toggle-row { font-size: clamp(9px, .75cqw, 15px); } .quick-note input { height: clamp(40px, 3.6cqw, 68px); font-size: clamp(11px, .9cqw, 17px); } .quick-note button { font-size: clamp(10px, .8cqw, 15px); }
+    .mode-intro { max-width: min(520px, 46cqw); padding: clamp(20px, 1.8cqw, 34px); background: rgba(5,10,13,.3); border-color: var(--panel-line); } .mode-intro .eyebrow { font-size: clamp(10px, .8cqw, 15px); } .mode-intro h1 { font-size: clamp(29px, 2.5cqw, 48px); } .mode-intro p { font-size: clamp(13px, 1cqw, 19px); }
+    .studio-tray { width: min(520px, 47cqw); padding: clamp(18px, 1.7cqw, 32px); background: rgba(5,10,13,.54); } .tray-head strong { font-size: clamp(13px, 1cqw, 19px); } .tray-head span { font-size: clamp(10px, .8cqw, 15px); } .effect-grid { gap: clamp(8px, .7cqw, 14px); } .effect-chip { min-height: clamp(58px, 5cqw, 96px); padding: clamp(9px, .8cqw, 16px); font-size: clamp(10px, .85cqw, 16px); } .tryon-note { font-size: clamp(10px, .8cqw, 15px); }
+    .watch-card { width: min(980px, 86cqw); padding: clamp(24px, 2.1cqw, 42px); background: rgba(5,10,13,.72); } .watch-display { min-height: min(48vh, 670px); } #watch-url { height: clamp(46px, 4cqw, 76px); font-size: clamp(12px, 1cqw, 19px); } #watch-load { font-size: clamp(11px, .9cqw, 17px); padding: 0 clamp(16px, 1.4cqw, 28px); } .service-launcher button { min-height: clamp(34px, 3cqw, 55px); font-size: clamp(10px, .8cqw, 15px); } .watch-hint { font-size: clamp(10px, .75cqw, 15px); }
+    @container (max-width: 720px) { .topbar { top: 26px; } .clock-time { font-size: 56px; } .mode-btn { min-height: 35px; } .persona-toggle { left: 22px; } .launcher-toggle { left: 76px; } .settings-toggle { right: 22px; } .mirror-lower { bottom: 145px; } }
     /* A managed desktop uses the upper 68% of the portrait surface. Keep
        controls and the host in the remaining area instead of hiding the mirror. */
-    .desktop-return { display: none; pointer-events: auto; position: absolute; left: 7%; bottom: 22%; z-index: 15; padding: 12px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(5,10,13,.9); color: var(--ice); font: 600 clamp(11px, 1vw, 20px) Manrope, sans-serif; cursor: pointer; }
+    .desktop-return { display: none; pointer-events: auto; position: absolute; left: 7%; bottom: 22%; z-index: 15; padding: 12px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(5,10,13,.9); color: var(--ice); font: 600 clamp(11px, 1cqw, 20px) Manrope, sans-serif; cursor: pointer; }
     #app-shell[data-desktop="true"] .desktop-return:not([hidden]) { display: block; }
     #app-shell[data-desktop="true"] #avatar-engine { inset: 69% 5% 15% 64%; transition: opacity .3s ease; }
     #app-shell[data-desktop="true"][data-avatar-position="left"] #avatar-engine { inset: 69% 64% 15% 5%; }
@@ -507,14 +507,14 @@
     #app-shell[data-desktop="true"] #garment-canvas,
     #app-shell[data-desktop="true"] #ar-canvas,
     #app-shell[data-desktop="true"] #tryon-overlay { display: none !important; }
-    #app-shell[data-desktop="true"] .live-captions { bottom: clamp(140px, 13vw, 250px); }
+    #app-shell[data-desktop="true"] .live-captions { bottom: clamp(140px, 13cqw, 250px); }
     #app-shell[data-desktop="true"] .settings-panel,
     #app-shell[data-desktop="true"] .persona-panel,
     #app-shell[data-desktop="true"] .launcher-panel { bottom: 12%; max-height: 18%; overflow-y: auto; }
     .connections { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
     .connections input:not([type="checkbox"]) { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.35); color: var(--ice); font-size: 12px; }
 
-    #wardrobe-photo { width: min(620px, 90vw); max-height: min(82vh, calc(100dvh - 180px)); overflow-y: auto; box-sizing: border-box; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
+    #wardrobe-photo { width: min(620px, 90cqw); max-height: min(82vh, calc(100dvh - 180px)); overflow-y: auto; box-sizing: border-box; scroll-padding-block: 95px 90px; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
     #wardrobe-photo::backdrop { background: rgba(0,0,0,.78); backdrop-filter: blur(8px); }
     #wardrobe-photo header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     #wardrobe-photo h2 { margin: 0; font-size: 26px; }
@@ -529,14 +529,47 @@
     #wardrobe-photo :focus-visible { outline: 3px solid #a8ffcf; outline-offset: 3px; }
     #wardrobe-photo .wardrobe-voice { position: sticky; top: -24px; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0; background: #111d23; }
     #wardrobe-photo .wardrobe-voice button { font-size: 14px; padding: 8px 12px; }
-    #wardrobe-photo .live-captions { position: fixed; inset: auto; bottom: 18px; left: 50%; transform: translateX(-50%); width: calc(100vw - 40px); max-width: 720px; margin: 0; padding: 10px; background: rgba(7,16,20,.96); border-radius: 10px; z-index: 3; }
+    #wardrobe-photo .live-captions { position: fixed; inset: auto; bottom: 18px; left: 50%; transform: translateX(-50%); width: calc(100cqw - 40px); max-width: 720px; margin: 0; padding: 10px; background: rgba(7,16,20,.96); border-radius: 10px; z-index: 3; }
     #wardrobe-photo .live-captions:not(:has(.caption-line.visible)) { display: none; }
-    #wardrobe-photo .caption-line { font-size: clamp(16px, 1.5vw, 32px); }
+    #wardrobe-photo .caption-line { font-size: clamp(16px, 1.5cqw, 32px); }
     .wardrobe-photo-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     #wardrobe-photo [data-action=save] { position: sticky; bottom: -24px; z-index: 2; width: 100%; background: #345c4b; box-shadow: 0 -12px 0 #111d23; }
+    #wardrobe-photo [data-action=save]:disabled { opacity: 1; color: #98b1a6; background: #223d32; }
+    #wardrobe-photo [data-field=name], #wardrobe-photo [data-field=category] { scroll-margin-block: 12px; }
     #wardrobe-photo [data-action=front][aria-pressed=true], #wardrobe-photo [data-action=back][aria-pressed=true] { background: #a8ffcf; color: #10241b; border-color: #a8ffcf; }
     #wardrobe-photo .wardrobe-refine { margin: 12px 0; }
     #wardrobe-photo .wardrobe-refine summary { cursor: pointer; padding: 8px 0; }
+
+    /* Size UI against the portrait surface, including landscape previews. */
+    .clock-time { display: flex; align-items: baseline; gap: .16em; white-space: nowrap; }
+    .clock-period { font: 500 .24em Manrope, system-ui, sans-serif; letter-spacing: 0; }
+    @container (max-width: 720px) {
+      .topbar { left: 22px; right: 22px; }
+      .brand, .system-state { display: none; }
+      .mode-switch { width: 100%; justify-content: space-between; }
+      .mode-btn { min-width: 0; flex-shrink: 1; padding-inline: 8px; font-size: 11px; }
+      .dimension-switch { margin-left: 0; padding-left: 3px; }
+      .dimension-switch button { min-width: 36px; }
+      .mirror-clock { left: 28px; }
+      .mirror-weather { right: 28px; }
+      .weather-icon, .mirror-weather strong { font-size: 34px; }
+      .mirror-lower { left: 28px; right: 28px; grid-template-columns: 1fr; }
+      .quote-widget { display: none; }
+      .mirror-center { display: none; }
+      .watch-card { max-width: 100%; padding: 18px; }
+      .watch-display { min-height: 180px; height: 32cqw; }
+      .watch-stage { display: block; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 70px; }
+      .watch-card { margin-inline: auto; }
+      .studio-tray { width: 100%; max-height: 62%; }
+      .persona-panel, .launcher-panel { max-height: calc(100% - 160px); overflow-y: auto; }
+    }
+    @container (max-width: 450px) {
+      .topbar { left: 18px; right: 18px; }
+      .mode-btn { font-size: 10px; padding-inline: 5px; }
+      .clock-time { font-size: 44px; }
+      .mirror-weather { gap: 7px; }
+      .weather-icon, .mirror-weather strong { font-size: 28px; }
+    }
   </style>
 </head>
 <body>
@@ -585,7 +618,7 @@
       </section>
 
       <section class="experience-panel" id="watch-panel" aria-label="Watch media">
-        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" sandbox="allow-scripts allow-same-origin allow-presentation" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find My</button></div><button class="phone-link-toggle" id="windows-cast-settings" type="button" hidden>Set up Windows phone casting</button><button class="phone-link-toggle" id="casting-toggle" type="button" aria-pressed="false">Enable LAN casting</button><p class="watch-hint" id="casting-status" role="status">Send media from a DLNA-compatible phone app on this Wi-Fi. For direct/cast video or YouTube: pinch to play/pause, swipe left/right to seek 15 seconds.</p><button class="phone-link-toggle" id="phone-link-toggle" type="button">Connect phone</button><div class="phone-link-panel hidden" id="phone-link-panel"><img id="phone-link-qr" alt="QR code to pair a phone with this mirror"><div><strong>SCAN TO SEND A MEDIA LINK</strong><small id="phone-link-address"></small><div class="phone-link-status" id="phone-link-status">Same Wi-Fi required.</div><button class="phone-link-stop" id="phone-link-stop" type="button">Stop phone link</button></div></div><p class="watch-hint">Connect phone sends media links over local Wi-Fi. On Windows, phone screen casting uses the built-in Wireless Display receiver and may take over the screen; install the Wireless Display optional feature and enable Projecting to this PC first.</p></div></div>
+        <div class="watch-stage"><div class="watch-card"><div class="tray-head"><strong>PRIVATE SCREEN</strong><span>YouTube, Spotify, or direct video</span></div><div class="watch-display"><video id="watch-video" controls playsinline></video><iframe id="watch-frame" sandbox="allow-scripts allow-same-origin allow-presentation" title="Embedded media player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="watch-placeholder" id="watch-placeholder"><i>▶</i><p>Your screen, when you want it.</p><small>Paste a YouTube, Spotify track/album, or direct-video link.</small></div></div><div class="watch-controls"><input id="watch-url" type="url" inputmode="url" placeholder="YouTube, Spotify, or direct video URL" aria-label="Media URL"><button id="watch-load" type="button">Play</button></div><div class="service-launcher" aria-label="Open a service"><button type="button" data-service="youtube">YouTube</button><button type="button" data-service="netflix">Netflix</button><button type="button" data-service="spotify">Spotify</button><button type="button" data-service="findmy">Find Devices</button></div><button class="phone-link-toggle" id="windows-cast-settings" type="button" hidden>Set up Windows phone casting</button><button class="phone-link-toggle" id="casting-toggle" type="button" aria-pressed="false">Enable LAN casting</button><p class="watch-hint" id="casting-status" role="status">Send media from a DLNA-compatible phone app on this Wi-Fi. For direct/cast video or YouTube: pinch to play/pause, swipe left/right to seek 15 seconds.</p><button class="phone-link-toggle" id="phone-link-toggle" type="button">Connect phone</button><div class="phone-link-panel hidden" id="phone-link-panel"><img id="phone-link-qr" alt="QR code to pair a phone with this mirror"><div><strong>SCAN TO SEND A MEDIA LINK</strong><small id="phone-link-address"></small><div class="phone-link-status" id="phone-link-status">Same Wi-Fi required.</div><button class="phone-link-stop" id="phone-link-stop" type="button">Stop phone link</button></div></div><p class="watch-hint">Connect phone sends media links over Wi-Fi. Windows Wireless Display can mirror compatible Miracast devices after setup and may take over the screen. Native AirPlay and Chromecast screen mirroring are not built into this app.</p></div></div>
       </section>
 
       <section class="spotify-panel" id="spotify-panel" aria-label="Spotify ambient player">
@@ -620,8 +653,8 @@
       </div></aside>
       <button class="launcher-toggle" id="launcher-toggle" type="button" title="Open command center" aria-label="Open command center">⌘</button>
       <aside class="launcher-panel" id="launcher-panel"><h2>COMMAND CENTER</h2><p>Useful services, opened in their own secure signed-in pages.</p><div class="launcher-grid">
-        <button type="button" data-service="calendar">Calendar</button><button type="button" data-service="maps">Maps</button><button type="button" data-service="photos">Photos</button><button type="button" data-service="findmy">Find My</button><button type="button" data-service="spotify">Music</button><button type="button" data-service="youtube">YouTube</button>
-      </div><div class="quick-note"><label for="quick-note-input">Leave a note for the mirror</label><form id="quick-note-form"><input id="quick-note-input" maxlength="140" placeholder="Remember to…"><button type="submit">Save</button></form></div></aside>
+        <button type="button" data-service="calendar">Calendar</button><button type="button" data-service="maps">Maps</button><button type="button" data-service="photos">Photos</button><button type="button" data-service="findmy">Find Devices</button><button type="button" data-service="spotify">Music</button><button type="button" data-service="youtube">YouTube</button>
+      </div><div class="quick-note"><label for="assistant-task-input">Ask the mirror</label><form id="assistant-task-form"><input id="assistant-task-input" maxlength="4000" autocomplete="off" placeholder="Ask a question or request a task"><button type="submit">Ask</button></form></div><div class="quick-note"><label for="quick-note-input">Leave a note for the mirror</label><form id="quick-note-form"><input id="quick-note-input" maxlength="140" placeholder="Remember to…"><button type="submit">Save</button></form></div></aside>
 
       <div class="ar-label" id="vision-notice">Camera and try-on views are shared with the assistant only while listening</div>
       <div class="gesture-toast" id="gesture-toast" role="status" aria-live="polite"></div>

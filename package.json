@@ -83,9 +83,11 @@
     "check:photo:sleeves": "electron --no-sandbox tools/check-photo-sleeves.cjs",
     "check:photo:motion": "electron --no-sandbox tools/check-photo-fit-motion.cjs",
     "test:garment-facing": "node tools/test-garment-facing.cjs",
-    "test:codex": "node tools/test-codex-agent.cjs && node tools/test-mirror-agent-tools.cjs",
+    "test:codex": "node tools/test-codex-agent.cjs && node tools/test-mirror-agent-tools.cjs && node tools/test-typed-agent.cjs",
     "check:codex:computer": "node tools/check-codex-computer.cjs",
-    "check:codex:lifecycle": "node tools/check-codex-lifecycle.cjs"
+    "check:codex:lifecycle": "node tools/check-codex-lifecycle.cjs",
+    "check:ui:audit": "node tools/check-adversarial-ui.cjs",
+    "check:account:ipc": "node tools/check-account-ipc.cjs"
   },
   "devDependencies": {
     "electron": "^31.0.0",

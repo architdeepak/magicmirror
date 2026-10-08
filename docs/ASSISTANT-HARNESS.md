@@ -1,5 +1,10 @@
 # Codex delegation in the mirror
 
+Command Center now has Ask the mirror. Typed requests use connected live voice;
+when it is unavailable, they use Codex and report missing sign-in or executable
+errors honestly. System speech can read a completed typed answer. Hard mute
+rejects a submission while preserving the draft.
+
 The live voice host can call `delegate_agent_task` for a task that needs several
 screen, computer, or wardrobe steps. Codex operates through the mirror's existing
 application callbacks. The available tools are screen capture, observed computer
@@ -63,3 +68,8 @@ This incorporates the Codex integration idea from remote main's `9897da6`.
 It is a selective integration, not a full merge of main: persistent embedded
 browser/media controls, multi-slot outfits, and clap/face navigation still need
 reconciliation with the tested local AR, voice, and power lifecycle.
+
+Account prompt and shared-location freshness checks are described in
+`ADVERSARIAL-AUDIT-2026-10-08.md`. Managed-browser account detection pauses
+screen/input during recognized sign-in prompts; it does not establish coverage
+for native OS dialogs or external sign-in popups.

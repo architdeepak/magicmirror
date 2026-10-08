@@ -18,7 +18,7 @@ async function main() {
   const jpeg = Buffer.from([0xff,0xd8,0xff,0xd9]);
   const image = { getSize: () => ({ width: 720, height: 1280 }), isEmpty: () => false, toJPEG: () => jpeg };
   const context = vm.createContext({
-    crypto, AbortController, Date: { now: () => now },
+    assertBrowserAccountReady: async () => {}, crypto, AbortController, Date: { now: () => now },
     mainWindow: { isDestroyed: () => false, getBounds: () => ({ x: -1080, y: 0, width: 1080, height: 1920 }) },
     nativeCompanion: { active: false }, desktopWindow: null, lastScreenObservation: null, desktopObservationGeneration: 0, desktopActionAbort: null,
     closeDesktopWindow: async () => true,
@@ -52,11 +52,14 @@ async function main() {
   let releaseCapture;
   context.desktopCapturer.getSources = () => new Promise(resolve => { releaseCapture = resolve; });
   const stoppedCapture = capture();
+  while (!releaseCapture) await new Promise(resolve => setImmediate(resolve));
   assert.equal(cancelDesktop(), true);
   releaseCapture([]);
   await assert.rejects(stoppedCapture, /cancelled or superseded/);
   assert.equal(context.lastScreenObservation, null, 'Stopped capture restored authorization');
+  releaseCapture = null;
   const olderCapture = capture();
+  while (!releaseCapture) await new Promise(resolve => setImmediate(resolve));
   context.desktopCapturer.getSources = originalSources;
   const newerShot = await capture();
   releaseCapture([]);

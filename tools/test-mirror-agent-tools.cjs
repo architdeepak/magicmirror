@@ -5,7 +5,7 @@ const context = vm.createContext({ setTimeout: resolve => resolve(), URL });
 vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('export class', 'globalThis.MirrorAgentTools = class'), context);
 (async () => {
   let captures = 0, actions = [], resolveCapture;
-  const adapter = { onMirrorState: () => ({ display: { mode: 'ar' } }), onCaptureScreen: async () => ({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: `s${++captures}`, width: 540, height: 960, url: 'https://example.org/' }), onComputerAction: async args => { actions.push(args); return { result: 'delivered' }; }, onWardrobe: async args => ({ command: args.command }) };
+  const adapter = { onMirrorState: () => ({ display: { mode: 'ar' } }), onCaptureScreen: async () => ({ dataUrl: 'data:image/jpeg;base64,QUJD', snapshotId: `s${++captures}`, width: 540, height: 960, url: 'https://example.org/' }), onComputerAction: async args => { actions.push(args); return { result: 'delivered' }; }, onWardrobe: async args => ({ command: args.command }), onOpenService: async service => ({ service }) };
   const tools = new context.MirrorAgentTools(adapter);
   await assert.rejects(tools.execute('computer_action', { action: 'click', snapshotId: 'invented', x: 500, y: 500 }), /Observe/);
   const observation = await tools.execute('see_screen');
@@ -23,5 +23,6 @@ vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('expor
   await assert.rejects(tools.execute('see_screen'), /stays local/);
   await assert.rejects(tools.execute('shell', {}), /unavailable/);
   assert.equal((await tools.execute('wardrobe_command', { command: 'back photo' })).command, 'back photo');
+  assert.equal((await tools.execute('open_service', {service:'findmy'})).service, 'findmy');
   console.log('Mirror agent tools: screenshot pixels, normalized coordinates, one-use observations, repeated activation guard, late cancellation, local Spotify and wardrobe callbacks passed.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

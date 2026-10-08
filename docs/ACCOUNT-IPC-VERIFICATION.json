@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-10-08T16:14:25.864Z",
+  "passed": true,
+  "scope": "Actual packaged Linux capture, input, browser and persistent partition; synthetic account prompt and cookie. No Apple login, friends data or native Windows input.",
+  "checks": [
+    "initial map capture",
+    "account prompt appears after authorized observation",
+    "pending type blocked without changing password",
+    "capture blocked during sign-in",
+    "capture resumes after sign-in closes",
+    "synthetic browser session survives window recreation"
+  ]
+}
