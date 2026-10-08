@@ -1035,7 +1035,12 @@
       "cameraActive": false,
       "hardMuted": true
     },
-    "appExit": null
+    "appExit": null,
+    "build": {
+      "archiveSha256": "7f719388f4f74ee7f808de25fb742b5f823f55862b7cd5375e2758af1f496eeb",
+      "gitRevision": "6b681b6e7bb020d29239930d55b921c55de7a516",
+      "isolatedCopy": true
+    }
   },
   "auditFindings": [
     "Tracking loop initially overwrote requested gaze on the next frame. Separate gaze override and delayed production checks fixed this.",
@@ -1051,5 +1056,21 @@
     "Lookbook tests use synthetic camera/pose input; no Windows native Spotify playback or physical-TV validation.",
     "Renderer CPU excludes other application processes and is not device watts. Prior soak predates this visual revision.",
     "Textured front-facing performer remains a localized 2D deformation, not a complete 3D facial rig."
-  ]
+  ],
+  "freshSoak": {
+    "statusAtSnapshot": "monitoring",
+    "startedAt": "2026-10-08T23-13-21-416Z",
+    "plannedDurationSec": 7200,
+    "samplesAtSnapshot": 21,
+    "errorsAtSnapshot": [],
+    "build": {
+      "archiveSha256": "bf2d3b962168755d450c8c2bb4164faecfa9523819d53bea92865512000f672a",
+      "gitRevision": "cbfecf92d9e988ccc912cc43d1b03a2e36fe1558",
+      "isolatedCopy": true
+    },
+    "directory": "artifacts/monitor/2026-10-08T23-13-21-416Z",
+    "log": "artifacts/monitor-glass-expressions.log",
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "limits": "Ongoing, not a completed stability result; microphone, camera and accounts disabled."
+  }
 }
