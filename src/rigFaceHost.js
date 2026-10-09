@@ -6,10 +6,12 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { waitForPreparedGpu } from './gpuPreparation.js';
+import { useSoftwareRigLighting } from './softwareRigMaterial.js';
 import { boundedSurface, displayProfile } from './displayQuality.js';
 import { authorFaceMorphs, buildRigAccessories } from './rigGeometry.js';
 const RIGS={velora:'assets/personas/velora-3d-v1.glb',solenne:'assets/personas/solenne-3d-v1.glb'};
-function disposeTree(root){const textures=new Set();root?.traverse(n=>{n.geometry?.dispose();for(const m of(Array.isArray(n.material)?n.material:[n.material])){if(!m)continue;for(const v of Object.values(m))if(v?.isTexture)textures.add(v);m.dispose();}});textures.forEach(t=>t.dispose());}
+function disposeTree(root){const textures=new Set();root?.traverse(n=>{n.geometry?.dispose();for(const m of(Array.isArray(n.material)?n.material:[n.material])){if(!m)continue;for(const v of [...Object.values(m),...(m.userData?.sourceTextures||[])])if(v?.isTexture)textures.add(v);m.dispose();}});textures.forEach(t=>t.dispose());}
 export class RigFaceHost {
  constructor(host,{onFailure=()=>{},softwareGraphics=false,antialias=!softwareGraphics}={}){
   this.host=host;this.onFailure=onFailure;this.canvas=document.createElement('canvas');this.canvas.className='rig-face-canvas';this.canvas.style.display='none';host.append(this.canvas);
@@ -18,8 +20,8 @@ export class RigFaceHost {
 
   const gl=this.renderer.getContext(),info=gl.getExtension('WEBGL_debug_renderer_info');this.graphics={renderer:String(info?gl.getParameter(info.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)),samples:gl.getParameter(gl.SAMPLES)};
   this.renderer.info.autoReset=false;this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;
-  this.scene=new THREE.Scene();const environment=new RoomEnvironment();const pmrem=new THREE.PMREMGenerator(this.renderer);this.environment=pmrem.fromScene(environment,.04);this.scene.environment=this.environment.texture;this.scene.environmentIntensity=.45;environment.dispose();pmrem.dispose();this.camera=new THREE.PerspectiveCamera(28,1,.1,30);this.loader=new GLTFLoader();
-  this.antialiasing=softwareGraphics?'fxaa':'msaa';
+  this.scene=new THREE.Scene();if(!softwareGraphics){const environment=new RoomEnvironment();const pmrem=new THREE.PMREMGenerator(this.renderer);this.environment=pmrem.fromScene(environment,.04);this.scene.environment=this.environment.texture;this.scene.environmentIntensity=.45;environment.dispose();pmrem.dispose();}this.camera=new THREE.PerspectiveCamera(28,1,.1,30);this.loader=new GLTFLoader();
+  this.antialiasing=softwareGraphics?'fxaa':'msaa';this.lighting=softwareGraphics?'phong':'physical';
   if(softwareGraphics){this.composer=new EffectComposer(this.renderer);this.beautyPass=new RenderPass(this.scene,this.camera);this.outputPass=new OutputPass();this.fxaaPass=new ShaderPass(FXAAShader);this.composer.addPass(this.beautyPass);this.composer.addPass(this.outputPass);this.composer.addPass(this.fxaaPass);}
 
   this.scene.add(new THREE.HemisphereLight(0xfff4e8,0x242238,1.5));
@@ -46,10 +48,26 @@ export class RigFaceHost {
   face.removeFromParent();disposeTree(gltf.scene);face.rotation.set(0,0,0);face.position.set(0,0,0);face.scale.set(1,1,1);
   face.material.transparent=false;face.material.depthWrite=true;face.material.alphaTest=0;face.material.roughness=.7;face.material.side=THREE.DoubleSide;face.material.needsUpdate=true;
   const supported=authorFaceMorphs(face),accessories=buildRigAccessories(face,persona);
+  if(this.lighting==='phong')useSoftwareRigLighting(face);
   if(generation!==this.generation){disposeTree(face);return false;}
   if(this.root){this.scene.remove(this.root);disposeTree(this.root);}
   this.root=new THREE.Group();this.root.add(face);this.scene.add(this.root);this.face=face;this.accessories=accessories;this.supported=supported;this.persona=persona;this.width=0;this.smooth={turn:0,nod:0,lean:0,x:0,y:0};this.resize();
-  this.renderer.compile(this.scene,this.camera);this.ready=true;return true;
+  this.renderer.compile(this.scene,this.camera);
+  if(this.composer){
+   const start=performance.now();
+   // Prepare the complete pipeline, including the final canvas format, while
+   // the controller keeps the portrait visible. Publish only a neutral frame.
+   face.morphTargetInfluences.fill(.01);accessories.headVolume.morphTargetInfluences.fill(.01);
+   try{this.composer.render();}
+   finally{face.morphTargetInfluences.fill(0);accessories.headVolume.morphTargetInfluences.fill(0);}
+   accessories.upperTeeth.visible=false;accessories.lowerTeeth.visible=false;accessories.tongue.visible=false;
+   this.composer.render();
+   if(!await waitForPreparedGpu(this.renderer.getContext(),()=>generation===this.generation))return false;
+   this.preparationMs=performance.now()-start;this.preparationDraws=2;
+   this.updateAnchor();
+  }
+  if(generation!==this.generation)return false;
+  this.signature=this.composer?[...Object.values(this.smooth),...face.morphTargetInfluences].map(v=>Math.round(v*1000)).join(','):null;this.ready=true;return true;
  }
  update(blend={},gaze={},performance={},dt=1/30,viewer={}){
   if(!this.ready)return false;
@@ -66,6 +84,6 @@ export class RigFaceHost {
   this.frames++;this.canvas._mirrorRevision=this.frames;this.updateAnchor();return true;
  }
  updateAnchor(){const point=new THREE.Vector3(0,-.15,.1).applyMatrix4(this.root.matrixWorld).project(this.camera),w=this.host.clientWidth,h=this.host.clientHeight;this.faceAnchor={x:(point.x*.5+.5)*w,y:(-.5*point.y+.5)*h,size:w*.82};this.host.style.setProperty('--face-center-x',this.faceAnchor.x+'px');this.host.style.setProperty('--face-center-y',this.faceAnchor.y+'px');this.host.style.setProperty('--face-glow-size',w*1.18+'px');}
- snapshot(){return{ready:this.ready,persona:this.persona,quality:this.quality,graphics:this.graphics,antialiasing:this.antialiasing,resolution:[this.width,this.height],frames:this.frames,reuses:this.reuses,supported:this.supported||[],triangles:this.renderer.info.render.triangles,drawCalls:this.renderer.info.render.calls};}
- dispose(){++this.generation;this.ready=false;this.observer.disconnect();disposeTree(this.root);this.environment.dispose();this.composer?.dispose();this.beautyPass?.dispose();this.outputPass?.dispose();this.fxaaPass?.dispose();this.renderer.dispose();if(!this.renderer.getContext().isContextLost())this.renderer.forceContextLoss();this.canvas.remove();}
+ snapshot(){return{ready:this.ready,persona:this.persona,quality:this.quality,preparationMs:this.preparationMs||0,preparationDraws:this.preparationDraws||0,lighting:this.lighting,graphics:this.graphics,antialiasing:this.antialiasing,resolution:[this.width,this.height],frames:this.frames,reuses:this.reuses,supported:this.supported||[],triangles:this.renderer.info.render.triangles,drawCalls:this.renderer.info.render.calls};}
+ dispose(){++this.generation;this.ready=false;this.observer.disconnect();disposeTree(this.root);this.environment?.dispose();this.composer?.dispose();this.beautyPass?.dispose();this.outputPass?.dispose();this.fxaaPass?.dispose();this.renderer.dispose();if(!this.renderer.getContext().isContextLost())this.renderer.forceContextLoss();this.canvas.remove();}
 }

@@ -4,7 +4,7 @@ Mouth follow-up: [distinct speech poses and dental interior](MOUTH-SHAPES-2026-1
 
 Playback follow-up: [mouth motion follows output, queued tails and Stop](PLAYBACK-SYNC-2026-10-08.md); phoneme/anatomy and physical validation remain open.
 
-Latest follow-up: [side volume, rendering benchmark and speech decay](RIG-VOLUME-AND-PERFORMANCE-2026-10-08.md). Full suite remains incomplete.
+Latest follow-up: [software rendering and first-speech preparation](SOFTWARE-RENDERING-2026-10-08.md). Full suite remains incomplete.
 
 Comprehensive active objective and acceptance gates: [master goal](MASTER-GOAL.md). Historical passing checks below are partial evidence; the master goal remains incomplete.
 

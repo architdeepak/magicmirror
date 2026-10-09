@@ -579,14 +579,19 @@ function applyDisplayQuality(id) {
   displayQualityId=['eco','auto','hd'].includes(id)?id:'auto';localStorage.setItem('mirror.display-quality',displayQualityId);
   displayQualitySelect.value=displayQualityId;avatar.setQuality(displayQualityId);garmentOverlay.setQuality(displayQualityId);void setCameraQuality(displayQualityId).then(()=>updateTrackingUi()).catch(()=>{});magic.setQuality(displayQualityId);depthScene.setQuality(displayQualityId);sceneBudget.maxDynamicFps=softwareGraphics?15:displayProfile(displayQualityId).motionFps;sceneBudget.invalidate();
   document.querySelector('#display-quality-status').textContent=displayQualityId==='hd'?'More texture detail and smooth motion when available':displayQualityId==='eco'?'Lower graphics work for a small PC':'Detail and smoothness balanced for this display';
+  if(softwareGraphics)document.querySelector('#display-quality-status').textContent+=' · Software graphics use simpler 3D lighting';
 }
 displayQualitySelect.addEventListener('change',event=>applyDisplayQuality(event.target.value));applyDisplayQuality(displayQualityId);
 document.querySelector('#routine-movie').value = localStorage.getItem('mirror.routine.movie') || 'youtube';
 document.querySelector('#routine-movie').addEventListener('change', event => localStorage.setItem('mirror.routine.movie', event.target.value));
 const avatarStyleSelect=document.querySelector('#avatar-render-style');
 avatar.onStyleFallback=reason=>{avatarStyleSelect.value='portrait';localStorage.setItem('mirror.avatar-render-style','portrait');document.querySelector('#avatar-render-status').textContent=reason+' · portrait restored';};
+let avatarStyleRequest=0;
 async function applyAvatarStyle(style){
+  const request=++avatarStyleRequest;
+  document.querySelector('#avatar-render-status').textContent=style==='rig'?'Preparing 3D face…':'Restoring portrait…';
   const ok=await avatar.setRenderStyle(style);
+  if(request!==avatarStyleRequest)return false;
   avatarStyleSelect.value=avatar.renderStyle;localStorage.setItem('mirror.avatar-render-style',avatar.renderStyle);
   document.querySelector('#avatar-render-status').textContent=ok?'Appearance updated':(avatar.lastRigError||'Portrait fallback active');
   return ok;

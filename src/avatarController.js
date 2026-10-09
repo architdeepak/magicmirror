@@ -129,7 +129,7 @@ export class AvatarController {
     const generation=++this.styleGeneration;
     this.renderStyle=style==='rig'?'rig':'portrait';
     if(this.renderStyle==='rig') {
-      try { await this.ensureRigHost(); }
+      try { const loading=this.ensureRigHost();this._syncAvatarSourceVisibility();await loading; }
       catch(error) { if(generation!==this.styleGeneration)return false;this.lastRigError=error.message;this.renderStyle='portrait';this.onStyleFallback?.(error.message); }
     }
     if(generation!==this.styleGeneration)return false;
