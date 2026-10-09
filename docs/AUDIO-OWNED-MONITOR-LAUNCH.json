@@ -1,0 +1,121 @@
+{
+  "statusAtSnapshot": "monitoring",
+  "build": {
+    "archiveSha256": "115073b8520be99f9215c245511cd98978042b3268b95c82aba4b6f07cb818b8",
+    "gitRevision": "0a142331bcdc61c6ccf6e13aafecb3153a422592",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "software"
+  },
+  "monitorToolSha256": "348dd352f2f8c73f0ece90aef5d4b22c9758ecce0c81acad065628654969b9c9",
+  "directory": "artifacts/monitor/2026-10-09T09-14-59-124Z",
+  "sampleCountAtSnapshot": 17,
+  "errorsAtSnapshot": [],
+  "latest": {
+    "at": "2026-10-09T09:15:54.484Z",
+    "elapsedSec": 51.772,
+    "cpuPercent": 6.559527714004592,
+    "summedRssBytes": 957259776,
+    "processCount": 5,
+    "rendererHeapBytes": 13240812,
+    "gpu": {
+      "deviceWide": "4.55, 0, [N/A]"
+    },
+    "mode": "mirror",
+    "sleeping": false,
+    "avatarAppearance": "rig",
+    "avatarRig": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "preparationMs": 838.1000001430511,
+      "preparationDraws": 2,
+      "lighting": "phong",
+      "graphics": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+        "samples": 0
+      },
+      "antialiasing": "fxaa",
+      "resolution": [
+        253,
+        471
+      ],
+      "frames": 0,
+      "reuses": 0,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthRollLower",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 58980,
+      "drawCalls": 37
+    },
+    "power": {
+      "targetFps": 12,
+      "frames": 618,
+      "scene": {
+        "frames": 3,
+        "dynamic": false,
+        "dirty": false,
+        "maxDynamicFps": 15
+      }
+    },
+    "eventLoopLagMs": 0.5,
+    "cameraActive": false,
+    "audio": {
+      "avatarClock": "suspended",
+      "hiddenAnimationRunning": false,
+      "workletConnected": false
+    },
+    "hardMuted": true
+  },
+  "scope": "Actual packaged Linux portrait app, graphics request software, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+  "limitations": "Fresh 30-minute camera/cloud/media-off software rig/mode/sleep cohort. Added hard-muted avatar clock/worklet/hidden-animation assertions. Running, not completed; not combined-workload or eight-hour final release qualification.",
+  "previousLongPhotoCohort": {
+    "status": "finished",
+    "samples": 591,
+    "errors": 0,
+    "build": {
+      "archiveSha256": "a9813599fb9d3677abc401084c8cff15f4a8e7b6ea4300f02f5ef77f652a3607",
+      "gitRevision": "8710cd2c9199b29442f9c1549a92dd1d66406a29",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "software"
+    }
+  }
+}
