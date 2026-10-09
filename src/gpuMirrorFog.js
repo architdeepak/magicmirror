@@ -12,10 +12,13 @@ void main(){
  float envelope=mix(smoothstep(0.,.22,uProgress)*(1.-.46*smoothstep(.65,1.,uProgress)),.54*pow(1.-uProgress,1.6),uArrival);
  float r2=dot(q*q,vec2(.85,.72));float edge=max(0.,1.-r2*.72);
  float clearing=1.-uArrival*smoothstep(0.,.85,uProgress)*exp(-r2*4.);
+ float turn=time*.65/(1.+r2*2.6);float denominator=1.+turn*turn;
+ float cosine=(1.-turn*turn)/denominator;float sine=2.*turn/denominator;
+ vec2 flow=vec2(q.x*cosine-q.y*sine,q.x*sine+q.y*cosine);
  vec3 radiance=vec3(0.);float transmittance=1.;
  for(int i=0;i<6;i++){
   if(float(i)>=uSlices)break;float z=float(i)/uSlices;
-  vec3 p=vec3(q.x*6.,q.y*6.-time*1.4,z*2.3+time*.12);
+  vec3 p=vec3(flow.x*6.,flow.y*6.-time*1.4,z*2.3+time*.12);
   float warp=n(p*.48+vec3(time*.3,-time*.25,8.));
   p.xy+=vec2(warp*3.+sin(p.y*.65+time*.35)*.32,warp*2.);
   float field=fbm(p);float density=max(0.,field-.28)*2.3;
@@ -28,7 +31,9 @@ void main(){
  }
  float alpha=min(.94,1.-transmittance);vec3 color=film(radiance/max(.001,alpha));
  // Sub-LSB spatial dithering reduces banding, with no flickering random frame.
- float grain=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5;
+ // Reuse bounded noise values: large-coordinate sine hashes can become
+ // non-finite on native drivers and turn the upper image black.
+ float grain=texture2D(uNoise,(gl_FragCoord.xy+.5)/128.).r-.5;
  gl_FragColor=vec4(color+grain/255.,alpha);
 }`;
 export class GpuMirrorFog {

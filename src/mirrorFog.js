@@ -22,11 +22,14 @@ export class MirrorFog {
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const u = (x / w - .5) * 2, v = (y / h - .48) * 2;
       const r2 = u * u * .85 + v * v * .72;
-      // Domain warping and rising, differently scaled layers prevent a rotating
-      // circular sticker. The finest octave stays low contrast when upscaled.
-      const warp = this.sample(u * 3 + 40 + time * .55, v * 3 + 16 - time * .8);
-      const nx = u * 5 + warp * 2.9 + time * .7 + 58;
-      const ny = v * 5 + warp * 2.0 - time * 1.65 + 41;
+      // Differential angular flow bends the field into a swirl. A rational
+      // rotation avoids per-pixel trigonometry and preserves radial distance.
+      const turn=time*.65/(1+r2*2.6),denominator=1+turn*turn;
+      const cosine=(1-turn*turn)/denominator,sine=2*turn/denominator;
+      const flowU=u*cosine-v*sine,flowV=u*sine+v*cosine;
+      const warp = this.sample(flowU * 3 + 40 + time * .55, flowV * 3 + 16 - time * .8);
+      const nx = flowU * 5 + warp * 2.9 + time * .7 + 58;
+      const ny = flowV * 5 + warp * 2.0 - time * 1.65 + 41;
       const coarse = this.sample(nx, ny), detail = this.sample(nx * 2.13 + 11, ny * 2.13 - time * .45);
       const fine = this.sample(nx * 4.17 - 28, ny * 4.17 + 30);
       const density = Math.max(0, (coarse * .64 + detail * .26 + fine * .1 - .23) * 1.5);
