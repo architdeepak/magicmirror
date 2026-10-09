@@ -37,3 +37,9 @@ const context=vm.createContext({Number,Error});vm.runInContext(source+'\nglobalT
   console.log('Watch audio: late media load, stable attenuation, mute/zero volume, user override, late volume event and cleanup passed.');
   console.log('Watch controls passed: shared play/pause/seek, range limits, unsupported embed handling, and actual playback state.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+const layoutContext=vm.createContext({Number,Math});vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchAvatarLayout.js'),'utf8').replaceAll('export function','function').replaceAll('export class','class')+';globalThis.compute=computeWatchAvatarLayout;',layoutContext);
+for(const [width,height]of [[540,960],[720,1280],[1080,1920],[405,720]])for(const position of ['center','left','right','upper','lower']){
+ const top=95,bottom=height-280,box=layoutContext.compute({width,height,top,bottom,position});assert(box);assert(box.width>0&&box.height>0);assert(box.x>=0&&box.x+box.width<=width);assert(box.y>=top&&box.y+box.height<=bottom);assert(box.panelBottom>box.panelTop);if(position==='upper')assert(box.panelTop>=box.y+box.height+box.gap-1e-8);else assert(box.panelBottom<=box.y-box.gap+1e-8);
+}
+assert.equal(layoutContext.compute({width:0,height:100,top:0,bottom:100}),null);assert.equal(layoutContext.compute({width:500,height:900,top:600,bottom:650}),null);
+console.log('Watch avatar geometry: separate content/host bands for five positions across four portrait sizes, bounds and insufficient-space fallback passed.');

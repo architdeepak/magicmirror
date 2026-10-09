@@ -281,6 +281,7 @@ async function awakeningCancellation() {
   vm.runInContext(source.slice(source.indexOf('async function toggleVoice('),source.indexOf('function appendCaption(')),context);
   await context.toggleVoice();assert.equal(stops,1,'Listen button started a session during reveal instead of stopping');
   context.speech.isSpeaking=true;await context.toggleVoice();assert.equal(stops,2,'Button did not stop the fallback greeting');
+  context.watchAvatarLayout={schedule(){}};
   context.watchAudioDucking={setActive(value){this.active=value}};
   context.mode='mirror';context.elements.stateLabel={};context.elements.stateDot={};context.elements.micLabel={};
   context.elements.mic={classList:{toggle(){}},setAttribute(){}};context.returnToRequestedMode=()=>{};

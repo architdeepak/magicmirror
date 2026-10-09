@@ -22,6 +22,7 @@ import { WakeWordListener } from './wakeWord.js';
 import { WatchPlaybackController } from './watchPlaybackController.js';
 import { YouTubeWatchPlayer } from './youtubeWatchPlayer.js';
 import { WatchCastPlayer } from './watchCastPlayer.js';
+import { WatchAvatarLayout } from './watchAvatarLayout.js';
 import { WatchAudioDucking } from './watchAudioDucking.js';
 import { SpotifyDevices } from './spotifyDevices.js';
 import {
@@ -382,6 +383,7 @@ let desktopLabel = '';
 let mode = 'mirror';
 let requestedMode = 'mirror';
 let state = 'starting';
+const watchAvatarLayout = new WatchAvatarLayout({shell:elements.shell,panel:elements.watchPanel,host:elements.avatarHost,getState:()=>({active:mode==='watch'&&!desktopActive&&avatar.visible,position:elements.shell.dataset.avatarPosition||'center'})});
 const watchAudioDucking = new WatchAudioDucking(elements.watchVideo);
 const castPlayer = new WatchCastPlayer({
   video: elements.watchVideo, frame: elements.watchFrame, placeholder: elements.watchPlaceholder, urlInput: elements.watchUrl,
@@ -629,7 +631,7 @@ async function initialize() {
   else updateWakeStatus('paused');
 }
 
-window.__mirrorDebug = { scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic,
+window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic,
   getWakeState: () => ({ enabled: wake.enabled, assistantActive: wake.assistantActive, microphoneReady: Boolean(wake.processor && wake.stream?.active), generation: wake.generation }),
   getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
@@ -666,6 +668,7 @@ function setMode(nextMode) {
   avatar.setDisplayMode(nextMode);
   avatar.setDepthEnabled(depthEnabled && nextMode === 'portal' && !desktopActive);
   if (nextMode === 'mirror') elements.oracleCard.classList.add('empty');
+  watchAvatarLayout.schedule();
   resetIdle();
 }
 
@@ -776,6 +779,7 @@ function setArEffect(effect, { openStudio = false } = {}) {
 
 function setState(next) {
   state = next;
+  watchAvatarLayout.schedule();
   watchAudioDucking.setActive(Boolean(gemini?.listening || browserRecognition || ['listening', 'thinking', 'speaking'].includes(next)));
   avatar.setActivity?.(next);
   if (mode === 'watch') avatar.setVisible(desktopActive || Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(next)));
@@ -1897,7 +1901,7 @@ window.addEventListener('resize', () => {
   garmentOverlay.resize();
 });
 
-window.addEventListener('beforeunload', () => { removePhoneMediaListener?.(); removeCastCommandListener?.(); watchAudioDucking.destroy(); castPlayer.destroy(); youtubePlayer.destroy(); removeDesktopListener?.(); garmentOverlay.destroy(); wake.destroy(); gemini.disconnect(); });
+window.addEventListener('beforeunload', () => { removePhoneMediaListener?.(); removeCastCommandListener?.(); watchAvatarLayout.destroy(); watchAudioDucking.destroy(); castPlayer.destroy(); youtubePlayer.destroy(); removeDesktopListener?.(); garmentOverlay.destroy(); wake.destroy(); gemini.disconnect(); });
 
 async function loadConfig() {
   try {
