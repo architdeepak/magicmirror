@@ -133,7 +133,8 @@ Independent fixes may cross stages. Do not wait for Windows while actionable loc
 - **Baseline delivered:** `c7fc732`; selectable 3D preview, HD/theatrical effects and earlier wardrobe/agent/media work.
 - **This analysis:** original request and current subsystem/evidence review completed; comprehensive suite goal activated. Physical camera absent; Windows intentionally later. Software-rig CPU concern identified from frozen samples.
 - **Next actionable task:** standalone rig/portrait benchmark with controlled activity and presets, then address the largest measured cost together with side-volume/hair/speech refinements. Do not add detail without measuring its cost.
+- **Ongoing development monitor:** an eight-hour isolated rig-preview soak started at 2026-10-09T03:23:39Z (October 8 locally), with a matched audited archive. At the saved snapshot, 19 samples had zero errors. This is running, not completed, and does not qualify the release or physical-service gates. Log: `artifacts/monitor-master-goal.log`.
 - **Still open:** all completion gates above; evidence exists for portions, but none establishes full installed-system completion.
-- **Monitor snapshot:** HD build finished two hours, 2,335 samples, zero errors. 3D build still running at the reviewed 2,203-sample snapshot, zero errors. Detailed immutable-build records live under `artifacts/monitor`; this is not a new feature verification.
+- **Monitor snapshot:** HD build finished two hours, 2,335 samples, zero errors. 3D build subsequently finished two hours with 2,350 samples and zero errors; the earlier performance discussion identifies its first-review snapshot. Detailed immutable-build records live under `artifacts/monitor`; this is not a new feature verification.
 
 The goal tool and this file describe the same objective. If future user steering changes scope or priorities, record that change here and preserve the remaining authorized work.

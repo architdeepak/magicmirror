@@ -48,8 +48,8 @@
         "isolatedCopy": true,
         "avatarStyle": "rig"
       },
-      "status": "monitoring",
-      "samples": 2335,
+      "status": "finished",
+      "samples": 2350,
       "errors": [],
       "byMode": {
         "ar": {
@@ -58,9 +58,9 @@
           "p95CpuPercent": 263.24
         },
         "mirror": {
-          "samples": 468,
-          "meanCpuPercent": 11.65,
-          "p95CpuPercent": 20.5
+          "samples": 469,
+          "meanCpuPercent": 11.69,
+          "p95CpuPercent": 21.08
         },
         "portal": {
           "samples": 470,
@@ -68,9 +68,9 @@
           "p95CpuPercent": 314.69
         },
         "spotify": {
-          "samples": 457,
-          "meanCpuPercent": 11.23,
-          "p95CpuPercent": 16.5
+          "samples": 471,
+          "meanCpuPercent": 11.26,
+          "p95CpuPercent": 16.3
         },
         "watch": {
           "samples": 469,
@@ -81,5 +81,22 @@
       "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
     }
   ],
-  "interpretation": "Separate frozen software-graphics cohorts on a shared development host, camera/voice/media off. Not a controlled comparison or watts/hardware proof. Reproduce rig cost in isolation before attributing causes."
+  "interpretation": "Separate frozen software-graphics cohorts on a shared development host, camera/voice/media off. Not a controlled comparison or watts/hardware proof. Reproduce rig cost in isolation before attributing causes.",
+  "updatedAt": "2026-10-09T03:23:40.048104+00:00",
+  "ongoingDevelopmentMonitor": {
+    "directory": "artifacts/monitor/2026-10-09T03-23-39-044Z",
+    "build": {
+      "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+      "gitRevision": "2eea9ad52d7019e5ebd037524db5630b9058ffb8",
+      "isolatedCopy": true,
+      "avatarStyle": "rig"
+    },
+    "plannedDurationSeconds": 28800,
+    "status": "monitoring",
+    "sampleCount": 19,
+    "errors": [],
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "selectedAppearance": "rig",
+    "qualification": "Development soak of existing audited preview, not a release or combined physical-service validation."
+  }
 }
