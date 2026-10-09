@@ -8,11 +8,15 @@ context.gemini.listening=true;assert(context.getMirrorState().camera.sharedWithA
 context.elements.visionToggle.checked=false;assert.equal(context.getMirrorState().vision.enabled,false);assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.elements.visionToggle.checked=true;
 context.hardMuted=true;assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.hardMuted=false;
 context.elements.video.srcObject=null;assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.elements.video.srcObject={active:false};assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);
+const quickCamera={setAttribute(name,value){this[name]=value}};
+context.document.querySelector=selector=>selector==='#studio-camera-toggle'?quickCamera:null;
 context.elements.trackingBadge={};context.elements.cameraToggle={};context.elements.cameraNotice={};
 vm.runInContext(source.slice(source.indexOf('function updateTrackingUi()'),source.indexOf('function refreshConnectionSettings()')),context);
 tracking.cameraActive=false;tracking.faceDetected=false;tracking.error='Camera disconnected. Reconnect it, then choose Camera on.';context.updateTrackingUi();
 assert.equal(context.getMirrorState().camera.error,tracking.error);assert.equal(context.elements.cameraToggle.textContent,'Camera on');assert.equal(context.elements.cameraNotice.hidden,false);assert.equal(context.elements.cameraNotice.textContent,tracking.error);
+assert.equal(quickCamera.textContent,'Camera on');assert.equal(quickCamera['aria-pressed'],'false');
 tracking.cameraActive=true;tracking.error='';context.updateTrackingUi();assert.equal(context.elements.cameraNotice.hidden,true);
+assert.equal(quickCamera.textContent,'Camera off');assert.equal(quickCamera['aria-pressed'],'true');
 console.log('Mirror camera state passed: configured versus active sharing, face freshness, hard mute, missing camera, and ended stream.');
 
 assert.equal(context.getMirrorState().watch.audioDucking.supported,false);

@@ -650,7 +650,7 @@ setDepthMode(depthEnabled, false);
 function setMode(nextMode) {
   if (!['portal', 'mirror', 'ar', 'watch', 'spotify'].includes(nextMode)) return;
   const changed = mode !== nextMode;
-  if (mode === 'ar' && nextMode !== 'ar') { cancelTryOnRender(); liveTryOn.stop(); }
+  if (mode === 'ar' && nextMode !== 'ar') { setWardrobePanelOpen(false); cancelTryOnRender(); liveTryOn.stop(); }
   if (mode === 'watch' && nextMode !== 'watch') { elements.watchVideo.pause(); youtubePlayer.pause(); }
   mode = nextMode;
   if (experience.capturing && nextMode !== 'ar') experience.cancel();
@@ -744,6 +744,7 @@ function getMirrorState() {
       fit: { ...garmentOverlay.fit }, contourOcclusion: Boolean(garmentOverlay.tracker.getSegmentation()), trackingInferenceMs: garmentOverlay.tracker.inferenceMs || 0, previewReady: Boolean(garmentOverlay.texture),
       liveFit: garmentOverlay.getLiveState(),
       renderedStillAvailable: !elements.tryOnStill.disabled,
+      wardrobeControlsOpen: mode==='ar'&&!desktopActive&&elements.shell.dataset.wardrobeOpen==='true',
       photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category, favorite: closet.favorites.has(item.id) })) },
     watch: { ...watchState, audioDucking: watchState.source === 'media' ? watchAudioDucking.snapshot() : { supported: false }, castingEnabled, castActive: castPlayer.active },
@@ -1141,6 +1142,8 @@ function updateTrackingUi() {
   if (liveTryOn.session && !tracking.cameraActive) liveTryOn.stop('Camera disconnected. Live AI try-on stopped.');
   elements.trackingBadge.textContent = tracking.faceDetected ? 'FACE LOCK' : tracking.cameraActive ? 'SEARCHING' : 'MOUSE';
   elements.cameraToggle.textContent = tracking.cameraActive ? 'Camera off' : 'Camera on';
+  const quickCamera=document.querySelector('#studio-camera-toggle');
+  if(quickCamera){quickCamera.textContent=elements.cameraToggle.textContent;quickCamera.setAttribute('aria-pressed',String(tracking.cameraActive));}
   elements.cameraNotice.textContent = tracking.error || '';
   elements.cameraNotice.hidden = !tracking.error;
   if (elements.cameraFormat) {
@@ -1670,7 +1673,15 @@ function syncGarmentFitControls() {
   elements.garmentOffset.value = garmentOverlay.fit.offset;
 }
 
+function setWardrobePanelOpen(open) {
+  const panel=document.querySelector('#studio-wardrobe'),button=document.querySelector('#studio-wardrobe-toggle');
+  panel.hidden=!open;button.setAttribute('aria-expanded',String(Boolean(open)));button.textContent=open?'Done':'Wardrobe';elements.shell.dataset.wardrobeOpen=String(Boolean(open));
+}
+document.querySelector('#studio-wardrobe-toggle').addEventListener('click',()=>setWardrobePanelOpen(document.querySelector('#studio-wardrobe').hidden));
+document.querySelector('#studio-camera-toggle').addEventListener('click',()=>elements.cameraToggle.click());
+
 function setStudioToolsOpen(open) {
+  if(open)setWardrobePanelOpen(true);
   elements.studioTools.hidden = !open;
   elements.studioToolsToggle.setAttribute('aria-expanded', String(open));
   elements.studioToolsToggle.textContent = open ? 'Hide tools' : 'Show tools';
@@ -1997,6 +2008,8 @@ function spotifyEmbedUrl(url) {
 }
 
 function runVoiceNavigation(prompt) {
+  const wardrobeCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim().match(/^(open|show|close|hide) (?:the )?(?:wardrobe|closet|fitting controls)$/);
+  if(wardrobeCommand){const open=['open','show'].includes(wardrobeCommand[1]);if(open)setAssistantMode('ar');setWardrobePanelOpen(open);showGesture(open?'Wardrobe opened':'Wardrobe closed');return true;}
   if (experience.voice(prompt)) return true;
   const qualityCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim();
   if(/^(?:use |show |switch to )?(?:3d (?:face|avatar)|portrait (?:face|avatar))$/.test(qualityCommand)){void applyAvatarStyle(qualityCommand.includes('3d')?'rig':'portrait');showGesture('Avatar appearance updated');return true;}
@@ -2201,7 +2214,8 @@ async function dispatchGesture(type) {
     showGesture(`Pinch · ${next.replace(/^./, (letter) => letter.toUpperCase())}`);
     return;
   }
-  // Vertical swipes always navigate modes outside the browser. Horizontal
+  if(mode==='ar'&&['swipe-up','swipe-down'].includes(type)){setWardrobePanelOpen(type==='swipe-up');showGesture(type==='swipe-up'?'Wardrobe opened':'Wardrobe closed');return;}
+  // Vertical swipes navigate modes outside the browser and Try On. Horizontal
   // swipes also navigate when there is no mode-specific media/garment action.
   if (!['swipe-left', 'swipe-right', 'swipe-up', 'swipe-down'].includes(type)) return;
   const modes = ['mirror', 'portal', 'watch', 'spotify'];

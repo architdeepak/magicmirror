@@ -22,6 +22,31 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal((await tool('change style to dress')).selected,'Blue dress');
   assert.equal((await tool('make it red')).selected,'Red dress');
   const loaded=await until(()=>client.evaluate('!!__mirrorDebug.garmentOverlay.texture'),'starter texture');assert(loaded);
+  // Actual compact wardrobe controls, portrait geometry, and interpreted commands.
+  assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),false);
+  for(const [width,height] of [[540,960],[720,1280],[1080,1920]]){
+    await client.call('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await delay(150);
+    const geometry=await client.evaluate(`(()=>{const r=document.querySelector('.studio-tray').getBoundingClientRect();return{height:r.height,bottom:r.bottom,width:r.width,viewport:innerHeight}})()`);
+    assert(geometry.height<height*.22,'Compact controls obscure too much preview');assert(geometry.bottom<=height);
+    await client.evaluate('document.querySelector("#studio-wardrobe-toggle").click()');
+    assert.equal(await client.evaluate('document.querySelector("#studio-wardrobe-toggle").getAttribute("aria-expanded")'),'true');
+    assert(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'));
+    await client.evaluate('document.querySelector("#studio-wardrobe-toggle").click()');
+  }
+  await client.evaluate("__mirrorDebug.gestures.onGesture('swipe-up')");
+  await until(()=>client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),'gesture open wardrobe');
+  await client.evaluate("__mirrorDebug.gestures.onGesture('swipe-down')");
+  await until(()=>client.evaluate('!__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),'gesture close wardrobe');
+  assert.equal(await client.evaluate('document.querySelector("#app-shell").dataset.mode'),'ar');
+  await client.evaluate('document.querySelector("#mute-btn").click()');
+  await client.evaluate('__mirrorDebug.gemini.onMirrorCommand("open the wardrobe")');
+  assert(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'));
+  await client.evaluate('__mirrorDebug.gemini.onMirrorCommand("hide wardrobe")');
+  assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),false);
+  await client.evaluate('document.querySelector("#mute-btn").click()');
+  await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');
+  assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),false);
+  await client.evaluate('__mirrorDebug.gemini.onModeChange("ar")');
   await shot('starter-dress');
   await tool('add garment');assert.equal(await client.evaluate('document.querySelector("#live-captions").parentNode.className'),'wardrobe-caption-host');assert.equal(await client.evaluate('document.querySelector("#wardrobe-photo [data-voice-control=mute]").textContent'),'Unmute microphone');assert(await client.evaluate('document.querySelector("#wardrobe-photo").open'));
   await client.evaluate('document.querySelector("#wardrobe-photo [data-voice-control=mute]").click()');
@@ -69,6 +94,12 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   await shot('camera-photo');await client.evaluate(`__mirrorDebug.gestures.onGesture('pinch')`);
   await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo").open'),'gesture save');
   assert.equal(JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8')).garments.length,4);
+  assert.equal(await client.evaluate('document.querySelector("#studio-camera-toggle").textContent'),'Camera off');
+  await client.evaluate('document.querySelector("#studio-camera-toggle").click()');
+  await until(()=>client.evaluate('document.querySelector("#studio-camera-toggle").getAttribute("aria-pressed")==="false"'),'quick camera off');
+  assert(await client.evaluate('__wardrobeStream.getTracks().every(t=>t.readyState==="ended")'),'Quick camera off did not release tracks');
+  await client.evaluate('document.querySelector("#studio-camera-toggle").click()');
+  await until(()=>client.evaluate('document.querySelector("#studio-camera-toggle").getAttribute("aria-pressed")==="true"'),'quick camera on');
   await tool('add garment');
   await client.evaluate(`__mirrorDebug.gestures.onGesture('pinch')`);
   await until(()=>client.evaluate('!document.querySelector("#wardrobe-photo [data-action=save]").disabled'),'gesture-only capture');
@@ -136,6 +167,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal((await client.evaluate('window.mirrorBridge.listCloset()')).garments.find(g=>g.id===pairItem.id).backImageUrl,pairPublic.backImageUrl);
   assert.deepEqual(exceptions,[]);
   const report={status:'passed',starterGarments:30,savedGarments:8,checks:['real garment upload/cutout','paired front/back cutout, persistence, original retention, voice view switching and different rear raster','invalid back PNG rejected before persistence','saved photo short sleeve inference','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','photo clarity voice controls and exact original restoration','independent front/back clarity drafts','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
+  report.checks.push('compact controls below 22% of three portrait heights','wardrobe drawer pointer/voice/vertical gesture controls','AR vertical swipes retain mode','drawer closes on mode exit','quick camera control releases tracks and restarts');
   await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});

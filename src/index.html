@@ -580,6 +580,10 @@
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) .watch-stage { display: block; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) .watch-card { margin-inline: auto; max-width: 100%; }
     @media (prefers-reduced-motion: reduce) { #avatar-engine { transition: opacity .1s, visibility .1s; } }
+    #studio-wardrobe[hidden] { display: none; }
+    .studio-quick-actions { margin-bottom: 0; }
+    #studio-wardrobe { margin-top: 14px; border-top: 1px solid var(--panel-line); padding-top: 14px; }
+    #studio-wardrobe-toggle[aria-expanded="true"] { border-color: var(--signal); color: var(--signal); }
   </style>
   <link rel="stylesheet" href="experience.css">
 </head>
@@ -618,11 +622,13 @@
       <div id="dashboard-container"></div>
 
       <section class="experience-panel" id="studio-panel" aria-label="Try-on studio">
-        <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Select a garment to see it follow your body. Say “try on my jacket” to switch. Add a photo from your phone or camera. Swipe for clothes; say “make it blue” for starter colors.</p></div>
-        <div class="studio-tray"><div class="tray-head"><strong>ENCHANTED STUDIO</strong><button class="studio-tools-toggle" id="studio-tools-toggle" type="button" aria-expanded="false" aria-controls="studio-tools">More options</button></div>
-          <div class="tryon-view-switch" aria-label="Try-on view"><button id="tryon-live" type="button" aria-pressed="true">Live camera</button><button id="tryon-still" type="button" aria-pressed="false" disabled>Rendered still</button></div>
+        <div class="mode-intro"><div class="eyebrow">Live camera · on-device tracking</div><h1>Try on, without the fitting room.</h1><p>Select a garment to see it follow your body. Say “try on my jacket” to switch. Add a photo from your phone or camera. Swipe left/right for clothes, up for Wardrobe, down to close. Say “make it blue” for starter colors.</p></div>
+        <div class="studio-tray"><div class="tray-head"><strong>LIVE FIT</strong><button class="studio-tools-toggle" id="studio-wardrobe-toggle" type="button" aria-expanded="false" aria-controls="studio-wardrobe">Wardrobe</button></div>
           <small class="studio-summary" id="studio-summary" role="status">Choose a garment to see your live fit.</small>
-          <div class="experience-actions"><button type="button" data-experience-action="capture">✧ Take look photo</button><button type="button" data-experience-action="lookbook">Lookbook</button><button type="button" data-experience-action="help">Help</button></div>
+          <div class="experience-actions studio-quick-actions"><button id="studio-camera-toggle" type="button" aria-pressed="false">Camera on</button><button type="button" data-experience-action="capture">✧ Take look photo</button></div>
+          <div id="studio-wardrobe" hidden><div class="tray-head"><strong>WARDROBE</strong><button class="studio-tools-toggle" id="studio-tools-toggle" type="button" aria-expanded="false" aria-controls="studio-tools">More options</button></div>
+          <div class="tryon-view-switch" aria-label="Try-on view"><button id="tryon-live" type="button" aria-pressed="true">Live camera</button><button id="tryon-still" type="button" aria-pressed="false" disabled>Rendered still</button></div>
+          <div class="experience-actions"><button type="button" data-experience-action="lookbook">Lookbook</button><button type="button" data-experience-action="help">Help</button></div>
           <div class="closet-shortcuts"><button type="button" id="closet-favorite" aria-pressed="false">☆ Favorite garment</button><button type="button" id="closet-edit" disabled>Edit garment photo</button><button type="button" id="closet-filter" aria-pressed="false">Favorites only</button></div>
 
           <div class="closet-shelf"><div class="closet-shelf-head"><strong>MY CLOSET · LOCAL</strong><button id="closet-import" type="button">Add garment</button></div><p>Swipe for clothes. Say “make it blue” for starter colors. Add a photo to wear your own clothes.</p><div class="closet-list" id="closet-list"></div></div>
@@ -632,7 +638,7 @@
           <small class="live-fit-status" id="live-fit-status" role="status">Choose a garment to see your live fit.</small>
           <div class="garment-fit" id="garment-fit"><label>Width <input id="garment-width" type="range" min="0.7" max="1.5" step="0.02" value="1" aria-label="Garment width"></label><label>Length <input id="garment-length" type="range" min="0.7" max="1.5" step="0.02" value="1" aria-label="Garment length"></label><label>Height <input id="garment-offset" type="range" min="-0.25" max="0.25" step="0.01" value="0" aria-label="Garment vertical position"></label><button id="garment-fit-reset" type="button">Reset fit</button></div>
           <label class="tryon-consent"><input id="tryon-consent" type="checkbox"><span id="tryon-consent-copy">I consent to capture one camera frame for this local try-on sample.</span></label><button class="tryon-run" id="tryon-run" type="button" disabled>Save local try-on sample</button>
-          <button id="tryon-cancel" class="tryon-run" type="button" hidden>Cancel render</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div>
+          <button id="tryon-cancel" class="tryon-run" type="button" hidden>Cancel render</button><small class="tryon-status" id="tryon-status">Choose a garment to begin.</small></div></div></div>
       </section>
 
       <section class="experience-panel" id="watch-panel" aria-label="Watch media">
