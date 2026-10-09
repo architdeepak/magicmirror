@@ -5,9 +5,33 @@ const vm = require('vm');
 const crypto = require('crypto');
 const { createNativeDesktop, nativeAction, sameForeground, NATIVE_KEYS } = require('../src/nativeDesktop.cjs');
 const { managedKeyEvents, MANAGED_KEYS } = require('../src/managedBrowserKeys.cjs');
+const { DesktopNavigation } = require('../src/desktopNavigation.cjs');
+
+
+async function testNavigation(source){
+ const instances=[];let notifications=0,mainShows=0;
+ class Browser {
+  constructor(){this.visible=false;this.destroyed=false;this.loads=[];this.handlers={};this.shows=0;this.stops=0;this.webContents={setWindowOpenHandler(){},on(){},stop:()=>this.stops++};instances.push(this);}
+  on(name,fn){this.handlers[name]=fn;}isDestroyed(){return this.destroyed;}isVisible(){return this.visible;}
+  loadURL(url){return new Promise((resolve,reject)=>this.loads.push({url,resolve,reject}));}
+  show(){this.visible=true;this.shows++;}focus(){}close(){if(this.asyncClose){this.closing=true;return;}this.destroyed=true;this.handlers.closed?.();}
+ }
+ const owner=new DesktopNavigation({onRetire:browser=>{if(context.desktopWindow===browser)context.desktopWindow=null;}}),context=vm.createContext({BrowserWindow:Browser,desktopWindow:null,desktopNavigation:owner,mainWindow:{isDestroyed:()=>false,show(){mainShows++}},useKiosk:false,nativeCompanion:{exit(){}},normalizeExternalWebUrl:value=>{const u=new URL(value);if(!['http:','https:'].includes(u.protocol))throw Error('Invalid URL');return u.href},layoutDesktopWindow(){},notifyDesktopPresentation(){notifications++},invalidateDesktopObservation(){}});
+ vm.runInContext(source.slice(source.indexOf('async function openDesktopWebpage('),source.indexOf('async function closeDesktopWindow(')),context);
+ const cancelled=context.openDesktopWebpage('https://example.org/slow');const first=instances.at(-1);owner.cancel();first.loads[0].resolve();await assert.rejects(cancelled,/cancelled/);assert(first.destroyed);assert.equal(first.shows,0);
+ const old=context.openDesktopWebpage('https://example.org/older'),older=instances.at(-1);const newest=context.openDesktopWebpage('https://example.org/current'),current=instances.at(-1);older.loads[0].reject(Error('Old network failure'));await assert.rejects(old,/superseded/);assert(!current.destroyed,'Old load closed new window');current.loads[0].resolve();await newest;assert.equal(current.shows,1);
+ const reload=context.openDesktopWebpage('https://example.org/reload');owner.cancel();current.loads[1].resolve();await assert.rejects(reload,/cancelled/);assert(!current.destroyed);assert(current.visible);assert.equal(current.shows,1,'Cancelled reload refocused visible window');
+ const valid=context.openDesktopWebpage('https://example.org/valid');const generation=owner.generation;await assert.rejects(context.openDesktopWebpage('file:///private'),/Invalid/);assert.equal(owner.generation,generation);current.loads[2].resolve();await valid;
+ const failure=context.openDesktopWebpage('https://example.org/failure');current.loads[3].reject(Error('Offline'));await assert.rejects(failure,/could not open/);assert(current.destroyed);assert.equal(owner.pending,null);
+ const retiring=context.openDesktopWebpage('https://example.org/retiring'),closing=instances.at(-1);closing.asyncClose=true;
+ const successor=context.openDesktopWebpage('https://example.org/successor'),fresh=instances.at(-1);assert(closing.closing&&!closing.destroyed);assert.notEqual(fresh,closing,'Reused asynchronously closing browser');closing.loads[0].reject(Error('Closing'));await assert.rejects(retiring,/superseded/);fresh.loads[0].resolve();await successor;assert.equal(fresh.shows,1);const noticesBefore=notifications,showsBefore=mainShows;closing.destroyed=true;closing.handlers.closed();assert.equal(notifications,noticesBefore);assert.equal(mainShows,showsBefore,'Retired close refocused the mirror over its successor');
+ const broken=new Browser();broken.webContents.stop=()=>{throw Error('Gone')};const token=owner.begin();owner.attach(token,broken);owner.cancel();assert(broken.destroyed);assert.equal(owner.pending,null);
+ console.log('Managed navigation: late success after Stop, superseded failure, visible browser preservation, invalid URL ownership, failure cleanup and crashed stop passed.');
+}
 
 async function main() {
   const source = await fs.readFile(path.join(__dirname, '../src/main.js'), 'utf8');
+  await testNavigation(source);
   // Execute the production capture/action functions with an observable native
   // backend, without starting Electron or sending input to the developer PC.
   const functions = source.slice(source.indexOf('function resizeForAssistant('), source.indexOf('function spotifyConfigured('));
@@ -18,7 +42,7 @@ async function main() {
   const jpeg = Buffer.from([0xff,0xd8,0xff,0xd9]);
   const image = { getSize: () => ({ width: 720, height: 1280 }), isEmpty: () => false, toJPEG: () => jpeg };
   const context = vm.createContext({
-    assertBrowserAccountReady: async () => {}, crypto, AbortController, Date: { now: () => now },
+    assertBrowserAccountReady: async () => {}, desktopNavigation:new DesktopNavigation(), crypto, AbortController, Date: { now: () => now },
     mainWindow: { isDestroyed: () => false, getBounds: () => ({ x: -1080, y: 0, width: 1080, height: 1920 }) },
     nativeCompanion: { active: false }, desktopWindow: null, lastScreenObservation: null, desktopObservationGeneration: 0, desktopActionAbort: null,
     closeDesktopWindow: async () => true,

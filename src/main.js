@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain, session, shell, dialog, nativeImage, safeStorage, desktopCapturer, screen, powerMonitor } = require('electron');
 const { assertBrowserAccountReady } = require('./browserAccountBoundary.cjs');
+const { DesktopNavigation } = require('./desktopNavigation.cjs');
+const desktopNavigation = new DesktopNavigation({onRetire:browser=>{if(desktopWindow===browser)desktopWindow=null;}});
 const { wardrobePhotoBytes } = require('./wardrobePhotoValidation.cjs');
 const photoSourceValidation = import('./photoSourceValidation.mjs');
 const { LookbookStore } = require('./lookbookStore.cjs');
@@ -192,6 +194,7 @@ function layoutDesktopWindow() {
 
 async function openDesktopWebpage(value) {
   const target = normalizeExternalWebUrl(value);
+  const navigation = desktopNavigation.begin();
   nativeCompanion.exit();
   if (!desktopWindow || desktopWindow.isDestroyed()) {
     desktopWindow = new BrowserWindow({
@@ -226,9 +229,11 @@ async function openDesktopWebpage(value) {
     browser.on('show', notifyDesktopPresentation);
     browser.on('hide', notifyDesktopPresentation);
     browser.on('closed', () => {
+      if (desktopWindow && desktopWindow !== browser) return;
       if (desktopWindow === browser) desktopWindow = null;
       invalidateDesktopObservation();
       notifyDesktopPresentation();
+      if (nativeCompanion.active) return;
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.show();
         if (useKiosk) mainWindow.setFullScreen(true);
@@ -238,13 +243,18 @@ async function openDesktopWebpage(value) {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.show();
   layoutDesktopWindow();
   const browser = desktopWindow;
+  desktopNavigation.attach(navigation,browser);
   try { await browser.loadURL(target); }
   catch (error) {
+    desktopNavigation.assertCurrent(navigation);
+    desktopNavigation.finish(navigation);
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.show();
     if (!browser.isDestroyed()) browser.close();
     throw new Error(`The desktop browser could not open that page: ${error.message}`);
   }
+  desktopNavigation.assertCurrent(navigation);
   if (browser.isDestroyed()) throw new Error('The desktop browser closed before the page loaded.');
+  desktopNavigation.finish(navigation);
   browser.show();
   layoutDesktopWindow();
   notifyDesktopPresentation();
@@ -253,6 +263,7 @@ async function openDesktopWebpage(value) {
 }
 
 async function closeDesktopWindow() {
+  desktopNavigation.cancel();
   nativeCompanion.exit();
   if (desktopWindow && !desktopWindow.isDestroyed()) desktopWindow.close();
   else if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1220,7 +1231,7 @@ function registerBridge() {
     mainWindow.webContents.send('mirror:codex-tool', { id, tool, args, generation, runId: activeRunId });
   }) });
   const cancelCodex = () => {
-    activeRunId = null; codex.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
+    activeRunId = null; codex.cancel(); desktopNavigation.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
     for (const waiter of toolWaiters.values()) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); }
     toolWaiters.clear();
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { all: true });
@@ -1233,7 +1244,7 @@ function registerBridge() {
     try { return await codex.run(input.task); }
     finally {
       if (activeRunId === input.runId) {
-        activeRunId = null; invalidateDesktopObservation(); desktopActionAbort?.abort();
+        activeRunId = null; desktopNavigation.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
         for (const [id, waiter] of toolWaiters) { if (waiter.runId === input.runId) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); toolWaiters.delete(id); } }
         if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { runId: input.runId });
       }
@@ -1323,6 +1334,7 @@ function registerBridge() {
   ipcMain.handle('mirror:desktop-capture', () => captureCurrentScreen({ recordObservation: true }));
   ipcMain.handle('mirror:desktop-action', (_event, input) => performDesktopAction(input));
   ipcMain.handle('mirror:desktop-cancel', () => {
+    desktopNavigation.cancel();
     if(typeof windowsSpotify !== 'undefined') windowsSpotify.cancelPending();
     invalidateDesktopObservation();
     desktopActionAbort?.abort();

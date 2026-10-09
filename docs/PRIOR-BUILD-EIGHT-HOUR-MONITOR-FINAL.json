@@ -1,0 +1,92 @@
+{
+  "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+  "status": "finished",
+  "sampleCount": 9440,
+  "errors": [],
+  "latest": {
+    "at": "2026-10-09T11:23:46.425Z",
+    "elapsedSec": 28803.039,
+    "cpuPercent": 23.80235010545345,
+    "summedRssBytes": 907493376,
+    "processCount": 5,
+    "rendererHeapBytes": 14766408,
+    "gpu": {
+      "deviceWide": "4.50, 0, [N/A]"
+    },
+    "mode": "mirror",
+    "sleeping": false,
+    "avatarAppearance": "rig",
+    "avatarRig": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "resolution": [
+        253,
+        471
+      ],
+      "frames": 66812,
+      "reuses": 220300,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 29744,
+      "drawCalls": 35
+    },
+    "power": {
+      "targetFps": 12,
+      "frames": 475699,
+      "scene": {
+        "frames": 359,
+        "dynamic": false,
+        "dirty": false,
+        "maxDynamicFps": 15
+      }
+    },
+    "eventLoopLagMs": 0.2999999523162842,
+    "cameraActive": false,
+    "hardMuted": true
+  },
+  "appExit": null,
+  "build": {
+    "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+    "gitRevision": "2eea9ad52d7019e5ebd037524db5630b9058ffb8",
+    "isolatedCopy": true,
+    "avatarStyle": "rig"
+  }
+}
