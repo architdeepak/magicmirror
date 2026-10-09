@@ -15,6 +15,8 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const clicks = [];
   const typedMode = process.argv.includes('--typed');
   const mapMode = process.argv.includes('--map');
+  const pagesMode = process.argv.includes('--pages');
+  assert(!(mapMode && pagesMode),'Choose map or pages');
   const place = 'Opal Meadow ' + Math.floor(Math.random()*900+100);
   const age = Math.floor(Math.random()*15+10);
   const labels = ['MOSS', 'FEATHER', 'STONE', 'QUILL'].sort(() => Math.random() - .5);
@@ -22,6 +24,11 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const server = http.createServer((request, response) => {
     if (request.url.startsWith('/click?')) { clicks.push(new URL(request.url, 'http://fixture').searchParams.get('label')); response.end('ok'); return; }
     response.setHeader('Content-Type', 'text/html');
+    if(pagesMode){
+      const next=request.url==='/next';if(next)clicks.push('BEGIN');
+      const action=next?`document.querySelector('#result').textContent='REVEALED: ${secret}';fetch('/click?label=CONTINUE')`:`location.href='/next'`;
+      response.end(`<!doctype html><title>Local Codex page journey</title><style>body{margin:0;background:#16213c;color:white;font:24px sans-serif}h1{text-align:center}main{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:28px}button{height:150px;font-size:28px;background:#ffd982;color:#152036;border:4px solid white;border-radius:12px}#result{text-align:center;font:32px sans-serif;padding:30px}</style><h1>Local mirror input check</h1><main><button onclick="${action}">${next?'CONTINUE':'BEGIN'}</button></main><p id="result">Nothing clicked yet</p>`);return;
+    }
     if(mapMode){response.end(`<!doctype html><title>Shared map fixture</title><style>body{margin:0;padding:24px;background:#122b30;color:white;font:22px sans-serif}h1{font-size:28px}.map{height:180px;border-radius:18px;background:repeating-linear-gradient(30deg,#203b42 0 50px,#4a646b 51px 56px,#203b42 57px 100px);display:grid;place-items:center}.pin{padding:14px;border-radius:16px;background:#bcffdf;color:#08251b}article{padding:18px;margin-top:18px;border:1px solid #789;border-radius:12px}small{font-size:17px;color:#cbd8e0}</style><h1>Shared locations</h1><p>Synthetic audit map</p><div class="map"><span class="pin">Lena · ${place}</span></div><article><strong>Lena</strong><p>Last known: ${place}</p><p>Updated ${age} minutes ago</p><small>Current location unavailable. Accuracy: approximately 200 metres.</small></article>`);return;}
 
     response.end(`<!doctype html><title>Local Codex mirror check</title><style>body{margin:0;background:#16213c;color:white;font:24px sans-serif}h1{text-align:center}main{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:28px}button{height:150px;font-size:28px;background:#ffd982;color:#152036;border:4px solid white;border-radius:12px}#result{text-align:center;font:32px sans-serif;padding:30px}</style><h1>Local mirror input check</h1><main>${labels.map(label => `<button onclick="document.querySelector('#result').textContent=this.textContent==='FEATHER'?'REVEALED: ${secret}':'Wrong button';fetch('/click?label='+this.textContent)">${label}</button>`).join('')}</main><p id="result">Nothing clicked yet</p>`);
@@ -56,7 +63,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
       const capture=a.onCaptureScreen;a.onCaptureScreen=async()=>{const image=await capture();__codexCheck.lastScreenshot=image.dataUrl;return image};
       const tools=__mirrorDebug.agentTools;const execute=tools.execute.bind(tools);tools.execute=async(name,args)=>{__codexCheck.calls.push({name,args});try{return await execute(name,args)}catch(e){__codexCheck.errors.push(e.message);throw e}};
     })()`);
-    const task = mapMode ? `Open this user-supplied shared map using open_webpage: ${url}. Inspect the actual screen. Where is Lena? Report the displayed place and freshness honestly; never claim a last-known position is current. Do not use other websites or apps.` : `Open this URL using open_webpage: ${url}. Inspect it with see_screen. Use exactly one computer_action click on the visible FEATHER button, then inspect the resulting screen. If the result is off-screen, scroll to read it. Report only the revealed message. Do not use other websites, other tools or apps, repeat the click, or guess the hidden message.`;
+    const task = pagesMode ? `Open this URL using open_webpage: ${url}. Inspect the screen, click BEGIN once, then inspect the new page and click CONTINUE once. The buttons occupy the same position on two different documents. Observe before/after each click. Report only the revealed message. Use exactly two clicks; do not scroll, press keys, reopen the page, use other websites/apps, repeat either activation, or guess the hidden message.` : mapMode ? `Open this user-supplied shared map using open_webpage: ${url}. Inspect the actual screen. Where is Lena? Report the displayed place and freshness honestly; never claim a last-known position is current. Do not use other websites or apps.` : `Open this URL using open_webpage: ${url}. Inspect it with see_screen. Use exactly one computer_action click on the visible FEATHER button, then inspect the resulting screen. If the result is off-screen, scroll to read it. Report only the revealed message. Do not use other websites, other tools or apps, repeat the click, or guess the hidden message.`;
     let result;
     if(typedMode){
       const click=async selector=>{const point=await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()`);for(const type of['mousePressed','mouseReleased'])await client.call('Input.dispatchMouseEvent',{type,...point,button:'left',clickCount:1})};
@@ -67,8 +74,8 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
       result = await until(() => client.evaluate('__codexCheck.result || null'), 200000, 'Codex task');
     }
     const report = await client.evaluate('__codexCheck');
-    const directory = path.join(root,mapMode?'artifacts/codex-location':'artifacts/codex-computer'); await fs.mkdir(directory,{recursive:true});
-    const metadata = { archiveSha256, checkedAt: new Date().toISOString(), scope: 'Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.', typedMode, labels, secret, clicks, ...(mapMode?{place,age}:{}), result, report: { ...report, lastScreenshot: undefined } };
+    const directory = path.join(root,pagesMode?'artifacts/codex-pages':mapMode?'artifacts/codex-location':'artifacts/codex-computer'); await fs.mkdir(directory,{recursive:true});
+    const metadata = { archiveSha256, checkedAt: new Date().toISOString(), scope: 'Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.', typedMode, pagesMode, labels, secret, clicks, ...(mapMode?{place,age}:{}), result, report: { ...report, lastScreenshot: undefined } };
     await fs.writeFile(path.join(directory,'result.json'),JSON.stringify(metadata,null,2)+'\n');
     if (report.lastScreenshot) await fs.writeFile(path.join(directory,'display.jpg'),Buffer.from(report.lastScreenshot.split(',')[1],'base64'));
     assert(result.completed, JSON.stringify(result));
@@ -76,9 +83,9 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     if(mapMode){
       assert.deepEqual(clicks,[]);assert(result.summary.includes(place));assert(result.summary.includes(String(age)));assert(/last.known|last.seen|current.*unavailable/i.test(result.summary),'A stale location was reported without freshness caveat');
     }else{
-      assert.deepEqual(clicks,['FEATHER']);assert(result.summary.includes(secret),'The agent did not read the randomized visible result.');
+      assert.deepEqual(clicks,pagesMode?['BEGIN','CONTINUE']:['FEATHER']);assert(result.summary.includes(secret),'The agent did not read the randomized visible result.');
       assert(report.calls.some(c=>c.name==='computer_action'));
-      assert.equal(report.calls.filter(c=>c.name==='computer_action'&&c.args.action==='click').length,1);
+      assert.equal(report.calls.filter(c=>c.name==='computer_action'&&c.args.action==='click').length,pagesMode?2:1);
     }
     console.log(JSON.stringify({ passed: true, result, clicks, calls: report.calls.length, scope: metadata.scope }));
   } finally {

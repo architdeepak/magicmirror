@@ -114,6 +114,7 @@ async function main() {
   await assert.rejects(click('missing'), /missing, expired, or already used/);
   let shot = await capture();
   assert.equal(shot.inputTarget, 'windows-desktop');
+  assert.equal(shot.documentId,null,'Native app received a guessed browser identity');
   assert.equal(shot.dataUrl, 'data:image/jpeg;base64,'+jpeg.toString('base64'));
   assert.deepEqual(Array.from(shot.supportedKeys), Array.from(NATIVE_KEYS));
   await click(shot.snapshotId);
@@ -152,11 +153,15 @@ async function main() {
     isDestroyed: () => false, isVisible: () => true, focus: () => {},
     getBounds: () => ({x:-1080,y:0,width:1080,height:1200}),
     getContentBounds: () => ({x:-1080,y:0,width:1080,height:1200}), getContentSize: () => [1080,1200],
-    webContents: { getURL: () => 'https://example.org', sendInputEvent: event => sentEvents.push(event),
+    mirrorDocumentRevision:0,isFocused:()=>true,
+    webContents: { id:77,getURL: () => 'https://example.org', sendInputEvent: event => sentEvents.push(event),
       insertText: text => new Promise(resolve => { typed = text; resolveInsertion = resolve; }) }
   };
   shot = await capture();
   assert.deepEqual(Array.from(shot.supportedKeys), Array.from(MANAGED_KEYS));
+  const stableDocument=shot.documentId;assert(stableDocument);assert.equal((await capture()).documentId,stableDocument,'Taking a screenshot invented a new document');
+  context.desktopWindow.mirrorDocumentRevision++;shot=await capture();assert.notEqual(shot.documentId,stableDocument);
+  context.nativeDesktop.supported=true;context.desktopWindow.isFocused=()=>false;assert.equal((await capture()).documentId,null,'Background browser granted foreground app a new identity');context.desktopWindow.isFocused=()=>true;const browserHandle=Buffer.alloc(8);browserHandle.writeBigInt64LE(777n);context.desktopWindow.getNativeWindowHandle=()=>browserHandle;assert.equal((await capture()).documentId,null,'Focus flag alone granted another window browser identity');browserHandle.writeBigInt64LE(BigInt(foreground.id));assert((await capture()).documentId,'Matched foreground browser lost its document identity');context.nativeDesktop.supported=false;shot=await capture();
   let insertionReturned = false;
   const insertion = context.performDesktopAction({action:'type_text',snapshotId:shot.snapshotId,text:'search 👑'}).then(value => { insertionReturned = true; return value; });
   while (!resolveInsertion) await new Promise(resolve => setImmediate(resolve));

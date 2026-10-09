@@ -1,0 +1,13 @@
+{
+  "archiveSha256": "2fb7111929331fe7b123bf1d24781551630e59d36899aea030450f59989abd6c",
+  "files": {
+    "src/main.js": "3d8390edc61e401b9721c19063c09da29eca9db38d472f5f4820904e82ab2ada",
+    "src/mirrorAgentTools.js": "ef63f90c299e624cbffd929f1ba251bb9f5cb580bda9c7dec5d50da9e4a5bf68",
+    "src/geminiLiveAdapter.js": "00cebcbc9bc970ef4ce12d95f83cfeae6494348bb6663de2bc4cb99369a86b0f",
+    "tools/test-mirror-agent-tools.cjs": "4fed4e6389b0c4d341a0329dc18f3209311665df62afafa4ab415c1f6a2e6281",
+    "tools/test-desktop-harness.cjs": "e7a6d1acb174b319b28b292d8eb589ef758410680754ecee72c7709300f7267d",
+    "tools/test-voice-lifecycle.cjs": "f522d6dffb723e5a39064f9bd06dc15db3abeee10d90c33c96b85a17de025bf6",
+    "tools/check-desktop-observation.cjs": "212cb765d18efdb5e4d65eedaae126f5bc38c72bb913a3e46ccfaca488f34f2d",
+    "tools/check-codex-computer.cjs": "7e4e5071403496614dc1c224df77d356b8b8e315288909b3be1c2a80a39dd565"
+  }
+}

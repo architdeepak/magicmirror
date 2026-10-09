@@ -1,0 +1,75 @@
+{
+  "archiveSha256": "2fb7111929331fe7b123bf1d24781551630e59d36899aea030450f59989abd6c",
+  "checkedAt": "2026-10-09T17:39:30.103Z",
+  "scope": "Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.",
+  "typedMode": false,
+  "pagesMode": true,
+  "labels": [
+    "QUILL",
+    "STONE",
+    "FEATHER",
+    "MOSS"
+  ],
+  "secret": "OPAL 718",
+  "clicks": [
+    "BEGIN",
+    "CONTINUE"
+  ],
+  "result": {
+    "completed": true,
+    "summary": "REVEALED: OPAL 718"
+  },
+  "report": {
+    "calls": [
+      {
+        "name": "get_mirror_state",
+        "args": {}
+      },
+      {
+        "name": "open_webpage",
+        "args": {
+          "url": "http://127.0.0.1:39561/"
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "computer_action",
+        "args": {
+          "action": "click",
+          "snapshotId": "2a4c5a85-5fe8-4c58-88ca-a28127fa91f4",
+          "x": 330,
+          "y": 347
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "computer_action",
+        "args": {
+          "action": "click",
+          "snapshotId": "6c616321-b367-4193-b0db-d7460a75100a",
+          "x": 330,
+          "y": 347
+        }
+      }
+    ],
+    "errors": [],
+    "result": {
+      "completed": true,
+      "summary": "REVEALED: OPAL 718"
+    }
+  }
+}

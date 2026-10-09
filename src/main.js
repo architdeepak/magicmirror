@@ -222,6 +222,7 @@ async function openDesktopWebpage(value) {
       }
     });
     const browser = desktopWindow;
+    browser.mirrorDocumentRevision = 0;
     browser.webContents.setWindowOpenHandler(({ url }) => {
       try { void openNativeApplication(normalizeExternalWebUrl(url), 'Browser').catch(() => {}); } catch {}
       return { action: 'deny' };
@@ -235,6 +236,7 @@ async function openDesktopWebpage(value) {
     // captured while the next document was loading. Ignore retired windows.
     const invalidateNavigation = () => {
       if (desktopWindow !== browser || browser.isDestroyed()) return;
+      browser.mirrorDocumentRevision += 1;
       invalidateDesktopObservation();
       desktopActionAbort?.abort();
     };
@@ -346,7 +348,21 @@ async function captureCurrentScreen({ recordObservation = false, signal } = {}) 
     width: Math.round(contentBounds.width * size.width / displayBounds.width),
     height: Math.round(contentBounds.height * size.height / displayBounds.height)
   } : null;
+  // Only a known managed document can distinguish a new target from blind
+  // repetition. Native applications retain the conservative guard. On Windows
+  // a background browser must not change the identity of the foreground app.
+  let managedForeground = !nativeDesktop.supported;
+  if (contentBounds && nativeDesktop.supported && desktopWindow.isFocused?.()) {
+    const handle = desktopWindow.getNativeWindowHandle();
+    const windowId = handle.length >= 8 ? handle.readBigInt64LE().toString()
+      : handle.length >= 4 ? String(handle.readUInt32LE()) : null;
+    managedForeground = Boolean(windowId && foreground?.id === windowId);
+  }
+  const documentId = contentBounds && Number.isInteger(desktopWindow.webContents.id)
+    && managedForeground
+    ? `browser-${desktopWindow.webContents.id}-${desktopWindow.mirrorDocumentRevision || 0}` : null;
   const observation = {
+    documentId,
     id: crypto.randomUUID(),
     capturedAt: Date.now(),
     displayId: String(targetDisplay.id),
@@ -365,6 +381,7 @@ async function captureCurrentScreen({ recordObservation = false, signal } = {}) 
     target: `TV display ${targetDisplay.id}`,
     displayId: String(targetDisplay.id),
     url: observation.url,
+    documentId: observation.documentId,
     browserRect,
     inputTarget: nativeDesktop.supported ? 'windows-desktop' : 'managed-browser',
     supportedKeys: nativeDesktop.supported ? NATIVE_KEYS : MANAGED_KEYS,

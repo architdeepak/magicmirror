@@ -170,7 +170,7 @@ async function liveLifecycle() {
   // Images belong to the function response, never its JSON metadata or retry cache.
   const screenMessages=[];const originalSend=live._send;
   live._send=message=>screenMessages.push(message);
-  live.onCaptureScreen=async()=>({dataUrl:'data:image/jpeg;base64,fixture-image',width:1280,height:2276,snapshotId:'fresh-screen'});
+  live.onCaptureScreen=async()=>({dataUrl:'data:image/jpeg;base64,fixture-image',width:1280,height:2276,snapshotId:'fresh-screen',documentId:'page-1'});
   await live._queueToolCall({functionCalls:[{id:'screen',name:'see_screen',args:{}}]});
   const observed=screenMessages.at(-1).toolResponse.functionResponses[0];
   assert.equal(observed.parts[0].inlineData.data,'fixture-image');
@@ -203,6 +203,16 @@ async function liveLifecycle() {
   const beforeDoubleRepeat=executions;
   await live._queueToolCall({functionCalls:[{id:'double-again',name:'computer_action',args:{action:'double_click',x:750,y:500,snapshotId:'fresh-screen'}}]});
   assert.equal(executions,beforeDoubleRepeat,'Repeated double-click escaped the activation guard');
+  live.onCaptureScreen=async()=>({dataUrl:'data:image/jpeg;base64,fixture-image',width:1280,height:2276,snapshotId:'page-two-shot',documentId:'page-2'});
+  await live._queueToolCall({functionCalls:[{id:'observe-page-two',name:'see_screen',args:{}}]});
+  await live._queueToolCall({functionCalls:[{id:'page-two-click',name:'computer_action',args:{action:'double_click',x:750,y:500,snapshotId:'page-two-shot'}}]});
+  assert.equal(executions,beforeDoubleRepeat+1,'New observed document blocked legitimate same-position input');
+  await live._queueToolCall({functionCalls:[{id:'page-two-repeat',name:'computer_action',args:{action:'click',x:750,y:500,snapshotId:'page-two-shot'}}]});
+  assert.equal(executions,beforeDoubleRepeat+1,'Same new document bypassed duplicate guard');
+  live.onCaptureScreen=async()=>({dataUrl:'data:image/jpeg;base64,fixture-image',width:1280,height:2276,snapshotId:'unknown-document'});
+  await live._queueToolCall({functionCalls:[{id:'observe-unknown',name:'see_screen',args:{}}]});
+  await live._queueToolCall({functionCalls:[{id:'unknown-repeat',name:'computer_action',args:{action:'click',x:750,y:500,snapshotId:'unknown-document'}}]});
+  assert.equal(executions,beforeDoubleRepeat+1,'Missing identity relaxed duplicate guard');
   live._send=originalSend;
   let endedSessions=0;live.onSessionEnd=()=>endedSessions++;
   for(const failure of ['close','error']) {

@@ -21,7 +21,9 @@ For every task, save its reproduction, before/after evidence, exact source/archi
 
 **Latest anatomy checkpoint:** [3D lip contact with expression](LIP-CONTACT-2026-10-09.md) seals paired inner edges and allows smiles/frowns without reopening them. Default-mood live front/turn checks on both personas, full tests and actual playback routes pass. Natural phoneme accuracy, continuous acting and broader anatomy remain open.
 
-**Latest agent checkpoint:** [managed navigation observation ownership](DESKTOP-NAVIGATION-2026-10-09.md) rejects old screenshots after same-URL reload/history changes. Real baseline/current Chromium input and an eight-tool installed Codex journey pass. Next audit: scope repeated-click guards to verified document identity; DOM-only changes, broader tasks and native Windows qualification remain open.
+**Latest agent checkpoint:** [managed navigation observation ownership](DESKTOP-NAVIGATION-2026-10-09.md) rejects old screenshots after same-URL reload/history changes. Real baseline/current Chromium input and an eight-tool installed Codex journey pass. Repeated-click guards now have verified document identity in the subsequent checkpoint; DOM-only changes, broader tasks and native Windows qualification remain open.
+
+**Latest multi-step agent checkpoint:** [observed document identity](DOCUMENT-IDENTITY-2026-10-09.md) permits legitimate same-position input on a fresh different managed document while preserving same/unknown-document repeat guards. Real two-page installed Codex journey and six packaged input cases pass; native identity checks are unit-tested, with physical Windows and broader task coverage open.
 
 ## Working order and evidence discipline
 
@@ -220,4 +222,4 @@ Independent fixes may cross stages. Do not wait for Windows while actionable loc
 
 The goal tool and this file describe the same objective. If future user steering changes scope or priorities, record that change here and preserve the remaining authorized work.
 
-- **Active current-source camera/speech monitor:** immutable source `f871f1e`, archive `8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19`, launched 30 minutes at 2026-10-09T17:01:26Z. NVIDIA recorded camera/local AR/optional rig/synthetic PCM; current cadence/taper/utterance changes. PID verified alive at the saved snapshot. This run is active, not completed or final qualification. [Launch record](UTTERANCE-CAMERA-MONITOR-LAUNCH.json).
+- **Completed utterance-build camera/speech monitor:** immutable source `f871f1e`, archive `8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19`, launched 30 minutes at 2026-10-09T17:01:26Z. NVIDIA recorded camera/local AR/optional rig/synthetic PCM; current cadence/taper/utterance changes. PID verified alive at the saved snapshot. Finished with 579 samples and zero recorded errors. This older archive predates lip-contact/navigation/document identity; not current-build or final qualification. [Final record](UTTERANCE-CAMERA-MONITOR-FINAL.json); [launch record](UTTERANCE-CAMERA-MONITOR-LAUNCH.json).

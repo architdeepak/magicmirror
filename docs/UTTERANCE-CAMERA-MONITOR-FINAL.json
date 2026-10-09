@@ -1,0 +1,210 @@
+{
+  "summary": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 579,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T17:31:31.928Z",
+      "elapsedSec": 1802.024,
+      "cpuPercent": 69.30902924968207,
+      "summedRssBytes": 2032205824,
+      "processCount": 5,
+      "rendererHeapBytes": 15380252,
+      "gpu": {
+        "deviceWide": "11.34, 12, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 9867,
+        "reuses": 21982,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 36085,
+        "scene": {
+          "frames": 95,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 7.700000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 46,
+        "finishedAt": 1655784.0999999046,
+        "idleMs": 147902.5
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 1664.5999999046326,
+        "captures": 11,
+        "drawnFrames": 10046,
+        "lastDrawAt": 1803673.5,
+        "maxDrawGapMs": 239208.90000009537,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 78.20000004768372,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "ui": {
+          "dashboardOpacity": 0,
+          "framingHidden": false,
+          "framingReady": "true",
+          "framingReason": "ready"
+        },
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": true,
+          "requests": 10053,
+          "lastPoseAt": 1803607.399999857,
+          "inferenceMs": 29.199999809265137,
+          "worker": true
+        }
+      }
+    },
+    "appExit": null,
+    "build": {
+      "archiveSha256": "8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19",
+      "gitRevision": "f871f1e31ffe3ca4b971c74b841dffdf84ea3698",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": true,
+      "phaseSeconds": 120,
+      "fixtureHashes": {
+        "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+        ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+      },
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "fd58b095a9c0da39ac3058ea5a2bb9d3d703cbc903b6561d7a43e493ca277cd9",
+        "tools/monitor-camera.cjs": "1e608f589930174d3ea68e28a20e3a107d16f0a8364142eb3b9bf68fb8582f27"
+      }
+    }
+  },
+  "samplesSha256": "6393ff26eb940cb6f01555f8004ffb3aedb503fd43949079e87889d2ec9471fd",
+  "artifact": "artifacts/monitor/2026-10-09T17-01-26-756Z",
+  "phaseStats": {
+    "ar": {
+      "samples": 234,
+      "cpuMedianPercentOneCore": 139.4812667078334,
+      "sleepingSamples": 0
+    },
+    "mirror": {
+      "samples": 114,
+      "cpuMedianPercentOneCore": 43.79908376963351,
+      "sleepingSamples": 0
+    },
+    "camera-off": {
+      "samples": 116,
+      "cpuMedianPercentOneCore": 17.09177382802236,
+      "sleepingSamples": 0
+    },
+    "sleep": {
+      "samples": 115,
+      "cpuMedianPercentOneCore": 2.289077828646174,
+      "sleepingSamples": 115
+    }
+  },
+  "scope": "Completed frozen utterance build f871f1e; predates subsequent lip-contact geometry and navigation/document-identity changes. Recorded camera/AR/optional rig/synthetic PCM, not natural speech accuracy, hardware or final release proof."
+}

@@ -1,0 +1,184 @@
+{
+  "archiveSha256": "2fb7111929331fe7b123bf1d24781551630e59d36899aea030450f59989abd6c",
+  "baseline": false,
+  "cases": [
+    {
+      "name": "same-url-reload",
+      "stale": true,
+      "before": {
+        "load": "1",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "ready": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "after": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "delivered": false,
+      "error": "Error: Error invoking remote method 'mirror:desktop-action': Error: Capture the current screen immediately before each desktop action; the previous screenshot is missing, expired, or already used."
+    },
+    {
+      "name": "same-url-history",
+      "stale": true,
+      "before": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "ready": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "after": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:40897/"
+      },
+      "delivered": false,
+      "error": "Error: Error invoking remote method 'mirror:desktop-action': Error: Capture the current screen immediately before each desktop action; the previous screenshot is missing, expired, or already used."
+    },
+    {
+      "name": "hidden-subframe",
+      "stale": false,
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      },
+      "after": {
+        "load": "2",
+        "clicks": 1,
+        "url": "http://127.0.0.1:40897/"
+      }
+    },
+    {
+      "name": "fresh-single-use",
+      "stale": false,
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      },
+      "reused": {
+        "delivered": false,
+        "error": "Error: Error invoking remote method 'mirror:desktop-action': Error: Capture the current screen immediately before each desktop action; the previous screenshot is missing, expired, or already used."
+      },
+      "after": {
+        "load": "2",
+        "clicks": 2,
+        "url": "http://127.0.0.1:40897/"
+      }
+    },
+    {
+      "name": "agent-repeat-same-document",
+      "stale": false,
+      "documentId": "browser-2-6",
+      "activated": {
+        "delivered": true,
+        "result": {
+          "result": "Input delivered; inspect the resulting image to verify success.",
+          "observation": {
+            "width": 1280,
+            "height": 2276,
+            "target": "TV display 60",
+            "displayId": "60",
+            "url": "http://127.0.0.1:40897/",
+            "documentId": "browser-2-6",
+            "browserRect": {
+              "x": 174,
+              "y": 299,
+              "width": 932,
+              "height": 1147
+            },
+            "inputTarget": "managed-browser",
+            "supportedKeys": [
+              "enter",
+              "tab",
+              "escape",
+              "backspace",
+              "space",
+              "up",
+              "down",
+              "left",
+              "right",
+              "home",
+              "end",
+              "pageup",
+              "pagedown",
+              "ctrl+a"
+            ],
+            "foreground": null,
+            "snapshotId": "73f8685c-31ce-4477-bc4c-ca68ec1b96ef",
+            "coordinateSpace": "normalized-1000"
+          }
+        }
+      },
+      "delivered": false,
+      "error": "Error: This location was already activated. Inspect the result before repeating an action.\n    at MirrorAgentTools.execute (file:///tmp/mirror-observation-B4VofK/app/resources/app.asar/src/mirrorAgentTools.js:33:197)\n    at <anonymous>:1:26"
+    },
+    {
+      "name": "agent-new-document",
+      "stale": false,
+      "previousDocumentId": "browser-2-6",
+      "documentId": "browser-2-8",
+      "delivered": true,
+      "result": {
+        "result": "Input delivered; inspect the resulting image to verify success.",
+        "observation": {
+          "width": 1280,
+          "height": 2276,
+          "target": "TV display 60",
+          "displayId": "60",
+          "url": "http://127.0.0.1:40897/",
+          "documentId": "browser-2-8",
+          "browserRect": {
+            "x": 174,
+            "y": 299,
+            "width": 932,
+            "height": 1147
+          },
+          "inputTarget": "managed-browser",
+          "supportedKeys": [
+            "enter",
+            "tab",
+            "escape",
+            "backspace",
+            "space",
+            "up",
+            "down",
+            "left",
+            "right",
+            "home",
+            "end",
+            "pageup",
+            "pagedown",
+            "ctrl+a"
+          ],
+          "foreground": null,
+          "snapshotId": "41c872e6-9ee8-462b-bf1c-092289c17a93",
+          "coordinateSpace": "normalized-1000"
+        }
+      },
+      "repeat": {
+        "delivered": false,
+        "error": "Error: This location was already activated. Inspect the result before repeating an action.\n    at MirrorAgentTools.execute (file:///tmp/mirror-observation-B4VofK/app/resources/app.asar/src/mirrorAgentTools.js:33:197)\n    at <anonymous>:1:26"
+      },
+      "after": {
+        "load": "3",
+        "clicks": 1,
+        "url": "http://127.0.0.1:40897/"
+      }
+    }
+  ],
+  "passed": true,
+  "scope": "Actual isolated packaged Linux app, local managed Chromium page, real TV-display capture and production IPC input. Reload, same-URL history, subframe navigation and fresh input; no AI inference, physical sensor, native Windows application or external account proof."
+}
