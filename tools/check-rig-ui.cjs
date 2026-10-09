@@ -1,10 +1,11 @@
 // Production visual preview; explicit cue playback, not microphone recognition.
 const fs=require('fs/promises'),path=require('path'),os=require('os'),assert=require('assert/strict');
-const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
+const {createHash}=require('crypto');const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
 const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 (async()=>{
- const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-rig-v2-')),out=path.join(root,'artifacts',process.env.MIRROR_RIG_BACKEND==='vulkan'?'rig-vulkan':'rig-v2');await fs.mkdir(out,{recursive:true});
- const app=spawn(path.join(root,`dist/linux-${process.arch}-unpacked/magic-mirror-portal`),['--no-sandbox',...(process.env.MIRROR_RIG_BACKEND==='vulkan'?['--use-gl=angle','--use-angle=vulkan','--use-cmd-decoder=passthrough']:['--disable-gpu']),`--user-data-dir=${profile}`,'--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_KIOSK:'false'},stdio:['ignore','pipe','pipe']});
+ const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-rig-v2-')),out=path.join(root,'artifacts',process.env.MIRROR_RIG_LABEL||(process.env.MIRROR_RIG_BACKEND==='vulkan'?'rig-vulkan':'rig-v2'));await fs.mkdir(out,{recursive:true});
+ const build=process.env.MIRROR_RIG_BUILD||path.join(root,`dist/linux-${process.arch}-unpacked`),archiveSha256=createHash('sha256').update(await fs.readFile(path.join(build,'resources/app.asar'))).digest('hex');
+ const app=spawn(path.join(build,'magic-mirror-portal'),['--no-sandbox',...(process.env.MIRROR_RIG_BACKEND==='vulkan'?['--use-gl=angle','--use-angle=vulkan','--use-cmd-decoder=passthrough']:['--disable-gpu']),`--user-data-dir=${profile}`,'--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_KIOSK:'false'},stdio:['ignore','pipe','pipe']});
  let logs='',client,exited=false;app.on('exit',()=>exited=true);for(const stream of[app.stdout,app.stderr])stream.on('data',bytes=>logs=(logs+bytes).slice(-8000));
  const until=async fn=>{for(let i=0;i<450;i++){if(exited)throw new Error('Preview exited');const value=await fn();if(value)return value;await delay(100)}throw new Error('Preview startup timed out '+logs.slice(-500))};
  try{
@@ -16,6 +17,20 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.call('Emulation.setDeviceMetricsOverride',{width:720,height:1280,deviceScaleFactor:1.5,mobile:false});
   await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');await until(()=>client.evaluate('__mirrorDebug.getMirrorState().display.mode==="portal"'));await delay(1000);
   const shot=async name=>{const image=await client.call('Page.captureScreenshot',{format:'jpeg',quality:92});await fs.writeFile(path.join(out,name+'.jpg'),Buffer.from(image.data,'base64'));};
+  const lipContacts=[];
+  const checkLipContact=async()=>{
+   if(!process.env.MIRROR_LIP_CONTACT)return;
+   const savedMood=await client.evaluate('__mirrorDebug.avatar.expressionMixer.mood');
+   if(process.env.MIRROR_LIP_NEUTRAL==='true')await client.evaluate('__mirrorDebug.avatar.setMood("neutral")');
+   for(const [name,turn] of [['front',0],['left',-1.6],['right',1.6]]){
+    await client.evaluate(`(()=>{const a=__mirrorDebug.avatar;a.setExpression({mouthClose:1,mouthPressLeft:.3,mouthPressRight:.3});a.setPerformance({turn:${turn}});a.setSpeechLevel(0)})()`);
+    await delay(550);
+    const contact=await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,f=r.face,g=f.geometry,p=g.attributes.position,upper=[191,80,81,82,13,312,311,310,415],lower=[95,88,178,87,14,317,402,318,324];const vertex=i=>{const v=[0,1,2].map(axis=>p.getComponent(i,axis));for(const [index,weight]of f.morphTargetInfluences.entries())if(weight)for(let axis=0;axis<3;axis++)v[axis]+=g.morphAttributes.position[index].getComponent(i,axis)*weight;return v;};return{persona:r.persona,closureWeight:f.morphTargetInfluences[f.morphTargetDictionary.mouthClose],gaps:upper.map((a,j)=>{const b=lower[j],u=vertex(a),v=vertex(b);return Math.hypot(...u.map((x,axis)=>x-v[axis]))}),teethVisible:r.accessories.upperTeeth.visible||r.accessories.lowerTeeth.visible}})()`);
+    lipContacts.push({...contact,mood:savedMood,pose:name});await shot(contact.persona+'-lip-'+name);
+    if(process.env.MIRROR_LIP_CONTACT==='true'){assert(contact.closureWeight>.99,'Lip capture has incomplete closure');assert(Math.max(...contact.gaps)<.001,'Live inner lip edges remain apart');assert(!contact.teethVisible,'Closed mouth retains separate teeth geometry');}
+   }
+   await client.evaluate('__mirrorDebug.avatar.setExpression({});__mirrorDebug.avatar.setPerformance({})');await client.evaluate('__mirrorDebug.avatar.setMood('+JSON.stringify(savedMood)+')');await delay(550);
+  };
   const motionCaptures=[];
   const motion=async name=>{
    if(process.env.MIRROR_RIG_MOTION!=='true')return;
@@ -42,6 +57,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
    await delay(550);if(name==='neutral')neutralLidUv=await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,145,386,374].map(i=>[uv.getX(i),uv.getY(i)])})()');await shot(name);const frame=await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;let expectedTriangles=r.composer?2:0,expectedDraws=r.composer?2:0;r.scene.traverseVisible(n=>{if(n.isMesh&&n.material.visible){expectedTriangles+=(n.geometry.index?.count||n.geometry.attributes.position.count)/3;expectedDraws++}});return{...r.snapshot(),expectedTriangles,expectedDraws,pose:'+JSON.stringify(name)+',turn:r.smooth.turn,mouth:{upperTeeth:r.accessories.upperTeeth.visible,lowerTeeth:r.accessories.lowerTeeth.visible,lowerY:r.accessories.lowerTeeth.position.y,tongue:r.accessories.tongue.visible}}})()');if(name.includes('-30'))assert(Math.abs(frame.turn)>=Math.PI/6);if(name==='mbp'||name==='neutral')assert(!frame.mouth.upperTeeth&&!frame.mouth.lowerTeeth&&!frame.mouth.tongue,'Closed pose leaks interior');if(name==='aa')assert(frame.mouth.upperTeeth&&frame.mouth.lowerTeeth&&frame.mouth.tongue);if(name==='fv')assert(frame.mouth.upperTeeth&&!frame.mouth.tongue);frames.push(frame);
   }
   assert(frames.every(f=>f.ready&&f.triangles===f.expectedTriangles&&f.drawCalls===f.expectedDraws&&f.triangles<35000),'Rig render differs from visible scene geometry or exceeds the current bound');
+  await checkLipContact();
   await client.evaluate('__mirrorDebug.avatar.setPerformance({});__mirrorDebug.avatar.setExpression({eyeBlinkLeft:1,eyeBlinkRight:1})');await delay(600);
   const lidDiagnostic=await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,f=r.face,p=f.geometry.attributes.position;return ['Left','Right'].map((side,k)=>{const i=f.morphTargetDictionary['eyeBlink'+side],m=f.geometry.morphAttributes.position[i],a=k?386:159,b=k?374:145,w=f.morphTargetInfluences[i];return{side,weight:w,delta:[0,1,2].map(axis=>p.getComponent(a,axis)+m.getComponent(a,axis)*w-p.getComponent(b,axis)-m.getComponent(b,axis)*w)}})})()`);
   assert(lidDiagnostic.every(l=>l.weight>.99&&Math.hypot(...l.delta)<.002),'Live blink does not fully close its 3D aperture');
@@ -84,6 +100,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   assert(snowLids.every(w=>w>.99),'Snow closed screenshot did not use full blink');console.log(JSON.stringify({snowLids}));
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:.5,eyeBlinkRight:.5})');await delay(550);await shot('solenne-half-blink');
   await client.evaluate('__mirrorDebug.avatar.setExpression({})');await delay(550);
+  await checkLipContact();
   await motion('solenne');
   await client.evaluate(`__mirrorDebug.avatar.setPersona('rowan')`);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
   await client.evaluate(`__mirrorDebug.avatar.setPersona('velora')`);await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
@@ -96,6 +113,6 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.evaluate('__mirrorDebug.stopAssistant()');await delay(300);const stopped=await client.evaluate('({label:document.querySelector("#mic-label").textContent,playback:__mirrorDebug.avatar.getPlaybackStatus(),energy:__mirrorDebug.avatar.speechLevel})');assert.equal(stopped.label,'LISTEN');assert(!stopped.playback.enabled&&stopped.energy===0);await delay(400);assert(!(await client.evaluate('__mirrorDebug.avatar.getPlaybackStatus().enabled')),'Idle acting revived voice after Stop');
   await client.evaluate('__mirrorDebug.avatar.rigHost.renderer.forceContextLoss()');await delay(250);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
   assert.deepEqual(errors,[]);
-  const result={passed:true,errors,anchors,frames,motionCaptures,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+  const result={passed:true,archiveSha256,lipContacts,lipContactPassed:lipContacts.length?lipContacts.every(c=>Math.max(...c.gaps)<.001&&!c.teethVisible):null,errors,anchors,frames,motionCaptures,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
  }catch(error){console.error('Application log:',logs.slice(-7000));const endpoint=logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1];if(endpoint){try{console.error('Live targets:',JSON.stringify(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())))}catch{}}throw error}finally{client?.close();app.kill('SIGTERM');await delay(200);if(!exited)app.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});}
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -4,6 +4,9 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const LEFT_UPPER=[33,246,161,160,159,158,157,173,133], LEFT_LOWER=[33,7,163,144,145,153,154,155,133];
 const RIGHT_UPPER=[263,466,388,387,386,385,384,398,362], RIGHT_LOWER=[263,249,390,373,374,380,381,382,362];
 const LID_SKIN={Left:[[247,30,29,27,28,56,190],[25,110,24,23,22,26,112]],Right:[[467,260,259,257,258,286,414],[255,339,254,253,252,256,341]]};
+const LIP_UPPER=[78,191,80,81,82,13,312,311,310,415,308];
+const LIP_LOWER=[78,95,88,178,87,14,317,402,318,324,308];
+const INNER_LIPS=new Set([...LIP_UPPER,...LIP_LOWER]);
 const gaussian=(x,y,cx,cy,sx,sy)=>Math.exp(-(((x-cx)/sx)**2+((y-cy)/sy)**2));
 
 // The original lab export named 52 targets but only changed three. Rebuild
@@ -31,11 +34,27 @@ export function authorFaceMorphs(mesh) {
    if(name.startsWith('mouthUpperUp'))dy=.06*gaussian(x,y,side*.13,-.45,.19,.08);
    if(name.startsWith('mouthLowerDown'))dy=-.065*gaussian(x,y,side*.13,-.58,.19,.08);
    if(name==='mouthRollLower'){const w=gaussian(x,y,0,-.59,.30,.10);dy=.022*w;dz=-.050*w;}
-   if(name.startsWith('mouthPress')||name==='mouthClose')dy=(-.51-y)*mouth*.35;
+   if(name==='mouthClose')dy=(-.51-y)*mouth*.35;
+   if(name.startsWith('mouthPress')&&!INNER_LIPS.has(i))dy=(-.51-y)*gaussian(x,y,side*.18,-.51,.23,.12)*.35;
    if(name==='cheekPuff')dz=.065*(gaussian(x,y,-.62,-.16,.25,.30)+gaussian(x,y,.62,-.16,.25,.30));
    if(name.startsWith('cheekSquint'))dy=.04*gaussian(x,y,side*.55,.08,.24,.16);
    if(name.startsWith('noseSneer'))dy=.035*gaussian(x,y,side*.18,-.16,.13,.18);
    delta.set([dx,dy,dz],i*3);
+  }
+  // A smile/frown moves the lip line; jaw opening owns the aperture.
+  // Move each inner pair together so emotion can coexist with sealed lips.
+  if(name.startsWith('mouthSmile')||name.startsWith('mouthFrown'))for(let j=1;j<LIP_UPPER.length-1;j++){
+   const a=LIP_UPPER[j],b=LIP_LOWER[j];
+   for(let axis=0;axis<3;axis++){const shared=(delta[a*3+axis]+delta[b*3+axis])*.5;delta[a*3+axis]=shared;delta[b*3+axis]=shared;}
+  }
+  if(name==='mouthClose')for(let j=1;j<LIP_UPPER.length-1;j++){
+   const a=LIP_UPPER[j],b=LIP_LOWER[j];
+   // A fixed-height pinch leaves depth/side gaps. Meet on one shared line,
+   // preserving lip corners and keeping press accents off the sealed edge.
+   for(let axis=0;axis<3;axis++){
+    const gap=p.getComponent(b,axis)-p.getComponent(a,axis);
+    delta[a*3+axis]=gap*.5;delta[b*3+axis]=-gap*.5;
+   }
   }
   for(const[upper,lower,side]of eyelids){
    if(name===`eyeBlink${side}`||name===`eyeSquint${side}`||name===`eyeWide${side}`){

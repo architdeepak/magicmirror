@@ -33,6 +33,20 @@ for(const persona of ['velora','solenne']){
  for(const name of ['eyeBlinkLeft','eyeBlinkRight','browInnerUp','jawOpen','mouthSmileLeft','mouthFunnel','mouthRollLower'])assert(supported.includes(name));
  assert(!supported.includes('tongueOut'),'Do not claim unsupported tongue');
  const jaw=geometry.morphAttributes.position[mesh.morphTargetDictionary.jawOpen];assert(jaw.getY(14)<-.15);assert(jaw.getY(10)===0,'Speech cannot shift forehead');
+ const lipUpper=[78,191,80,81,82,13,312,311,310,415,308],lipLower=[78,95,88,178,87,14,317,402,318,324,308];
+ const closed=geometry.morphAttributes.position[mesh.morphTargetDictionary.mouthClose];
+ for(let j=1;j<lipUpper.length-1;j++)for(let axis=0;axis<3;axis++){
+  const a=lipUpper[j],b=lipLower[j];
+  assert(Math.abs(geometry.attributes.position.getComponent(a,axis)+closed.getComponent(a,axis)-geometry.attributes.position.getComponent(b,axis)-closed.getComponent(b,axis))<1e-7,'Authored mouth closure leaves a 3D lip gap');
+  for(const name of ['mouthSmileLeft','mouthSmileRight','mouthFrownLeft','mouthFrownRight']){
+   const emotion=geometry.morphAttributes.position[mesh.morphTargetDictionary[name]];
+   assert.equal(emotion.getComponent(a,axis),emotion.getComponent(b,axis),'Emotion reopens sealed inner lips');
+  }
+  for(const name of ['mouthPressLeft','mouthPressRight']){
+   const press=geometry.morphAttributes.position[mesh.morphTargetDictionary[name]];
+   assert.equal(press.getComponent(a,axis),0,'Lip press moves sealed inner edge');assert.equal(press.getComponent(b,axis),0,'Lip press moves sealed inner edge');
+  }
+ }
  const blink=geometry.morphAttributes.position[mesh.morphTargetDictionary.eyeBlinkLeft];assert(blink.getY(159)<0);assert(positions[159*3+2]+blink.getZ(159)>.22,'Closed lid must sit in front of iris');assert.equal(blink.getY(10),0);assert.equal(blink.getY(386),0,'Independent eyelids');
  for(const [side,upper,lower]of [['Left',[246,161,160,159,158,157,173],[7,163,144,145,153,154,155]],['Right',[466,388,387,386,385,384,398],[249,390,373,374,380,381,382]]]){
   const delta=geometry.morphAttributes.position[mesh.morphTargetDictionary['eyeBlink'+side]];

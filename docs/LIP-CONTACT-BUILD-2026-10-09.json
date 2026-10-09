@@ -1,0 +1,8 @@
+{
+  "archiveSha256": "45d7e6335d0260545f11e34d4c15ca3c6867e48c46ab0fb3ffb0cb5b6efb3ccd",
+  "files": {
+    "src/rigGeometry.js": "e882e9ce60af87da1d7aac3284f6ba1d2f62eefb37528d7434b86480a54b1c5b",
+    "tools/test-rig-geometry.mjs": "89dee1225931e8ab65a7c5afb653bf8a3545bdc1bb2cdf88989e83895ed42df2",
+    "tools/check-rig-ui.cjs": "74467978c25c21b55b2d9052d55046612d5dc584892e3dfea9ac04abff3aac06"
+  }
+}
