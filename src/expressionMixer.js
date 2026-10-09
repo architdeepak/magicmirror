@@ -30,7 +30,7 @@ export class ExpressionMixer {
 
   setMood(mood) { this.mood = EMOTIONS[mood] ? mood : 'neutral'; }
 
-  update({ tracking = {}, manual = {}, speech = 0, viseme = 'rest', dt = 1 / 60 } = {}) {
+  update({ tracking = {}, manual = {}, speech = 0, speechActive = false, viseme = 'rest', dt = 1 / 60 } = {}) {
     const target = { ...tracking };
     // App-driven expressions can accent the tracked performer but do not get
     // to erase a real blink or gaze signal from the camera.
@@ -41,11 +41,15 @@ export class ExpressionMixer {
 
     const voice = VISEMES[viseme] || VISEMES.AA;
     const energy = clamp(speech, 0, 1);
-    if(energy>.025){
-      // Voice owns the jaw/lips while speaking. A tracked open mouth or smile
+    if(speechActive || energy>.025){
+      // The queued utterance owns the jaw/lips even across quiet gaps.
+      // A tracked open mouth or smile
       // must not reopen an authored consonant closure; eyes/brows stay tracked.
       for(const name of Object.keys(target))if(name.startsWith('mouth')||name.startsWith('jaw'))delete target[name];
       for(const [name,value]of Object.entries(voice))target[name]=value*energy;
+      // Bilabial contact is a shape, not loudness. A recognized quiet M/B/P
+      // still seals the lips; jaw/vowel amplitude remains energy-driven.
+      if(viseme==='MBP'&&energy>.025)target.mouthClose=1;
     }
 
     // Fast enough for consonants, slow enough to avoid webcam jitter. Closing

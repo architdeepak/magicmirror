@@ -432,6 +432,7 @@ export class AvatarController {
       tracking,
       manual: { ...presence.expression, ...this.expression },
       speech: this.speechLevel,
+      speechActive: this.playbackMeter?.enabled === true,
       viseme: this.viseme,
       dt
     });
