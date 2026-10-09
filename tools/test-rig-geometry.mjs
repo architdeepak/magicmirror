@@ -27,6 +27,17 @@ for(const persona of ['velora','solenne']){
    assert(Math.abs(closedA-closedB)<1e-7,'Closed eyelid aperture '+side+' axis '+axis);
   }
  }
+ for(const [side,upper,lower,upperSkin,lowerSkin]of [
+  ['Left',[246,161,160,159,158,157,173],[7,163,144,145,153,154,155],[247,30,29,27,28,56,190],[25,110,24,23,22,26,112]],
+  ['Right',[466,388,387,386,385,384,398],[249,390,373,374,380,381,382],[467,260,259,257,258,286,414],[255,339,254,253,252,256,341]]
+ ])for(const channel of ['eyeBlink','eyeSquint','eyeWide']){
+  const d=geometry.morphAttributes.position[mesh.morphTargetDictionary[channel+side]];
+  for(let j=0;j<upper.length;j++)for(let axis=0;axis<3;axis++){
+   assert(Math.abs(d.getComponent(upperSkin[j],axis)-d.getComponent(upper[j],axis)*.6)<1e-7,'Upper fold does not follow lash edge');
+   assert(Math.abs(d.getComponent(lowerSkin[j],axis)-d.getComponent(lower[j],axis)*.6)<1e-7,'Lower fold does not follow lash edge');
+  }
+  for(const i of [10,152,14,side==='Left'?257:27])for(let axis=0;axis<3;axis++)assert.equal(d.getComponent(i,axis),0,'Fold moved unrelated face or opposite lid');
+ }
  const accessories=buildRigAccessories(mesh,persona);const volume=accessories.headVolume.geometry;assert.equal(volume.attributes.position.count,FACE_OVAL.length*8+1);
  assert.equal(accessories.headVolume.material,mesh.material,'Head and face use different surface shading');
  for(const name of ['uv','color']){
@@ -40,7 +51,7 @@ for(const persona of ['velora','solenne']){
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
  assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
- const lowerReach=(edge,skin,opposite)=>Math.min(4,Math.max(1,Math.abs(geometry.attributes.uv.getY(opposite)-geometry.attributes.uv.getY(edge))*.5/Math.max(1e-6,Math.abs(geometry.attributes.uv.getY(skin)-geometry.attributes.uv.getY(edge)))));
+ const lowerReach=(edge,skin,opposite)=>Math.min(8,Math.max(1,Math.abs(geometry.attributes.uv.getY(opposite)-geometry.attributes.uv.getY(edge))*.5/Math.max(1e-6,Math.abs(geometry.attributes.uv.getY(skin)-geometry.attributes.uv.getY(edge)))));
  const leftLowerReach=lowerReach(145,23,159),rightLowerReach=lowerReach(374,253,386);
  const originalUv=geometry.attributes.uv.array.slice(),mapping=createLidTextureMapping(geometry),version=geometry.attributes.uv.version;
  assert.equal(mapping.update({}),false);assert.equal(geometry.attributes.uv.version,version);
@@ -49,6 +60,10 @@ for(const persona of ['velora','solenne']){
  assert(Math.abs(geometry.attributes.uv.getY(145)-(originalUv[145*2+1]+(originalUv[23*2+1]-originalUv[145*2+1])*.375*leftLowerReach))<1e-7);
  assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.375))<1e-7);
  assert(mapping.update({eyeBlinkLeft:1}));assert(Math.abs(geometry.attributes.uv.getX(159)-(originalUv[159*2]+(originalUv[27*2]-originalUv[159*2])*.75))<1e-7);assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.75))<1e-7);
+ for(const [i,s]of [[7,25],[155,112]]){
+  const height=Math.abs(originalUv[159*2+1]-originalUv[145*2+1]),reach=Math.min(8,Math.max(1,height*.5/Math.max(1e-6,Math.abs(originalUv[s*2+1]-originalUv[i*2+1]))));
+  assert(Math.abs(geometry.attributes.uv.getY(i)-(originalUv[i*2+1]+(originalUv[s*2+1]-originalUv[i*2+1])*.75*reach))<1e-7,'Corner samples painted eye instead of central skin reach');
+ }
  assert.equal(mapping.update({eyeBlinkLeft:1}),false,'Settled eyelid UVs re-uploaded');
  assert(mapping.update({eyeBlinkRight:1}));assert(Math.abs(geometry.attributes.uv.getY(386)-(originalUv[386*2+1]+(originalUv[257*2+1]-originalUv[386*2+1])*.75))<1e-7);
  assert(Math.abs(geometry.attributes.uv.getY(374)-(originalUv[374*2+1]+(originalUv[253*2+1]-originalUv[374*2+1])*.75*rightLowerReach))<1e-7);

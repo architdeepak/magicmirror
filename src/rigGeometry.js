@@ -3,6 +3,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const LEFT_UPPER=[33,246,161,160,159,158,157,173,133], LEFT_LOWER=[33,7,163,144,145,153,154,155,133];
 const RIGHT_UPPER=[263,466,388,387,386,385,384,398,362], RIGHT_LOWER=[263,249,390,373,374,380,381,382,362];
+const LID_SKIN={Left:[[247,30,29,27,28,56,190],[25,110,24,23,22,26,112]],Right:[[467,260,259,257,258,286,414],[255,339,254,253,252,256,341]]};
 const gaussian=(x,y,cx,cy,sx,sy)=>Math.exp(-(((x-cx)/sx)**2+((y-cy)/sy)**2));
 
 // The original lab export named 52 targets but only changed three. Rebuild
@@ -49,6 +50,13 @@ export function authorFaceMorphs(mesh) {
       const lift=axis===2?.07:0;
       delta[a*3+axis]=(-gap*.82+lift)*amount;
       delta[b*3+axis]=(gap*.18+lift)*amount;
+     }
+     // Carry the skin beside the lash line into the fold. An unmoving skin
+     // ring next to a lifted edge makes a flat ledge during full closure.
+     const [upperSkin,lowerSkin]=LID_SKIN[side];
+     for(let axis=0;axis<3;axis++){
+      delta[upperSkin[j-1]*3+axis]=delta[a*3+axis]*.6;
+      delta[lowerSkin[j-1]*3+axis]=delta[b*3+axis]*.6;
      }
     }
    }

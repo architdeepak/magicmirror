@@ -16,6 +16,17 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.call('Emulation.setDeviceMetricsOverride',{width:720,height:1280,deviceScaleFactor:1.5,mobile:false});
   await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');await until(()=>client.evaluate('__mirrorDebug.getMirrorState().display.mode==="portal"'));await delay(1000);
   const shot=async name=>{const image=await client.call('Page.captureScreenshot',{format:'jpeg',quality:92});await fs.writeFile(path.join(out,name+'.jpg'),Buffer.from(image.data,'base64'));};
+  const motionCaptures=[];
+  const motion=async name=>{
+   if(process.env.MIRROR_RIG_MOTION!=='true')return;
+   const captured=await client.evaluate(`(async()=>{
+    const a=__mirrorDebug.avatar,stream=a.rigHost.canvas.captureStream(30),recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp8'}),chunks=[];
+    recorder.ondataavailable=e=>chunks.push(e.data);const ended=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=e=>reject(new Error(e.error?.message||'Rig motion recording failed'))});
+    let frame,maxBlink=0,t0=performance.now(),firstFrame=a.rigHost.frames;const animate=t=>{const phase=(t-t0)/1000,age=phase%2-.8,blink=age<0||age>.32?0:age<.08?Math.sin(Math.PI*.5*age/.08)**2:age<.2?1:Math.cos(Math.PI*.5*(age-.2)/.12)**2;maxBlink=Math.max(maxBlink,...['Left','Right'].map(side=>a.rigHost.face.morphTargetInfluences[a.rigHost.face.morphTargetDictionary['eyeBlink'+side]]));a.setGazeOverride({x:Math.sin(phase*1.7)*.35,y:0});a.setExpression({eyeBlinkLeft:blink,eyeBlinkRight:blink,browInnerUp:.15+.15*Math.sin(phase*2),mouthSmileLeft:.12,mouthSmileRight:.12});a.setPerformance({turn:Math.sin(phase*1.3)*.8});frame=requestAnimationFrame(animate)};
+    try{recorder.start();frame=requestAnimationFrame(animate);await new Promise(resolve=>setTimeout(resolve,4500));recorder.stop();await ended;let result='';for(const b of new Uint8Array(await new Blob(chunks).arrayBuffer()))result+=String.fromCharCode(b);return {encoded:btoa(result),maxBlink,submittedFrames:a.rigHost.frames-firstFrame,durationMs:performance.now()-t0}}
+    finally{cancelAnimationFrame(frame);if(recorder.state!=='inactive')recorder.stop();stream.getTracks().forEach(t=>t.stop());a.setExpression({});a.setPerformance({});a.setGazeOverride(null)}
+   })()`);assert(captured.encoded.length>1000,'Motion capture was empty');assert(captured.maxBlink>.98,'Uninterrupted acting never closes the lids');assert(captured.submittedFrames>30,'Motion capture lacks actual renderer submissions');const {encoded,...metrics}=captured;motionCaptures.push({name,...metrics,scope:'Actual canvas stream of explicit blink/gaze/turn cues; no acoustic speech or physical display FPS proof.'});await fs.writeFile(path.join(out,name+'-motion.webm'),Buffer.from(encoded,'base64'));await delay(1000);
+  };
   const mode=id=>{const command='set '+(id==='hd'?'maximum detail':id==='eco'?'efficient quality':'balanced quality');return client.evaluate('__mirrorDebug.gemini.onMirrorCommand('+JSON.stringify(command)+')')};
   await client.evaluate(`document.querySelector('#mute-btn').click()`);await delay(300);
   await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);
@@ -46,6 +57,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   }
   await client.evaluate(`__mirrorDebug.avatar.setExpression({});__mirrorDebug.avatar.setPerformance({})`);await delay(1000);
   assert.deepEqual(await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,145,386,374].map(i=>[uv.getX(i),uv.getY(i)])})()'),neutralLidUv,'Live reopening did not restore neutral texture exactly');
+  await motion('queen');
   const before=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');await delay(600);const after=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');assert.equal(after,before,'Settled rig still draws');
   if(process.env.MIRROR_RIG_MOVIE==='true'){
    await client.evaluate('__mirrorDebug.avatar.visible=false');
@@ -63,10 +75,16 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost?.ready&&__mirrorDebug.avatar.rigHost.persona==="solenne"'));
   await delay(600);await shot('solenne');assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.persona'),'solenne');
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:1,eyeBlinkRight:1})');await delay(550);await shot('solenne-blink');
+  if(process.env.MIRROR_LID_DIAGNOSTIC==='true'){
+   await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;r.accessories.eyes.forEach(e=>e.group.visible=false);if(r.composer)r.composer.render();else r.renderer.render(r.scene,r.camera)})()');await shot('solenne-eyes-hidden');
+   await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;r.__lidMap=r.face.material.map;r.face.material.map=null;r.face.material.needsUpdate=true;if(r.composer)r.composer.render();else r.renderer.render(r.scene,r.camera)})()');await shot('solenne-no-map');
+   await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;r.face.material.map=r.__lidMap;delete r.__lidMap;r.face.material.needsUpdate=true;r.accessories.eyes.forEach(e=>e.group.visible=true);r.signature=null})()');
+  }
   const snowLids=await client.evaluate('(()=>{const f=__mirrorDebug.avatar.rigHost.face;return ["Left","Right"].map(side=>f.morphTargetInfluences[f.morphTargetDictionary["eyeBlink"+side]])})()');
   assert(snowLids.every(w=>w>.99),'Snow closed screenshot did not use full blink');console.log(JSON.stringify({snowLids}));
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:.5,eyeBlinkRight:.5})');await delay(550);await shot('solenne-half-blink');
   await client.evaluate('__mirrorDebug.avatar.setExpression({})');await delay(550);
+  await motion('solenne');
   await client.evaluate(`__mirrorDebug.avatar.setPersona('rowan')`);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
   await client.evaluate(`__mirrorDebug.avatar.setPersona('velora')`);await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
   const reloadGeneration=await client.evaluate('__hdGeneration');await client.call('Page.reload');await until(()=>client.evaluate('window.__hdGeneration>'+reloadGeneration+'&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")&&__mirrorDebug.avatar.rigHost?.ready'));assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'rig');
@@ -78,6 +96,6 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.evaluate('__mirrorDebug.stopAssistant()');await delay(300);const stopped=await client.evaluate('({label:document.querySelector("#mic-label").textContent,playback:__mirrorDebug.avatar.getPlaybackStatus(),energy:__mirrorDebug.avatar.speechLevel})');assert.equal(stopped.label,'LISTEN');assert(!stopped.playback.enabled&&stopped.energy===0);await delay(400);assert(!(await client.evaluate('__mirrorDebug.avatar.getPlaybackStatus().enabled')),'Idle acting revived voice after Stop');
   await client.evaluate('__mirrorDebug.avatar.rigHost.renderer.forceContextLoss()');await delay(250);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
   assert.deepEqual(errors,[]);
-  const result={passed:true,errors,anchors,frames,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+  const result={passed:true,errors,anchors,frames,motionCaptures,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
  }catch(error){console.error('Application log:',logs.slice(-7000));const endpoint=logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1];if(endpoint){try{console.error('Live targets:',JSON.stringify(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())))}catch{}}throw error}finally{client?.close();app.kill('SIGTERM');await delay(200);if(!exited)app.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});}
 })().catch(error=>{console.error(error);process.exitCode=1});

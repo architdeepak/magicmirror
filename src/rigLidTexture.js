@@ -30,8 +30,9 @@ export function createLidTextureMapping(geometry){
    for(const {edge,skin,opposite}of rows)for(let j=0;j<edge.length;j++){
     const i=edge[j],s=skin[j],u=original.getX(i),v=original.getY(i);
     // Stylized large eyes can extend beyond the first detected lower skin row.
-    // Use eye height to clear that portrait region, with bounded extrapolation.
-    const reach=opposite?Math.min(4,Math.max(1,Math.abs(original.getY(opposite[j])-v)*.5/Math.max(1e-6,Math.abs(original.getY(s)-v)))):1;
+    // Use central eye height at corners too, where the local aperture is tiny
+    // but the painted eye still extends into the lower skin row. Bound the reach.
+    const reach=opposite?Math.min(8,Math.max(1,Math.abs(original.getY(opposite[3])-original.getY(edge[3]))*.5/Math.max(1e-6,Math.abs(original.getY(s)-v)))):1;
     const du=(original.getX(s)-u)*amount*reach,dv=(original.getY(s)-v)*amount*reach;
     uv.setXY(i,u+du,v+dv);
     // Carry the adjacent skin row with it so the lid retains a two-dimensional
