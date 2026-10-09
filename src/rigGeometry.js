@@ -40,9 +40,16 @@ export function authorFaceMorphs(mesh) {
    if(name===`eyeBlink${side}`||name===`eyeSquint${side}`||name===`eyeWide${side}`){
     const amount=name.startsWith('eyeSquint')?.45:name.startsWith('eyeWide')?-.35:1;
     for(let j=1;j<upper.length-1;j++){
-     const a=upper[j],b=lower[j],gap=p.getY(a)-p.getY(b);
-     delta[a*3+1]=-gap*.82*amount;delta[b*3+1]=gap*.18*amount;
-     delta[a*3+2]=.07*amount;delta[b*3+2]=.07*amount;
+     const a=upper[j],b=lower[j];
+     // The eyelid edges differ in all three axes. Closing only height leaves
+     // skewed depth/side gaps visible as a dark slit, especially during turns.
+     // Both edges converge on the same curved lash line, ahead of the iris.
+     for(let axis=0;axis<3;axis++){
+      const gap=p.getComponent(a,axis)-p.getComponent(b,axis);
+      const lift=axis===2?.07:0;
+      delta[a*3+axis]=(-gap*.82+lift)*amount;
+      delta[b*3+axis]=(gap*.18+lift)*amount;
+     }
     }
    }
   }

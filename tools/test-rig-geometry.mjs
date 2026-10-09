@@ -19,6 +19,13 @@ for(const persona of ['velora','solenne']){
  assert(!supported.includes('tongueOut'),'Do not claim unsupported tongue');
  const jaw=geometry.morphAttributes.position[mesh.morphTargetDictionary.jawOpen];assert(jaw.getY(14)<-.15);assert(jaw.getY(10)===0,'Speech cannot shift forehead');
  const blink=geometry.morphAttributes.position[mesh.morphTargetDictionary.eyeBlinkLeft];assert(blink.getY(159)<0);assert(positions[159*3+2]+blink.getZ(159)>.22,'Closed lid must sit in front of iris');assert.equal(blink.getY(10),0);assert.equal(blink.getY(386),0,'Independent eyelids');
+ for(const [side,upper,lower]of [['Left',[246,161,160,159,158,157,173],[7,163,144,145,153,154,155]],['Right',[466,388,387,386,385,384,398],[249,390,373,374,380,381,382]]]){
+  const delta=geometry.morphAttributes.position[mesh.morphTargetDictionary['eyeBlink'+side]];
+  for(let j=0;j<upper.length;j++)for(let axis=0;axis<3;axis++){
+   const a=upper[j],b=lower[j],closedA=geometry.attributes.position.getComponent(a,axis)+delta.getComponent(a,axis),closedB=geometry.attributes.position.getComponent(b,axis)+delta.getComponent(b,axis);
+   assert(Math.abs(closedA-closedB)<1e-7,'Closed eyelid aperture '+side+' axis '+axis);
+  }
+ }
  const accessories=buildRigAccessories(mesh,persona);const volume=accessories.headVolume.geometry;assert.equal(volume.attributes.position.count,FACE_OVAL.length*8+1);
  assert.equal(accessories.headVolume.material,mesh.material,'Head and face use different surface shading');
  for(const name of ['uv','color']){
