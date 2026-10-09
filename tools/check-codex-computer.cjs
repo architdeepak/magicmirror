@@ -6,6 +6,7 @@ const path = require('path');
 const os = require('os');
 const http = require('http');
 const { spawn } = require('child_process');
+const { createHash } = require('crypto');
 const { connect } = require('./cdp-client.cjs');
 const root = path.resolve(__dirname, '..');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -27,7 +28,10 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const binary = path.join(root, `dist/linux-${process.arch}-unpacked/magic-mirror-portal`);
+  const build = path.join(temporary, 'app');
+  await fs.cp(path.join(root, `dist/linux-${process.arch}-unpacked`), build, {recursive:true});
+  const archiveSha256 = createHash('sha256').update(await fs.readFile(path.join(build, 'resources/app.asar'))).digest('hex');
+  const binary = path.join(build, 'magic-mirror-portal');
   let logs = '', exit = null, client;
   const child = spawn(binary, ['--no-sandbox','--disable-gpu', `--user-data-dir=${temporary}/profile`, '--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'], { cwd: temporary, env: { ...process.env, GEMINI_API_KEY: '', DECART_API_KEY: '', MIRROR_KIOSK: 'false' }, stdio: ['ignore','pipe','pipe'] });
   for (const pipe of [child.stdout, child.stderr]) pipe.on('data', bytes => logs = (logs + bytes.toString()).slice(-12000));
@@ -64,7 +68,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     }
     const report = await client.evaluate('__codexCheck');
     const directory = path.join(root,mapMode?'artifacts/codex-location':'artifacts/codex-computer'); await fs.mkdir(directory,{recursive:true});
-    const metadata = { checkedAt: new Date().toISOString(), scope: 'Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.', typedMode, labels, secret, clicks, ...(mapMode?{place,age}:{}), result, report: { ...report, lastScreenshot: undefined } };
+    const metadata = { archiveSha256, checkedAt: new Date().toISOString(), scope: 'Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.', typedMode, labels, secret, clicks, ...(mapMode?{place,age}:{}), result, report: { ...report, lastScreenshot: undefined } };
     await fs.writeFile(path.join(directory,'result.json'),JSON.stringify(metadata,null,2)+'\n');
     if (report.lastScreenshot) await fs.writeFile(path.join(directory,'display.jpg'),Buffer.from(report.lastScreenshot.split(',')[1],'base64'));
     assert(result.completed, JSON.stringify(result));
@@ -80,6 +84,6 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   } finally {
     if (client) { await client.evaluate('__mirrorDebug?.stopAssistant()').catch(()=>{}); client.close(); }
     if (!exit) child.kill('SIGTERM'); await delay(200); if (!exit) child.kill('SIGKILL');
-    await new Promise(resolve=>server.close(resolve)); await fs.rm(temporary,{recursive:true,force:true});
+    await new Promise(resolve=>server.close(resolve)); await fs.rm(temporary,{recursive:true,force:true,maxRetries:5,retryDelay:200});
   }
 })().catch(error=>{console.error(error.message);process.exitCode=1});

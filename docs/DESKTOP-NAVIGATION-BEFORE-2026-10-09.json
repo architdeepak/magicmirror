@@ -1,0 +1,92 @@
+{
+  "archiveSha256": "8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19",
+  "baseline": true,
+  "cases": [
+    {
+      "name": "same-url-reload",
+      "stale": true,
+      "before": {
+        "load": "1",
+        "clicks": 0,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "ready": {
+        "load": "2",
+        "clicks": 0,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "after": {
+        "load": "2",
+        "clicks": 1,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      }
+    },
+    {
+      "name": "same-url-history",
+      "stale": true,
+      "before": {
+        "load": "2",
+        "clicks": 1,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "ready": {
+        "load": "2",
+        "clicks": 1,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "after": {
+        "load": "2",
+        "clicks": 2,
+        "url": "http://127.0.0.1:36847/"
+      },
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      }
+    },
+    {
+      "name": "hidden-subframe",
+      "stale": false,
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      },
+      "after": {
+        "load": "2",
+        "clicks": 3,
+        "url": "http://127.0.0.1:36847/"
+      }
+    },
+    {
+      "name": "fresh-single-use",
+      "stale": false,
+      "delivered": true,
+      "result": {
+        "result": "clicked",
+        "x": 144,
+        "y": 263
+      },
+      "reused": {
+        "delivered": false,
+        "error": "Error: Error invoking remote method 'mirror:desktop-action': Error: Capture the current screen immediately before each desktop action; the previous screenshot is missing, expired, or already used."
+      },
+      "after": {
+        "load": "2",
+        "clicks": 4,
+        "url": "http://127.0.0.1:36847/"
+      }
+    }
+  ],
+  "passed": false,
+  "scope": "Actual isolated packaged Linux app, local managed Chromium page, real TV-display capture and production IPC input. Reload, same-URL history, subframe navigation and fresh input; no AI inference, physical sensor, native Windows application or external account proof."
+}

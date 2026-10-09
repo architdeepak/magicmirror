@@ -230,6 +230,21 @@ async function openDesktopWebpage(value) {
       try { normalizeExternalWebUrl(url); }
       catch { event.preventDefault(); }
     });
+    // URL and bounds can remain identical across reload/SPA transitions.
+    // Retire observations at both navigation start and commit, including any
+    // captured while the next document was loading. Ignore retired windows.
+    const invalidateNavigation = () => {
+      if (desktopWindow !== browser || browser.isDestroyed()) return;
+      invalidateDesktopObservation();
+      desktopActionAbort?.abort();
+    };
+    browser.webContents.on('did-start-navigation', details => {
+      if (details.isMainFrame) invalidateNavigation();
+    });
+    browser.webContents.on('did-navigate', invalidateNavigation);
+    browser.webContents.on('did-navigate-in-page', (_event, _url, isMainFrame) => {
+      if (isMainFrame) invalidateNavigation();
+    });
     browser.on('show', notifyDesktopPresentation);
     browser.on('hide', notifyDesktopPresentation);
     browser.on('closed', () => {

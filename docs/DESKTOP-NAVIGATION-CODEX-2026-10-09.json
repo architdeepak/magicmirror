@@ -1,0 +1,74 @@
+{
+  "archiveSha256": "5526020a5a4e377591c37789633cd773226582f7f5e3cf009434ced895fe8e14",
+  "checkedAt": "2026-10-09T17:25:20.897Z",
+  "scope": "Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.",
+  "typedMode": false,
+  "labels": [
+    "QUILL",
+    "MOSS",
+    "FEATHER",
+    "STONE"
+  ],
+  "secret": "OPAL 944",
+  "clicks": [
+    "FEATHER"
+  ],
+  "result": {
+    "completed": true,
+    "summary": "REVEALED: OPAL 944"
+  },
+  "report": {
+    "calls": [
+      {
+        "name": "get_mirror_state",
+        "args": {}
+      },
+      {
+        "name": "open_webpage",
+        "args": {
+          "url": "http://127.0.0.1:35391/"
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "computer_action",
+        "args": {
+          "action": "click",
+          "snapshotId": "8251777e-95f6-4a75-b4aa-ee47b0b10c4e",
+          "x": 324,
+          "y": 484
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "computer_action",
+        "args": {
+          "action": "scroll",
+          "snapshotId": "e9d83107-4b93-4185-898b-69e35d34b9fe",
+          "deltaY": 440,
+          "x": 650,
+          "y": 520
+        }
+      }
+    ],
+    "errors": [],
+    "result": {
+      "completed": true,
+      "summary": "REVEALED: OPAL 944"
+    }
+  }
+}

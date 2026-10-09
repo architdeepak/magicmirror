@@ -9,18 +9,26 @@ const { DesktopNavigation } = require('../src/desktopNavigation.cjs');
 
 
 async function testNavigation(source){
- const instances=[];let notifications=0,mainShows=0;
+ const instances=[];let notifications=0,mainShows=0,invalidations=0;
  class Browser {
-  constructor(){this.visible=false;this.destroyed=false;this.loads=[];this.handlers={};this.shows=0;this.stops=0;this.webContents={setWindowOpenHandler(){},on(){},stop:()=>this.stops++};instances.push(this);}
+  constructor(){this.visible=false;this.destroyed=false;this.loads=[];this.handlers={};this.webHandlers={};this.shows=0;this.stops=0;this.webContents={setWindowOpenHandler(){},on:(name,fn)=>this.webHandlers[name]=fn,stop:()=>this.stops++};instances.push(this);}
   on(name,fn){this.handlers[name]=fn;}isDestroyed(){return this.destroyed;}isVisible(){return this.visible;}
   loadURL(url){return new Promise((resolve,reject)=>this.loads.push({url,resolve,reject}));}
   show(){this.visible=true;this.shows++;}focus(){}close(){if(this.asyncClose){this.closing=true;return;}this.destroyed=true;this.handlers.closed?.();}
  }
- const owner=new DesktopNavigation({onRetire:browser=>{if(context.desktopWindow===browser)context.desktopWindow=null;}}),context=vm.createContext({BrowserWindow:Browser,desktopWindow:null,desktopNavigation:owner,mainWindow:{isDestroyed:()=>false,show(){mainShows++}},useKiosk:false,nativeCompanion:{exit(){}},normalizeExternalWebUrl:value=>{const u=new URL(value);if(!['http:','https:'].includes(u.protocol))throw Error('Invalid URL');return u.href},layoutDesktopWindow(){},notifyDesktopPresentation(){notifications++},invalidateDesktopObservation(){}});
+ const owner=new DesktopNavigation({onRetire:browser=>{if(context.desktopWindow===browser)context.desktopWindow=null;}}),context=vm.createContext({BrowserWindow:Browser,desktopWindow:null,desktopNavigation:owner,mainWindow:{isDestroyed:()=>false,show(){mainShows++}},useKiosk:false,nativeCompanion:{exit(){}},normalizeExternalWebUrl:value=>{const u=new URL(value);if(!['http:','https:'].includes(u.protocol))throw Error('Invalid URL');return u.href},layoutDesktopWindow(){},notifyDesktopPresentation(){notifications++},desktopActionAbort:null,invalidateDesktopObservation(){invalidations++}});
  vm.runInContext(source.slice(source.indexOf('async function openDesktopWebpage('),source.indexOf('async function closeDesktopWindow(')),context);
  vm.runInContext(source.slice(source.indexOf('async function closeDesktopWindow('),source.indexOf('function resizeForAssistant(')),context);
  const cancelled=context.openDesktopWebpage('https://example.org/slow');const first=instances.at(-1);owner.cancel();first.loads[0].resolve();await assert.rejects(cancelled,/cancelled/);assert(first.destroyed);assert.equal(first.shows,0);
  const old=context.openDesktopWebpage('https://example.org/older'),older=instances.at(-1);const newest=context.openDesktopWebpage('https://example.org/current'),current=instances.at(-1);older.loads[0].reject(Error('Old network failure'));await assert.rejects(old,/superseded/);assert(!current.destroyed,'Old load closed new window');current.loads[0].resolve();await newest;assert.equal(current.shows,1);
+ const beforeNavigation=invalidations;let actionAborts=0;context.desktopActionAbort={abort(){actionAborts++}};
+ assert.equal(typeof current.webHandlers['did-start-navigation'],'function','Main-frame navigation does not invalidate old observations');
+ current.webHandlers['did-start-navigation']({isMainFrame:false});assert.equal(invalidations,beforeNavigation,'Subframe navigation invalidated the main document');
+ current.webHandlers['did-start-navigation']({isMainFrame:true,isSameDocument:false});assert.equal(invalidations,beforeNavigation+1);assert.equal(actionAborts,1);
+ current.webHandlers['did-navigate']({},'https://example.org/current');assert.equal(invalidations,beforeNavigation+2,'Same-URL commit kept a loading observation');
+ current.webHandlers['did-navigate-in-page']({},'https://example.org/current',false);assert.equal(invalidations,beforeNavigation+2);
+ current.webHandlers['did-navigate-in-page']({},'https://example.org/current',true);assert.equal(invalidations,beforeNavigation+3,'Same-document commit kept an old observation');
+ const beforeRetired=invalidations;older.webHandlers['did-start-navigation']({isMainFrame:true});assert.equal(invalidations,beforeRetired,'Retired page invalidated the successor');context.desktopActionAbort=null;
  const reload=context.openDesktopWebpage('https://example.org/reload');owner.cancel();current.loads[1].resolve();await assert.rejects(reload,/cancelled/);assert(!current.destroyed);assert(current.visible);assert.equal(current.shows,1,'Cancelled reload refocused visible window');
  const valid=context.openDesktopWebpage('https://example.org/valid');const generation=owner.generation;await assert.rejects(context.openDesktopWebpage('file:///private'),/Invalid/);assert.equal(owner.generation,generation);current.loads[2].resolve();await valid;
  const failure=context.openDesktopWebpage('https://example.org/failure');current.loads[3].reject(Error('Offline'));await assert.rejects(failure,/could not open/);assert(current.destroyed);assert.equal(owner.pending,null);

@@ -21,6 +21,8 @@ For every task, save its reproduction, before/after evidence, exact source/archi
 
 **Latest anatomy checkpoint:** [3D lip contact with expression](LIP-CONTACT-2026-10-09.md) seals paired inner edges and allows smiles/frowns without reopening them. Default-mood live front/turn checks on both personas, full tests and actual playback routes pass. Natural phoneme accuracy, continuous acting and broader anatomy remain open.
 
+**Latest agent checkpoint:** [managed navigation observation ownership](DESKTOP-NAVIGATION-2026-10-09.md) rejects old screenshots after same-URL reload/history changes. Real baseline/current Chromium input and an eight-tool installed Codex journey pass. Next audit: scope repeated-click guards to verified document identity; DOM-only changes, broader tasks and native Windows qualification remain open.
+
 ## Working order and evidence discipline
 
 The active persistent goal covers the whole suite. Work proceeds through these concrete milestones, returning to any earlier milestone when integrated tests expose a regression:

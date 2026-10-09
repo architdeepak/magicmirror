@@ -1,0 +1,13 @@
+{
+  "archiveSha256": "5526020a5a4e377591c37789633cd773226582f7f5e3cf009434ced895fe8e14",
+  "previousMainSource": {
+    "f871f1e": "2ad835d51888e65a658ed9fd2f46f8fd0f15125fdc6fa50eb55d44ec02b70205",
+    "b2b621a": "2ad835d51888e65a658ed9fd2f46f8fd0f15125fdc6fa50eb55d44ec02b70205"
+  },
+  "files": {
+    "src/main.js": "c5a111369387beaced694d200f52dbcfccc7cca00a42d9f7636d725a42f3873a",
+    "tools/test-desktop-harness.cjs": "5207ec38fd3e18f93c0e66c9cc0e52ac20cd79f0626edc27f605000aeaab8bc4",
+    "tools/check-desktop-observation.cjs": "9682dc9afa3d72154f76f101b275f261cb2e4c8d7caa86f81a7a350f31df2a49",
+    "tools/check-codex-computer.cjs": "f1bf2370756a3428efa98c924431cf4c89d5b7a10d19bad2cbab6e75eb551389"
+  }
+}
