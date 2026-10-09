@@ -501,7 +501,7 @@ window.mirrorBridge?.onCodexTool?.(async payload => {
   await window.mirrorBridge.codexToolResult({ id: payload.id, runId: payload.runId, result }).catch(() => {});
 });
 window.mirrorBridge?.onCodexCancelled?.(payload => {
-  if (payload?.all || payload?.runId === agentRunId) { agentRunId = null; agentTools.cancel(); }
+  if (payload?.all || (agentRunId && payload?.runId === agentRunId)) { agentRunId = null; agentTools.cancel(); document.querySelector('#agent-progress').hidden = true; }
 });
 async function runAgentTask(task) {
   if (hardMuted) return { cancelled: true };

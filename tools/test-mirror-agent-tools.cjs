@@ -34,6 +34,16 @@ vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('expor
   await assert.rejects(tools.execute('shell', {}), /unavailable/);
   assert.equal((await tools.execute('wardrobe_command', { command: 'back photo' })).command, 'back photo');
   assert.equal((await tools.execute('open_service', {service:'findmy'})).service, 'findmy');
+  const rendererSource=fs.readFileSync('src/renderer.js','utf8'),retire=rendererSource.match(/onCodexCancelled\?\.\(payload => \{([\s\S]*?)\n\}\);/)[1];
+  const progress={hidden:false},retirement=vm.createContext({agentRunId:'new-run',agentTools:{cancel(){progress.cancelled=(progress.cancelled||0)+1}},document:{querySelector:()=>progress},payload:{runId:'old-run'}});
+  vm.runInContext(retire,retirement);assert.equal(retirement.agentRunId,'new-run');assert.equal(progress.hidden,false);
+  retirement.payload={runId:'new-run'};vm.runInContext(retire,retirement);assert.equal(retirement.agentRunId,null);assert.equal(progress.hidden,true);assert.equal(progress.cancelled,1);
+  progress.hidden=false;retirement.payload={runId:null};vm.runInContext(retire,retirement);assert.equal(progress.hidden,false,'Empty retirement hid unrelated voice progress');
+  retirement.agentRunId='another';retirement.payload={all:true};vm.runInContext(retire,retirement);assert.equal(retirement.agentRunId,null);assert.equal(progress.hidden,true);
+  const fitDefinition = require('../src/codexMirrorTools.cjs').MIRROR_TOOLS.find(t => t.name === 'adjust_try_on');assert(fitDefinition);assert.equal(fitDefinition.inputSchema.properties.width.maximum,1.5);
+  adapter.onTryOnAdjust = async args => ({ fit: args, result: 'Fit adjusted' });
+  const fitResult = await tools.execute('adjust_try_on',{ width:1.15, length:1.1, offset:-.08, view:'live' });assert.equal(fitResult.fit.width,1.15);assert.equal(fitResult.fit.offset,-.08);assert(fitResult.mirrorState);
+  let resolveFit;adapter.onTryOnAdjust=()=>new Promise(resolve=>{resolveFit=resolve});const lateFit=tools.execute('adjust_try_on',{reset:true});tools.cancel();resolveFit({result:'Late fit'});await assert.rejects(lateFit,/cancelled/);
   const definition = require('../src/codexMirrorTools.cjs').MIRROR_TOOLS.find(t => t.name === 'control_watch');
   assert(definition); assert.equal(definition.inputSchema.properties.volume.type, 'integer');
   assert.equal(definition.inputSchema.properties.volume.maximum, 100);
