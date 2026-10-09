@@ -576,10 +576,14 @@
     #app-shell[data-mode="watch"] #watch-frame.loaded { position: absolute; inset: 0; width: 100%; height: 100%; max-height: 100%; object-fit: contain; }
     /* Keep Watch content and the companion in separate, measured bands. */
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) #avatar-engine { inset: var(--watch-avatar-y) auto auto var(--watch-avatar-x); width: var(--watch-avatar-width); height: var(--watch-avatar-height); }
+    #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) #avatar-engine { transition: opacity .12s ease, left .28s ease; }
+    #app-shell[data-mode="watch"][data-watch-companion="true"][data-watch-avatar-moving]:not([data-desktop="true"]) #avatar-engine { opacity: 0; transition: opacity .12s ease; }
+    #app-shell[data-mode="watch"][data-watch-companion="true"][data-watch-avatar-moving="jump"]:not([data-desktop="true"]) #avatar-engine { transition: none; }
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) #watch-panel { top: var(--watch-content-top); bottom: var(--watch-content-bottom); }
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) .watch-stage { display: block; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
     #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) .watch-card { margin-inline: auto; max-width: 100%; }
     @media (prefers-reduced-motion: reduce) { #avatar-engine { transition: opacity .1s, visibility .1s; } }
+    @media (prefers-reduced-motion: reduce) { #app-shell[data-mode="watch"][data-watch-companion="true"]:not([data-desktop="true"]) #avatar-engine { transition: opacity .1s; } }
     #studio-wardrobe[hidden] { display: none; }
     .studio-quick-actions { margin-bottom: 0; }
     #studio-wardrobe { margin-top: 14px; border-top: 1px solid var(--panel-line); padding-top: 14px; }

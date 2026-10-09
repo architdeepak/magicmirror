@@ -23,10 +23,21 @@ export class WatchAvatarLayout {
     if(this.disposed||this.frame!==null)return;
     this.frame=this.window.requestAnimationFrame(()=>{this.frame=null;this.update();});
   }
+  cancelMotion(){
+    if(this.motionTimer!=null)this.window.clearTimeout(this.motionTimer);
+    if(this.motionFrame!=null)this.window.cancelAnimationFrame(this.motionFrame);
+    this.motionTimer=null;this.motionFrame=null;this.pending=null;delete this.shell.dataset.watchAvatarMoving;
+  }
+  publish(layout){
+    this.layout=layout;
+    const values={'--watch-avatar-x':layout.x,'--watch-avatar-y':layout.y,'--watch-avatar-width':layout.width,'--watch-avatar-height':layout.height,'--watch-content-top':layout.panelTop,'--watch-content-bottom':this.shell.getBoundingClientRect().height-layout.panelBottom};
+    for(const [key,value]of Object.entries(values)){const px=value.toFixed(2)+'px';if(this.shell.style.getPropertyValue(key)!==px)this.shell.style.setProperty(key,px);}
+    this.shell.dataset.watchCompanion='true';
+  }
   update() {
     if(this.disposed)return;
     const state=this.getState();
-    if(!state.active||this.document.hidden||this.shell.dataset.sleeping==='true') { delete this.shell.dataset.watchCompanion;this.layout=null;return; }
+    if(!state.active||this.document.hidden||this.shell.dataset.sleeping==='true') { this.cancelMotion();delete this.shell.dataset.watchCompanion;this.layout=null;return; }
     const rect=this.shell.getBoundingClientRect(), header=this.document.querySelector('.topbar').getBoundingClientRect();
     const gap=Math.max(12,rect.width*.025);let bottom=rect.height-gap;
     for(const selector of ['#live-captions','#oracle-card','#prompt-form','.wake-status']) {
@@ -37,12 +48,27 @@ export class WatchAvatarLayout {
     }
     const top=Math.max(header.bottom-rect.top+gap,95);
     const layout=computeWatchAvatarLayout({width:rect.width,height:rect.height,top,bottom,position:state.position});
-    if(!layout){delete this.shell.dataset.watchCompanion;this.layout=null;return;}
-    this.layout=layout;
-    const values={'--watch-avatar-x':layout.x,'--watch-avatar-y':layout.y,'--watch-avatar-width':layout.width,'--watch-avatar-height':layout.height,'--watch-content-top':layout.panelTop,'--watch-content-bottom':rect.height-layout.panelBottom};
-    for(const [key,value]of Object.entries(values)){const px=value.toFixed(2)+'px';if(this.shell.style.getPropertyValue(key)!==px)this.shell.style.setProperty(key,px);}
-    this.shell.dataset.watchCompanion='true';
+    if(!layout){this.cancelMotion();delete this.shell.dataset.watchCompanion;this.layout=null;return;}
+    const same=(a,b)=>a&&b&&Object.keys(b).every(key=>Math.abs(a[key]-b[key])<.1);
+    if(same(layout,this.pending))return;
+    const old=this.layout,reduced=this.window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const vertical=old&&(Math.abs(old.y-layout.y)>.1||Math.abs(old.height-layout.height)>.1||Math.abs(old.width-layout.width)>.1);
+    if(!vertical||reduced){this.cancelMotion();this.publish(layout);return;}
+    this.cancelMotion();this.pending=layout;
+    // Reserve both bands during fade-out, then move while invisible. A direct
+    // top/bottom tween would take the face through the movie and its controls.
+    const bounds=this.host.getBoundingClientRect(),unsafe=bounds.top<rect.top+top||bounds.bottom>rect.top+bottom||bounds.left<rect.left||bounds.right>rect.right;
+    this.shell.dataset.watchAvatarMoving=unsafe?'jump':'fade';
+    this.shell.style.setProperty('--watch-content-top',Math.max(old.panelTop,layout.panelTop).toFixed(2)+'px');
+    this.shell.style.setProperty('--watch-content-bottom',(rect.height-Math.min(old.panelBottom,layout.panelBottom)).toFixed(2)+'px');
+    const move=()=>{
+      this.motionTimer=null;if(this.disposed||this.pending!==layout)return;
+      if(!this.getState().active||this.document.hidden||this.shell.dataset.sleeping==='true'){this.update();return;}
+      this.publish(layout);
+      this.motionFrame=this.window.requestAnimationFrame(()=>{this.motionFrame=null;if(!this.getState().active||this.document.hidden||this.shell.dataset.sleeping==='true'){this.update();return;}this.pending=null;delete this.shell.dataset.watchAvatarMoving;});
+    };
+    if(unsafe)move();else this.motionTimer=this.window.setTimeout(move,140);
   }
-  snapshot(){return this.layout?{active:true,...this.layout}:{active:false};}
-  destroy(){this.disposed=true;this.resize.disconnect();this.mutations.disconnect();this.window.removeEventListener('resize',this.schedule);this.document.removeEventListener('visibilitychange',this.schedule);if(this.frame!==null)this.window.cancelAnimationFrame(this.frame);this.frame=null;delete this.shell.dataset.watchCompanion;}
+  snapshot(){return this.layout?{active:true,...this.layout,moving:Boolean(this.pending)}:{active:false};}
+  destroy(){this.disposed=true;this.cancelMotion();this.resize.disconnect();this.mutations.disconnect();this.window.removeEventListener('resize',this.schedule);this.document.removeEventListener('visibilitychange',this.schedule);if(this.frame!==null)this.window.cancelAnimationFrame(this.frame);this.frame=null;delete this.shell.dataset.watchCompanion;}
 }

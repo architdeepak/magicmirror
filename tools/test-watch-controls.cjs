@@ -37,9 +37,28 @@ const context=vm.createContext({Number,Error});vm.runInContext(source+'\nglobalT
   console.log('Watch audio: late media load, stable attenuation, mute/zero volume, user override, late volume event and cleanup passed.');
   console.log('Watch controls passed: shared play/pause/seek, range limits, unsupported embed handling, and actual playback state.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
-const layoutContext=vm.createContext({Number,Math});vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchAvatarLayout.js'),'utf8').replaceAll('export function','function').replaceAll('export class','class')+';globalThis.compute=computeWatchAvatarLayout;',layoutContext);
+const layoutContext=vm.createContext({Number,Math});vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchAvatarLayout.js'),'utf8').replaceAll('export function','function').replaceAll('export class','class')+';globalThis.compute=computeWatchAvatarLayout;globalThis.Layout=WatchAvatarLayout;',layoutContext);
 for(const [width,height]of [[540,960],[720,1280],[1080,1920],[405,720]])for(const position of ['center','left','right','upper','lower']){
  const top=95,bottom=height-280,box=layoutContext.compute({width,height,top,bottom,position});assert(box);assert(box.width>0&&box.height>0);assert(box.x>=0&&box.x+box.width<=width);assert(box.y>=top&&box.y+box.height<=bottom);assert(box.panelBottom>box.panelTop);if(position==='upper')assert(box.panelTop>=box.y+box.height+box.gap-1e-8);else assert(box.panelBottom<=box.y-box.gap+1e-8);
 }
 assert.equal(layoutContext.compute({width:0,height:100,top:0,bottom:100}),null);assert.equal(layoutContext.compute({width:500,height:900,top:600,bottom:650}),null);
 console.log('Watch avatar geometry: separate content/host bands for five positions across four portrait sizes, bounds and insufficient-space fallback passed.');
+
+// Deterministic transition ownership: no stale fade can restore a stopped host.
+{
+ let active=true,position='left',reduced=false,id=0;const timers=new Map(),frames=new Map(),styles=new Map();
+ const shell={dataset:{},style:{getPropertyValue:k=>styles.get(k)||'',setProperty:(k,v)=>styles.set(k,v)},getBoundingClientRect:()=>({top:0,left:0,right:540,bottom:960,width:540,height:960})};
+ const layout=Object.create(layoutContext.Layout.prototype);Object.assign(layout,{shell,document:{hidden:false,querySelector:selector=>selector==='.topbar'?{getBoundingClientRect:()=>({bottom:70})}:selector==='.wake-status'?{getBoundingClientRect:()=>({top:850,height:20})}:null},window:{matchMedia:()=>({matches:reduced}),setTimeout:fn=>{timers.set(++id,fn);return id},clearTimeout:key=>timers.delete(key),requestAnimationFrame:fn=>{frames.set(++id,fn);return id},cancelAnimationFrame:key=>frames.delete(key)},getState:()=>({active,position}),host:{getBoundingClientRect:()=>({left:layout.layout.x,right:layout.layout.x+layout.layout.width,top:layout.layout.y,bottom:layout.layout.y+layout.layout.height})},frame:null,disposed:false,layout:null});
+ layout.update();position='upper';layout.update();assert.equal(timers.size,1);assert.equal(shell.dataset.watchAvatarMoving,'fade');const stale=[...timers.values()][0];
+ position='right';layout.update();assert.equal(timers.size,0);assert(!layout.pending);stale();assert.equal(layout.layout.x,540-layout.layout.width-27,'Superseded fade moved current position');
+ position='upper';layout.update();const stopped=[...timers.values()][0];active=false;timers.clear();stopped();assert.equal(layout.snapshot().active,false);assert(!shell.dataset.watchCompanion);assert.equal(frames.size,0);
+ active=true;position='left';layout.update();position='upper';layout.update();layout.cancelMotion();assert(!shell.dataset.watchAvatarMoving);assert(!layout.pending);
+ reduced=true;layout.update();assert.equal(timers.size,0);assert.equal(layout.layout.y,95);
+ reduced=false;position='lower';layout.update();shell.dataset.sleeping='true';layout.update();assert.equal(timers.size,0);assert(!layout.snapshot().active);
+ delete shell.dataset.sleeping;layout.document.hidden=true;layout.update();assert(!layout.snapshot().active);
+ layout.document.hidden=false;position='left';layout.update();position='upper';layout.update();const moving=[...timers.values()][0];timers.clear();moving();assert.equal(frames.size,1);
+ active=false;const afterMove=[...frames.values()][0];frames.clear();afterMove();assert(!layout.snapshot().active);assert(!shell.dataset.watchAvatarMoving);
+ active=true;position='left';layout.update();position='upper';layout.update();const retired=[...timers.values()][0];
+ layout.resize={disconnect(){}};layout.mutations={disconnect(){}};layout.window.removeEventListener=()=>{};layout.document.removeEventListener=()=>{};layout.destroy();retired();layout.schedule();assert.equal(timers.size,0);assert.equal(frames.size,0);assert(layout.disposed);assert(!shell.dataset.watchCompanion);
+ console.log('Watch movement: reserved fade, superseding destination, Stop before timeout, exact cancellation, reduced motion, sleep and hidden document passed.');
+}
