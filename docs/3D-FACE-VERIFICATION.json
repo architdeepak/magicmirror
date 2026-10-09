@@ -187,5 +187,71 @@
       "errors": [],
       "scope": "Prior immutable build; does not validate new rig."
     }
-  ]
+  ],
+  "monitor": {
+    "directory": "artifacts/monitor/2026-10-09T01-22-14-039Z",
+    "build": {
+      "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+      "gitRevision": "4793595cfd3907905d233c4a2a7256b94c128b43",
+      "isolatedCopy": true,
+      "avatarStyle": "rig"
+    },
+    "status": "monitoring",
+    "sampleCount": 5,
+    "errors": [],
+    "latestAvatar": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "resolution": [
+        253,
+        471
+      ],
+      "frames": 0,
+      "reuses": 0,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 12,
+      "drawCalls": 1
+    },
+    "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "plannedDurationSeconds": 7200
+  }
 }
