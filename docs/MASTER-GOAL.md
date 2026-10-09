@@ -249,3 +249,5 @@ The goal tool and this file describe the same objective. If future user steering
 - **Codex Watch checkpoint:** [shared player controls and actual installed-agent task](CODEX-WATCH-2026-10-09.md). Codex set public YouTube volume to 37 and paused it; independent player state confirmed both. Packaged shared-tool playback/ducking and full tests pass. Broad autonomous tasks and all suite gates remain open.
 
 - **Watch source-ownership checkpoint:** [invalid-link control preservation](WATCH-LOAD-OWNERSHIP-2026-10-09.md). Actual public YouTube baseline loses its bridge; final package preserves source/ready/volume and subsequent real Codex controls. Pending-load/stale-error tests, full suite and four-viewport UI pass. All full-suite gates remain open.
+
+- **Hair-dome checkpoint:** [rounder latitude-sampled upper roots](HAIR-DOME-2026-10-09.md). Reviewed Snow/Queen contour and continuous native/software motion; real PCM and full tests pass. Rejected fiber shading removed. Adds 768 triangles with no extra draws/materials/textures; all full-suite gates remain open.
