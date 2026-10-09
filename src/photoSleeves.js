@@ -66,8 +66,15 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     const t = (v <= pattern.underarm ? (v-shoulderV)/(pattern.underarm-shoulderV)*.32 : .32+(v-pattern.underarm)/(pattern.hem-pattern.underarm)*.68)*length;
     const center = mix(top,bottom,t+offset), a=mix(sides[0].s,sides[0].h,Math.max(0,Math.min(1,t))), b=mix(sides[1].s,sides[1].h,Math.max(0,Math.min(1,t)));
     const across = Math.max(0, Math.min(1, (v-shoulderV)/(pattern.underarm-shoulderV)));
-    const left = pattern.sides[0].outer.u+(pattern.sides[0].inner.u-pattern.sides[0].outer.u)*across;
-    const right = pattern.sides[1].outer.u+(pattern.sides[1].inner.u-pattern.sides[1].outer.u)*across;
+    let left = pattern.sides[0].outer.u+(pattern.sides[0].inner.u-pattern.sides[0].outer.u)*across;
+    let right = pattern.sides[1].outer.u+(pattern.sides[1].inner.u-pattern.sides[1].outer.u)*across;
+    if(pattern.bodySamples && v>pattern.underarm){
+      const samples=pattern.bodySamples;
+      const next=samples.findIndex(p=>p.v>=v),end=next<0?samples.length-1:Math.max(1,next);
+      const a=samples[end-1],b=samples[end],lower=Math.max(0,Math.min(1,(v-a.v)/(b.v-a.v)));
+      left=a.left+(b.left-a.left)*lower;
+      right=a.right+(b.right-a.right)*lower;
+    }
     // Pose joints lie inside the body. Estimate a modest garment allowance
     // along the shoulder/hip axis, so leaning and profile views stay coherent.
     // This is visual coverage, not a measurement of the wearer's size.

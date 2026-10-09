@@ -25,14 +25,26 @@ export function inferLongPhotoSleeves({width,height,data}){
   if(available.length<height*.2)return null;
   const last=available.at(-1),cuffY=last-Math.max(2,Math.round(height*.018));
   const cuff=rows[cuffY]?.[key];if(!cuff||cuffY-underarm<height*.22||cuff.right-cuff.left>bodyWidth*.5)return null;
-  const root={outer:{u:shoulderX/width,v:shoulderY/height},inner:{u:bodyX/width,v:underarm/height}};
+  // The median lower-body edge can cross a detached sleeve at the underarm.
+  // Bind the shared root to the central body run of this exact source row.
+  const underarmBody=rows[underarm].body;
+  const root={outer:{u:shoulderX/width,v:shoulderY/height},inner:{u:(sign===1?underarmBody.left:underarmBody.right)/width,v:underarm/height}};
   const samples=[{t:0,...root}],step=Math.max(2,Math.round(height*.035));
   const add=y=>{const run=rows[y]?.[key];if(!run)return false;const outer=sign===1?run.left:run.right,inner=sign===1?run.right:run.left;
    samples.push({t:(y-centerRootY)/(cuffY-centerRootY),outer:{u:outer/width,v:y/height},inner:{u:inner/width,v:y/height}});return true;};
   for(let y=underarm;y<cuffY;y+=step)if(!add(y))return null;add(cuffY);
   sides.push({...root,cuffOuter:samples.at(-1).outer,cuffInner:samples.at(-1).inner,samples});
  }
- return {kind:'photo-long-sleeve',long:true,sides,underarm:underarm/height,hem:.99};
+ // Reuse the existing torso mesh rows. A few central-run samples keep a
+ // curved source seam away from detached sleeves without per-frame scans.
+ const bodySamples=[{v:underarm/height,left:sides[0].inner.u,right:sides[1].inner.u}];
+ for(const v of [.5,.65,.8]){
+  if(v<=underarm/height)continue;
+  const body=rows[Math.min(height-1,Math.round(v*height))].body;
+  if(body)bodySamples.push({v,left:body.left/width,right:body.right/width});
+ }
+ bodySamples.push({v:.99,left:bodyLeft/width,right:bodyRight/width});
+ return {kind:'photo-long-sleeve',long:true,sides,bodySamples,underarm:underarm/height,hem:.99};
 }
 export function samplePhotoSleeve(side,q,t){
  const samples=side.samples;

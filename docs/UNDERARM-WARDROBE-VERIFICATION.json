@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "archiveSha256": "da69c7d73c427d05debf1538ac561457325c768c4ccf1e0b5fe5294021141291",
+  "full": {
+    "sleeveStyle": "photo-long-sleeve",
+    "missingSleeves": 0,
+    "imageReady": true,
+    "visible": true,
+    "garmentView": "front",
+    "backImageReady": false,
+    "curvedTorso": false,
+    "cameraActive": true,
+    "trackingReady": true,
+    "cameraClarity": "off",
+    "clarityCostMs": 0,
+    "bodyDetected": true,
+    "frameAgeMs": 13.400000095367432,
+    "status": "The garment overlay is visible on the live camera."
+  },
+  "partial": {
+    "sleeveStyle": "photo-long-sleeve",
+    "missingSleeves": 1,
+    "imageReady": true,
+    "visible": true,
+    "garmentView": "front",
+    "backImageReady": false,
+    "curvedTorso": false,
+    "cameraActive": true,
+    "trackingReady": true,
+    "cameraClarity": "off",
+    "clarityCostMs": 0,
+    "bodyDetected": true,
+    "frameAgeMs": 25.299999952316284,
+    "status": "Torso fitted; keep elbows and wrists visible for full sleeves."
+  },
+  "checks": [
+    "DOM long photo upload/cutout and real native save",
+    "exact original retained",
+    "voice wardrobe selection reaches articulated long texture",
+    "real synthetic camera MediaStream transport",
+    "structured full/partial sleeve state and user guidance",
+    "one/both missing wrists retain correct torso; recovery restores sleeves",
+    "ended camera clears outfit"
+  ],
+  "scope": "Actual packaged Linux UI, native storage, voice command callback and real synthetic MediaStream. Pose/depth/segmentation are fixtures; no acoustic voice, physical camera/gesture or garment realism proof."
+}

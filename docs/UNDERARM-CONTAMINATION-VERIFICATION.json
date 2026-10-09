@@ -1,0 +1,173 @@
+{
+  "baselineRevision": "692b453",
+  "results": [
+    {
+      "name": "jin_00_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 189,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_01_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 47,
+      "afterPixels": 40
+    },
+    {
+      "name": "jin_02_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "jin_03_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 19,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_04_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "jin_05_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "jin_06_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_07_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 23,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_08_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_09_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_10_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_11_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_12_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 16,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_13_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "jin_14_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_15_white_bg.jpg",
+      "kind": "needs cutout"
+    },
+    {
+      "name": "jin_16_white_bg.jpg",
+      "kind": "needs cutout"
+    },
+    {
+      "name": "jin_17_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_18_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 49,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_19_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_20_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 93,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_21_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_22_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_23_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_24_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "jin_25_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 0,
+      "afterPixels": 0
+    },
+    {
+      "name": "jin_26_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 0,
+      "afterPixels": 0
+    },
+    {
+      "name": "lab_00_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "lab_01_white_bg.jpg",
+      "kind": "needs cutout"
+    },
+    {
+      "name": "lab_02_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 70,
+      "afterPixels": 0
+    },
+    {
+      "name": "lab_03_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "lab_04_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "lab_05_white_bg.jpg",
+      "kind": "torso-only"
+    },
+    {
+      "name": "lab_06_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "lab_07_white_bg.jpg",
+      "kind": "photo-short-sleeve"
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "kind": "photo-long-sleeve",
+      "beforePixels": 271,
+      "afterPixels": 0
+    }
+  ],
+  "scope": "36 real garment textures; opaque runs separated from the central body by the inference gap/width thresholds below the source underarm are recolored magenta, then only torso triangles are rasterized on explicit synthetic landmarks. Counts expose unintended sleeve sampling, not physical drape/fit/segmentation accuracy.",
+  "passed": true
+}

@@ -4,13 +4,17 @@ const fs = require('fs/promises'), path = require('path'), assert = require('ass
 const {pathToFileURL} = require('url'), {execFileSync} = require('child_process');
 const {createHash} = require('crypto');
 app.disableHardwareAcceleration();
-const root = path.resolve(__dirname, '..'), baselineRevision = '001ff6a';
+const photoNames=(process.env.MIRROR_PHOTO_FILES||'lab_06_white_bg.jpg,lab_08_white_bg.jpg').split(',');
+assert(photoNames.every(name=>/^[a-zA-Z0-9_-]+\.jpg$/.test(name)));
+const root = path.resolve(__dirname, '..'), baselineRevision = process.env.MIRROR_PHOTO_BASELINE || '001ff6a';
 app.whenReady().then(async () => {
   const out = path.join(root, 'artifacts/photo-shoulders');
   await fs.mkdir(out, {recursive: true});
   const baselineSource = execFileSync('git', ['show', baselineRevision + ':src/photoSleeves.js'], {cwd: root, encoding: 'utf8'});
   const baseline = path.join(out, 'baseline.mjs');
-  await fs.writeFile(baseline, baselineSource.replaceAll("'./longPhotoSleeves.js'", JSON.stringify(pathToFileURL(path.join(root, 'src/longPhotoSleeves.js')).href)).replaceAll("'./sleeveNormals.js'", JSON.stringify(pathToFileURL(path.join(root, 'src/sleeveNormals.js')).href)));
+  const baselineLong=path.join(out,'baseline-long.mjs');
+  await fs.writeFile(baselineLong,execFileSync('git',['show',baselineRevision+':src/longPhotoSleeves.js'],{cwd:root,encoding:'utf8'}));
+  await fs.writeFile(baseline, baselineSource.replaceAll("'./longPhotoSleeves.js'", JSON.stringify(pathToFileURL(baselineLong).href)).replaceAll("'./sleeveNormals.js'", JSON.stringify(pathToFileURL(path.join(root, 'src/sleeveNormals.js')).href)));
   const fixture = path.join(out, 'fixture.html');
   await fs.writeFile(fixture, '<canvas width="1080" height="960"></canvas>');
   const win = new BrowserWindow({width: 1080, height: 960, show: false, webPreferences: {offscreen: true, contextIsolation: true, nodeIntegration: false}});
@@ -18,13 +22,13 @@ app.whenReady().then(async () => {
     await win.loadFile(fixture);
     const rows = await win.webContents.executeJavaScript(`(async () => {
       const {prepareTexture}=await import(${JSON.stringify(pathToFileURL(path.join(root, 'src/garmentOverlay.js')).href)});
-      const {buildPhotoSleeves:before}=await import(${JSON.stringify(pathToFileURL(baseline).href)});
+      const {buildPhotoSleeves:before,inferPhotoSleeves:inferBefore}=await import(${JSON.stringify(pathToFileURL(baseline).href)});
       const {buildPhotoSleeves:after}=await import(${JSON.stringify(pathToFileURL(path.join(root, 'src/photoSleeves.js')).href)});
       const {drawTexturedTriangle}=await import(${JSON.stringify(pathToFileURL(path.join(root, 'src/garmentGeometry.js')).href)});
       const cases=[],canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
-      for(const [name,url] of ${JSON.stringify(['lab_06_white_bg.jpg', 'lab_08_white_bg.jpg'].map(name => [name, pathToFileURL(path.join(root, '.tools/rtv/assets/garment_images', name)).href]))}) {
+      for(const [name,url] of ${JSON.stringify(photoNames.map(name => [name, pathToFileURL(path.join(root, '.tools/rtv/assets/garment_images', name)).href]))}) {
         const image=new Image();image.src=url;await image.decode();const texture=prepareTexture(image,{mirror:true});
-        if(!texture.photoPattern)throw Error('Missing pattern '+name);
+        if(!texture.photoPattern)throw Error('Missing pattern '+name);const beforePattern=inferBefore(texture.getContext('2d').getImageData(0,0,texture.width,texture.height));if(!beforePattern)throw Error('Missing baseline pattern');
         for(const mode of ['down','raised','crossed','lean','partial']) {
           const pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
           for(const [i,x,y] of [[11,.7,.3],[12,.3,.3],[23,.64,.62],[24,.36,.62],[13,.86,.47],[14,.14,.47],[15,.9,.66],[16,.1,.66]])Object.assign(pose[i],{x,y,visibility:1});
@@ -34,7 +38,7 @@ app.whenReady().then(async () => {
           if(mode==='partial'){pose[13].visibility=.1;pose[15].visibility=.1;}
           ctx.fillStyle='#15202b';ctx.fillRect(0,0,1080,960);const metrics=[];
           for(const [column,build] of [before,after].entries()) {
-            const mesh=build(pose,{width:540,height:960},{width:540,height:960},{photoPattern:texture.photoPattern,normalHistory:{}});
+            const mesh=build(pose,{width:540,height:960},{width:540,height:960},{photoPattern:column===0?beforePattern:texture.photoPattern,normalHistory:{}});
             if(!mesh)throw Error('Unexpected torso loss');
             for(const p of mesh.flat())if(![p.x,p.y,p.z,p.u,p.v].every(Number.isFinite))throw Error('Nonfinite vertex');
             const byUV=new Map();for(const p of mesh.flat()){const key=p.u.toFixed(8)+':'+p.v.toFixed(8),old=byUV.get(key);if(old&&Math.hypot(old.x-p.x,old.y-p.y,old.z-p.z)>1e-6)throw Error('Split seam');byUV.set(key,p);}
@@ -48,7 +52,7 @@ app.whenReady().then(async () => {
       return cases;
     })()`);
     const sheet = await win.webContents.executeJavaScript(`(async()=>{
-      const canvas=document.createElement('canvas');canvas.width=2160;canvas.height=1440;
+      const canvas=document.createElement('canvas');canvas.width=2160;canvas.height=${Math.ceil(rows.length/4)*480};
       const ctx=canvas.getContext('2d');ctx.fillStyle='#15202b';ctx.fillRect(0,0,canvas.width,canvas.height);
       for(const [i,url] of ${JSON.stringify(rows.map(row => row.png))}.entries()){
         const image=new Image();image.src=url;await image.decode();ctx.drawImage(image,(i%4)*540,Math.floor(i/4)*480,540,480);
@@ -63,7 +67,7 @@ app.whenReady().then(async () => {
       await fs.writeFile(path.join(out, row.name.replace('.jpg', '') + '-' + row.mode + '.png'), Buffer.from(row.png.split(',')[1], 'base64'));
       delete row.png;
     }
-    const report = {passed: true, baselineRevision, baselineSourceSha256: createHash('sha256').update(baselineSource).digest('hex'), cases: rows, scope: 'Actual software Electron canvas, two public short/long garment photographs, five explicit synthetic landmark poses each. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy.'};
+    const report = {passed: true, baselineRevision, baselineSourceSha256: createHash('sha256').update(baselineSource).digest('hex'), cases: rows, scope: 'Actual software Electron canvas, selected public short/long garment photographs, five explicit synthetic landmark poses each. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy.'};
     await fs.writeFile(path.join(out, 'result.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({passed: true, cases: rows.length}));
   } finally {win.destroy();}

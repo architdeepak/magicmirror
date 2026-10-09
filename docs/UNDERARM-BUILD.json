@@ -1,0 +1,16 @@
+{
+  "archiveSha256": "da69c7d73c427d05debf1538ac561457325c768c4ccf1e0b5fe5294021141291",
+  "sources": {
+    "src/photoSleeves.js": {
+      "sha256": "ebbad518297985ea694bc1591aaa15e56843f9f779a373448860e74f63c52239",
+      "packagedMatch": true
+    },
+    "src/longPhotoSleeves.js": {
+      "sha256": "7344a37cf66397376be499d87eb92b6b4dba0c3360064c443329c3d5d919690a",
+      "packagedMatch": true
+    }
+  },
+  "fullTestExitCode": 0,
+  "packExitCode": 0,
+  "baselineRevision": "692b453"
+}

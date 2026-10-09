@@ -50,6 +50,17 @@ const longWidth=200,longHeight=220,longData=new Uint8ClampedArray(longWidth*long
 for(let y=12;y<215;y++)for(let x=65;x<=135;x++)longData[(y*longWidth+x)*4+3]=255;
 for(let y=20;y<=195;y++){const center=65-(y-20)*.3,radius=20-(y-20)*.055;for(let x=Math.max(0,Math.ceil(center-radius));x<=Math.floor(center+radius);x++){longData[(y*longWidth+x)*4+3]=255;longData[(y*longWidth+(longWidth-1-x))*4+3]=255;}}
 const longPattern=scope.inferPhotoSleeves({width:longWidth,height:longHeight,data:longData});assert.equal(longPattern?.kind,'photo-long-sleeve');
+assert(longPattern.bodySamples.length<=5);
+assert.equal(longPattern.bodySamples[0].v,longPattern.underarm);
+for(const row of longPattern.bodySamples)assert(row.left<row.right&&[row.v,row.left,row.right].every(Number.isFinite));
+const flaredData=new Uint8ClampedArray(longData);
+for(let y=145;y<215;y++)for(let x=60;x<=145;x++)flaredData[(y*longWidth+x)*4+3]=255;
+const flared=scope.inferPhotoSleeves({width:longWidth,height:longHeight,data:flaredData});
+assert.equal(flared?.kind,'photo-long-sleeve');
+assert.equal(flared.sides[0].inner.u,65/longWidth,'Left root used the wider lower body edge');
+assert.equal(flared.sides[1].inner.u,135/longWidth,'Right root used the wider lower body edge');
+assert(flared.bodySamples.at(-1).right>flared.sides[1].inner.u,'Lower source body width was discarded');
+console.log('Long-photo underarms: bounded contour rows and exact central-body seam despite wider asymmetric lower fabric passed.');
 for(const side of longPattern.sides){assert(side.samples.length<32);assert.equal(side.samples[0].t,0);assert.equal(side.samples.at(-1).t,1);assert(side.samples.every((p,i)=>!i||p.t>side.samples[i-1].t));}
 for(const [i,x,y]of [[11,.7,.3],[12,.3,.3],[13,.85,.45],[14,.15,.45],[15,.9,.7],[16,.1,.7],[23,.64,.62],[24,.36,.62]])Object.assign(pose[i],{x,y,z:0,visibility:1});
 for(const length of [.7,1,1.5]){
