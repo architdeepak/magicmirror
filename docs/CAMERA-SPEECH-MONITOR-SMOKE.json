@@ -1,0 +1,3365 @@
+{
+  "summary": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 21,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T15:48:04.726Z",
+      "elapsedSec": 67.514,
+      "cpuPercent": 47.41769858048928,
+      "summedRssBytes": 1912795136,
+      "processCount": 5,
+      "rendererHeapBytes": 15406184,
+      "gpu": {
+        "deviceWide": "6.78, 1, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 389,
+        "reuses": 764,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 1401,
+        "scene": {
+          "frames": 26,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 9.200000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "running",
+        "hiddenAnimationRunning": true,
+        "workletConnected": true,
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "visemeModel": "ready",
+          "predictedViseme": 8,
+          "contextState": "running"
+        }
+      },
+      "speech": {
+        "active": true,
+        "bursts": 3,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 29933.799999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 6648.900000095367,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 220,
+          "lastPoseAt": 62368.299999952316,
+          "inferenceMs": 27,
+          "worker": true
+        }
+      }
+    },
+    "appExit": null,
+    "build": {
+      "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+      "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": true,
+      "phaseSeconds": 10,
+      "fixtureHashes": {
+        "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+        ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+      },
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "e4f2164b419bf78d3d9f4686d55ab4ccb30b5ff03cf7feb40daba8180e43a271",
+        "tools/monitor-camera.cjs": "540ab3ff09ee9db05e8f6508cc1b5cbc82918a9c9f2757d92df04ef52836ec10"
+      }
+    }
+  },
+  "build": {
+    "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+    "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "phaseSeconds": 10,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "e4f2164b419bf78d3d9f4686d55ab4ccb30b5ff03cf7feb40daba8180e43a271",
+      "tools/monitor-camera.cjs": "540ab3ff09ee9db05e8f6508cc1b5cbc82918a9c9f2757d92df04ef52836ec10"
+    }
+  },
+  "samples": [
+    {
+      "at": "2026-10-09T15:47:01.387Z",
+      "elapsedSec": 4.175,
+      "cpuPercent": 111.37724550898204,
+      "summedRssBytes": 1546829824,
+      "processCount": 5,
+      "rendererHeapBytes": 14223260,
+      "gpu": {
+        "deviceWide": "9.78, 9, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 45,
+        "reuses": 88,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 135,
+        "scene": {
+          "frames": 7,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 7.400000095367432,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "running",
+        "hiddenAnimationRunning": true,
+        "workletConnected": true,
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.3939414603982332,
+          "viseme": "EE",
+          "windowSamples": 512,
+          "visemeModel": "ready",
+          "predictedViseme": 8,
+          "contextState": "running"
+        }
+      },
+      "speech": {
+        "active": true,
+        "bursts": 1,
+        "finishedAt": -1000,
+        "idleMs": 6793.5
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 1177.0999999046326,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 37.799999952316284,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 6,
+          "lastPoseAt": 5754.100000143051,
+          "inferenceMs": 25.699999809265137,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:04.433Z",
+      "elapsedSec": 7.221,
+      "cpuPercent": 132.30466185160867,
+      "summedRssBytes": 1875320832,
+      "processCount": 5,
+      "rendererHeapBytes": 18302312,
+      "gpu": {
+        "deviceWide": "10.07, 10, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 118,
+        "reuses": 106,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 226,
+        "scene": {
+          "frames": 8,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 13.5,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 1100.5
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 4221.700000047684,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 35.200000047683716,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 32,
+          "lastPoseAt": 8801.200000047684,
+          "inferenceMs": 28,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:07.749Z",
+      "elapsedSec": 10.537,
+      "cpuPercent": 125.45235223160435,
+      "summedRssBytes": 1933070336,
+      "processCount": 5,
+      "rendererHeapBytes": 13861308,
+      "gpu": {
+        "deviceWide": "9.54, 6, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          312,
+          574
+        ],
+        "frames": 156,
+        "reuses": 159,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 321,
+        "scene": {
+          "frames": 10,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 8.099999904632568,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 4438.799999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 285.7999999523163,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 58,
+          "lastPoseAt": 11836.400000095367,
+          "inferenceMs": 25.799999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:10.820Z",
+      "elapsedSec": 13.608,
+      "cpuPercent": 49.16965157929013,
+      "summedRssBytes": 1932693504,
+      "processCount": 5,
+      "rendererHeapBytes": 14047104,
+      "gpu": {
+        "deviceWide": "5.74, 1, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 156,
+        "reuses": 159,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 357,
+        "scene": {
+          "frames": 10,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.09999990463256836,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 7489.200000047684
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 3348.899999856949,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 58,
+          "lastPoseAt": 11836.400000095367,
+          "inferenceMs": 25.799999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:13.873Z",
+      "elapsedSec": 16.661,
+      "cpuPercent": 44.87389452997052,
+      "summedRssBytes": 1945513984,
+      "processCount": 5,
+      "rendererHeapBytes": 14195028,
+      "gpu": {
+        "deviceWide": "6.46, 3, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 156,
+        "reuses": 159,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 394,
+        "scene": {
+          "frames": 10,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.40000009536743164,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 10541.700000047684
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 6401.5,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 58,
+          "lastPoseAt": 11836.400000095367,
+          "inferenceMs": 25.799999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:16.920Z",
+      "elapsedSec": 19.708,
+      "cpuPercent": 42.33672464719396,
+      "summedRssBytes": 1948160000,
+      "processCount": 5,
+      "rendererHeapBytes": 14329380,
+      "gpu": {
+        "deviceWide": "5.80, 1, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 156,
+        "reuses": 159,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 430,
+        "scene": {
+          "frames": 10,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 7.200000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 13587.299999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 9447.399999856949,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 58,
+          "lastPoseAt": 11836.400000095367,
+          "inferenceMs": 25.799999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:20.217Z",
+      "elapsedSec": 23.005,
+      "cpuPercent": 48.52896572641795,
+      "summedRssBytes": 1948348416,
+      "processCount": 5,
+      "rendererHeapBytes": 16161544,
+      "gpu": {
+        "deviceWide": "7.72, 8, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          209,
+          253
+        ],
+        "frames": 163,
+        "reuses": 159,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 474,
+        "scene": {
+          "frames": 12,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 12.100000143051147,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 16888.799999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 257,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 120.90000009536743,
+          "status": "Step back so your shoulders and hips are visible."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 60,
+          "lastPoseAt": 24503.799999952316,
+          "inferenceMs": 27.5,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:23.263Z",
+      "elapsedSec": 26.051,
+      "cpuPercent": 116.87458962573868,
+      "summedRssBytes": 1968943104,
+      "processCount": 5,
+      "rendererHeapBytes": 14050388,
+      "gpu": {
+        "deviceWide": "9.91, 4, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 179,
+        "reuses": 234,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 565,
+        "scene": {
+          "frames": 12,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 5.300000190734863,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 19940.900000095367
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 3308.9000000953674,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 40.10000014305115,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 86,
+          "lastPoseAt": 27636.5,
+          "inferenceMs": 23.40000009536743,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:26.315Z",
+      "elapsedSec": 29.103,
+      "cpuPercent": 120.9043250327654,
+      "summedRssBytes": 1962864640,
+      "processCount": 5,
+      "rendererHeapBytes": 14207676,
+      "gpu": {
+        "deviceWide": "10.77, 9, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 216,
+        "reuses": 286,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 654,
+        "scene": {
+          "frames": 12,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.09999990463256836,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 22986.200000047684
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 6353.299999952316,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 50.80000019073486,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 112,
+          "lastPoseAt": 30670.299999952316,
+          "inferenceMs": 24.899999856948853,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:29.531Z",
+      "elapsedSec": 32.319,
+      "cpuPercent": 117.22636815920397,
+      "summedRssBytes": 1969741824,
+      "processCount": 5,
+      "rendererHeapBytes": 14585280,
+      "gpu": {
+        "deviceWide": "9.08, 4, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 234,
+        "reuses": 363,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 749,
+        "scene": {
+          "frames": 14,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 11.400000095367432,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 26198.599999904633
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "camera-off",
+        "phaseAgeMs": 174.10000014305115,
+        "captures": 2,
+        "pumping": false,
+        "sourcePaused": true,
+        "streamActive": false,
+        "activeStreams": 0,
+        "video": {
+          "width": 0,
+          "height": 0
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": false,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Turn on the camera to see your live fit."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:32.847Z",
+      "elapsedSec": 35.635,
+      "cpuPercent": 16.887816646562126,
+      "summedRssBytes": 1966161920,
+      "processCount": 5,
+      "rendererHeapBytes": 14277176,
+      "gpu": {
+        "deviceWide": "4.78, 2, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 242,
+        "reuses": 449,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 843,
+        "scene": {
+          "frames": 14,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.9000000953674316,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "running",
+        "hiddenAnimationRunning": true,
+        "workletConnected": true,
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.4027621574912439,
+          "viseme": "EE",
+          "windowSamples": 512,
+          "visemeModel": "ready",
+          "predictedViseme": 8,
+          "contextState": "running"
+        }
+      },
+      "speech": {
+        "active": true,
+        "bursts": 2,
+        "finishedAt": 7736.700000047684,
+        "idleMs": 29518.400000095367
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "camera-off",
+        "phaseAgeMs": 3493.300000190735,
+        "captures": 2,
+        "pumping": false,
+        "sourcePaused": true,
+        "streamActive": false,
+        "activeStreams": 0,
+        "video": {
+          "width": 0,
+          "height": 0
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": false,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Turn on the camera to see your live fit."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:35.897Z",
+      "elapsedSec": 38.685,
+      "cpuPercent": 38.36065573770492,
+      "summedRssBytes": 1959124992,
+      "processCount": 5,
+      "rendererHeapBytes": 14328204,
+      "gpu": {
+        "deviceWide": "6.16, 3, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 309,
+        "reuses": 470,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 931,
+        "scene": {
+          "frames": 15,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.09999990463256836,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 1104.7999999523163
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "camera-off",
+        "phaseAgeMs": 6542,
+        "captures": 2,
+        "pumping": false,
+        "sourcePaused": true,
+        "streamActive": false,
+        "activeStreams": 0,
+        "video": {
+          "width": 0,
+          "height": 0
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": false,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Turn on the camera to see your live fit."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:39.330Z",
+      "elapsedSec": 42.118,
+      "cpuPercent": 34.37226915234489,
+      "summedRssBytes": 1968308224,
+      "processCount": 5,
+      "rendererHeapBytes": 14087068,
+      "gpu": {
+        "deviceWide": "5.32, 5, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          316,
+          587
+        ],
+        "frames": 309,
+        "reuses": 561,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 1027,
+        "scene": {
+          "frames": 17,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 7.799999952316284,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 4542.599999904633
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "sleep",
+        "phaseAgeMs": 396.7000000476837,
+        "captures": 3,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:42.385Z",
+      "elapsedSec": 45.173,
+      "cpuPercent": 44.51718494271685,
+      "summedRssBytes": 1963458560,
+      "processCount": 5,
+      "rendererHeapBytes": 14155476,
+      "gpu": {
+        "deviceWide": "5.56, 0, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": true,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 309,
+        "reuses": 561,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 0,
+        "frames": 1039,
+        "scene": {
+          "frames": 17,
+          "dynamic": false,
+          "dirty": true,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 6.700000047683716,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 7596.900000095367
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "sleep",
+        "phaseAgeMs": 3451.2000000476837,
+        "captures": 3,
+        "pumping": false,
+        "sourcePaused": true,
+        "streamActive": false,
+        "activeStreams": 0,
+        "video": {
+          "width": 0,
+          "height": 0
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": false,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:45.436Z",
+      "elapsedSec": 48.224,
+      "cpuPercent": 9.177318911832186,
+      "summedRssBytes": 1914216448,
+      "processCount": 5,
+      "rendererHeapBytes": 14180148,
+      "gpu": {
+        "deviceWide": "5.03, 2, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": true,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 309,
+        "reuses": 561,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 0,
+        "frames": 1039,
+        "scene": {
+          "frames": 17,
+          "dynamic": false,
+          "dirty": true,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.7000000476837158,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 10649.099999904633
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "sleep",
+        "phaseAgeMs": 6502.5,
+        "captures": 3,
+        "pumping": false,
+        "sourcePaused": true,
+        "streamActive": false,
+        "activeStreams": 0,
+        "video": {
+          "width": 0,
+          "height": 0
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": false,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 138,
+          "lastPoseAt": 33720.5,
+          "inferenceMs": 23.299999952316284,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:48.934Z",
+      "elapsedSec": 51.722,
+      "cpuPercent": 26.014865637507146,
+      "summedRssBytes": 1951514624,
+      "processCount": 5,
+      "rendererHeapBytes": 14859888,
+      "gpu": {
+        "deviceWide": "7.51, 10, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          233
+        ],
+        "frames": 318,
+        "reuses": 565,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 1053,
+        "scene": {
+          "frames": 21,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 38.30000019073486,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 14144
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 446.2999999523163,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 136.79999995231628,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": true,
+          "requests": 142,
+          "lastPoseAt": 53203.60000014305,
+          "inferenceMs": 21.899999856948853,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:51.983Z",
+      "elapsedSec": 54.771,
+      "cpuPercent": 115.11971138078059,
+      "summedRssBytes": 1949466624,
+      "processCount": 5,
+      "rendererHeapBytes": 14143116,
+      "gpu": {
+        "deviceWide": "9.65, 7, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 331,
+        "reuses": 641,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 1142,
+        "scene": {
+          "frames": 23,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 5.700000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 17192.799999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 3495.399999856949,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 71.90000009536743,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 167,
+          "lastPoseAt": 56317.700000047684,
+          "inferenceMs": 21,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:55.029Z",
+      "elapsedSec": 57.817,
+      "cpuPercent": 134.27445830597506,
+      "summedRssBytes": 1952821248,
+      "processCount": 5,
+      "rendererHeapBytes": 15243740,
+      "gpu": {
+        "deviceWide": "10.63, 9, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 376,
+        "reuses": 686,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 1232,
+        "scene": {
+          "frames": 24,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 11.400000095367432,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 20243.400000095367
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 6545.5,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 37.299999952316284,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 193,
+          "lastPoseAt": 59402.40000009537,
+          "inferenceMs": 25.09999990463257,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:47:58.364Z",
+      "elapsedSec": 61.152,
+      "cpuPercent": 131.0344827586207,
+      "summedRssBytes": 1927073792,
+      "processCount": 5,
+      "rendererHeapBytes": 14016680,
+      "gpu": {
+        "deviceWide": "9.51, 5, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          312,
+          574
+        ],
+        "frames": 389,
+        "reuses": 764,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 1327,
+        "scene": {
+          "frames": 26,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 6.700000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 23576.099999904633
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 291.10000014305115,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 220,
+          "lastPoseAt": 62368.299999952316,
+          "inferenceMs": 27,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:48:01.415Z",
+      "elapsedSec": 64.203,
+      "cpuPercent": 48.50868567682727,
+      "summedRssBytes": 1913167872,
+      "processCount": 5,
+      "rendererHeapBytes": 14148920,
+      "gpu": {
+        "deviceWide": "5.78, 1, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 389,
+        "reuses": 764,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 1362,
+        "scene": {
+          "frames": 26,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 2.6000001430511475,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 26623.200000047684
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 3338.5,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 220,
+          "lastPoseAt": 62368.299999952316,
+          "inferenceMs": 27,
+          "worker": true
+        }
+      }
+    },
+    {
+      "at": "2026-10-09T15:48:04.726Z",
+      "elapsedSec": 67.514,
+      "cpuPercent": 47.41769858048928,
+      "summedRssBytes": 1912795136,
+      "processCount": 5,
+      "rendererHeapBytes": 15406184,
+      "gpu": {
+        "deviceWide": "6.78, 1, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          317,
+          589
+        ],
+        "frames": 389,
+        "reuses": 764,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 1401,
+        "scene": {
+          "frames": 26,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 9.200000047683716,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "running",
+        "hiddenAnimationRunning": true,
+        "workletConnected": true,
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "visemeModel": "ready",
+          "predictedViseme": 8,
+          "contextState": "running"
+        }
+      },
+      "speech": {
+        "active": true,
+        "bursts": 3,
+        "finishedAt": 39197.700000047684,
+        "idleMs": 29933.799999952316
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "mirror",
+        "phaseAgeMs": 6648.900000095367,
+        "captures": 4,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": null,
+          "missingSleeves": null,
+          "imageReady": true,
+          "visible": false,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": false,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": false,
+          "frameAgeMs": null,
+          "status": "Live fit is hidden."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "body": {
+          "enabled": false,
+          "ready": true,
+          "busy": false,
+          "requests": 220,
+          "lastPoseAt": 62368.299999952316,
+          "inferenceMs": 27,
+          "worker": true
+        }
+      }
+    }
+  ],
+  "policyRevalidation": {
+    "passed": true,
+    "errors": []
+  },
+  "indicativePhases": {
+    "ar": {
+      "samples": 8,
+      "visibleFits": 7,
+      "cpuMedian": 116.87458962573868,
+      "cpuMin": 26.014865637507146,
+      "cpuMax": 134.27445830597506
+    },
+    "mirror": {
+      "samples": 7,
+      "visibleFits": 0,
+      "cpuMedian": 48.50868567682727,
+      "cpuMin": 42.33672464719396,
+      "cpuMax": 131.0344827586207
+    },
+    "camera-off": {
+      "samples": 3,
+      "visibleFits": 0,
+      "cpuMedian": 38.36065573770492,
+      "cpuMin": 16.887816646562126,
+      "cpuMax": 117.22636815920397
+    },
+    "sleep": {
+      "samples": 3,
+      "visibleFits": 0,
+      "cpuMedian": 34.37226915234489,
+      "cpuMin": 9.177318911832186,
+      "cpuMax": 44.51718494271685
+    }
+  },
+  "bodyRequestRate": {
+    "requests": 129,
+    "seconds": 15.239,
+    "requestsPerSecond": 8.465122383358487,
+    "note": "Submission counter from consecutive active AR samples, not accepted inference or displayed frame rate."
+  }
+}

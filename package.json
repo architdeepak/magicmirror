@@ -71,7 +71,7 @@
     "check:computer:scroll": "node tools/check-live-computer.cjs --scroll",
     "check:computer:double": "node tools/check-live-computer.cjs --double",
     "test:windows-spotify": "node tools/test-windows-spotify.cjs",
-    "test:power": "node tools/test-render-budget.cjs",
+    "test:power": "node tools/test-render-budget.cjs && node tools/test-monitor-camera.cjs",
     "check:power:ui": "node tools/check-power-ui.cjs",
     "monitor:local": "node tools/monitor-mirror.cjs",
     "test:wardrobe": "node tools/test-wardrobe-photo.cjs && node tools/test-photo-source.mjs",
