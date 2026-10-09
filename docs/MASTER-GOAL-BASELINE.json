@@ -1,0 +1,85 @@
+{
+  "reviewedAt": "2026-10-09T03:21:36.469572+00:00",
+  "records": [
+    {
+      "directory": "artifacts/monitor/2026-10-08T23-56-13-023Z",
+      "build": {
+        "archiveSha256": "7f7423e27896f8d60077f7da86ab8b2f81d90d03348035d37b2b99ed1ec0e2d2",
+        "gitRevision": "22fa19b4f72baa8c75539f0527b10f7ac2796b52",
+        "isolatedCopy": true
+      },
+      "status": "finished",
+      "samples": 2335,
+      "errors": [],
+      "byMode": {
+        "ar": {
+          "samples": 468,
+          "meanCpuPercent": 46.5,
+          "p95CpuPercent": 88.63
+        },
+        "mirror": {
+          "samples": 469,
+          "meanCpuPercent": 15.25,
+          "p95CpuPercent": 20.85
+        },
+        "portal": {
+          "samples": 463,
+          "meanCpuPercent": 45.95,
+          "p95CpuPercent": 103.12
+        },
+        "spotify": {
+          "samples": 467,
+          "meanCpuPercent": 14.05,
+          "p95CpuPercent": 16.87
+        },
+        "watch": {
+          "samples": 468,
+          "meanCpuPercent": 14.18,
+          "p95CpuPercent": 21.79
+        }
+      },
+      "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+    },
+    {
+      "directory": "artifacts/monitor/2026-10-09T01-22-14-039Z",
+      "build": {
+        "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+        "gitRevision": "4793595cfd3907905d233c4a2a7256b94c128b43",
+        "isolatedCopy": true,
+        "avatarStyle": "rig"
+      },
+      "status": "monitoring",
+      "samples": 2335,
+      "errors": [],
+      "byMode": {
+        "ar": {
+          "samples": 471,
+          "meanCpuPercent": 116.36,
+          "p95CpuPercent": 263.24
+        },
+        "mirror": {
+          "samples": 468,
+          "meanCpuPercent": 11.65,
+          "p95CpuPercent": 20.5
+        },
+        "portal": {
+          "samples": 470,
+          "meanCpuPercent": 112.32,
+          "p95CpuPercent": 314.69
+        },
+        "spotify": {
+          "samples": 457,
+          "meanCpuPercent": 11.23,
+          "p95CpuPercent": 16.5
+        },
+        "watch": {
+          "samples": 469,
+          "meanCpuPercent": 13.23,
+          "p95CpuPercent": 16.92
+        }
+      },
+      "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+    }
+  ],
+  "interpretation": "Separate frozen software-graphics cohorts on a shared development host, camera/voice/media off. Not a controlled comparison or watts/hardware proof. Reproduce rig cost in isolation before attributing causes."
+}

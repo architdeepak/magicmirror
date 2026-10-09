@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+Comprehensive active objective and acceptance gates: [master goal](MASTER-GOAL.md). Historical passing checks below are partial evidence; the master goal remains incomplete.
+
 2026-10-08 rig update: [selectable 3D Queen/Snow preview with actual local morphs, independent eyes and solid hair/crown](3D-FACE-2026-10-08.md). It is not a completed production facial asset or physical Windows validation.
 
 2026-10-08 HD update: [bounded high-resolution surfaces, time-based acting, GPU smoke and full-resolution camera preservation](HD-FLUIDITY-2026-10-08.md). Physical performance and the full suite goal remain unverified.
