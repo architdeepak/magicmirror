@@ -155,3 +155,5 @@ is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
 - **Streaming-caption checkpoint:** [raw deltas, interleaved rows and assembled Stop](STREAMING-CAPTIONS-2026-10-09.md). Actual packaged baseline reproduces spacing/repetition/row-loss/unbounded card and split-Stop failures; final parser/DOM, full tests, UI and playback regressions pass. Actual provider/acoustic timing and cross-turn ordering remain open. All master gates remain open.
 
 - **YouTube conversation-volume checkpoint:** [owned ducking and explicit watch volume](YOUTUBE-DUCKING-2026-10-09.md). Actual public player reports 80→20→80; explicit 45 and same-valued 11 survive Stop, paused playback stays paused. Direct/cast waveform, full tests and four-viewport packaged UI pass. Physical audio, native Spotify and all full-suite gates remain open.
+
+- **Codex Watch checkpoint:** [shared player controls and actual installed-agent task](CODEX-WATCH-2026-10-09.md). Codex set public YouTube volume to 37 and paused it; independent player state confirmed both. Packaged shared-tool playback/ducking and full tests pass. Broad autonomous tasks and all suite gates remain open.

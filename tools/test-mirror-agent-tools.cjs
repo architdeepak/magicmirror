@@ -34,5 +34,17 @@ vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('expor
   await assert.rejects(tools.execute('shell', {}), /unavailable/);
   assert.equal((await tools.execute('wardrobe_command', { command: 'back photo' })).command, 'back photo');
   assert.equal((await tools.execute('open_service', {service:'findmy'})).service, 'findmy');
+  const definition = require('../src/codexMirrorTools.cjs').MIRROR_TOOLS.find(t => t.name === 'control_watch');
+  assert(definition); assert.equal(definition.inputSchema.properties.volume.type, 'integer');
+  assert.equal(definition.inputSchema.properties.volume.maximum, 100);
+  let watchArgs;
+  adapter.onWatchControl = async args => { watchArgs = args; return { watch: { ready: true, volumePercent: args.volume }, result: 'Player reported' }; };
+  const watch = await tools.execute('control_watch', { action: 'volume', volume: 37 });
+  assert.equal(watchArgs.volume, 37); assert.equal(watch.watch.volumePercent, 37); assert(watch.mirrorState);
+  assert.equal(tools.observation, null);
+  let resolveWatch;
+  adapter.onWatchControl = () => new Promise(resolve => { resolveWatch = resolve; });
+  const lateWatch = tools.execute('control_watch', { action: 'pause' }); tools.cancel();
+  resolveWatch({ result: 'Late' }); await assert.rejects(lateWatch, /cancelled/);
   console.log('Mirror agent tools: screenshot pixels, normalized coordinates, one-use observations, repeated activation guard, late cancellation, local Spotify and wardrobe callbacks passed.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

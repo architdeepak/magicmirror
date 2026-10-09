@@ -11,6 +11,7 @@ const MIRROR_TOOLS = [
   tool('search_web', 'Open web search results in the managed browser.', object({ query: string() }, ['query'])),
   tool('set_display_mode', 'Change the mirror display.', object({ mode: string(['mirror','portal','ar','watch','spotify']) }, ['mode'])),
   tool('set_avatar_position', 'Move the avatar to make room for content.', object({ position: string(['center','left','right','upper','lower']) }, ['position'])),
+  tool('control_watch', 'Control the current Watch video player: YouTube, direct media or phone-cast video. Load only a user-supplied HTTP(S) media URL. Read returned player state to verify; acknowledgement is not playback success. Volume is an integer percentage for Watch only, not Spotify or system audio.', object({ action: string(['status','load','play','pause','seek','volume']), url: string(), seconds: { type: 'number', minimum: -60, maximum: 60 }, volume: { type: 'integer', minimum: 0, maximum: 100 } }, ['action'])),
   tool('wardrobe_command', 'Control the local wardrobe photo editor. Commands include add garment, front photo, back photo, take front photo, take back photo, extract clothing, trim top, trim bottom, save, cancel. Check state and review before saving.', object({ command: string() }, ['command'])),
   tool('request_try_on', 'Select an available local garment by name. Check returned visible fit state; selection alone is not proof of visibility. No hidden fabric reconstruction or accurate sizing.', object({ garmentName: string() }, ['garmentName']))
 ];

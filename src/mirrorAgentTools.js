@@ -46,6 +46,7 @@ export class MirrorAgentTools {
         mirror_command: () => a.onMirrorCommand(args.command),
         open_service: () => a.onOpenService(args.service), open_webpage: () => a.onOpenWebpage(args.url), search_web: () => a.onSearch(args.query),
         set_display_mode: () => a.onModeChange(args.mode), set_avatar_position: () => a.onAvatarPosition(args.position),
+        control_watch: () => a.onWatchControl(args),
         wardrobe_command: () => a.onWardrobe(args), request_try_on: () => a.onTryOn(args)
       };
       if (!callbacks[name]) throw new Error('Tool unavailable.');
