@@ -82,7 +82,7 @@
     "test:photo-sleeves": "node tools/test-photo-sleeves.cjs",
     "check:photo:sleeves": "electron --no-sandbox tools/check-photo-sleeves.cjs",
     "check:photo:motion": "electron --no-sandbox tools/check-photo-fit-motion.cjs",
-    "test:garment-facing": "node tools/test-garment-facing.cjs",
+    "test:garment-facing": "node tools/test-garment-facing.cjs && node tools/test-garment-occlusion.mjs",
     "test:codex": "node tools/test-codex-agent.cjs && node tools/test-mirror-agent-tools.cjs && node tools/test-typed-agent.cjs",
     "check:codex:computer": "node tools/check-codex-computer.cjs",
     "check:codex:lifecycle": "node tools/check-codex-lifecycle.cjs",

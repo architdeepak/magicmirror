@@ -1,3 +1,4 @@
+import { sleeveNormalRotation } from './sleeveNormals.js';
 // Infer a short-sleeved front from its alpha silhouette once at image load.
 // Ambiguous/long-sleeved outlines keep the existing torso preview. This does
 // not reconstruct hidden fabric or infer physical size.
@@ -72,9 +73,9 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     const source = pattern.sides[i], rootOuter=body(i,shoulderV),rootInner=body(i,pattern.underarm),root=mix(rootOuter,rootInner,.5),cuff=mix(side.s,side.e,.65*length);
     const rootNormal=unit({x:rootOuter.x-rootInner.x,y:rootOuter.y-rootInner.y});
     const armNormal=unit({x:-(side.e.y-side.s.y)*(i===0?1:-1),y:(side.e.x-side.s.x)*(i===0?1:-1)});
-    const radius=distance(rootOuter,rootInner)/2;
+    const radius=distance(rootOuter,rootInner)/2,rotation=sleeveNormalRotation(rootNormal,armNormal,fit.normalHistory,`photo-${i}`);
     triangles.push(...grid(4,8,(q,t)=>{
-      const center=mix(root,cuff,t),normal=unit(mix(rootNormal,armNormal,t)),r=radius*(1-t)+shoulderWidth*width*.085*t;
+      const center=mix(root,cuff,t),normal=rotation(t),r=radius*(1-t)+shoulderWidth*width*.085*t;
       const uv=mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
       return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),z:center.z+(rootOuter.z-rootInner.z)*(1-2*q)*.5*(1-t),...uv};
     }));

@@ -1,12 +1,14 @@
+import { foregroundLimbSegments, occlusionBodyWidth } from './garmentLimbOcclusion.js';
 import { GarmentOcclusion } from './garmentOcclusion.js';
 import { GarmentFacing } from './garmentFacing.js';
 import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
 import { CameraClarity } from './cameraClarity.js';
-import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint, visiblePoint, distance } from './garmentGeometry.js';
+import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint } from './garmentGeometry.js';
 
 export class GarmentOverlay {
   constructor(canvas, video, onStatus = () => {}) {
+    this.sleeveNormalHistory={};
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.cameraCanvas = canvas.ownerDocument?.createElement('canvas') || null;
@@ -84,9 +86,9 @@ export class GarmentOverlay {
       image.src = item.imageUrl;
       await image.decode();
       if (generation !== this.generation) return false;
-      this.texture = prepareTexture(image, { vector: Boolean(item.starter) });
+      this.texture = prepareTexture(image, { vector: Boolean(item.starter), mirror: !item.starter });
       if (item.backImageUrl) {
-        try { const back = new Image(); back.src = item.backImageUrl; await back.decode(); if (generation !== this.generation) return false; this.backTexture = prepareTexture(back); }
+        try { const back = new Image(); back.src = item.backImageUrl; await back.decode(); if (generation !== this.generation) return false; this.backTexture = prepareTexture(back,{mirror:true}); }
         catch (error) { if (generation !== this.generation) return false; this.backMessage = `Back photo unavailable: ${error.message}`; }
       }
       this.tracker.setEnabled(this.enabled);
@@ -108,6 +110,7 @@ export class GarmentOverlay {
   }
 
   clear(keepCamera = false) {
+    if(!keepCamera&&this.sleeveNormalHistory)for(const key in this.sleeveNormalHistory)delete this.sleeveNormalHistory[key];
     if (this.hasPixels) this.ctx.clearRect(0, 0, this.viewport.width, this.viewport.height);
     this.hasPixels = false;
     this.lastDraw = null;
@@ -173,7 +176,7 @@ export class GarmentOverlay {
     // Tracking still advances and freshness is checked on every display tick.
     // Reuse only the raster drawing, not the camera or inference lifecycle.
     if (this._sameDraw(pose, segmentation, worldPose)) return;
-    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, worldPose, photoPattern: this.item.starter ? null : texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: texture.sourceBounds });
+    const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, normalHistory:this.sleeveNormalHistory, worldPose, photoPattern: this.item.starter ? null : texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: texture.sourceBounds });
     if (!mesh) {
       this.clear();
       this.occlusion.clear();
@@ -201,23 +204,13 @@ export class GarmentOverlay {
 
   _occludeForearms(pose, { coverForearms = false } = {}) {
     const project = (index) => projectCameraPoint(pose[index], { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport);
-    const torsoDepth = (pose[11].z + pose[12].z + pose[23].z + pose[24].z) / 4;
-    const shoulderWidth = visiblePoint(pose[11]) && visiblePoint(pose[12]) ? distance(project(11), project(12)) : distance(project(23), project(24)) * 1.5;
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = 'destination-out';
-    this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
-    // Reveal the actual forearm and hand only when they are nearer than the
-    // torso. Erasing the garment keeps the underlying live camera untouched.
-    for (const [elbow, wrist, finger] of [[13, 15, 19], [14, 16, 20]]) {
-      if (!visiblePoint(pose[elbow]) || !visiblePoint(pose[wrist]) || pose[wrist].z >= torsoDepth - .035) continue;
-      const a = project(elbow); const b = project(wrist);
-      this.ctx.lineWidth = shoulderWidth * .12;
-      if (!coverForearms) { this.ctx.beginPath(); this.ctx.moveTo(a.x, a.y); this.ctx.lineTo(b.x, b.y); this.ctx.stroke(); }
-      if (visiblePoint(pose[finger])) {
-        const c = project(finger);
-        this.ctx.lineWidth = shoulderWidth * .17;
-        this.ctx.beginPath(); this.ctx.moveTo(b.x, b.y); this.ctx.lineTo(c.x, c.y); this.ctx.stroke();
-      }
+    const shoulderWidth=occlusionBodyWidth(pose,project);
+    this.ctx.save();this.ctx.globalCompositeOperation='destination-out';this.ctx.lineCap='round';this.ctx.lineJoin='round';
+    for(const {from,to,part}of foregroundLimbSegments(pose,{coverForearms})){
+      if(shoulderWidth<=0)break;
+      const a=projectCameraPoint(from,{width:this.video.videoWidth,height:this.video.videoHeight},this.viewport),b=projectCameraPoint(to,{width:this.video.videoWidth,height:this.video.videoHeight},this.viewport);
+      this.ctx.lineWidth=shoulderWidth*(part==='hand'?.17:.12);
+      this.ctx.beginPath();this.ctx.moveTo(a.x,a.y);this.ctx.lineTo(b.x,b.y);this.ctx.stroke();
     }
     this.ctx.restore();
   }
@@ -260,7 +253,7 @@ function clamp(value, min, max, fallback) { return Number.isFinite(value) ? Math
 // Preserve photographic pixels. Transparent product images work directly; a
 // uniform pale backdrop can be removed with a border-connected flood fill.
 // Complex backgrounds require a cutout rather than showing a floating photo.
-export function prepareTexture(image, { vector = false } = {}) {
+export function prepareTexture(image, { vector = false, mirror = false } = {}) {
   // Known bundled SVGs can genuinely rasterize more detail; small photos
   // remain at their source resolution instead of inventing extra pixels.
   const scale = Math.min(vector ? 2 : 1, 1024 / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
@@ -269,7 +262,7 @@ export function prepareTexture(image, { vector = false } = {}) {
   canvas.height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  ctx.save();if(mirror){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(image, 0, 0, canvas.width, canvas.height);ctx.restore();
   const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = pixels.data;
   const count = canvas.width * canvas.height;
@@ -288,6 +281,7 @@ export function prepareTexture(image, { vector = false } = {}) {
   const cropped = document.createElement('canvas');
   cropped.width = right - left + 1; cropped.height = bottom - top + 1;
   cropped.getContext('2d').drawImage(canvas, left, top, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
+  cropped.mirrored=mirror;
   cropped.sourceBounds = { left, top, width: cropped.width, height: cropped.height, scale };
   cropped.photoPattern = inferPhotoSleeves(cropped.getContext('2d').getImageData(0, 0, cropped.width, cropped.height));
   return cropped;

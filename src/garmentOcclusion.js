@@ -1,4 +1,5 @@
-import { projectCameraPoint, visiblePoint, distance } from './garmentGeometry.js';
+import { foregroundLimbSegments, occlusionBodyWidth } from './garmentLimbOcclusion.js';
+import { projectCameraPoint } from './garmentGeometry.js';
 
 // Segmentation and landmarks come from the same worker frame. Never reuse a
 // cached mask after tracking loss or a camera change; the tracker owns freshness.
@@ -42,18 +43,13 @@ export class GarmentOcclusion {
     // Hair and face remain visible even if a wide garment reaches their pixels.
     drawCameraMask(mask, this.hair);
     const project = index => projectCameraPoint(pose[index], video, viewport);
-    const torsoDepth = (pose[11].z + pose[12].z + pose[23].z + pose[24].z) / 4;
-    const shoulderWidth = visiblePoint(pose[11]) && visiblePoint(pose[12]) ? distance(project(11), project(12)) : distance(project(23), project(24)) * 1.5;
-    limbs.save(); limbs.lineCap = 'round'; limbs.lineJoin = 'round';
-    for (const [elbow, wrist, finger] of [[13, 15, 19], [14, 16, 20]]) {
-      if (!visiblePoint(pose[elbow]) || !visiblePoint(pose[wrist]) || pose[wrist].z >= torsoDepth - .035) continue;
-      const a = project(elbow); const b = project(wrist);
-      limbs.lineWidth = shoulderWidth * .2;
-      if (!coverForearms) { limbs.beginPath(); limbs.moveTo(a.x, a.y); limbs.lineTo(b.x, b.y); limbs.stroke(); }
-      if (visiblePoint(pose[finger])) {
-        const c = project(finger); limbs.lineWidth = shoulderWidth * .28;
-        limbs.beginPath(); limbs.moveTo(b.x, b.y); limbs.lineTo(c.x, c.y); limbs.stroke();
-      }
+    const shoulderWidth=occlusionBodyWidth(pose,project);
+    limbs.save(); limbs.lineCap='round';limbs.lineJoin='round';
+    for(const {from,to,part}of foregroundLimbSegments(pose,{coverForearms})){
+      if(shoulderWidth<=0)break;
+      const a=projectCameraPoint(from,video,viewport),b=projectCameraPoint(to,video,viewport);
+      limbs.lineWidth=shoulderWidth*(part==='hand'?.28:.2);
+      limbs.beginPath();limbs.moveTo(a.x,a.y);limbs.lineTo(b.x,b.y);limbs.stroke();
     }
     // Broad pose regions only select the foreground limb. The skin mask defines
     // the actual contour, so the garment isn't erased from adjacent clothes.

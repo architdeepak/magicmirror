@@ -1,3 +1,4 @@
+import { sleeveNormalRotation } from './sleeveNormals.js';
 // Bind known starter sewing regions to body/arm chains. This is an articulated
 // photographic surface; no claim of cloth physics or automatic garment fitting.
 const patterns = {
@@ -32,13 +33,14 @@ export function buildStarterSleeves(pose, video, viewport, fit) {
     const rootNormal=normal(rootInner,rootOuter),rootRadius=dist(rootOuter,rootInner)/2;
     const cuff=pattern.long?side.w:lerp(side.s,side.e,pattern.reach);
     const upper=perpendicular(side.s,side.e,index),lower=pattern.long?perpendicular(side.e,cuff,index):upper;
-    const middle=unit({x:upper.x+lower.x,y:upper.y+lower.y});
+    const middle=sleeveNormalRotation(upper,lower,fit.normalHistory,`starter-${index}-joint`)(.5);
+    const rootRotation=sleeveNormalRotation(rootNormal,pattern.long?middle:upper,fit.normalHistory,`starter-${index}-root`),endRotation=sleeveNormalRotation(middle,lower,fit.normalHistory,`starter-${index}-end`);
     const outerSrc=[145,62],innerSrc=pattern.underarm;
     triangles.push(...grid(4,8,(q,t)=>{
       const along=t*length;
       let center,n;
-      if(pattern.long){const first=along<=.5,fraction=first?along*2:(along-.5)*2;center=lerp(first?rootCenter:side.e,first?side.e:cuff,fraction);n=unit(lerp(first?rootNormal:middle,first?middle:lower,Math.max(0,Math.min(1,fraction))));}
-      else {center=lerp(rootCenter,cuff,along);n=unit(lerp(rootNormal,upper,Math.max(0,Math.min(1,along))));}
+      if(pattern.long){const first=along<=.5,fraction=first?along*2:(along-.5)*2;center=lerp(first?rootCenter:side.e,first?side.e:cuff,fraction);n=(first?rootRotation:endRotation)(fraction);}
+      else {center=lerp(rootCenter,cuff,along);n=rootRotation(along);}
       const radius=rootRadius*(1-Math.max(0,Math.min(1,along)))+shoulderWidth*width*.095*Math.max(0,Math.min(1,along));
       const rootSource=lerp({x:outerSrc[0],y:outerSrc[1]},{x:innerSrc[0],y:innerSrc[1]},q);
       const cuffSource=lerp({x:pattern.cuff[0][0],y:pattern.cuff[0][1]},{x:pattern.cuff[1][0],y:pattern.cuff[1][1]},q);

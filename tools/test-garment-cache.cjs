@@ -49,3 +49,5 @@ rear.backTexture={};rear.render(3001);assert(rear.hasPixels);const beforeBack=dr
 rear.backTexture=null;rear.render(3001);assert(!rear.hasPixels,'Missing back retained front/back pixels');
 rp[11].x=.8;rp[12].x=.2;rear.tracker.lastPoseAt=3002;rear.render(3002);rear.tracker.lastPoseAt=3003;rear.render(3003);assert(rear.hasPixels);assert.equal(rear.getLiveState(3003).garmentView,'front');
 rear.destroy();console.log('Paired raster: missing back clears/hints, back texture changes invalidate, and returning to front recovers.');
+const history=overlay.sleeveNormalHistory;history['photo-0']={first:1,last:2};overlay.clear(true);assert.equal(overlay.sleeveNormalHistory,history);assert(history['photo-0']);overlay.clear();assert.equal(overlay.sleeveNormalHistory,history);assert.equal(Object.keys(history).length,0);for(let i=0;i<50;i++)overlay.clear();assert.equal(overlay.sleeveNormalHistory,history,'Hidden clears allocated a new angular history');
+console.log('Sleeve angular history: active repaint retains it; tracking loss/disable clears entries without allocating histories on hidden ticks.');

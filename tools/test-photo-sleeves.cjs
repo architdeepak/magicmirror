@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
-const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/photoSleeves.js','utf8').replaceAll('export function','function'),scope);
+const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/sleeveNormals.js','utf8').replaceAll('export function','function'),scope);vm.runInContext(fs.readFileSync('src/photoSleeves.js','utf8').replace(/^import .*;\n/gm,'').replaceAll('export function','function'),scope);
 const width=100,height=100,data=new Uint8ClampedArray(width*height*4);
 for(let y=5;y<99;y++){
  const left=y<20?30-(y-5):y<45?15-(y-20)*.6:y<55?(y-45)*2.5:25;

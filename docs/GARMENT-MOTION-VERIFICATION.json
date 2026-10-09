@@ -1,0 +1,391 @@
+{
+  "archiveSha256": "2ee621673b7646f4071ee19c730d51a922c4a9adb983845e9df04f5f00092cf9",
+  "canvasPixelProbe": {
+    "passed": true,
+    "front": [
+      32,
+      64,
+      224,
+      255
+    ],
+    "rear": [
+      32,
+      64,
+      224,
+      255
+    ],
+    "original": [
+      224,
+      32,
+      32,
+      255
+    ],
+    "frontMirrored": true,
+    "backMirrored": true,
+    "clipped": {
+      "frontAlpha": 0,
+      "behindAlpha": 255
+    },
+    "handAlpha": 0,
+    "fallbackHandAlpha": 0,
+    "missingShouldersSurvived": true,
+    "scope": "Actual Electron canvas pixels and real GarmentOverlay.select front/back path. Synthetic known colors, pose depth and segmentation; no physical detection, cloth realism or depth calibration proof."
+  },
+  "recordedMotion": {
+    "scope": "Recorded public human motion through actual offline workers and camera stream, software graphics; no physical input or sizing accuracy validation.",
+    "inputWidth": 1920,
+    "inputHeight": 1080,
+    "seconds": 22.26090000009537,
+    "trackingTicks": 613,
+    "visibleTrackingTicks": 556,
+    "ticks": 668,
+    "visibleTicks": 559,
+    "beats": 836,
+    "maxBeatGapMs": 102.79999995231628,
+    "samples": [
+      {
+        "second": 0,
+        "visible": true,
+        "poseAgeMs": 98.5,
+        "shoulderX": 0.5324431365671878,
+        "elbowX": 0.5771284685528055,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.5,
+        "inferenceMs": 22.700000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 1,
+        "visible": true,
+        "poseAgeMs": 207.20000004768372,
+        "shoulderX": 0.5312183383937734,
+        "elbowX": 0.5714295631368331,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.200000047683716,
+        "inferenceMs": 22.09999990463257,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 2,
+        "visible": true,
+        "poseAgeMs": 98.40000009536743,
+        "shoulderX": 0.5159929000591559,
+        "elbowX": 0.5323917865753174,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.199999809265137,
+        "inferenceMs": 22.799999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 3,
+        "visible": true,
+        "poseAgeMs": 42.200000047683716,
+        "shoulderX": 0.5110436307196522,
+        "elbowX": 0.521018880262497,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.3999998569488525,
+        "inferenceMs": 22.200000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 4,
+        "visible": true,
+        "poseAgeMs": 191.40000009536743,
+        "shoulderX": 0.527070396013385,
+        "elbowX": 0.5489292852591041,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 22.699999809265137,
+        "inferenceMs": 22.40000009536743,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 5,
+        "visible": true,
+        "poseAgeMs": 240.20000004768372,
+        "shoulderX": 0.5398743369969766,
+        "elbowX": 0.5934043959025538,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 6.800000190734863,
+        "inferenceMs": 155.40000009536743,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 6,
+        "visible": true,
+        "poseAgeMs": 149.5,
+        "shoulderX": 0.5337103618238389,
+        "elbowX": 0.5468838810920715,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 6.8999998569488525,
+        "inferenceMs": 22.200000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 7,
+        "visible": true,
+        "poseAgeMs": 187,
+        "shoulderX": 0.5398866322004173,
+        "elbowX": 0.540691038232549,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.299999952316284,
+        "inferenceMs": 22.299999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 8,
+        "visible": false,
+        "poseAgeMs": 229.90000009536743,
+        "shoulderX": 0.5063962949366799,
+        "elbowX": 0.5154886001053899,
+        "worldLandmarks": 33,
+        "curvedTorso": false,
+        "cameraClarity": "bright",
+        "clarityCostMs": 8.399999856948853,
+        "inferenceMs": 155.40000009536743,
+        "status": "Body detected; positioning the garment."
+      },
+      {
+        "second": 9,
+        "visible": true,
+        "poseAgeMs": 146.59999990463257,
+        "shoulderX": 0.532694080464985,
+        "elbowX": 0.5945819616317749,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.400000095367432,
+        "inferenceMs": 22.09999990463257,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 10,
+        "visible": true,
+        "poseAgeMs": 165.70000004768372,
+        "shoulderX": 0.5329279568572599,
+        "elbowX": 0.5971152910365076,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.199999809265137,
+        "inferenceMs": 22.200000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 11,
+        "visible": true,
+        "poseAgeMs": 175,
+        "shoulderX": 0.5255108917912247,
+        "elbowX": 0.5359943800393484,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.200000047683716,
+        "inferenceMs": 155.59999990463257,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 12,
+        "visible": true,
+        "poseAgeMs": 275.10000014305115,
+        "shoulderX": 0.5163134019400974,
+        "elbowX": 0.5415499495522871,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.299999952316284,
+        "inferenceMs": 155.70000004768372,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 13,
+        "visible": true,
+        "poseAgeMs": 121.70000004768372,
+        "shoulderX": 0.5116851256418166,
+        "elbowX": 0.5336536979822251,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7,
+        "inferenceMs": 22.799999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 14,
+        "visible": true,
+        "poseAgeMs": 198.39999985694885,
+        "shoulderX": 0.5308693866833063,
+        "elbowX": 0.5397279110664199,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.399999856948853,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 15,
+        "visible": true,
+        "poseAgeMs": 182.10000014305115,
+        "shoulderX": 0.539769686530941,
+        "elbowX": 0.5461383313204069,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 154.5,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 16,
+        "visible": true,
+        "poseAgeMs": 78.60000014305115,
+        "shoulderX": 0.5363530857688799,
+        "elbowX": 0.5549213237614679,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.899999856948853,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 17,
+        "visible": true,
+        "poseAgeMs": 165.29999995231628,
+        "shoulderX": 0.544474499656685,
+        "elbowX": 0.5501644878808905,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.5,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 18,
+        "visible": false,
+        "poseAgeMs": 158.5,
+        "shoulderX": 0.5063787270457255,
+        "elbowX": 0.538936486971474,
+        "worldLandmarks": 33,
+        "curvedTorso": false,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.600000143051147,
+        "status": "Body detected; positioning the garment."
+      },
+      {
+        "second": 19,
+        "visible": true,
+        "poseAgeMs": 279.39999985694885,
+        "shoulderX": 0.5331275987835067,
+        "elbowX": 0.5966097116470337,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.299999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      }
+    ],
+    "lossCleared": true
+  },
+  "recordedMotionCaveat": "Source-module worker replay overlapped a packaged wardrobe audit on a shared host. Display ticks are not presented FPS; sample visibility is not realism. Screenshot phases differ from historical replay.",
+  "broadPackagedWardrobe": {
+    "status": "passed",
+    "starterGarments": 30,
+    "savedGarments": 8,
+    "checks": [
+      "real garment upload/cutout",
+      "paired front/back cutout, persistence, original retention, voice view switching and different rear raster",
+      "invalid back PNG rejected before persistence",
+      "saved photo short sleeve inference",
+      "offline worn clothing extraction, voice/gesture crop and real persistence",
+      "real IPC persistence/reload",
+      "original retained",
+      "photo clarity voice controls and exact original restoration",
+      "independent front/back clarity drafts",
+      "invalid PNG rejected",
+      "concurrent saves",
+      "camera unavailable",
+      "synthetic camera capture",
+      "voice tool commands",
+      "interpreted swipe and pinch routing",
+      "cancel",
+      "gesture-only capture/type/save with automatic name",
+      "editor Stop/mute controls, two colored bottom captions and restoration",
+      "paired LAN phone photo upload",
+      "one-photo acceptance",
+      "unauthenticated/cross-origin/invalid phone requests rejected"
+    ],
+    "limits": [
+      "No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.",
+      "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
+    ]
+  },
+  "sourceSha256": {
+    "garmentOverlay.js": "821d5e1b718e3af020fe4dc2c35c0f3fd0cf3f137789192e5b218749579bd309",
+    "garmentOcclusion.js": "7d4bb3785ce8eddfd0d260c65cb6aef3e094d1c6c459794101f4267d32914ef8",
+    "garmentLimbOcclusion.js": "f4fc558edf35289311c5c41f3e8888a446a4cb4368231cc0ad66b5bd4098673b",
+    "photoSleeves.js": "0ddd06f0d25b5e322cf795abfcc58d7de1f16faa577a336345f17bb5f40925c3",
+    "starterSleeves.js": "9af0cb1fc2c4131c90d7dbd722695423d80abde274905446364fe2817f4e15b2",
+    "sleeveNormals.js": "09a59c39518af0eddb781c389e8c1dea79d13d45e5b80a57c1f19418570a1a54"
+  },
+  "replaySnapshots": [
+    {
+      "file": "artifacts/photo-fit-motion/replay-1.json",
+      "bytes": 7479,
+      "sha256": "f8e7a3ef0198d18c3b86c0366dfc4625b3f6bb15580a480f16a3fbf4b0f01994"
+    },
+    {
+      "file": "artifacts/photo-fit-motion/replay-12.json",
+      "bytes": 122691,
+      "sha256": "78408cf7ca115cfd2271e08c9bbfc8b81962bc56db98bc63954c2343cf59348c"
+    },
+    {
+      "file": "artifacts/photo-fit-motion/replay-18.json",
+      "bytes": 7291,
+      "sha256": "9d7382c301bc6ea64fca704c179a1ebbac0ab165ee9dd383c29e34e93876ae6e"
+    },
+    {
+      "file": "artifacts/photo-fit-motion/replay-6.json",
+      "bytes": 7440,
+      "sha256": "a2fb91701b0a5b8f4b27e98a2a2f589548b4010164ae7bda2e12960924e34db8"
+    }
+  ],
+  "completedPriorSoftwareMonitor": {
+    "build": {
+      "archiveSha256": "3d7b1615ea923b91ddd7d4398474cf47cd0aeb09beece25aabf2acb8530fdc45",
+      "gitRevision": "e0c11266e435891ebbd642c515d89b378310f7ba",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "software"
+    },
+    "status": "finished",
+    "samples": 591,
+    "errors": [],
+    "scope": "Actual packaged Linux portrait app, graphics request software, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+  },
+  "sourceModulesMatchPackagedArchive": true,
+  "fullTests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "/tmp/mirror-garment-occlusion-tests.log"
+  }
+}
