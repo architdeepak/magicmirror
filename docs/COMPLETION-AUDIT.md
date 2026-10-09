@@ -4,7 +4,7 @@ Mouth follow-up: [distinct speech poses and dental interior](MOUTH-SHAPES-2026-1
 
 Playback follow-up: [mouth motion follows output, queued tails and Stop](PLAYBACK-SYNC-2026-10-08.md); phoneme/anatomy and physical validation remain open.
 
-Latest follow-up: [mirrored garment photos, foreground limbs and sleeve continuity](GARMENT-MOTION-2026-10-09.md). Originals: [full-resolution photos and safe re-editing](FULL-PHOTO-ORIGINALS-2026-10-09.md). Software rendering evidence: [lighting and first-speech preparation](SOFTWARE-RENDERING-2026-10-08.md). Full suite remains incomplete.
+Latest follow-up: [personal long sleeves and partial tracking](LONG-PHOTO-SLEEVES-2026-10-09.md). Mirror/occlusion baseline: [garment motion](GARMENT-MOTION-2026-10-09.md). Originals: [full-resolution photos and safe re-editing](FULL-PHOTO-ORIGINALS-2026-10-09.md). Software rendering evidence: [lighting and first-speech preparation](SOFTWARE-RENDERING-2026-10-08.md). Full suite remains incomplete.
 
 Comprehensive active objective and acceptance gates: [master goal](MASTER-GOAL.md). Historical passing checks below are partial evidence; the master goal remains incomplete.
 

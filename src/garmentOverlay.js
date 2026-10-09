@@ -125,8 +125,8 @@ export class GarmentOverlay {
     const status = !this.enabled ? 'Live fit is hidden.' : !cameraActive ? 'Turn on the camera to see your live fit.'
       : !this.texture ? this.imageMessage || 'The garment image is loading.' : !pose
         ? (!this.tracker.ready && this.trackingMessage) || `Step back so your ${this.item?.category === 'bottoms' ? 'hips, knees, and feet' : 'shoulders and hips'} are visible.`
-        : this.facing.view === 'back' && !this.backTexture ? this.backMessage || 'Add a back photo to see this garment from behind.' : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? 'The garment overlay is visible on the live camera.' : 'Body detected; positioning the garment.';
-    return { imageReady: Boolean(this.texture), visible, garmentView: this.facing.view, backImageReady: Boolean(this.backTexture), curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
+        : this.facing.view === 'back' && !this.backTexture ? this.backMessage || 'Add a back photo to see this garment from behind.' : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? this.missingSleeves?'Torso fitted; keep elbows'+(this.renderedSleeveStyle==='photo-long-sleeve'?' and wrists':'')+' visible for full sleeves.':this.renderedSleeveStyle==='torso-only'&&!this.item?.starter&&['top','outerwear'].includes(this.item?.category)?'Torso photo fit is visible; this photo has no articulated sleeves.':'The garment overlay is visible on the live camera.' : this.lastStatus||'Body detected; positioning the garment.';
+    return { sleeveStyle:visible?(this.renderedSleeveStyle||'torso-only'):null,missingSleeves:visible?(this.missingSleeves||0):null,imageReady: Boolean(this.texture), visible, garmentView: this.facing.view, backImageReady: Boolean(this.backTexture), curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
       cameraClarity: this.cameraClarity?.mode || 'off', clarityCostMs: this.cameraClarity?.lastCostMs || 0,
       bodyDetected: Boolean(pose), frameAgeMs: pose ? Math.max(0, now - this.tracker.lastPoseAt) : null, status };
   }
@@ -192,14 +192,14 @@ export class GarmentOverlay {
       return;
     }
     this.clear(true);
-    this.hasPixels = true; this.curvedTorso = Boolean(mesh.curvedTorso);
+    this.hasPixels = true;this.missingSleeves=mesh.missingSleeves||0;this.renderedSleeveStyle=mesh.sleeveStyle||'torso-only'; this.curvedTorso = Boolean(mesh.curvedTorso);
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
-    const coverage = { coverForearms: mesh.sleeveStyle === 'long sleeve' };
+    const coverage = { coverForearms: mesh.coverForearms?.length?mesh.coverForearms:mesh.sleeveStyle === 'long sleeve' };
     const detailedOcclusion = this.occlusion.erase(this.ctx, segmentation, pose,
       { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, coverage);
     if (!detailedOcclusion) this._occludeForearms(pose, coverage);
     this._rememberDraw(pose, segmentation, worldPose);
-    this._status(`Live fit · ${this.item.name} · ${detailedOcclusion ? 'local contour occlusion' : this.tracker.segmentationNotice || 'on-device tracking'}`);
+    this._status(`Live fit · ${this.item.name}${mesh.missingSleeves?' · Keep elbows'+(texture.photoPattern?.long?' and wrists':'')+' visible for full sleeves':!this.item.starter&&!texture.photoPattern&&['top','outerwear'].includes(this.item.category)?' · Torso photo fit':''} · ${detailedOcclusion ? 'local contour occlusion' : this.tracker.segmentationNotice || 'on-device tracking'}`);
   }
 
   _occludeForearms(pose, { coverForearms = false } = {}) {

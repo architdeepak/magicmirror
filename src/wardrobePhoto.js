@@ -46,7 +46,7 @@ export class WardrobePhoto {
       <div class="wardrobe-voice"><button type="button" data-voice-control="listen">Listen</button><button type="button" data-voice-control="stop">Stop voice</button><button type="button" data-voice-control="mute" aria-pressed="false">Mute microphone</button></div>
       <div class="wardrobe-caption-host"></div>
       <div class="wardrobe-photo-actions"><button type="button" data-action="front" aria-pressed="true">Front</button><button type="button" data-action="back" aria-pressed="false">Back (optional)</button><button type="button" data-action="remove-back" hidden>Remove back</button></div>
-      <p>Lay one garment flat or hang it against a plain, contrasting background. Keep sleeves spread and the whole garment visible.</p>
+      <p>Lay one garment flat or hang it against a plain, contrasting background. Spread sleeves away from the body and keep the whole garment visible.</p>
       <div class="wardrobe-photo-actions"><button type="button" data-action="upload">Upload photo</button><button type="button" data-action="capture">Take photo</button><button type="button" data-action="phone">From phone</button></div><div data-field="phone" hidden><img alt="Scan to send a clothing photo" width="180" height="180"><p>Scan on the same Wi-Fi, choose a clothing photo, then review it here.</p></div>
       <div class="wardrobe-photo-actions"><button type="button" data-action="extract" disabled>Extract worn clothing</button><button type="button" data-action="restore" disabled>Restore photo</button></div>
       <input data-field="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>

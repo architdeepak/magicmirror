@@ -1,8 +1,10 @@
+import { inferLongPhotoSleeves, samplePhotoSleeve } from './longPhotoSleeves.js';
 import { sleeveNormalRotation } from './sleeveNormals.js';
-// Infer a short-sleeved front from its alpha silhouette once at image load.
-// Ambiguous/long-sleeved outlines keep the existing torso preview. This does
+// Infer separated long sleeves or a short-sleeved front once at image load.
+// Ambiguous outlines keep a bounded torso preview. This does
 // not reconstruct hidden fabric or infer physical size.
 export function inferPhotoSleeves({ width, height, data }, onReject = () => {}) {
+  const long=inferLongPhotoSleeves({width,height,data});if(long)return long;
   const reject = reason => { onReject(reason); return null; };
   if (width < 40 || height < 40 || width * height > 1024 * 1024 || data.length !== width * height * 4) return reject('small image');
   const rows = [];
@@ -50,13 +52,14 @@ export function inferPhotoSleeves({ width, height, data }, onReject = () => {}) 
 
 export function buildPhotoSleeves(pose, video, viewport, fit) {
   const pattern = fit.photoPattern;
-  if (!pattern || ![11,12,13,14,23,24].every(i => pose?.[i] && (pose[i].visibility ?? 1) >= .55 && Number.isFinite(pose[i].x) && Number.isFinite(pose[i].y))) return null;
+  if (!pattern || ![11,12,23,24].every(i => pose?.[i] && (pose[i].visibility ?? 1) >= .55 && Number.isFinite(pose[i].x) && Number.isFinite(pose[i].y))) return null;
   const scale = Math.max(viewport.width/video.width, viewport.height/video.height);
-  const project = i => ({ x: viewport.width-((viewport.width-video.width*scale)/2+pose[i].x*video.width*scale), y: (viewport.height-video.height*scale)/2+pose[i].y*video.height*scale, z: pose[i].z || 0 });
-  const sides = [[11,13,23],[12,14,24]].map(([s,e,h])=>({sIndex:s,hIndex:h,s:project(s),e:project(e),h:project(h)})).sort((a,b)=>a.s.x-b.s.x);
+  const project = i => ({ x: viewport.width-((viewport.width-video.width*scale)/2+pose[i].x*video.width*scale), y: (viewport.height-video.height*scale)/2+pose[i].y*video.height*scale, z: Number.isFinite(pose[i].z)?pose[i].z:0 });
+  const valid=i=>pose?.[i]&&(pose[i].visibility??1)>=.55&&Number.isFinite(pose[i].x)&&Number.isFinite(pose[i].y);
+  const sides = [[11,13,15,23],[12,14,16,24]].map(([s,e,w,h])=>({sIndex:s,hIndex:h,wIndex:w,s:project(s),e:valid(e)?project(e):null,w:valid(w)?project(w):null,h:project(h)})).sort((a,b)=>a.s.x-b.s.x);
   const width = fit.width ?? 1, length = fit.length ?? 1, offset = fit.offset ?? 0;
   const top = mix(sides[0].s,sides[1].s,.5), bottom = mix(sides[0].h,sides[1].h,.5), shoulderWidth = distance(sides[0].s,sides[1].s);
-  if (shoulderWidth < 20 || distance(top,bottom) < 25 || sides.some(s=>distance(s.s,s.e)<8)) return null;
+  if (shoulderWidth < 20 || distance(top,bottom) < 25) return null;
   const surface = createTorsoCurve(sides, fit.worldPose, video.width*scale, width);
   const shoulderV = (pattern.sides[0].outer.v + pattern.sides[1].outer.v)/2;
   const body = (q,v) => {
@@ -69,19 +72,30 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
   const triangles = grid(8,rows.length-1,(q,t)=>body(q,rows[Math.round(t*(rows.length-1))]));
+  const coveredForearms=[];let missingSleeves=0;
   sides.forEach((side,i)=>{
-    const source = pattern.sides[i], rootOuter=body(i,shoulderV),rootInner=body(i,pattern.underarm),root=mix(rootOuter,rootInner,.5),cuff=mix(side.s,side.e,.65*length);
+    if(!side.e||distance(side.s,side.e)<8||(pattern.long&&(!side.w||distance(side.e,side.w)<8))){missingSleeves++;if(fit.normalHistory)for(const key of [`photo-${i}`,`photo-${i}-joint`,`photo-${i}-end`])delete fit.normalHistory[key];return;}
+    if(pattern.long)coveredForearms.push(side.wIndex);
+    let source = pattern.sides[i];const rootOuter=body(i,shoulderV),rootInner=body(i,pattern.underarm),root=mix(rootOuter,rootInner,.5),cuff=mix(side.s,side.e,.65*length);
+    if(pattern.long)source={...source,samples:[{t:0,outer:{u:rootOuter.u,v:rootOuter.v},inner:{u:rootInner.u,v:rootInner.v}},...source.samples.slice(1)]};
     const rootNormal=unit({x:rootOuter.x-rootInner.x,y:rootOuter.y-rootInner.y});
     const armNormal=unit({x:-(side.e.y-side.s.y)*(i===0?1:-1),y:(side.e.x-side.s.x)*(i===0?1:-1)});
-    const radius=distance(rootOuter,rootInner)/2,rotation=sleeveNormalRotation(rootNormal,armNormal,fit.normalHistory,`photo-${i}`);
-    triangles.push(...grid(4,8,(q,t)=>{
-      const center=mix(root,cuff,t),normal=rotation(t),r=radius*(1-t)+shoulderWidth*width*.085*t;
-      const uv=mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
+    const radius=distance(rootOuter,rootInner)/2;
+    const lowerNormal=pattern.long?unit({x:-(side.w.y-side.e.y)*(i===0?1:-1),y:(side.w.x-side.e.x)*(i===0?1:-1)}):armNormal;
+    const middleNormal=pattern.long?sleeveNormalRotation(armNormal,lowerNormal,fit.normalHistory,`photo-${i}-joint`)(.5):armNormal;
+    const rotation=sleeveNormalRotation(rootNormal,middleNormal,fit.normalHistory,`photo-${i}`),lowerRotation=sleeveNormalRotation(middleNormal,lowerNormal,fit.normalHistory,`photo-${i}-end`);
+    const sleeveRows=[...new Set([0,.125,.25,.375,.5,.625,.75,.875,1,...(pattern.long?[.5/length]:[]),...(source.samples?.map(p=>p.t)||[])])].filter(t=>t>=0&&t<=1).sort((a,b)=>a-b);
+    triangles.push(...grid(4,sleeveRows.length-1,(q,row)=>{
+      const t=sleeveRows[Math.round(row*(sleeveRows.length-1))],along=t*length;
+      const first=along<=.5;
+      const center=pattern.long?mix(first?root:side.e,first?side.e:side.w,first?along*2:(along-.5)*2):mix(root,cuff,t);
+      const normal=pattern.long?(first?rotation:lowerRotation)(first?along*2:(along-.5)*2):rotation(t),r=radius*(1-t)+shoulderWidth*width*(pattern.long?.065:.085)*t;
+      const uv=pattern.long?samplePhotoSleeve(source,q,t):mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
       return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),z:center.z+(rootOuter.z-rootInner.z)*(1-2*q)*.5*(1-t),...uv};
     }));
   });
   triangles.sort((a,b)=>b.reduce((n,p)=>n+p.z,0)-a.reduce((n,p)=>n+p.z,0));
-  triangles.sleeveStyle=pattern.kind;
+  triangles.sleeveStyle=pattern.kind;triangles.coverForearms=coveredForearms;triangles.missingSleeves=missingSleeves;
   triangles.curvedTorso=surface.enabled;
   return triangles;
 }

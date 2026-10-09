@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
-const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/sleeveNormals.js','utf8').replaceAll('export function','function'),scope);vm.runInContext(fs.readFileSync('src/photoSleeves.js','utf8').replace(/^import .*;\n/gm,'').replaceAll('export function','function'),scope);
+const scope=vm.createContext({});vm.runInContext(fs.readFileSync('src/longPhotoSleeves.js','utf8').replaceAll('export function','function'),scope);vm.runInContext(fs.readFileSync('src/sleeveNormals.js','utf8').replaceAll('export function','function'),scope);vm.runInContext(fs.readFileSync('src/photoSleeves.js','utf8').replace(/^import .*;\n/gm,'').replaceAll('export function','function'),scope);
 const width=100,height=100,data=new Uint8ClampedArray(width*height*4);
 for(let y=5;y<99;y++){
  const left=y<20?30-(y-5):y<45?15-(y-20)*.6:y<55?(y-45)*2.5:25;
@@ -20,8 +20,8 @@ for(const mode of ['down','raised','crossed']){
  // The body and sleeve UV roots must also share screen coordinates.
  const byUV=new Map();for(const tri of mesh)for(const p of tri){const key=p.u.toFixed(8)+':'+p.v.toFixed(8);const previous=byUV.get(key);if(previous)assert(Math.hypot(p.x-previous.x,p.y-previous.y)<1e-6,'Photo seam split');else byUV.set(key,p);}
 }
-pose[13].visibility=.1;assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}),null);
-pose[13]={...pose[11]};assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}),null);
+pose[13].visibility=.1;const partial=scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern});assert.equal(partial.missingSleeves,1);assert(partial.length>128);
+pose[13]={...pose[11]};assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}).missingSleeves,1);
 console.log('Photo sleeves: silhouette inference, rectangle/empty rejection, finite down/raised/crossed geometry, shared UV seams and missing/degenerate arm fallback.');
 
 const world=Array.from({length:33},()=>({x:0,y:0,z:0}));
@@ -45,3 +45,18 @@ pose[13]={x:.86,y:.35,z:-.2,visibility:1};pose[11].z=-.15;pose[12].z=.15;
 const curved=scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern,worldPose:world});assert(curved.curvedTorso);
 const curvedByUV=new Map();for(const tri of curved)for(const p of tri){const key=p.u.toFixed(8)+':'+p.v.toFixed(8);const before=curvedByUV.get(key);if(before)assert(Math.hypot(p.x-before.x,p.y-before.y,p.z-before.z)<1e-6,'Curved surface split a sewn root');else curvedByUV.set(key,p);}
 console.log('Curved torso: unchanged frontal projection and sewn roots, camera-facing depth, opposite yaw shifts, missing/invalid/extreme world-pose fallback.');
+
+const longWidth=200,longHeight=220,longData=new Uint8ClampedArray(longWidth*longHeight*4);
+for(let y=12;y<215;y++)for(let x=65;x<=135;x++)longData[(y*longWidth+x)*4+3]=255;
+for(let y=20;y<=195;y++){const center=65-(y-20)*.3,radius=20-(y-20)*.055;for(let x=Math.max(0,Math.ceil(center-radius));x<=Math.floor(center+radius);x++){longData[(y*longWidth+x)*4+3]=255;longData[(y*longWidth+(longWidth-1-x))*4+3]=255;}}
+const longPattern=scope.inferPhotoSleeves({width:longWidth,height:longHeight,data:longData});assert.equal(longPattern?.kind,'photo-long-sleeve');
+for(const side of longPattern.sides){assert(side.samples.length<32);assert.equal(side.samples[0].t,0);assert.equal(side.samples.at(-1).t,1);assert(side.samples.every((p,i)=>!i||p.t>side.samples[i-1].t));}
+for(const [i,x,y]of [[11,.7,.3],[12,.3,.3],[13,.85,.45],[14,.15,.45],[15,.9,.7],[16,.1,.7],[23,.64,.62],[24,.36,.62]])Object.assign(pose[i],{x,y,z:0,visibility:1});
+for(const length of [.7,1,1.5]){
+ const mesh=scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern,length});assert.equal(mesh.sleeveStyle,'photo-long-sleeve');assert.equal(mesh.coverForearms.length,2);for(const p of mesh.flat())assert([p.x,p.y,p.z,p.u,p.v].every(Number.isFinite));
+ const uvMap=new Map();for(const p of mesh.flat()){const key=p.u.toFixed(8)+':'+p.v.toFixed(8),old=uvMap.get(key);if(old)assert(Math.hypot(old.x-p.x,old.y-p.y,old.z-p.z)<1e-6,'Long photo sleeve/body seam split');else uvMap.set(key,p);}
+ if(length===1){for(const [i,side]of longPattern.sides.entries()){const ends=[side.cuffOuter,side.cuffInner].map(uv=>mesh.flat().find(p=>Math.abs(p.u-uv.u)<1e-8&&Math.abs(p.v-uv.v)<1e-8));assert(ends.every(Boolean));const wrist=pose[i===0?15:16];assert(Math.abs((ends[0].x+ends[1].x)/2-(view.width-wrist.x*video.width))<1e-6);assert(Math.abs((ends[0].y+ends[1].y)/2-wrist.y*video.height)<1e-6);}}
+}
+const partialHistory={};scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern,normalHistory:partialHistory});assert.equal(Object.keys(partialHistory).length,6);
+pose[15].visibility=.1;const oneSleeve=scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern,normalHistory:partialHistory});assert.equal(Object.keys(partialHistory).length,3,'Hidden sleeve kept stale angle history');assert.equal(oneSleeve.missingSleeves,1);assert.equal(oneSleeve.coverForearms.length,1);assert(!oneSleeve.coverForearms.includes(15));pose[16].visibility=.1;const torsoOnly=scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern});assert.equal(torsoOnly.missingSleeves,2);assert.equal(torsoOnly.coverForearms.length,0);assert(torsoOnly.length>0);pose[11].visibility=0;assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern}),null);
+console.log('Long photo sleeves: separated contours, bounded source samples, finite fitted lengths, sewn roots, exact wrist cuffs and honest one/both missing-arm torso coverage passed.');

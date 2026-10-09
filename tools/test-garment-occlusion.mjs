@@ -6,6 +6,7 @@ for(const i of [11,12,23,24])pose[i]={x:i%2?.3:.7,y:i<20?.3:.7,z:0,visibility:1}
 pose[13]={x:.2,y:.45,z:.1,visibility:1};pose[15]={x:.7,y:.5,z:-.2,visibility:1};pose[19]={x:.75,y:.5,z:-.25,visibility:1};
 let s=foregroundLimbSegments(pose);assert.equal(s.length,2);assert.equal(s[0].part,'forearm');assert(Math.abs(s[0].from.x-.425)<1e-8);assert.equal(s[0].to,pose[15]);
 pose[13].z=-.2;pose[15].z=.1;s=foregroundLimbSegments(pose);assert.equal(s[0].from,pose[13]);assert(s[0].to.x<.5);assert.equal(s[1].part,'hand');assert(s[1].from.x>pose[15].x);
+assert(!foregroundLimbSegments(pose,{coverForearms:[15]}).some(s=>s.part==='forearm'));assert(foregroundLimbSegments(pose,{coverForearms:[16]}).some(s=>s.part==='forearm'));
 assert(foregroundLimbSegments(pose,{coverForearms:true}).every(s=>s.part==='hand'));
 pose[13].visibility=0;assert.equal(foregroundLimbSegments(pose).length,1,'Hidden elbow hid visible hand');
 pose[11]=pose[12]=null;assert.equal(foregroundLimbSegments(pose).length,1);assert.equal(occlusionBodyWidth(pose,project),60);

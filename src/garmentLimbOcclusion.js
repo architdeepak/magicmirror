@@ -13,7 +13,7 @@ export function foregroundLimbSegments(pose,{coverForearms=false}={}){
   segments.push({from:frontA?a:crossing,to:frontB?b:crossing,part});
  };
  for(const [elbow,wrist,finger]of [[13,15,19],[14,16,20]]){
-  if(!coverForearms)clip(pose?.[elbow],pose?.[wrist],'forearm');
+  if(!(coverForearms===true||(Array.isArray(coverForearms)&&coverForearms.includes(wrist))))clip(pose?.[elbow],pose?.[wrist],'forearm');
   // A visible hand does not require a visible elbow.
   clip(pose?.[wrist],pose?.[finger],'hand');
  }
