@@ -4,7 +4,9 @@
 .spell-frame::before { top:-16px; }.spell-frame::after { bottom:-15px; }
 .spell-frame i { position:absolute;width:54px;height:54px;border:2px solid rgba(232,195,128,.6);border-right:0;border-bottom:0;border-radius:25px 0 0 0; }
 .spell-frame i:nth-child(1){top:7px;left:7px}.spell-frame i:nth-child(2){top:7px;right:7px;transform:rotate(90deg)}.spell-frame i:nth-child(3){bottom:7px;right:7px;transform:rotate(180deg)}.spell-frame i:nth-child(4){bottom:7px;left:7px;transform:rotate(270deg)}
-.magic-dust {position:absolute;inset:0;width:100%;height:100%;z-index:10;pointer-events:none}.magic-dust[hidden]{display:none}
+.magic-dust {position:absolute;inset:0;width:100%;height:100%;z-index:9;pointer-events:none}.magic-dust[hidden]{display:none}
+/* Keep voice controls and captions above the reveal; status has a quiet backing. */
+#app-shell:is([data-magic-cue="wake"],[data-magic-cue="arrival"]) .wake-status{padding:4px 10px;border-radius:12px;background:rgba(4,10,15,.82);color:#e7edf1}
 #app-shell:has(> .awakening.active) #dashboard-container,#app-shell:has(> .awakening.active) .experience-panel,#app-shell:has(> .awakening.active) .oracle-card {visibility:hidden;pointer-events:none}
 #app-shell:has(> .awakening.active) .spell-frame {z-index:11}
 #app-shell[data-magic-cue="selection"] .spell-frame,#app-shell[data-magic-cue="capture"] .spell-frame {animation:frame-glow .65s ease both}

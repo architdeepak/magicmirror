@@ -1,0 +1,491 @@
+{
+  "baseline": {
+    "passed": false,
+    "archiveSha256": "c2629732a0308e8e3f4c3cdbc266e2b73a4ed64e7555d6f5ad974fa36a45eb9c",
+    "checks": [
+      {
+        "width": 540,
+        "height": 960,
+        "probe": [
+          {
+            "selector": "#mic-btn",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "\u25c9LISTEN"
+          },
+          {
+            "selector": "#mute-btn",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "\u2298MUTED"
+          },
+          {
+            "selector": "#live-captions",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "YOUMirror mirror, are you listening?MIRRORYes, your evil highness."
+          },
+          {
+            "selector": "#wake-status",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "Hard muted \u00b7 unmute to listen"
+          }
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "probe": [
+          {
+            "selector": "#mic-btn",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "\u25c9LISTEN"
+          },
+          {
+            "selector": "#mute-btn",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "\u2298MUTED"
+          },
+          {
+            "selector": "#live-captions",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "YOUMirror mirror, are you listening?MIRRORYes, your evil highness."
+          },
+          {
+            "selector": "#wake-status",
+            "magentaFraction": 1,
+            "visible": "visible",
+            "text": "Hard muted \u00b7 unmute to listen"
+          }
+        ]
+      }
+    ],
+    "scope": "Actual packaged Linux Chromium compositing and mouse input at two portrait sizes. Opaque magenta diagnostic replaces cue pixels only to detect UI obscuration. Transcript callbacks are injected, not acoustic/provider proof."
+  },
+  "final": {
+    "passed": true,
+    "archiveSha256": "463b2f2144cb0843079c32587e80c16bb056de356ad9ab408200882935cd0a45",
+    "checks": [
+      {
+        "width": 540,
+        "height": 960,
+        "probe": [
+          {
+            "selector": "#mic-btn",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "\u25c9LISTEN"
+          },
+          {
+            "selector": "#mute-btn",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "\u2298MUTED"
+          },
+          {
+            "selector": "#live-captions",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "YOUMirror mirror, are you listening?MIRRORYes, your evil highness."
+          },
+          {
+            "selector": "#wake-status",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "Hard muted \u00b7 unmute to listen"
+          }
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "probe": [
+          {
+            "selector": "#mic-btn",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "\u25c9LISTEN"
+          },
+          {
+            "selector": "#mute-btn",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "\u2298MUTED"
+          },
+          {
+            "selector": "#live-captions",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "YOUMirror mirror, are you listening?MIRRORYes, your evil highness."
+          },
+          {
+            "selector": "#wake-status",
+            "magentaFraction": 0,
+            "visible": "visible",
+            "text": "Hard muted \u00b7 unmute to listen"
+          }
+        ]
+      }
+    ],
+    "scope": "Actual packaged Linux Chromium compositing and mouse input at two portrait sizes. Opaque magenta diagnostic replaces cue pixels only to detect UI obscuration. Transcript callbacks are injected, not acoustic/provider proof."
+  },
+  "nativeAnimation": {
+    "passed": true,
+    "archiveSha256": "463b2f2144cb0843079c32587e80c16bb056de356ad9ab408200882935cd0a45",
+    "graphics": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+    "interruptionChecks": [
+      {
+        "name": "Stop",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 546,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      },
+      {
+        "name": "hard mute",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 558,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      }
+    ],
+    "nativePixelProbe": {
+      "samples": [
+        {
+          "x": 216,
+          "y": 383,
+          "rgba": [
+            123,
+            138,
+            154,
+            105
+          ]
+        },
+        {
+          "x": 216,
+          "y": 767,
+          "rgba": [
+            123,
+            133,
+            145,
+            112
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1151,
+          "rgba": [
+            110,
+            117,
+            126,
+            138
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1535,
+          "rgba": [
+            114,
+            126,
+            139,
+            190
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1727,
+          "rgba": [
+            112,
+            126,
+            142,
+            109
+          ]
+        },
+        {
+          "x": 540,
+          "y": 383,
+          "rgba": [
+            102,
+            116,
+            131,
+            106
+          ]
+        },
+        {
+          "x": 540,
+          "y": 767,
+          "rgba": [
+            108,
+            117,
+            127,
+            97
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1151,
+          "rgba": [
+            118,
+            127,
+            138,
+            98
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1535,
+          "rgba": [
+            125,
+            139,
+            154,
+            116
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1727,
+          "rgba": [
+            109,
+            123,
+            139,
+            120
+          ]
+        },
+        {
+          "x": 864,
+          "y": 383,
+          "rgba": [
+            106,
+            124,
+            143,
+            142
+          ]
+        },
+        {
+          "x": 864,
+          "y": 767,
+          "rgba": [
+            91,
+            108,
+            125,
+            98
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1151,
+          "rgba": [
+            82,
+            97,
+            113,
+            159
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1535,
+          "rgba": [
+            98,
+            115,
+            133,
+            161
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1727,
+          "rgba": [
+            99,
+            117,
+            135,
+            127
+          ]
+        }
+      ],
+      "error": 0
+    },
+    "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+    "frames": 60,
+    "captureTimesMs": [
+      169,
+      287,
+      359,
+      444,
+      528,
+      621,
+      705,
+      794,
+      878,
+      961,
+      1060,
+      1161,
+      1245,
+      1328,
+      1412,
+      1488,
+      1561,
+      1627,
+      1709,
+      1789,
+      1896,
+      1987,
+      2079,
+      2141,
+      2212,
+      2281,
+      2363,
+      2449,
+      2532,
+      2614,
+      2698,
+      2781,
+      2864,
+      2941,
+      3007,
+      3076,
+      3153,
+      3224,
+      3292,
+      3363,
+      3423,
+      3497,
+      3580,
+      3692,
+      3779,
+      3848,
+      3933,
+      4011,
+      4073,
+      4161,
+      4245,
+      4320,
+      4410,
+      4487,
+      4571,
+      4661,
+      4761,
+      4828,
+      4920,
+      4993
+    ],
+    "renderedFrames": 288,
+    "renderedFps": 60,
+    "hdGpuPreview": true,
+    "renderer": {
+      "quality": "hd",
+      "backend": "gpu",
+      "resolution": [
+        1080,
+        1919
+      ],
+      "field": null,
+      "frames": 558,
+      "targetFps": 60,
+      "fallbackReason": null
+    },
+    "renderedScope": "Deterministic production fog at the recorded export cadence, posed host and equivalent fade; offline export is not a live FPS measurement. Original timed screen capture retained separately.",
+    "cancelledCleanly": true,
+    "reducedMotionNoParticleLoop": true
+  },
+  "ui": {
+    "checkedAt": "2026-10-09T20:01:52.687Z",
+    "passed": true,
+    "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+    "checks": [
+      {
+        "width": 1280,
+        "height": 1024,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 400,
+        "height": 710,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 540,
+        "height": 960,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "checks": [
+          "typing does not invoke mode/camera/fullscreen shortcuts",
+          "two long colored caption rows and one caption container",
+          "editor Stop leaves review open",
+          "command center accessible",
+          "typed task draft retained while muted",
+          "friends request explains missing Apple People bridge"
+        ]
+      },
+      {
+        "checks": [
+          "camera clarity selectable by real keyboard input",
+          "typed voice navigation bright/off updates renderer and persistence"
+        ]
+      }
+    ],
+    "rendererErrors": []
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/cue-controls-final-tests.log"
+  },
+  "sourceHashes": {
+    "src/experience.css": "dd87e35e504bcc82c4001905a3302c6b5bd24dbac3d2381ba8637e44471820cd",
+    "tools/check-cue-controls.cjs": "64eea54261d52a900c539d00d84ff319fd486d50385c9f6fba7bba94cc156b1c",
+    "tools/check-magic-animation.cjs": "dd3c8c45e54d07a1d6feca4ec71215904804349f078b24204497a3c9c6487224"
+  }
+}
