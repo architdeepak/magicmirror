@@ -55,3 +55,7 @@ Both sequential repetitions after the speech fix use immutable archive `5dac3c4b
 | checkpoint-software | 756.4% | 21.5 | 352.0 |
 
 See [machine-readable evidence](RIG-VOLUME-VERIFICATION.json) for every portrait/rig settled/moving case and actual renderer diagnostics. Software results vary between short repeats; the original baseline has no matched archive hash or repeated statistical comparison, so the 30% target remains open.
+
+### Frozen monitoring
+
+Implementation and evidence committed as `987ddd7` and pushed to GitHub. A separate two-hour immutable NVIDIA rig monitor is running on the final benchmark archive. Actual driver verified at startup; initial samples show zero errors. [Launch record](RIG-VOLUME-MONITOR-LAUNCH.json) is a snapshot, not completion evidence. Older eight-hour software monitoring continues on its own frozen prior build.
