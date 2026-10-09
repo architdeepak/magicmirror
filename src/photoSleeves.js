@@ -72,7 +72,10 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     // along the shoulder/hip axis, so leaning and profile views stay coherent.
     // This is visual coverage, not a measurement of the wearer's size.
     const boundedT=Math.max(0,Math.min(1,t)), allowance=1.2+.16*boundedT;
-    const lift=.035*(1-boundedT);
+    // Lift the outer shoulder cap without raising the center neckline. The
+    // smooth transverse shape and torso-axis displacement preserve leaning
+    // and shared sleeve roots; the extra lift fades out toward the hem.
+    const lift=(.035+.025*(2*q-1)**2)*(1-boundedT);
     return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width*allowance-(bottom.x-top.x)*lift,y:center.y+(b.y-a.y)*(q-.5)*width*allowance-(bottom.y-top.y)*lift,z:center.z+(b.z-a.z)*(q-.5)*width*allowance,u:left+(right-left)*q,v}, q, boundedT);
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
@@ -135,4 +138,14 @@ function mix(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:(a.z||0)+((b.z|
 function mixUV(a,b,t){return{u:a.u+(b.u-a.u)*t,v:a.v+(b.v-a.v)*t}}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function unit(p){const d=Math.hypot(p.x,p.y)||1;return{x:p.x/d,y:p.y/d}}
-function grid(columns,rows,map){const result=[];for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){const a=map(x/columns,y/rows),b=map((x+1)/columns,y/rows),c=map((x+1)/columns,(y+1)/rows),d=map(x/columns,(y+1)/rows);result.push([a,b,c],[a,c,d])}return result}
+function grid(columns,rows,map){
+  // Neighboring triangles share vertices. Map each grid point once rather
+  // than repeating torso/normal/UV calculations for every adjacent cell.
+  const vertices=Array.from({length:rows+1},(_,y)=>Array.from({length:columns+1},(_,x)=>map(x/columns,y/rows)));
+  const result=[];
+  for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){
+    const a=vertices[y][x],b=vertices[y][x+1],c=vertices[y+1][x+1],d=vertices[y+1][x];
+    result.push([a,b,c],[a,c,d]);
+  }
+  return result;
+}

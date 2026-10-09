@@ -3,7 +3,7 @@
 const {app,BrowserWindow}=require('electron');const fs=require('fs/promises'),path=require('path'),assert=require('assert/strict');const {pathToFileURL}=require('url');
 app.disableHardwareAcceleration();const root=path.resolve(__dirname,'..');
 app.whenReady().then(async()=>{
- const longPhoto=process.env.MIRROR_MOTION_GARMENT==='long',dir=path.join(root,longPhoto?'artifacts/long-photo-motion':'artifacts/photo-fit-motion');await fs.mkdir(dir,{recursive:true});
+ const longPhoto=process.env.MIRROR_MOTION_GARMENT==='long',label=(process.env.MIRROR_MOTION_LABEL||'').replace(/[^a-zA-Z0-9_-]/g,''),dir=path.join(root,'artifacts',label||(longPhoto?'long-photo-motion':'photo-fit-motion'));await fs.mkdir(dir,{recursive:true});
  const fixture=path.join(dir,'fixture.html');await fs.writeFile(fixture,'<style>body{margin:0}#stage{position:relative;width:540px;height:960px}#camera,canvas.overlay{position:absolute;inset:0;width:100%;height:100%}#camera{object-fit:cover;transform:scaleX(-1)}</style><div id="stage"><video id="camera" muted autoplay playsinline></video><canvas class="overlay"></canvas></div>');
  const win=new BrowserWindow({width:540,height:960,show:false,webPreferences:{offscreen:true,contextIsolation:true,nodeIntegration:false}});
  try{

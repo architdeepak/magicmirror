@@ -73,5 +73,30 @@ for(const angle of [0,.4,-.4]){
  assert(Math.abs(Math.hypot(b.x-a.x,b.y-a.y)-151.2*1.36)<1e-6,'Hem allowance changed under torso lean');
  assert(Math.abs((b.x-a.x)*sn-(b.y-a.y)*c)<1e-6,'Allowance stopped following torso axis');
  assert.equal(mesh.missingSleeves,2);assert.equal(mesh.coverForearms.length,0);
+ const projected=i=>({x:540-coveragePose[i].x*540,y:coveragePose[i].y*960});
+ const s0=projected(11),s1=projected(12),h0=projected(23),h1=projected(24);
+ const top={x:(s0.x+s1.x)/2,y:(s0.y+s1.y)/2},bottom={x:(h0.x+h1.x)/2,y:(h0.y+h1.y)/2};
+ const shoulderV=(longPattern.sides[0].outer.v+longPattern.sides[1].outer.v)/2;
+ for(const q of [0,.5,1]){
+  const u=longPattern.sides[0].outer.u+(longPattern.sides[1].outer.u-longPattern.sides[0].outer.u)*q;
+  const vertex=mesh.flat().find(p=>Math.abs(p.u-u)<1e-8&&Math.abs(p.v-shoulderV)<1e-8);
+  assert(vertex,'Missing shoulder row');
+  const lift=q===.5?.035:.06;
+  assert(Math.hypot(vertex.x-(top.x+(s1.x-s0.x)*(q-.5)*1.2-(bottom.x-top.x)*lift),vertex.y-(top.y+(s1.y-s0.y)*(q-.5)*1.2-(bottom.y-top.y)*lift))<1e-6,'Shoulder lift moved the neckline or stopped following lean');
+ }
 }
 console.log('Torso allowance: bounded transverse hem width across frontal/leaning poses and torso-only recovery passed.');
+console.log('Shoulder caps: fixed center neckline, bounded edge lift along the torso axis, unchanged hem across frontal and opposite lean passed.');
+let gridCalls=0;
+const sharedGrid=scope.grid(4,8,(x,y)=>{gridCalls++;return{x,y,z:0,u:x,v:y}});
+assert.equal(gridCalls,45,'Shared grid points were recalculated');
+assert.equal(sharedGrid.length,64);
+assert.equal(new Set(sharedGrid.flat()).size,45,'Neighboring triangles did not share grid vertices');
+const reference=[];
+for(let y=0;y<8;y++)for(let x=0;x<4;x++){
+ const point=(u,v)=>({x:u,y:v,z:0,u,v});
+ const a=point(x/4,y/8),b=point((x+1)/4,y/8),c=point((x+1)/4,(y+1)/8),d=point(x/4,(y+1)/8);
+ reference.push([a,b,c],[a,c,d]);
+}
+assert.deepEqual(JSON.parse(JSON.stringify(sharedGrid)),reference,'Vertex reuse changed triangle order or coordinates');
+console.log('Photo grid reuse: exact coordinates/triangle order, 45 mappings for 64 triangles and shared neighboring vertices passed.');
