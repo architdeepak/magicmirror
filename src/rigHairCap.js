@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 // A closed curved root volume, shared with the existing batched hair material.
 export function buildHairCap(persona) {
-  const segments=96,rings=7,positions=[],indices=[];
+  const segments=96,rings=11,positions=[],indices=[];
   for(let row=0;row<rings;row++){
-    const t=row/rings,radial=Math.sqrt(1-t*t);
+    const latitude=row/rings*Math.PI/2,t=Math.sin(latitude),radial=Math.cos(latitude);
     for(let col=0;col<=segments;col++){
       const angle=col/segments*Math.PI*2,s=Math.sin(angle),c=Math.cos(angle);
       const front=Math.max(0,c),queen=persona==='velora';

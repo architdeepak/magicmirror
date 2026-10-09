@@ -6,8 +6,9 @@ import {createLidTextureMapping} from '../src/rigLidTexture.js';
 import {buildHairCap} from '../src/rigHairCap.js';
 for(const persona of ['velora','solenne']){
  const cap=buildHairCap(persona),p=cap.attributes.position,n=cap.attributes.normal;
- assert.equal(p.count,681);assert.equal(cap.index.count/3,1344);
+ assert.equal(p.count,1069);assert.equal(cap.index.count/3,2112);
  assert(p.array.every(Number.isFinite)&&n.array.every(Number.isFinite));
+ assert(Math.hypot(p.getX(970),p.getZ(970)+.26)<.10,'Upper dome fan spans too much of the silhouette');
  assert(n.getZ(97)>.5,'Front hair roots point inward');
  assert(n.getY(p.count-1)<0,'Hair root underside points inward');
  assert.equal(p.getY(0)<p.getY(6),persona==='velora','Persona hairline contour changed');
