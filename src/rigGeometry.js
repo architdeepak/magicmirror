@@ -29,6 +29,7 @@ export function authorFaceMorphs(mesh) {
    if(name==='mouthLeft'||name==='mouthRight')dx=(name==='mouthLeft'?-.065:.065)*mouth;
    if(name.startsWith('mouthUpperUp'))dy=.06*gaussian(x,y,side*.13,-.45,.19,.08);
    if(name.startsWith('mouthLowerDown'))dy=-.065*gaussian(x,y,side*.13,-.58,.19,.08);
+   if(name==='mouthRollLower'){const w=gaussian(x,y,0,-.59,.30,.10);dy=.022*w;dz=-.050*w;}
    if(name.startsWith('mouthPress')||name==='mouthClose')dy=(-.51-y)*mouth*.35;
    if(name==='cheekPuff')dz=.065*(gaussian(x,y,-.62,-.16,.25,.30)+gaussian(x,y,.62,-.16,.25,.30));
    if(name.startsWith('cheekSquint'))dy=.04*gaussian(x,y,side*.55,.08,.24,.16);
@@ -147,7 +148,21 @@ export function buildRigAccessories(face,persona){
   const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.115,1),new THREE.MeshStandardMaterial({color:0x890d29,metalness:.25,roughness:.2}));gem.position.set(0,1.40,.39);gem.scale.set(.7,1.5,.5);crown.add(gem);
  }
  const cavity=ball(1,new THREE.MeshStandardMaterial({color:0x240d16,roughness:1}),[0,-.56,.02],[.27,.10,.075]);
- const teeth=new THREE.Mesh(new THREE.BoxGeometry(.36,.045,.045),new THREE.MeshStandardMaterial({color:0xf1dfc8,roughness:.5}));teeth.position.set(0,-.535,.105);group.add(teeth);
+ // Curved, separately shaped enamel; batch each static arch into one draw.
+ const enamel=new THREE.MeshStandardMaterial({color:0xe9e1d1,roughness:.38});
+ const upperTeeth=new THREE.Group();upperTeeth.name='upper-dental-arch';group.add(upperTeeth);
+ const lowerTeeth=new THREE.Group();lowerTeeth.name='lower-dental-arch';group.add(lowerTeeth);
+ const tooth=(root,x,width,height)=>{
+  const shape=new THREE.Shape();const w=width/2,h=height/2,r=.007;
+  shape.moveTo(-w,h);shape.lineTo(w,h);shape.lineTo(w,-h+r);shape.quadraticCurveTo(w,-h,w-r,-h);shape.lineTo(-w+r,-h);shape.quadraticCurveTo(-w,-h,-w,-h+r);shape.closePath();
+  const geometry=new THREE.ExtrudeGeometry(shape,{depth:.030,bevelEnabled:true,bevelSize:.004,bevelThickness:.004,bevelSegments:1,curveSegments:3,steps:1});
+  const mesh=new THREE.Mesh(geometry,enamel);mesh.position.set(x,0,-.035*(x/.19)**2);mesh.rotation.y=-x*1.2;root.add(mesh);
+ };
+ for(const x of[-.168,-.128,-.080,-.027,.027,.080,.128,.168])tooth(upperTeeth,x,Math.abs(x)<.1?.046:.036,Math.abs(x)<.1?.051:.045);
+ for(const x of[-.123,-.075,-.025,.025,.075,.123])tooth(lowerTeeth,x,.039,.035);
+ mergeStaticMaterial(upperTeeth,enamel).name='upper-enamel';mergeStaticMaterial(lowerTeeth,enamel).name='lower-enamel';
+ upperTeeth.position.set(0,-.535,.095);lowerTeeth.position.set(0,-.53,.075);
+ const tongue=new THREE.Mesh(new THREE.SphereGeometry(1,16,10),new THREE.MeshStandardMaterial({color:0x773544,roughness:.85}));tongue.position.set(0,-.56,.010);tongue.scale.set(.16,.020,.060);tongue.name='inner-tongue';group.add(tongue);
  mergeStaticMaterial(group,hair);
- return {group,eyes,cavity,teeth,headVolume};
+ return {group,eyes,cavity,teeth:upperTeeth,upperTeeth,lowerTeeth,tongue,headVolume};
 }

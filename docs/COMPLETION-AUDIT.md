@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+Mouth follow-up: [distinct speech poses and dental interior](MOUTH-SHAPES-2026-10-08.md). Live phoneme accuracy and production art quality remain open.
+
 Playback follow-up: [mouth motion follows output, queued tails and Stop](PLAYBACK-SYNC-2026-10-08.md); phoneme/anatomy and physical validation remain open.
 
 Latest follow-up: [side volume, rendering benchmark and speech decay](RIG-VOLUME-AND-PERFORMANCE-2026-10-08.md). Full suite remains incomplete.

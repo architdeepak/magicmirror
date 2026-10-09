@@ -10,7 +10,7 @@ for(const persona of ['velora','solenne']){
  const indexAccessor=gltf.accessors[primitive.indices],indexView=gltf.bufferViews[indexAccessor.bufferView],indexStart=(indexView.byteOffset||0)+(indexAccessor.byteOffset||0),indices=[];for(let i=0;i<indexAccessor.count;i++)indices.push(indexAccessor.componentType===5125?bin.readUInt32LE(indexStart+i*4):bin.readUInt16LE(indexStart+i*2));geometry.setIndex(indices);geometry.computeVertexNormals();
  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial());mesh.morphTargetDictionary=Object.fromEntries(gltf.meshes[0].extras.targetNames.map((n,i)=>[n,i]));
  const before=positions.slice(),supported=authorFaceMorphs(mesh);assert(supported.length>=25);assert.deepEqual(positions,before);assert.equal(geometry.morphTargetsRelative,true);assert.equal(geometry.morphAttributes.normal.length,geometry.morphAttributes.position.length);assert(geometry.morphAttributes.normal.every(n=>n.count===positions.length/3&&n.array.every(Number.isFinite)));
- for(const name of ['eyeBlinkLeft','eyeBlinkRight','browInnerUp','jawOpen','mouthSmileLeft','mouthFunnel'])assert(supported.includes(name));
+ for(const name of ['eyeBlinkLeft','eyeBlinkRight','browInnerUp','jawOpen','mouthSmileLeft','mouthFunnel','mouthRollLower'])assert(supported.includes(name));
  assert(!supported.includes('tongueOut'),'Do not claim unsupported tongue');
  const jaw=geometry.morphAttributes.position[mesh.morphTargetDictionary.jawOpen];assert(jaw.getY(14)<-.15);assert(jaw.getY(10)===0,'Speech cannot shift forehead');
  const blink=geometry.morphAttributes.position[mesh.morphTargetDictionary.eyeBlinkLeft];assert(blink.getY(159)<0);assert(positions[159*3+2]+blink.getZ(159)>.22,'Closed lid must sit in front of iris');assert.equal(blink.getY(10),0);assert.equal(blink.getY(386),0,'Independent eyelids');
@@ -20,6 +20,7 @@ for(const persona of ['velora','solenne']){
   for(let t=0;t<geometry.morphAttributes.position.length;t++)for(const key of['position','normal'])for(const axis of ['X','Y','Z'])assert(Math.abs(volume.morphAttributes[key][t]['get'+axis](j)-geometry.morphAttributes[key][t]['get'+axis](i))<1e-7,'Volume seam drift '+key);
  }
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
+ assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
  console.log(persona,supported.length,'authored deformation channels, independent eyes, solid accessories and stable neutral positions passed');
 }

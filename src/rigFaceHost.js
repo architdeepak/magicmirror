@@ -59,7 +59,7 @@ export class RigFaceHost {
   this.root.rotation.set(this.smooth.nod,this.smooth.turn,this.smooth.lean);
   for(const[name,index]of Object.entries(this.face.morphTargetDictionary)){const value=clamp(Number(blend[name])||0,0,1);this.face.morphTargetInfluences[index]=value;this.accessories.headVolume.morphTargetInfluences[index]=value;}
   for(const eye of this.accessories.eyes){eye.group.rotation.y=this.smooth.x*.24;eye.group.rotation.x=this.smooth.y*.18;}
-  const jaw=clamp(blend.jawOpen||0,0,1);this.accessories.cavity.scale.y=.10+jaw*.18;this.accessories.cavity.position.y=-.56-jaw*.08;this.accessories.teeth.visible=jaw>.08;
+  const jaw=clamp(blend.jawOpen||0,0,1);this.accessories.cavity.scale.y=.10+jaw*.18;this.accessories.cavity.position.y=-.56-jaw*.08;this.accessories.upperTeeth.visible=jaw>.08;this.accessories.lowerTeeth.visible=jaw>.30;this.accessories.lowerTeeth.position.y=-.53-jaw*.17;this.accessories.tongue.visible=jaw>.45;this.accessories.tongue.position.y=-.56-jaw*.15;
   const sig=[...Object.values(this.smooth),...this.face.morphTargetInfluences].map(v=>Math.round(v*1000)).join(',');
   if(sig===this.signature){this.reuses++;return false;}this.signature=sig;
   this.renderer.info.reset();if(this.composer)this.composer.render();else this.renderer.render(this.scene,this.camera);
