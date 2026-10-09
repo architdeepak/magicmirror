@@ -7,6 +7,11 @@ for(const persona of ['velora','solenne']){
  const accessor=gltf.accessors[primitive.attributes.POSITION],view=gltf.bufferViews[accessor.bufferView],start=(view.byteOffset||0)+(accessor.byteOffset||0),positions=new Float32Array(accessor.count*3);
  for(let i=0;i<positions.length;i++)positions[i]=bin.readFloatLE(start+i*4);
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+ for(const [key,name,size]of [['TEXCOORD_0','uv',2],['COLOR_0','color',3]]){
+  const a=gltf.accessors[primitive.attributes[key]],v=gltf.bufferViews[a.bufferView],offset=(v.byteOffset||0)+(a.byteOffset||0),values=new Float32Array(a.count*size);
+  assert.equal(a.componentType,5126);for(let i=0;i<values.length;i++)values[i]=bin.readFloatLE(offset+i*4);
+  geometry.setAttribute(name,new THREE.BufferAttribute(values,size));
+ }
  const indexAccessor=gltf.accessors[primitive.indices],indexView=gltf.bufferViews[indexAccessor.bufferView],indexStart=(indexView.byteOffset||0)+(indexAccessor.byteOffset||0),indices=[];for(let i=0;i<indexAccessor.count;i++)indices.push(indexAccessor.componentType===5125?bin.readUInt32LE(indexStart+i*4):bin.readUInt16LE(indexStart+i*2));geometry.setIndex(indices);geometry.computeVertexNormals();
  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial());mesh.morphTargetDictionary=Object.fromEntries(gltf.meshes[0].extras.targetNames.map((n,i)=>[n,i]));
  const before=positions.slice(),supported=authorFaceMorphs(mesh);assert(supported.length>=25);assert.deepEqual(positions,before);assert.equal(geometry.morphTargetsRelative,true);assert.equal(geometry.morphAttributes.normal.length,geometry.morphAttributes.position.length);assert(geometry.morphAttributes.normal.every(n=>n.count===positions.length/3&&n.array.every(Number.isFinite)));
@@ -15,6 +20,11 @@ for(const persona of ['velora','solenne']){
  const jaw=geometry.morphAttributes.position[mesh.morphTargetDictionary.jawOpen];assert(jaw.getY(14)<-.15);assert(jaw.getY(10)===0,'Speech cannot shift forehead');
  const blink=geometry.morphAttributes.position[mesh.morphTargetDictionary.eyeBlinkLeft];assert(blink.getY(159)<0);assert(positions[159*3+2]+blink.getZ(159)>.22,'Closed lid must sit in front of iris');assert.equal(blink.getY(10),0);assert.equal(blink.getY(386),0,'Independent eyelids');
  const accessories=buildRigAccessories(mesh,persona);const volume=accessories.headVolume.geometry;assert.equal(volume.attributes.position.count,FACE_OVAL.length*8+1);
+ assert.equal(accessories.headVolume.material,mesh.material,'Head and face use different surface shading');
+ for(const name of ['uv','color']){
+  assert.equal(volume.attributes[name].count,volume.attributes.position.count);assert(volume.attributes[name].array.every(Number.isFinite));
+  for(let j=0;j<FACE_OVAL.length*8;j++)for(let axis=0;axis<geometry.attributes[name].itemSize;axis++)assert.equal(volume.attributes[name].getComponent(j,axis),geometry.attributes[name].getComponent(FACE_OVAL[j%FACE_OVAL.length],axis),'Head boundary appearance mismatch '+name);
+ }
  for(let j=0;j<FACE_OVAL.length;j++){
   const i=FACE_OVAL[j];for(const axis of ['X','Y','Z'])assert(Math.abs(volume.attributes.position['get'+axis](j)-geometry.attributes.position['get'+axis](i))<1e-7);
   for(let t=0;t<geometry.morphAttributes.position.length;t++)for(const key of['position','normal'])for(const axis of ['X','Y','Z'])assert(Math.abs(volume.morphAttributes[key][t]['get'+axis](j)-geometry.morphAttributes[key][t]['get'+axis](i))<1e-7,'Volume seam drift '+key);

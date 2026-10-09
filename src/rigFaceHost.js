@@ -11,7 +11,7 @@ import { useSoftwareRigLighting } from './softwareRigMaterial.js';
 import { boundedSurface, displayProfile } from './displayQuality.js';
 import { authorFaceMorphs, buildRigAccessories } from './rigGeometry.js';
 const RIGS={velora:'assets/personas/velora-3d-v1.glb',solenne:'assets/personas/solenne-3d-v1.glb'};
-function disposeTree(root){const textures=new Set();root?.traverse(n=>{n.geometry?.dispose();for(const m of(Array.isArray(n.material)?n.material:[n.material])){if(!m)continue;for(const v of [...Object.values(m),...(m.userData?.sourceTextures||[])])if(v?.isTexture)textures.add(v);m.dispose();}});textures.forEach(t=>t.dispose());}
+function disposeTree(root){const textures=new Set(),materials=new Set(),geometries=new Set();root?.traverse(n=>{if(n.geometry)geometries.add(n.geometry);for(const m of(Array.isArray(n.material)?n.material:[n.material]))if(m)materials.add(m);});for(const m of materials){for(const v of [...Object.values(m),...(m.userData?.sourceTextures||[])])if(v?.isTexture)textures.add(v);m.dispose();}geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());}
 export class RigFaceHost {
  constructor(host,{onFailure=()=>{},softwareGraphics=false,antialias=!softwareGraphics}={}){
   this.host=host;this.onFailure=onFailure;this.canvas=document.createElement('canvas');this.canvas.className='rig-face-canvas';this.canvas.style.display='none';host.append(this.canvas);

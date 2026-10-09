@@ -90,6 +90,17 @@ export function buildHeadVolume(face,material){
  for(let ring=0;ring<rings-1;ring++)for(let i=0;i<count;i++){const j=(i+1)%count,a=ring*count+i,b=ring*count+j,c=(ring+1)*count+i,d=(ring+1)*count+j;indices.push(a,b,d,a,d,c);}
  for(let i=0;i<count;i++)indices.push((rings-1)*count+i,(rings-1)*count+(i+1)%count,center);
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+ // Extend the authored boundary's appearance over the posterior volume.
+ // A flat skin material creates a visible cheek stripe even with exact normals.
+ // Keep UVs/colors identical at the shared edge; behind it the boundary samples
+ // continue toward the hair-covered rear rather than sampling unrelated features.
+ for(const name of ['uv','uv1','color']){
+  const attribute=source.attributes[name];if(!attribute)continue;
+  const values=new Float32Array((center+1)*attribute.itemSize);
+  for(let v=0;v<center;v++)for(let axis=0;axis<attribute.itemSize;axis++)values[v*attribute.itemSize+axis]=attribute.getComponent(FACE_OVAL[v%count],axis);
+  for(let axis=0;axis<attribute.itemSize;axis++)values[center*attribute.itemSize+axis]=FACE_OVAL.reduce((sum,i)=>sum+attribute.getComponent(i,axis),0)/count;
+  geometry.setAttribute(name,new THREE.BufferAttribute(values,attribute.itemSize));
+ }
  const baseNormals=geometry.attributes.normal;
  for(let i=0;i<count;i++){const index=FACE_OVAL[i];baseNormals.setXYZ(i,source.attributes.normal.getX(index),source.attributes.normal.getY(index),source.attributes.normal.getZ(index));}
  const targets=source.morphAttributes.position.map(delta=>{
@@ -108,11 +119,10 @@ export function buildHeadVolume(face,material){
 
 export function buildRigAccessories(face,persona){
  const p=face.geometry.attributes.position, group=new THREE.Group();group.name='articulated-accessories';face.add(group);
- const skin=new THREE.MeshStandardMaterial({color:0xe9b6a0,roughness:.72});
  const hair=new THREE.MeshStandardMaterial({color:persona==='solenne'?0x24160e:0x100d16,roughness:.48,metalness:0});
  const ball=(radius,mat,position,scale)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(radius,32,24),mat);m.position.set(...position);if(scale)m.scale.set(...scale);group.add(m);return m;};
  // Posterior skull closes side views; no image plane or torso participates.
- const headVolume=buildHeadVolume(face,skin);group.add(headVolume);
+ const headVolume=buildHeadVolume(face,face.material);group.add(headVolume);
  ball(1,hair,[0,.25,-.70],[1.01,1.22,.79]);
  for(const side of[-1,1])ball(1,hair,[side*.28,1.05,.25],[.42,.17,.18]);
  const eyes=[];

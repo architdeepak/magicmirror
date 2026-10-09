@@ -1,4 +1,11 @@
 const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const rigSource=fs.readFileSync('src/rigFaceHost.js','utf8'),disposeContext=vm.createContext({});
+vm.runInContext(rigSource.slice(rigSource.indexOf('function disposeTree('),rigSource.indexOf('export class RigFaceHost')),disposeContext);
+let materialDisposals=0,geometryDisposals=0,textureDisposals=0;
+const texture={isTexture:true,dispose(){textureDisposals++}},material={map:texture,userData:{sourceTextures:[texture]},dispose(){materialDisposals++}},geometry={dispose(){geometryDisposals++}};
+disposeContext.disposeTree({traverse(fn){fn({geometry,material});fn({geometry,material:[material]});}});
+assert.equal(materialDisposals,1);assert.equal(geometryDisposals,1);assert.equal(textureDisposals,1);
+console.log('Shared rig face/head resources dispose exactly once.');
 let source=fs.readFileSync('src/avatarController.js','utf8').replace(/^import .*;$/gm,'').replace('export class AvatarController','class AvatarController');source+='\nglobalThis.AvatarController=AvatarController;';
 class Rig{constructor(host,options){this.canvas={style:{}};this.options=options;this.ready=false;}setQuality(q){this.quality=q;}async setPersona(p){if(p==='rowan')throw new Error('No rig');this.persona=p;if(this.wait)await this.wait;this.ready=true;}}
 const context={console,RigFaceHost:Rig,ExpressionMixer:class{setMood(){}},AvatarPresence:class{},};vm.createContext(context);vm.runInContext(source,context);
