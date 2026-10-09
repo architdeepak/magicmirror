@@ -1,0 +1,157 @@
+{
+  "passed": false,
+  "archiveSha256": "da69c7d73c427d05debf1538ac561457325c768c4ccf1e0b5fe5294021141291",
+  "message": "Late wardrobe speech after selection\n\n1 !== 0\n",
+  "cases": [
+    {
+      "action": "stop",
+      "outcome": "success",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "stop",
+      "outcome": "failure",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "mute",
+      "outcome": "success",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": true,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "mute",
+      "outcome": "failure",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": true,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "mode",
+      "outcome": "success",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "mode",
+      "outcome": "failure",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "spoken": [],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    },
+    {
+      "action": "selection",
+      "outcome": "success",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "The garment selection changed while loading. Use the current mirror state before continuing.",
+        "caption": "MIRRORThe garment selection changed while loading. Use the current mirror state before continuing."
+      },
+      "spoken": [
+        "The garment selection changed while loading. Use the current mirror state before continuing."
+      ],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    }
+  ],
+  "errors": []
+}

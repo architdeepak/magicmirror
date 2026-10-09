@@ -1628,11 +1628,11 @@ async function renderSelectedTryOn() {
       const confidence = Number.isFinite(job.confidence) ? ` · ${Math.round(job.confidence * 100)}% provider confidence` : '';
       elements.tryOnStatus.textContent = `Rendered ${job.garmentName}${confidence} · ${Math.round(job.latencyMs / 1000)}s`;
       showOracle(`${job.garmentName} has been rendered. Review the look in the studio.`, '', 'Try-on ready');
-      return { result: `${job.garmentName} was rendered. Ask the user to review the look in the studio.` };
+      return { result: `${job.garmentName} was rendered. Ask the user to review the look in the studio.`, userMessage: `${job.garmentName} was rendered. Take a look in Try On.` };
     } else {
       elements.tryOnStatus.textContent = job?.providerConfigured ? `Provider returned no preview · job ${job.id}` : job?.previewOnly ? 'Browser preview complete. Nothing was saved or uploaded.' : 'Frame saved locally. Configure a try-on renderer to generate the outfit preview.';
       showOracle(job?.providerConfigured ? 'The try-on provider completed without an image preview.' : job?.previewOnly ? 'Browser preview completed with one in-memory frame. Nothing was saved or uploaded.' : 'Your selected garment and one consented frame are saved locally. No provider is configured yet.', '', 'Try-on prepared');
-      return { result: 'No rendered outfit image is available. Explain that rendering is not configured yet.' };
+      return { result: job?.providerConfigured ? 'The rendering provider completed without an outfit image preview.' : 'No rendered outfit image is available. Rendering is not configured.', providerConfigured: Boolean(job?.providerConfigured), userMessage: 'There’s no rendered preview to show. You can use the live camera fit.' };
     }
   } catch (error) {
     if (requestId !== tryOnRequestId) return { result: 'The previous render was cancelled.' };
@@ -1651,26 +1651,32 @@ async function renderSelectedTryOn() {
 async function handleTryOnVoice({ garmentName = '', renderStill = false } = {}) {
   const liveAIActive = Boolean(liveTryOn.session);
   const query = String(garmentName).trim().toLocaleLowerCase();
-  if (!query) return { result: 'Ask which garment to try on.' };
+  if (!query) return { result: 'Ask which garment to try on.', userMessage: 'Which garment would you like to try on?' };
   const { item, choices } = matchGarment(closet.items, query);
-  if (!item && choices.length) return { result: 'Several closet items match. Ask which one to try on.', choices: choices.map(candidate => ({ name: candidate.name, category: candidate.category })) };
-  if (!item) return { result: 'No matching item is in the local closet. Ask the user to add it or choose an existing closet item.' };
+  if (!item && choices.length) return { result: 'Several closet items match. Ask which one to try on.', userMessage: `Which one: ${choices.slice(0, 4).map(candidate => candidate.name).join(', ')}?`, choices: choices.map(candidate => ({ name: candidate.name, category: candidate.category })) };
+  if (!item) return { result: 'No matching item is in the local closet. Ask the user to add it or choose an existing closet item.', userMessage: 'I couldn’t find that in your wardrobe. Add a photo, or choose another garment.' };
   if (item.id !== closet.selectedId || !garmentOverlay.texture) closet.select(item.id);
   setAssistantMode('ar');
   if (!renderStill) {
-    if (liveAIActive) return { result: `Selected ${item.name} for the consented live AI session. Check current mirror state before claiming the outfit is visible.`, liveAI: liveTryOn.snapshot() };
+    if (liveAIActive) return { result: `Selected ${item.name} for the consented live AI session. Check current mirror state before claiming the outfit is visible.`, userMessage: `${item.name} is selected. Check the camera view for the update.`, liveAI: liveTryOn.snapshot() };
     setTryOnView('live');
     const ready = await garmentSelection;
     if (closet.selectedId !== item.id) return { result: 'The garment selection changed while loading. Use the current mirror state before continuing.' };
     const liveFit = garmentOverlay.getLiveState();
-    return { result: ready ? `Selected ${item.name} for a local live camera fit. ${liveFit.status} Body tracking estimates placement; it does not simulate fabric or measure size. No frame was saved or uploaded.` : garmentOverlay.imageMessage || 'The garment image is not ready for live fit.', liveFit };
+    const userMessage = !ready ? garmentOverlay.imageMessage || 'I couldn’t load that garment photo. Try another garment, or add the photo again.'
+      : liveFit.visible ? `${item.name} is on the mirror.`
+      : !liveFit.cameraActive ? `${item.name} is selected. Turn on the camera to see your fit.`
+      : liveFit.trackingReady === false ? `${item.name} is selected. The camera fit is getting ready.`
+      : !liveFit.bodyDetected ? `${item.name} is selected. Step back so your body is in view.`
+      : `${item.name} is selected.`;
+    return { result: ready ? `Selected ${item.name} for a local live camera fit. ${liveFit.status} Body tracking estimates placement; it does not simulate fabric or measure size. No frame was saved or uploaded.` : garmentOverlay.imageMessage || 'The garment image is not ready for live fit.', userMessage, liveFit };
   }
-  if (!config.hasTryOnProvider) return { result: `Selected ${item.name}, but no rendering provider is configured. Do not claim a try-on was rendered.` };
+  if (!config.hasTryOnProvider) return { result: `Selected ${item.name}, but no rendering provider is configured. Do not claim a try-on was rendered.`, userMessage: `${item.name} is selected. Photo rendering isn’t connected; live camera fitting is available.` };
   if (!elements.tryOnConsent.checked) {
     setStudioToolsOpen(true);
     elements.tryOnConsent.focus();
     showOracle(`I selected ${item.name}. Confirm the consent box in Try On, then ask me to render it.`, '', 'Consent needed');
-    return { result: `Selected ${item.name}. Ask the user to confirm the consent box in the Try On panel, then they can ask you to render it.` };
+    return { result: `Selected ${item.name}. Ask the user to confirm the consent box in the Try On panel, then they can ask you to render it.`, userMessage: `I selected ${item.name}. Confirm photo-sharing in Try On, then ask me to render it.` };
   }
   showOracle(`Preparing ${item.name}.`, '', 'Try-on');
   return renderSelectedTryOn();
@@ -2160,11 +2166,17 @@ function requestTryOnFromNavigation(args, prompt) {
   const request = ++wardrobeReplyGeneration;
   const voice = voiceStartGeneration;
   const control = manualControlGeneration;
+  // Selection happens synchronously before image/render work awaits. Capture
+  // its revision afterward, so this request owns its own selection but is
+  // retired by direct closet, color, style, pointer and gesture changes too.
+  const pending = handleTryOnVoice(args);
+  const selection = garmentRevision;
   const current = () => !hardMuted && request === wardrobeReplyGeneration
-    && voice === voiceStartGeneration && control === manualControlGeneration;
-  return handleTryOnVoice(args).then((result) => {
+    && voice === voiceStartGeneration && control === manualControlGeneration
+    && selection === garmentRevision;
+  return pending.then((result) => {
     if (!current()) return;
-    const answer = result?.error || result?.result || 'Try-on request handled.';
+    const answer = result?.error || result?.userMessage || result?.result || 'Try-on request handled.';
     appendCaption('assistant', answer);
     showOracle(answer, prompt, 'Try-on');
     if (!config.hasGeminiKey) speech.speak(answer);

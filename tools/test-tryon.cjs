@@ -17,9 +17,30 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
   vm.runInContext(voiceSource.slice(voiceSource.indexOf('async function handleTryOnVoice('),voiceSource.indexOf('elements.tryOnCancel.addEventListener')),voice);
   const ambiguous=await voice.handleTryOnVoice({garmentName:'jacket'});assert.equal(ambiguous.choices.length,2);assert.equal(voice.closet.selectedId,'','Ambiguous voice request changed the garment');
   const selected=await voice.handleTryOnVoice({garmentName:'red jacket'});assert.equal(selected.liveFit.visible,false);assert.match(selected.result,/Turn on the camera/);
+  assert.match(selected.userMessage,/Turn on the camera/);assert(!selected.userMessage.includes('does not simulate'));
+  assert.match(ambiguous.userMessage,/Red dinner jacket/);assert.match(ambiguous.userMessage,/Blue jacket/);
+  assert.match((await voice.handleTryOnVoice({garmentName:'green jacket'})).userMessage,/couldn’t find/);
+  for(const [state,expected]of [[{visible:false,cameraActive:true,bodyDetected:false,trackingReady:false},/getting ready/],[{visible:true,cameraActive:true,bodyDetected:true},/is on the mirror/],[{visible:false,cameraActive:true,bodyDetected:false},/Step back/],[{visible:false,cameraActive:true,bodyDetected:true},/is selected\.$/]]){
+    voice.garmentOverlay.getLiveState=()=>({...state,status:'Diagnostic detail'});
+    assert.match((await voice.handleTryOnVoice({garmentName:'red jacket'})).userMessage,expected);
+  }
+  voice.garmentSelection=Promise.resolve(false);voice.garmentOverlay.imageMessage='Use a garment cutout';assert.equal((await voice.handleTryOnVoice({garmentName:'red jacket'})).userMessage,'Use a garment cutout');
+  voice.garmentSelection=Promise.resolve(true);voice.garmentOverlay.imageMessage='';
+  const unconfigured=await voice.handleTryOnVoice({garmentName:'red jacket',renderStill:true});assert.match(unconfigured.userMessage,/isn’t connected/);assert.match(unconfigured.result,/Do not claim/);
+  voice.liveTryOn.session={};assert.match((await voice.handleTryOnVoice({garmentName:'red jacket'})).userMessage,/Check the camera view/);voice.liveTryOn.session=null;
+  voice.config.hasTryOnProvider=true;voice.elements.tryOnConsent={checked:false,focus(){}};voice.setStudioToolsOpen=()=>{};voice.showOracle=()=>{};
+  assert.match((await voice.handleTryOnVoice({garmentName:'red jacket',renderStill:true})).userMessage,/Confirm photo-sharing/);
+  voice.elements.tryOnConsent.checked=true;voice.renderSelectedTryOn=async()=>({result:'Tool diagnostic',userMessage:'Preview is ready'});
+  assert.equal((await voice.handleTryOnVoice({garmentName:'red jacket',renderStill:true})).userMessage,'Preview is ready');
   let finishSelection;voice.garmentSelection=new Promise(resolve=>finishSelection=resolve);
   const obsolete=voice.handleTryOnVoice({garmentName:'Blue jacket'});voice.closet.selectedId='shirt';finishSelection(true);
   assert.match((await obsolete).result,/selection changed/);
+  for(const configured of [false,true]){
+    const rendering=vm.createContext({tryOnRendering:false,tryOnRequestId:null,garmentRevision:0,closet:{selectedId:'red'},config:{tryOnDestinationId:'fixture'},crypto:{randomUUID:()=> 'fixture-job'},elements:{tryOnConsent:{checked:true},tryOnCancel:{},tryOnRun:{},tryOnStatus:{},shell:{clientWidth:540,clientHeight:960},video:{srcObject:{},readyState:2,videoWidth:540,videoHeight:960}},window:{mirrorBridge:{queueTryOn:async()=>({id:'empty',providerConfigured:configured})}},document:{createElement:()=>({getContext:()=>({translate(){},scale(){},drawImage(){}}),toDataURL:()=> 'data:image/jpeg;base64,fixture'})},showOracle(){},setStudioToolsOpen(){}});
+    vm.runInContext(voiceSource.slice(voiceSource.indexOf('async function renderSelectedTryOn('),voiceSource.indexOf('async function handleTryOnVoice(')),rendering);
+    const empty=await rendering.renderSelectedTryOn();assert.equal(empty.providerConfigured,configured);assert.match(empty.userMessage,/no rendered preview/);
+    if(configured){assert.match(empty.result,/provider completed without/);assert(!empty.result.includes('not configured'));}else assert.match(empty.result,/not configured/);
+  }
   const manager=new TryOnRequests({timeoutMs:20});
   await assert.rejects(manager.run('../bad',()=>{}),/valid/);
   let finish;const late=manager.run('late',()=>new Promise(resolve=>finish=resolve));
