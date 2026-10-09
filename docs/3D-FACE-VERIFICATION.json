@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-08",
+  "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+  "unitRegression": {
+    "command": "npm test",
+    "passed": true
+  },
+  "rigAudit": {
+    "passed": true,
+    "scope": "Packaged Linux software GL, actual 3D preview; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.",
+    "errors": [],
+    "anchors": [
+      {
+        "position": "center",
+        "dx": 0,
+        "dy": -0.012809518859114633
+      },
+      {
+        "position": "left",
+        "dx": 0,
+        "dy": -0.011086054317559046
+      },
+      {
+        "position": "right",
+        "dx": 0,
+        "dy": -0.011086054317559046
+      },
+      {
+        "position": "upper",
+        "dx": 0,
+        "dy": -0.014024890254404454
+      },
+      {
+        "position": "lower",
+        "dx": 0,
+        "dy": -0.004666119568241811
+      }
+    ],
+    "supportedChannels": [
+      "browDownLeft",
+      "browDownRight",
+      "browInnerUp",
+      "browOuterUpLeft",
+      "browOuterUpRight",
+      "cheekPuff",
+      "cheekSquintLeft",
+      "cheekSquintRight",
+      "eyeBlinkLeft",
+      "eyeBlinkRight",
+      "eyeSquintLeft",
+      "eyeSquintRight",
+      "eyeWideLeft",
+      "eyeWideRight",
+      "jawForward",
+      "jawLeft",
+      "jawOpen",
+      "jawRight",
+      "mouthClose",
+      "mouthFrownLeft",
+      "mouthFrownRight",
+      "mouthFunnel",
+      "mouthLeft",
+      "mouthLowerDownLeft",
+      "mouthLowerDownRight",
+      "mouthPressLeft",
+      "mouthPressRight",
+      "mouthPucker",
+      "mouthRight",
+      "mouthSmileLeft",
+      "mouthSmileRight",
+      "mouthStretchLeft",
+      "mouthStretchRight",
+      "mouthUpperUpLeft",
+      "mouthUpperUpRight",
+      "noseSneerLeft",
+      "noseSneerRight"
+    ],
+    "neutral": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "resolution": [
+        475,
+        883
+      ],
+      "frames": 3,
+      "reuses": 31,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 29744,
+      "drawCalls": 35
+    },
+    "settledPaints": 0,
+    "checks": [
+      "neutral/blink/brow/AA/OH/smile/left/right",
+      "independent gaze override",
+      "HD surface cap",
+      "Queen/Snow and missing Advit fallback",
+      "saved style after reload",
+      "stopped rendering",
+      "context-loss portrait fallback",
+      "face glow at five positions"
+    ]
+  },
+  "preview": {
+    "file": "docs/media/queen-3d-preview.mp4",
+    "frames": 96,
+    "fps": 24,
+    "scope": "Deterministic offline production rig; explicit poses, no audio, not live throughput."
+  },
+  "otherChecks": {
+    "layout": {
+      "passed": true,
+      "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+      "checkedAt": "2026-10-09T01:14:01.502Z",
+      "artifact": "artifacts/adversarial-ui/result.json"
+    },
+    "wardrobe": {
+      "passed": true,
+      "scope": "Actual packaged Linux app and native IPC with Chromium mouse/keyboard; synthetic canvas camera, injected pose/gesture state, explicit reveal. No physical sensors, Windows Spotify or acoustic recognition.",
+      "checkedAt": "2026-10-09T01:14:08.943Z",
+      "artifact": "artifacts/experience-ui/result.json"
+    },
+    "portrait": {
+      "passed": true,
+      "scope": "Actual packaged Linux app, production textured feature poses and halo geometry at five positions. Explicit acting inputs, no physical tracking or live lip-sync. RAF cadence sampled without screenshot readback; software graphics.",
+      "checkedAt": null,
+      "artifact": "artifacts/avatar-acting/result.json"
+    }
+  },
+  "priorMonitors": [
+    {
+      "directory": "2026-10-08T21-59-15-478Z",
+      "status": "finished",
+      "sampleCount": 2342,
+      "errors": [],
+      "scope": "Prior immutable build; does not validate new rig."
+    },
+    {
+      "directory": "2026-10-08T23-13-21-416Z",
+      "status": "finished",
+      "sampleCount": 2335,
+      "errors": [],
+      "scope": "Prior immutable build; does not validate new rig."
+    },
+    {
+      "directory": "2026-10-08T23-56-13-023Z",
+      "status": "monitoring",
+      "sampleCount": 1669,
+      "errors": [],
+      "scope": "Prior immutable build; does not validate new rig."
+    }
+  ]
+}

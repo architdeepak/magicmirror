@@ -1,0 +1,61 @@
+// Production visual preview; explicit cue playback, not microphone recognition.
+const fs=require('fs/promises'),path=require('path'),os=require('os'),assert=require('assert/strict');
+const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
+const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+(async()=>{
+ const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-rig-v2-')),out=path.join(root,'artifacts/rig-v2');await fs.mkdir(out,{recursive:true});
+ const app=spawn(path.join(root,`dist/linux-${process.arch}-unpacked/magic-mirror-portal`),['--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_KIOSK:'false'},stdio:['ignore','pipe','pipe']});
+ let logs='',client,exited=false;app.on('exit',()=>exited=true);for(const stream of[app.stdout,app.stderr])stream.on('data',bytes=>logs=(logs+bytes).slice(-8000));
+ const until=async fn=>{for(let i=0;i<450;i++){if(exited)throw new Error('Preview exited');const value=await fn();if(value)return value;await delay(100)}throw new Error('Preview startup timed out '+logs.slice(-500))};
+ try{
+  const endpoint=await until(()=>logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1]);
+  const target=await until(async()=>(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())).find(t=>t.url.includes('app.asar/src/index.html')));
+  client=await connect(target.webSocketDebuggerUrl);await client.call('Page.enable');
+  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`window.__magicPreview=true;window.__hdGeneration=Number(sessionStorage.getItem('hd-generation')||0)+1;sessionStorage.setItem('hd-generation',String(__hdGeneration));localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');`});await client.call('Page.reload');
+  await until(()=>client.evaluate('!!window.__magicPreview&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")'));
+  await client.call('Emulation.setDeviceMetricsOverride',{width:720,height:1280,deviceScaleFactor:1.5,mobile:false});
+  await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');await until(()=>client.evaluate('__mirrorDebug.getMirrorState().display.mode==="portal"'));await delay(1000);
+  const shot=async name=>{const image=await client.call('Page.captureScreenshot',{format:'jpeg',quality:92});await fs.writeFile(path.join(out,name+'.jpg'),Buffer.from(image.data,'base64'));};
+  const mode=id=>{const command='set '+(id==='hd'?'maximum detail':id==='eco'?'efficient quality':'balanced quality');return client.evaluate('__mirrorDebug.gemini.onMirrorCommand('+JSON.stringify(command)+')')};
+  await client.evaluate(`document.querySelector('#mute-btn').click()`);await delay(300);
+  await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);
+  await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost?.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
+  console.log(await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,f=r.face;return{visible:f.visible,position:f.position.toArray(),scale:f.scale.toArray(),material:{visible:f.material.visible,opacity:f.material.opacity,color:f.material.color.toArray(),map:!!f.material.map},camera:r.camera.position.toArray(),bounds:f.geometry.boundingSphere}})()`));
+  await client.evaluate(`const r=__mirrorDebug.avatar.rigHost;r.accessories.group.visible=false;r.signature=null`);await delay(400);await shot('face-only');await client.evaluate(`__mirrorDebug.avatar.rigHost.accessories.group.visible=true;__mirrorDebug.avatar.rigHost.signature=null`);
+  const poses=[['neutral',{},{}],['blink',{eyeBlinkLeft:1,eyeBlinkRight:1},{}],['brow',{browOuterUpLeft:.8},{}],['aa',{jawOpen:.65},{}],['oh',{jawOpen:.30,mouthFunnel:.7},{}],['smile',{mouthSmileLeft:.8,mouthSmileRight:.8},{}],['left',{}, {turn:-.9}],['right',{}, {turn:.9}]];
+  const frames=[];
+  const errors=[];await client.call('Runtime.enable');client.onEvent(e=>{if(e.method==='Runtime.exceptionThrown')errors.push(e.params.exceptionDetails.text)});
+  for(const[name,blend,performance]of poses){
+   await client.evaluate(`(()=>{const a=__mirrorDebug.avatar;a.presence.update=()=>({expression:{},gaze:{x:0,y:0,confidence:1},performance:{turn:0,nod:0,lean:0}});a.setExpression(${JSON.stringify(blend)});a.setPerformance(${JSON.stringify(performance)});a.setSpeechLevel(0)})()`);
+   await delay(550);await shot(name);frames.push(await client.evaluate('__mirrorDebug.avatar.rigHost.snapshot()'));
+  }
+  assert(frames.every(f=>f.ready&&f.triangles>0));
+  await client.evaluate(`__mirrorDebug.avatar.setExpression({});__mirrorDebug.avatar.setPerformance({})`);await delay(1000);
+  const before=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');await delay(600);const after=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');assert.equal(after,before,'Settled rig still draws');
+  if(process.env.MIRROR_RIG_MOVIE==='true'){
+   await client.evaluate('__mirrorDebug.avatar.visible=false');
+   for(let i=0;i<96;i++){
+    await client.evaluate(`(()=>{const a=__mirrorDebug.avatar,r=a.rigHost,t=${i}/24;const blink=t>1.1&&t<1.25?1:0;const energy=t>1.8&&t<3.5?.4+.3*Math.sin(t*15):0;r.update({eyeBlinkLeft:blink,eyeBlinkRight:blink,browOuterUpLeft:t>2?.35:0,jawOpen:energy,mouthFunnel:t>2.6&&t<3?.4:0},{x:Math.sin(t*1.8)*.7,y:0},{turn:Math.sin(t*1.5)*.8,nod:0,lean:0},1/24,{})})()`);
+    await shot('movie-'+String(i).padStart(3,'0'));
+   }
+   const {execFileSync}=require('child_process');execFileSync('ffmpeg',['-y','-framerate','24','-i',path.join(out,'movie-%03d.jpg'),'-c:v','libx264','-crf','20','-pix_fmt','yuv420p',path.join(out,'rig-preview.mp4')],{stdio:'ignore'});
+   await client.evaluate('__mirrorDebug.avatar.visible=true');
+  }
+  for(const [x,name]of[[-1,'gaze-left'],[1,'gaze-right']]){await client.evaluate(`__mirrorDebug.avatar.setGazeOverride({x:${x},y:0})`);await delay(500);await shot(name);assert(Math.abs(await client.evaluate('__mirrorDebug.avatar.rigHost.accessories.eyes[0].group.rotation.y'))>.20);}
+  await client.evaluate('__mirrorDebug.avatar.setGazeOverride(null)');
+  await client.evaluate(`document.querySelector('#display-quality').value='hd';document.querySelector('#display-quality').dispatchEvent(new Event('change'))`);assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.quality'),'hd');assert(await client.evaluate('__mirrorDebug.avatar.rigHost.canvas.width*__mirrorDebug.avatar.rigHost.canvas.height<=4e6'));
+  await client.evaluate(`__mirrorDebug.avatar.setPersona('solenne')`);await delay(600);await shot('solenne');assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.persona'),'solenne');
+  await client.evaluate(`__mirrorDebug.avatar.setPersona('rowan')`);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
+  await client.evaluate(`__mirrorDebug.avatar.setPersona('velora')`);await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
+  const reloadGeneration=await client.evaluate('__hdGeneration');await client.call('Page.reload');await until(()=>client.evaluate('window.__hdGeneration>'+reloadGeneration+'&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")&&__mirrorDebug.avatar.rigHost?.ready'));assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'rig');
+  await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');const anchors=[];
+  for(const position of['center','left','right','upper','lower']){
+   await client.evaluate('__mirrorDebug.gemini.onAvatarPosition('+JSON.stringify(position)+')');await delay(650);
+   const a=await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,h=r.host.getBoundingClientRect(),g=r.host.querySelector('.host-aura').getBoundingClientRect();return{dx:g.x+g.width/2-h.x-r.faceAnchor.x,dy:g.y+g.height/2-h.y-r.faceAnchor.y}})()`);assert(Math.abs(a.dx)<2&&Math.abs(a.dy)<2);anchors.push({position,...a});
+  }
+  await client.evaluate('__mirrorDebug.stopAssistant()');await delay(300);const stoppedBefore=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');await delay(400);assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.frames'),stoppedBefore);
+  await client.evaluate('__mirrorDebug.avatar.rigHost.renderer.forceContextLoss()');await delay(250);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
+  assert.deepEqual(errors,[]);
+  const result={passed:true,errors,anchors,frames,settledPaints:after-before,scope:'Packaged Linux software GL, actual 3D preview; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+ }catch(error){console.error('Application log:',logs.slice(-7000));const endpoint=logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1];if(endpoint){try{console.error('Live targets:',JSON.stringify(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())))}catch{}}throw error}finally{client?.close();app.kill('SIGTERM');await delay(200);if(!exited)app.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});}
+})().catch(error=>{console.error(error);process.exitCode=1});

@@ -35,6 +35,7 @@ export class AvatarController {
     this.quality='auto';
     this.faceHost = null;
     this.rigHost = null;
+    this.renderStyle = 'portrait';this.styleGeneration=0;this.onSurfaceChange=()=>{};
     this.videoHost = null;
   }
 
@@ -113,12 +114,27 @@ export class AvatarController {
 
   async ensureRigHost() {
     if (!this.rigHost) {
-      this.rigHost = new RigFaceHost(this.host);
-      this.rigHost.canvas.style.display = 'none';
+      this.rigHost = new RigFaceHost(this.host,{onFailure:error=>{
+        const failed=this.rigHost;this.rigHost=null;failed?.dispose();this.lastRigError=error.message;this.renderStyle='portrait';this._syncAvatarSourceVisibility();this.onStyleFallback?.(error.message);
+      }});
+      this.rigHost.setQuality(this.quality);
     }
     await this.rigHost.setPersona(this.persona);
     return this.rigHost;
   }
+
+  async setRenderStyle(style) {
+    const generation=++this.styleGeneration;
+    this.renderStyle=style==='rig'?'rig':'portrait';
+    if(this.renderStyle==='rig') {
+      try { await this.ensureRigHost(); }
+      catch(error) { if(generation!==this.styleGeneration)return false;this.lastRigError=error.message;this.renderStyle='portrait';this.onStyleFallback?.(error.message); }
+    }
+    if(generation!==this.styleGeneration)return false;
+    this._syncAvatarSourceVisibility();return this.renderStyle===style;
+  }
+
+  getVisibleCanvas() { if(this.videoHost?.active)return null;return this.renderStyle==='rig'&&this.rigHost?.ready?this.rigHost.canvas:this.faceHost?.canvas; }
 
   _collectMorphMeshes() {
     this.morphMeshes = [];
@@ -140,7 +156,7 @@ export class AvatarController {
 
   setDepthEnabled(enabled) {
     this.depthEnabled = Boolean(enabled);
-    if (this.faceHost?.canvas) this.faceHost.canvas.style.opacity = this.depthEnabled ? '.001' : '1';
+    this._syncAvatarSourceVisibility();
   }
 
   async setPersona(persona) {
@@ -151,9 +167,8 @@ export class AvatarController {
     const moods = { velora: 'neutral', solenne: 'happy', rowan: 'neutral' };
     this.setMood(moods[this.persona]);
     this.faceHost?.setPersona(this.persona);
-    this.rigHost?.setPersona(this.persona)
-      .then(() => { this.rigHost.canvas.style.display = 'none'; })
-      .catch((error) => console.warn('[avatar] rig fallback', error));
+    if(this.renderStyle==='rig') await this.setRenderStyle('rig');
+    else this._syncAvatarSourceVisibility();
   }
 
   setFacePuppetEnabled(enabled) {
@@ -180,7 +195,7 @@ export class AvatarController {
 
   setPerformance(performance) { this.performance = performance || { turn: 0, nod: 0, lean: 0 }; }
 
-  setQuality(id) { this.quality=id;this.faceHost?.setQuality(id); }
+  setQuality(id) { this.quality=id;this.faceHost?.setQuality(id);this.rigHost?.setQuality(id); }
 
   setActivity(activity) { this.presence.setActivity(activity); }
 
@@ -209,9 +224,10 @@ export class AvatarController {
   }
 
   _syncAvatarSourceVisibility() {
-    const streaming = Boolean(this.videoHost?.active);
-    if (this.faceHost?.canvas) this.faceHost.canvas.style.display = streaming ? 'none' : 'block';
-    if (this.rigHost?.canvas) this.rigHost.canvas.style.display = 'none';
+    const streaming=Boolean(this.videoHost?.active),rig=this.renderStyle==='rig'&&this.rigHost?.ready;
+    if(this.faceHost?.canvas){this.faceHost.canvas.style.display=streaming||rig?'none':'block';this.faceHost.canvas.style.opacity=this.depthEnabled?'.001':'1';}
+    if(this.rigHost?.canvas){this.rigHost.canvas.style.display=!streaming&&rig?'block':'none';this.rigHost.canvas.style.opacity=this.depthEnabled?'.001':'1';}
+    this.onSurfaceChange(this.getVisibleCanvas());
   }
 
   setMood(mood) {
@@ -302,11 +318,14 @@ export class AvatarController {
     this.smoothedBlendshapes = expression;
     this._applyFacialMorphs(expression);
     if (!this.videoHost?.active) {
+      const gaze=this.gazeOverride || (this.eyeGaze.confidence > .15 ? this.eyeGaze : presence.gaze);
+      const acting={turn:(this.performance.turn||0)+(this.gazeOverride?this.gazeOverride.x*.12:presence.performance.turn),nod:(this.performance.nod||0)+presence.performance.nod,lean:(this.performance.lean||0)+presence.performance.lean};
+      if(this.renderStyle==='rig'&&this.rigHost?.ready){this.rigHost.update(expression,gaze,acting,dt,viewer);}else{
       this.faceHost?.setFace(expression, this.gazeOverride || (this.eyeGaze.confidence > .15 ? this.eyeGaze : presence.gaze), this.speechLevel, viewer);
       this.faceHost?.setViseme(this.viseme);
       this.faceHost?.setPerformance({ turn: (this.performance.turn || 0) + (this.gazeOverride ? this.gazeOverride.x * .12 : presence.performance.turn), nod: (this.performance.nod || 0) + presence.performance.nod, lean: (this.performance.lean || 0) + presence.performance.lean });
       this.faceHost?.update(elapsed);
-      if (this.rigHost?.canvas.style.display !== 'none') this.rigHost?.update({ ...expression, jawOpen: Math.max(expression.jawOpen || 0, this.speechLevel) }, this.eyeGaze, this.performance);
+      }
     }
     this.speechLevel *= 0.82;
   }

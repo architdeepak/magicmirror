@@ -1,5 +1,11 @@
 # Expressive Host Rig Standard
 
+Current status (2026-10-08): the normal performer remains the portrait renderer.
+A selectable [3D face preview](3D-FACE-2026-10-08.md) now has 37 authored local
+deformations, independent eye rotation and solid accessories. It has not met
+the complete asset/visual acceptance standard below. The earlier text
+describes the intended production asset contract.
+
 The live mirror host is a face-only 3D performer, never a generated portrait
 that is scaled, warped, or frame-swapped to fake speech.
 

@@ -582,6 +582,15 @@ function applyDisplayQuality(id) {
 displayQualitySelect.addEventListener('change',event=>applyDisplayQuality(event.target.value));applyDisplayQuality(displayQualityId);
 document.querySelector('#routine-movie').value = localStorage.getItem('mirror.routine.movie') || 'youtube';
 document.querySelector('#routine-movie').addEventListener('change', event => localStorage.setItem('mirror.routine.movie', event.target.value));
+const avatarStyleSelect=document.querySelector('#avatar-render-style');
+avatar.onStyleFallback=reason=>{avatarStyleSelect.value='portrait';localStorage.setItem('mirror.avatar-render-style','portrait');document.querySelector('#avatar-render-status').textContent=reason+' · portrait restored';};
+async function applyAvatarStyle(style){
+  const ok=await avatar.setRenderStyle(style);
+  avatarStyleSelect.value=avatar.renderStyle;localStorage.setItem('mirror.avatar-render-style',avatar.renderStyle);
+  document.querySelector('#avatar-render-status').textContent=ok?'Appearance updated':(avatar.lastRigError||'Portrait fallback active');
+  return ok;
+}
+avatarStyleSelect.addEventListener('change',event=>void applyAvatarStyle(event.target.value));
 document.querySelector('#routine-music').checked = localStorage.getItem('mirror.routine.music') === 'true';
 document.querySelector('#routine-music').addEventListener('change', event => localStorage.setItem('mirror.routine.music', String(event.target.checked)));
 elements.citySelect.value = dashboard.city;
@@ -595,11 +604,14 @@ async function initialize() {
   gestures.setEnabled(elements.gestureToggle.checked);
   try { await avatar.init('assets/avatar.glb'); }
   catch (error) { console.warn('[startup] avatar', error); }
-  depthScene.setAvatarCanvas(avatar.faceHost?.canvas);
+  avatar.onSurfaceChange=canvas=>depthScene.setAvatarCanvas(canvas);
+  depthScene.setAvatarCanvas(avatar.getVisibleCanvas());
+
   avatar.setDepthEnabled(depthEnabled && mode === 'portal' && !desktopActive);
   await closet.load();
   setMode('mirror');
   setPersona(savedPersona, false);
+  await applyAvatarStyle(localStorage.getItem('mirror.avatar-render-style')==='rig'?'rig':'portrait');
   avatar.setFacePuppetEnabled(facePuppetEnabled);
   elements.loader.classList.add('done');
   setState('ready');
@@ -699,7 +711,7 @@ function getMirrorState() {
   return {
     observedAt: new Date().toISOString(),
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
-      quality:displayQualityId,graphics:softwareGraphics?'software':'accelerated-or-unknown',effects:magic.snapshot(),avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
+      quality:displayQualityId,avatarAppearance:avatar.renderStyle,avatarRig:avatar.rigHost?.snapshot()||null,graphics:softwareGraphics?'software':'accelerated-or-unknown',effects:magic.snapshot(),avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
     agent: { active: Boolean(agentRunId), provider: 'codex' },
     lookbook: { open: experience.dialog.open, capturing: experience.capturing, draftReady: Boolean(experience.draft), saving: experience.saving, savedCount: experience.looks.length, comparison: Boolean(experience.comparing) },
     localTimers: experience.timers.tick().map(item => ({ label: item.label, seconds: item.seconds, state: item.state })),
@@ -1855,7 +1867,7 @@ function updateDiagnostics() {
   const avatarVideo = avatar.getAvatarVideoStatus();
   const hostSource = avatarVideo.active
     ? `video · ${avatarVideo.state}${avatarVideo.width ? ` · ${avatarVideo.width}×${avatarVideo.height}` : ''}`
-    : `${avatar.persona || 'velora'} · ${avatar.faceHost ? 'rig' : 'loading'}`;
+    : `${avatar.persona || 'velora'} · ${avatar.renderStyle==='rig'?'3D face':avatar.faceHost?'portrait':'loading'}`;
   elements.diagRig.textContent = hostSource;
   elements.diagBlendshapes.textContent = `${Object.keys(blends).length} channels`;
   elements.diagGaze.textContent = gaze.confidence ? `${Math.round(gaze.confidence * 100)}% confidence` : 'No gaze lock';
@@ -1972,6 +1984,7 @@ function spotifyEmbedUrl(url) {
 function runVoiceNavigation(prompt) {
   if (experience.voice(prompt)) return true;
   const qualityCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim();
+  if(/^(?:use |show |switch to )?(?:3d (?:face|avatar)|portrait (?:face|avatar))$/.test(qualityCommand)){void applyAvatarStyle(qualityCommand.includes('3d')?'rig':'portrait');showGesture('Avatar appearance updated');return true;}
   if(/^(?:set |use |switch to )?(?:maximum detail|hd quality|balanced quality|efficient quality)$/.test(qualityCommand)) {applyDisplayQuality(/maximum|hd/.test(qualityCommand)?'hd':/efficient/.test(qualityCommand)?'eco':'auto');showGesture('Display quality updated');return true;}
   const faceCommand = prompt.toLowerCase().replace(/[.,!?]/g, '').trim();
   const expressionCommands = {

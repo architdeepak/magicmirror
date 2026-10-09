@@ -1,90 +1,60 @@
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-const RIGS = Object.freeze({ velora: 'assets/personas/velora-3d-v1.glb', solenne: 'assets/personas/solenne-3d-v1.glb', rowan: 'assets/personas/advit.glb' });
-const FACE_PLATES = Object.freeze({
-  velora: 'assets/personas/velora-hair-plate-v1.png',
-  solenne: 'assets/personas/solenne-hair-plate-v1.png'
-});
-
-// Actual GLB face renderer: head pose uses a bone, expressions use local ARKit
-// morph targets. It is the replacement path for all flat-image turn tricks.
+import { boundedSurface, displayProfile } from './displayQuality.js';
+import { authorFaceMorphs, buildRigAccessories } from './rigGeometry.js';
+const RIGS={velora:'assets/personas/velora-3d-v1.glb',solenne:'assets/personas/solenne-3d-v1.glb'};
+function disposeTree(root){const textures=new Set();root?.traverse(n=>{n.geometry?.dispose();for(const m of(Array.isArray(n.material)?n.material:[n.material])){if(!m)continue;for(const v of Object.values(m))if(v?.isTexture)textures.add(v);m.dispose();}});textures.forEach(t=>t.dispose());}
 export class RigFaceHost {
-  constructor(host) {
-    this.host = host; this.canvas = document.createElement('canvas'); this.canvas.className = 'rig-face-canvas'; host.appendChild(this.canvas);
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5)); this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.localClippingEnabled = true;
-    this.scene = new THREE.Scene(); this.camera = new THREE.PerspectiveCamera(28, 1, .0001, 20);
-    this.scene.add(new THREE.HemisphereLight(0xf3ecff, 0x15101f, 2.6));
-    const key = new THREE.DirectionalLight(0xfff1d3, 3.4); key.position.set(1.3, 1.7, 2.8); this.scene.add(key);
-    const rim = new THREE.DirectionalLight(0x8d66d8, 2.1); rim.position.set(-2, 1, 1.5); this.scene.add(rim);
-    this.loader = new GLTFLoader(); this.root = null; this.head = null; this.poseRoot = null; this.morphs = []; this.baseRotation = null; this.ready = false; this.loading = null; this.neckCrop = null;
-    new ResizeObserver(() => this.resize()).observe(host);
-  }
-  resize() { const w = Math.max(1, this.host.clientWidth), h = Math.max(1, this.host.clientHeight); this.renderer.setSize(w, h, false); this.camera.aspect = w / h; this.camera.updateProjectionMatrix(); }
-  async setPersona(persona) {
-    this.ready = false; const token = this.loading = this.loader.loadAsync(RIGS[persona] || RIGS.velora); const gltf = await token; if (this.loading !== token) return false;
-    if (this.root) this.scene.remove(this.root); this.root = gltf.scene; this.scene.add(this.root); this.root.updateMatrixWorld(true);
-    this.head = this.root.getObjectByName('Head') || this.root.getObjectByName('head') || this.root.getObjectByName('faceMesh') || this.root.getObjectByName('Bip01 Head') || this.root.getObjectByProperty('isSkinnedMesh', true) || this.root.getObjectByProperty('isMesh', true); this.morphs = [];
-    const isFaceOnly = this.head?.name === 'faceMesh';
-    this.poseRoot = isFaceOnly ? this.root : this.head;
-    const leftEye = this.root.getObjectByName('LeftEye') || this.root.getObjectByName('Bip01 LEye'); const rightEye = this.root.getObjectByName('RightEye') || this.root.getObjectByName('Bip01 REye');
-    const leftEyeAt = leftEye?.getWorldPosition(new THREE.Vector3()); const rightEyeAt = rightEye?.getWorldPosition(new THREE.Vector3());
-    const eyeSpan = leftEyeAt && rightEyeAt ? leftEyeAt.distanceTo(rightEyeAt) : 0;
-    const eyeCenter = leftEyeAt && rightEyeAt ? leftEyeAt.clone().add(rightEyeAt).multiplyScalar(.5) : null;
-    // Crop the body at the neck in world space. This matters even in a staging
-    // renderer: the mirror never presents a torso as an "emoji" character.
-    this.neckCrop = !isFaceOnly && eyeCenter && eyeSpan ? new THREE.Plane(new THREE.Vector3(0, 1, 0), -(eyeCenter.y - eyeSpan * 2.5)) : null;
-    this.root.traverse((node) => {
-      if (!node.isMesh) return;
-      const materials = Array.isArray(node.material) ? node.material : [node.material];
-      for (const material of materials) if (material) { material.side = THREE.DoubleSide; material.depthWrite = true; material.clippingPlanes = this.neckCrop ? [this.neckCrop] : null; material.needsUpdate = true; }
-      if (node.morphTargetDictionary) this.morphs.push(node);
-    });
-    if (!this.head || !this.morphs.length) throw new Error('Rig lacks a visible head or facial morphs');
-    this.baseRotation = this.poseRoot.rotation.clone(); this.resize();
-    if (isFaceOnly) {
-      // The custom exporter produces a compact face mesh (and a matching blank
-      // skull cap), so remove that generic underlay. An original transparent
-      // hair/crown plate provides the silhouette while the ARKit mesh carries
-      // eyes, lips, and expression in front of it.
-      this.root.traverse((node) => { if (node.isMesh && node !== this.head) node.visible = false; });
-      const box = new THREE.Box3().setFromObject(this.head); const size = box.getSize(new THREE.Vector3());
-      const target = box.getCenter(new THREE.Vector3());
-      const plateUrl = FACE_PLATES[persona];
-      if (plateUrl) {
-        const texture = await new THREE.TextureLoader().loadAsync(plateUrl);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        // Explicit discard avoids a Chromium/transparent-canvas compositor bug
-        // where zero-alpha pixels from a generated PNG could still darken the
-        // rectangular plane behind the head.
-        const plateMaterial = new THREE.ShaderMaterial({
-          uniforms: { map: { value: texture } }, transparent: true, depthWrite: false,
-          vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-          fragmentShader: 'uniform sampler2D map; varying vec2 vUv; void main(){ vec4 c=texture2D(map,vUv); if(c.a<0.02) discard; gl_FragColor=c; }'
-        });
-        const plate = new THREE.Mesh(new THREE.PlaneGeometry(size.x * 1.88, size.x * 1.88), plateMaterial);
-        plate.position.copy(target).add(new THREE.Vector3(0, 0, -.035)); plate.renderOrder = -1;
-        this.root.add(plate);
-      }
-      const horizontalFov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * this.camera.aspect);
-      const distance = Math.max(.8, size.x / (2 * Math.tan(horizontalFov / 2) * .8));
-      this.camera.position.copy(target).add(new THREE.Vector3(0, 0, distance)); this.camera.lookAt(target); this.ready = true; return true;
-    }
-    const target = eyeCenter ? eyeCenter.add(new THREE.Vector3(0, -(eyeSpan || .03) * .8, 0)) : this.head.getWorldPosition(new THREE.Vector3());
-    // Rocketbox heads face -X (eyes span Z). Derive distance from the actual
-    // inter-eye measurement so model scale can never turn a head crop into a
-    // body shot. The generic rig remains gated; this is its clean calibration.
-    const horizontalFov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * this.camera.aspect);
-    const headWidth = (eyeSpan || .06) * 5.0;
-    const distance = headWidth / (2 * Math.tan(horizontalFov / 2) * .8);
-    this.camera.position.copy(target).add(new THREE.Vector3(-distance, 0, 0)); this.camera.lookAt(target); this.ready = true; return true;
-  }
-  update(blend = {}, gaze = {}, performance = {}) {
-    if (!this.ready) return; const turn = THREE.MathUtils.clamp((performance.turn || 0) * .34 + (gaze.x || 0) * .08, -.34, .34); const nod = THREE.MathUtils.clamp((performance.nod || 0) * .18 + (gaze.y || 0) * -.05, -.18, .18);
-    this.poseRoot.rotation.set(this.baseRotation.x + nod, this.baseRotation.y + turn, this.baseRotation.z + (performance.lean || 0) * .06);
-    for (const mesh of this.morphs) for (const [name, value] of Object.entries(blend)) { const i = mesh.morphTargetDictionary[name]; if (i !== undefined) mesh.morphTargetInfluences[i] = THREE.MathUtils.clamp(value || 0, 0, 1); }
-    this.renderer.render(this.scene, this.camera);
-  }
+ constructor(host,{onFailure=()=>{}}={}){
+  this.host=host;this.onFailure=onFailure;this.canvas=document.createElement('canvas');this.canvas.className='rig-face-canvas';this.canvas.style.display='none';host.append(this.canvas);
+  this.quality='auto';this.ready=false;this.generation=0;this.frames=0;this.reuses=0;this.signature=null;this.width=0;this.height=0;this.smooth={turn:0,nod:0,lean:0,x:0,y:0};
+  try{this.renderer=new THREE.WebGLRenderer({canvas:this.canvas,alpha:true,antialias:true,preserveDrawingBuffer:true,powerPreference:'low-power'});}catch(e){this.canvas.remove();throw e;}
+  this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;
+  this.scene=new THREE.Scene();const environment=new RoomEnvironment();const pmrem=new THREE.PMREMGenerator(this.renderer);this.environment=pmrem.fromScene(environment,.04);this.scene.environment=this.environment.texture;this.scene.environmentIntensity=.45;environment.dispose();pmrem.dispose();this.camera=new THREE.PerspectiveCamera(28,1,.1,30);this.loader=new GLTFLoader();
+  this.scene.add(new THREE.HemisphereLight(0xfff4e8,0x242238,1.5));
+  const key=new THREE.DirectionalLight(0xffeedc,2.4);key.position.set(-2,3,4);this.scene.add(key);
+  const fill=new THREE.DirectionalLight(0xc6d5ee,.8);fill.position.set(2,.5,3);this.scene.add(fill);
+  const rim=new THREE.DirectionalLight(0xb397e0,1.8);rim.position.set(2,2,-3);this.scene.add(rim);
+  this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(host);
+  this.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.ready=false;this.onFailure(new Error('3D face graphics context lost'));});
+ }
+ setQuality(id){this.quality=displayProfile(id)===displayProfile('auto')?'auto':id;this.resize();}
+ resize(){
+  const w=Math.max(1,this.host.clientWidth),h=Math.max(1,this.host.clientHeight),p=displayProfile(this.quality),size=boundedSurface(w,h,window.devicePixelRatio||1,p.avatarPixels,p.avatarDpr);
+  if(size.width===this.width&&size.height===this.height)return;
+  this.width=size.width;this.height=size.height;this.renderer.setPixelRatio(1);this.renderer.setSize(size.width,size.height,false);this.canvas.style.width='100%';this.canvas.style.height='100%';this.camera.aspect=w/h;
+  if(this.root){const fov=THREE.MathUtils.degToRad(this.camera.fov/2);const distance=Math.max(3.25/(2*Math.tan(fov)*.83),2.65/(2*Math.tan(fov)*this.camera.aspect*.86));this.camera.position.set(0,.18,distance);this.camera.lookAt(0,.18,0);}
+  this.camera.updateProjectionMatrix();this.signature=null;
+ }
+ async setPersona(persona){
+  if(this.persona===persona&&this.ready)return true;
+  if(!RIGS[persona])throw new Error('This persona has no authored 3D face yet');
+  const generation=++this.generation;this.ready=false;
+  const gltf=await this.loader.loadAsync(RIGS[persona]);if(generation!==this.generation){disposeTree(gltf.scene);return false;}
+  const face=gltf.scene.getObjectByName('faceMesh');if(!face?.isMesh||face.geometry.attributes.position.count!==478){disposeTree(gltf.scene);throw new Error('3D face topology is unsupported');}
+  face.removeFromParent();disposeTree(gltf.scene);face.rotation.set(0,0,0);face.position.set(0,0,0);face.scale.set(1,1,1);
+  face.material.transparent=false;face.material.depthWrite=true;face.material.alphaTest=0;face.material.roughness=.7;face.material.side=THREE.DoubleSide;face.material.needsUpdate=true;
+  const supported=authorFaceMorphs(face),accessories=buildRigAccessories(face,persona);
+  if(generation!==this.generation){disposeTree(face);return false;}
+  if(this.root){this.scene.remove(this.root);disposeTree(this.root);}
+  this.root=new THREE.Group();this.root.add(face);this.scene.add(this.root);this.face=face;this.accessories=accessories;this.supported=supported;this.persona=persona;this.width=0;this.smooth={turn:0,nod:0,lean:0,x:0,y:0};this.resize();
+  this.renderer.compile(this.scene,this.camera);this.ready=true;return true;
+ }
+ update(blend={},gaze={},performance={},dt=1/30,viewer={}){
+  if(!this.ready)return false;
+  const clamp=THREE.MathUtils.clamp,alpha=1-Math.exp(-clamp(dt,.001,.06)*12);
+  const target={turn:clamp((performance.turn||0)*.35+(viewer.x||0)*.10,-.40,.40),nod:clamp((performance.nod||0)*.18-(viewer.y||0)*.06,-.20,.20),lean:clamp((performance.lean||0)*.08,-.08,.08),x:clamp(gaze.x||0,-1,1),y:clamp(gaze.y||0,-1,1)};
+  for(const k of Object.keys(target))this.smooth[k]+=(target[k]-this.smooth[k])*alpha;
+  this.root.rotation.set(this.smooth.nod,this.smooth.turn,this.smooth.lean);
+  for(const[name,index]of Object.entries(this.face.morphTargetDictionary))this.face.morphTargetInfluences[index]=clamp(Number(blend[name])||0,0,1);
+  for(const eye of this.accessories.eyes){eye.group.rotation.y=this.smooth.x*.24;eye.group.rotation.x=this.smooth.y*.18;}
+  const jaw=clamp(blend.jawOpen||0,0,1);this.accessories.cavity.scale.y=.10+jaw*.18;this.accessories.cavity.position.y=-.56-jaw*.08;this.accessories.teeth.visible=jaw>.08;
+  const sig=[...Object.values(this.smooth),...this.face.morphTargetInfluences].map(v=>Math.round(v*1000)).join(',');
+  if(sig===this.signature){this.reuses++;return false;}this.signature=sig;
+  this.renderer.render(this.scene,this.camera);this.frames++;this.canvas._mirrorRevision=this.frames;this.updateAnchor();return true;
+ }
+ updateAnchor(){const point=new THREE.Vector3(0,-.15,.1).applyMatrix4(this.root.matrixWorld).project(this.camera),w=this.host.clientWidth,h=this.host.clientHeight;this.faceAnchor={x:(point.x*.5+.5)*w,y:(-.5*point.y+.5)*h,size:w*.82};this.host.style.setProperty('--face-center-x',this.faceAnchor.x+'px');this.host.style.setProperty('--face-center-y',this.faceAnchor.y+'px');this.host.style.setProperty('--face-glow-size',w*1.18+'px');}
+ snapshot(){return{ready:this.ready,persona:this.persona,quality:this.quality,resolution:[this.width,this.height],frames:this.frames,reuses:this.reuses,supported:this.supported||[],triangles:this.renderer.info.render.triangles,drawCalls:this.renderer.info.render.calls};}
+ dispose(){++this.generation;this.ready=false;this.observer.disconnect();disposeTree(this.root);this.environment.dispose();this.renderer.dispose();if(!this.renderer.getContext().isContextLost())this.renderer.forceContextLoss();this.canvas.remove();}
 }

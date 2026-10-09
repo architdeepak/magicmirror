@@ -5,6 +5,7 @@ const {createReadStream}=require('fs'),{createHash}=require('crypto');
 const {spawn,execFileSync,execFile}=require('child_process');const {promisify}=require('util');
 const {connect}=require('./cdp-client.cjs');const run=promisify(execFile);
 const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
+const avatarStyle=process.env.MIRROR_MONITOR_AVATAR==='rig'?'rig':'portrait';
 const seconds=Number(process.env.MIRROR_MONITOR_SECONDS||1800);
 if(!Number.isFinite(seconds)||seconds<10||seconds>86400)throw new Error('Monitor duration must be 10–86400 seconds');
 const hz=Number(execFileSync('getconf',['CLK_TCK'],{encoding:'utf8'}).trim());
@@ -20,7 +21,7 @@ async function processTree(pid,output=[]){
  const build=path.join(profile,'app'),sourceBuild=path.join(root,`dist/linux-${process.arch}-unpacked`);
  try{await fs.cp(sourceBuild,build,{recursive:true})}catch(error){await fs.rm(profile,{recursive:true,force:true});throw error}
  const hash=createHash('sha256');for await(const chunk of createReadStream(path.join(build,'resources/app.asar')))hash.update(chunk);
- const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true};
+ const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true,avatarStyle};
  await fs.writeFile(path.join(dir,'build.json'),JSON.stringify(buildInfo,null,2));
  const manager=spawn(path.join(root,'.tools/native-companion-wm/root/usr/bin/openbox'),[],{stdio:'ignore',env:{...process.env,LD_LIBRARY_PATH:path.join(root,'.tools/native-companion-wm/root/usr/lib/aarch64-linux-gnu'),XDG_DATA_DIRS:path.join(root,'.tools/native-companion-wm/root/usr/share')+':/usr/share'}});
  const binary=path.join(build,'magic-mirror-portal');
@@ -35,7 +36,7 @@ async function processTree(pid,output=[]){
   let target;while(!target){target=(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())).find(t=>t.url.includes('app.asar/src/index.html'));await delay(100)}
   client=await connect(target.webSocketDebuggerUrl);await client.call('Runtime.enable');await client.call('Page.enable');await client.call('Performance.enable');
   client.onEvent(e=>{if(e.method==='Runtime.exceptionThrown')errors.push({at:new Date().toISOString(),type:'renderer-exception',message:e.params.exceptionDetails.text})});
-  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');`});
+  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`localStorage.setItem('mirror.avatar-render-style','${avatarStyle}');localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');`});
   await client.call('Page.reload');
   while(!await client.evaluate('!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")')){if(appExit)throw new Error('App exited');if(Date.now()-start>90000)throw new Error('Monitor UI startup timed out');await delay(200)}
   await client.evaluate(`window.__monitor={last:performance.now(),worstLagMs:0};setInterval(()=>{const now=performance.now();__monitor.worstLagMs=Math.max(__monitor.worstLagMs,Math.max(0,now-__monitor.last-500));__monitor.last=now},500)`);
@@ -46,7 +47,7 @@ async function processTree(pid,output=[]){
    const index=Math.floor((Date.now()-begun)/240000)%modes.length;
    if(index!==lastMode){const mode=modes[index];if(await client.evaluate('__mirrorDebug.getMirrorState().display.sleeping')){for(const type of ['keyDown','keyUp'])await client.call('Input.dispatchKeyEvent',{type,key:'1',windowsVirtualKeyCode:49})}if(mode==='portal'){for(const type of ['keyDown','keyUp'])await client.call('Input.dispatchKeyEvent',{type,key:'1',windowsVirtualKeyCode:49})}else{const p=await client.evaluate(`(()=>{const r=document.querySelector('[data-mode="${mode}"]').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()`);for(const type of ['mousePressed','mouseReleased'])await client.call('Input.dispatchMouseEvent',{type,...p,button:'left',clickCount:1})}lastMode=index;const shot=await client.call('Page.captureScreenshot',{format:'png'});await fs.writeFile(path.join(dir,mode+'.png'),Buffer.from(shot.data,'base64'))}
    const now=Date.now(),tree=await processTree(child.pid);const ticks=tree.reduce((sum,p)=>sum+Math.max(0,p.ticks-(previous.get(p.pid)??p.ticks)),0);previous=new Map(tree.map(p=>[p.pid,p.ticks]));
-   const ui=await client.evaluate(`(()=>{const s=__mirrorDebug.getMirrorState();const lag=__monitor.worstLagMs;__monitor.worstLagMs=0;return{mode:s.display.mode,sleeping:s.display.sleeping,power:__mirrorDebug.getPowerState(),eventLoopLagMs:lag,cameraActive:s.camera?.active===true,hardMuted:document.querySelector('#mute-btn').getAttribute('aria-pressed')==='true'}})()`);
+   const ui=await client.evaluate(`(()=>{const s=__mirrorDebug.getMirrorState();const lag=__monitor.worstLagMs;__monitor.worstLagMs=0;return{mode:s.display.mode,sleeping:s.display.sleeping,avatarAppearance:s.display.avatarAppearance,avatarRig:s.display.avatarRig,power:__mirrorDebug.getPowerState(),eventLoopLagMs:lag,cameraActive:s.camera?.active===true,hardMuted:document.querySelector('#mute-btn').getAttribute('aria-pressed')==='true'}})()`);
    const metric=Object.fromEntries((await client.call('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]));
    let gpu=null;try{const r=await run('nvidia-smi',['--query-gpu=power.draw,utilization.gpu,memory.used','--format=csv,noheader,nounits'],{timeout:2000});gpu={deviceWide:r.stdout.trim()}}catch{}
    const sample={at:new Date(now).toISOString(),elapsedSec:(now-begun)/1000,cpuPercent:100*ticks/hz/((now-lastAt)/1000),summedRssBytes:tree.reduce((n,p)=>n+p.rssBytes,0),processCount:tree.length,rendererHeapBytes:metric.JSHeapUsedSize,gpu,...ui};lastAt=now;samples.push(sample);

@@ -314,7 +314,7 @@ export class GeminiLiveAdapter {
         }, {
           functionDeclarations: [{
             name: 'mirror_command',
-            description: 'Run a user-requested local command: getting ready, movie time, favorite this, show my favorites, show my lookbook, take a look photo, save this look, compare looks, retake, leave a note: TEXT, set a timer for N minutes, cancel timer, what can I do here, camera clarity off/natural/bright, blink, raise an eyebrow, look left/right/at me/thoughtful/surprised, smile, set maximum detail, set balanced quality, set efficient quality. Capture is a countdown then review. Save separately only when requested. Read current state before claiming async commands completed.',
+            description: 'Run a user-requested local command: getting ready, movie time, favorite this, show my favorites, show my lookbook, take a look photo, save this look, compare looks, retake, leave a note: TEXT, set a timer for N minutes, cancel timer, what can I do here, camera clarity off/natural/bright, blink, raise an eyebrow, look left/right/at me/thoughtful/surprised, smile, set maximum detail, set balanced quality, set efficient quality, use 3D face, use portrait face. Capture is a countdown then review. Save separately only when requested. Read current state before claiming async commands completed.',
             parameters: { type: 'OBJECT', properties: { command: { type: 'STRING' } }, required: ['command'] }
           }]
         }, {
