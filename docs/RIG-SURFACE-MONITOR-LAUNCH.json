@@ -1,0 +1,113 @@
+{
+  "monitorDirectory": "artifacts/monitor/2026-10-09T10-48-42-245Z",
+  "build": {
+    "archiveSha256": "550a60a793fe54821ae89cb608b0c755def682115cd5f8eebc8737794c8d145f",
+    "gitRevision": "7708e8cb2f709a58bbd166c0ba1f7f54584c434d",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan"
+  },
+  "launchSnapshot": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "pid": 2724646,
+    "startedAt": "2026-10-09T10-48-42-245Z",
+    "updatedAt": "2026-10-09T10:49:03.042Z",
+    "status": "monitoring",
+    "sampleCount": 6,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T10:49:02.999Z",
+      "elapsedSec": 18.25,
+      "cpuPercent": 6.563833278634722,
+      "summedRssBytes": 915968000,
+      "processCount": 5,
+      "rendererHeapBytes": 14865072,
+      "gpu": {
+        "deviceWide": "4.69, 0, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          253,
+          471
+        ],
+        "frames": 0,
+        "reuses": 0,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 972,
+        "drawCalls": 51
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 219,
+        "scene": {
+          "frames": 3,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.2999999523162842,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false
+      },
+      "hardMuted": true
+    },
+    "appExit": null
+  }
+}
