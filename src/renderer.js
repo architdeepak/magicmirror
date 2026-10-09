@@ -2155,13 +2155,22 @@ function runVoiceNavigation(prompt) {
   return false;
 }
 
+let wardrobeReplyGeneration = 0;
 function requestTryOnFromNavigation(args, prompt) {
-  handleTryOnVoice(args).then((result) => {
+  const request = ++wardrobeReplyGeneration;
+  const voice = voiceStartGeneration;
+  const control = manualControlGeneration;
+  const current = () => !hardMuted && request === wardrobeReplyGeneration
+    && voice === voiceStartGeneration && control === manualControlGeneration;
+  return handleTryOnVoice(args).then((result) => {
+    if (!current()) return;
     const answer = result?.error || result?.result || 'Try-on request handled.';
     appendCaption('assistant', answer);
     showOracle(answer, prompt, 'Try-on');
     if (!config.hasGeminiKey) speech.speak(answer);
-  }).catch((error) => showOracle(error.message, prompt, 'Try-on'));
+  }).catch((error) => {
+    if (current()) showOracle(error.message, prompt, 'Try-on');
+  });
 }
 
 function handleGesture(type) {
