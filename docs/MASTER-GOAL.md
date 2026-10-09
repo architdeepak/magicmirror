@@ -215,3 +215,5 @@ Independent fixes may cross stages. Do not wait for Windows while actionable loc
 - **Monitor snapshot:** HD build finished two hours, 2,335 samples, zero errors. 3D build subsequently finished two hours with 2,350 samples and zero errors; the earlier performance discussion identifies its first-review snapshot. Detailed immutable-build records live under `artifacts/monitor`; this is not a new feature verification.
 
 The goal tool and this file describe the same objective. If future user steering changes scope or priorities, record that change here and preserve the remaining authorized work.
+
+- **Active current-source camera/speech monitor:** immutable source `f871f1e`, archive `8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19`, launched 30 minutes at 2026-10-09T17:01:26Z. NVIDIA recorded camera/local AR/optional rig/synthetic PCM; current cadence/taper/utterance changes. PID verified alive at the saved snapshot. This run is active, not completed or final qualification. [Launch record](UTTERANCE-CAMERA-MONITOR-LAUNCH.json).
