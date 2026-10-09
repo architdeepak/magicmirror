@@ -12,8 +12,8 @@ function moduleClass(name, className, globals) {
   return { Subject: context.Subject, context };
 }
 async function playbackStateLifecycle() {
-  const states=[];let ended=0,enabled=true;
-  const avatar={endAudioTurn(){ended++},getPlaybackStatus:()=>({enabled})};
+  const states=[];let ended=0,enabled=true,audioStops=0;
+  const avatar={endAudioTurn(){ended++},getPlaybackStatus:()=>({enabled}),interrupt(){},stopAudioStream(){audioStops++}};
   const {Subject:Live}=moduleClass('geminiLiveAdapter.js','GeminiLiveAdapter',{document:{createElement:()=>({})}});
   const live=new Live({avatar,config:{},onState:value=>states.push(value)});live.connected=true;live.listening=true;
   avatar.onPlaybackState(true);assert.equal(states.at(-1),'speaking');
@@ -22,6 +22,7 @@ async function playbackStateLifecycle() {
   await live._handleMessage(JSON.stringify({serverContent:{turnComplete:true}}));assert.equal(states.at(-1),'listening');
   live.playbackSuppressed=true;const count=states.length;avatar.onPlaybackState(true);avatar.onPlaybackState(false);assert.equal(states.length,count,'Late playback event revived stopped state');
   live.playbackSuppressed=false;live.intentionalDisconnect=true;avatar.onPlaybackState(true);assert.equal(states.length,count);
+  live.stopPlayback();assert.equal(audioStops,1,'Session Stop retained the avatar audio worklet');
   console.log('Playback UI: server end waits for queued audio, actual completion returns Listening and stopped callbacks cannot revive state');
 }
 async function wakeLifecycle() {

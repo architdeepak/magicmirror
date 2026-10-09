@@ -1,0 +1,2086 @@
+{
+  "archiveSha256": "115073b8520be99f9215c245511cd98978042b3268b95c82aba4b6f07cb818b8",
+  "gitParentAtRun": "b600c186f8fb7ee925507cb9d523a58974825721",
+  "sourceModulesSha256": {
+    "src/avatarController.js": "f0e079a4b4006abe7d55bc6f32a475099c7143597b66770cb5ff446fe3051cab",
+    "src/geminiLiveAdapter.js": "cd57c4b65f2b365c9f3f5620960665a53f490b2651703fce82b9de57456d9acf"
+  },
+  "packagedSourceMatches": true,
+  "fullTestExitCode": 0,
+  "packExitCode": 0,
+  "finalCombined": {
+    "passed": true,
+    "scope": "Actual immutable packaged Linux software renderer, portrait 720x1280 DPR1, recorded 1920x1080 source resampled into 1280x720 at requested 30 Hz synthetic camera transport, actual local face/body workers and AR, local TalkingHead PCM playback with output-waveform animation. Gesture recognition disabled. No microphone/cloud/real music, physical camera/TV/display FPS, Windows or wattage proof. Process-tree CPU; summed RSS can double-count shared memory. Idle sleep deadline accelerated from 180 s to 1.5 s for cleanup assertions. Concurrent development monitors share host; phases are indicative, not a controlled hardware benchmark.",
+    "phases": [
+      {
+        "name": "portrait-camera-ar-idle",
+        "seconds": 8.132,
+        "cpuPercent": 223.43826856861781,
+        "summedRssBytes": 1923899392,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 58,
+          "max": 88.70000004768372
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.699999999999818,
+          "p95": 50,
+          "max": 100
+        },
+        "submittedSceneAvatarFrames": 192,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 8,
+          "inferenceMs": 21.90000009536743
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 66,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 244,
+          "scene": {
+            "frames": 4,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.299999952316284
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "portrait-camera-ar-speech",
+        "seconds": 8.042,
+        "cpuPercent": 267.47077841333004,
+        "summedRssBytes": 1923530752,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 39.5,
+          "max": 73.09999990463257
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 99.89999999999782
+        },
+        "submittedSceneAvatarFrames": 198,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.4016848108536698,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.40756696914993157,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 76,
+          "inferenceMs": 155.29999995231628
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 132,
+          "inferenceMs": 21.899999856948853
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 479,
+          "scene": {
+            "frames": 5,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 6.8999998569488525
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "portrait-camera-ar-stopped",
+        "seconds": 8.049,
+        "cpuPercent": 219.5303764442788,
+        "summedRssBytes": 1915199488,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 68.29999995231628,
+          "max": 106
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 100
+        },
+        "submittedSceneAvatarFrames": 190,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 141,
+          "inferenceMs": 21.59999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 196,
+          "inferenceMs": 157.09999990463257
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 703,
+          "scene": {
+            "frames": 7,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-idle",
+        "seconds": 8.068,
+        "cpuPercent": 258.0565195835399,
+        "summedRssBytes": 1956438016,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 65.29999995231628,
+          "max": 77.29999995231628
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50,
+          "max": 83.40000000000146
+        },
+        "submittedSceneAvatarFrames": 179,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 207,
+          "inferenceMs": 22
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 263,
+          "inferenceMs": 22.40000009536743
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 921,
+          "scene": {
+            "frames": 8,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 77,
+          "reuses": 129,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.799999952316284
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-speech",
+        "seconds": 8.255,
+        "cpuPercent": 416.11144760751057,
+        "summedRssBytes": 1951993856,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0.10000014305114746,
+          "p95": 63.799999952316284,
+          "max": 98.29999995231628
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 83.29999999999563,
+          "max": 150
+        },
+        "submittedSceneAvatarFrames": 170,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.4016848108536698,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.393857223655439,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 273,
+          "inferenceMs": 21.800000190734863
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 332,
+          "inferenceMs": 22.299999952316284
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1125,
+          "scene": {
+            "frames": 11,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 281,
+          "reuses": 129,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 29422,
+          "drawCalls": 18
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 8.5
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-muted",
+        "seconds": 8.174,
+        "cpuPercent": 262.66209933936875,
+        "summedRssBytes": 1950781440,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 64,
+          "max": 90.89999985694885
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50,
+          "max": 83.40000000000146
+        },
+        "submittedSceneAvatarFrames": 177,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 342,
+          "inferenceMs": 29.899999856948853
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 398,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1336,
+          "scene": {
+            "frames": 13,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 346,
+          "reuses": 275,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 6.700000047683716
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-off-muted",
+        "seconds": 8.039,
+        "cpuPercent": 74.63614877472322,
+        "summedRssBytes": 1889558528,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 3,
+          "max": 12.299999952316284
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634,
+          "max": 33.30000000000291
+        },
+        "submittedSceneAvatarFrames": 239,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1614,
+          "scene": {
+            "frames": 16,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 403,
+          "reuses": 496,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 7.5
+          }
+        },
+        "observedVisibleSamples": 0,
+        "samples": 8
+      },
+      {
+        "name": "sleep-muted",
+        "seconds": 8.039,
+        "cpuPercent": 12.314964547829332,
+        "summedRssBytes": 1863319552,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 0.2999999523162842,
+          "max": 0.5999999046325684
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.80000000000291,
+          "max": 33.39999999999418
+        },
+        "submittedSceneAvatarFrames": 0,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterPower": {
+          "targetFps": 0,
+          "frames": 1691,
+          "scene": {
+            "frames": 18,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            317,
+            589
+          ],
+          "frames": 446,
+          "reuses": 530,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 7.5
+          }
+        },
+        "observedVisibleSamples": 0,
+        "samples": 8
+      }
+    ],
+    "rendererExceptions": [],
+    "audioTransitions": [
+      {
+        "name": "suspend",
+        "at": 1154.7999999523163,
+        "state": "running",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at TalkingHead.stop (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4246:19)\n    at TalkingHead.showAvatar (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:1217:10)\n    at async AvatarController._showRig (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:116:5)\n    at async AvatarController.init (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:85:13)\n    at async initialize (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:611:9)\n    at async file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:603:1"
+      },
+      {
+        "name": "suspend",
+        "at": 1162.1999998092651,
+        "state": "suspended",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at TalkingHead.stop (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4246:19)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:291:67)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at AvatarController.init (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:103:18)\n    at async initialize (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:611:9)\n    at async file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:603:1"
+      },
+      {
+        "name": "suspend",
+        "at": 1162.2999999523163,
+        "state": "suspended",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:295:28)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at AvatarController.init (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:103:18)\n    at async initialize (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:611:9)\n    at async file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:603:1"
+      },
+      {
+        "name": "resume",
+        "at": 12045.099999904633,
+        "state": "running",
+        "stack": "Error\n    at AudioContext.<computed> [as resume] (<anonymous>:1:274)\n    at TalkingHead.start (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4232:21)\n    at file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:271:21\n    at async AvatarController.startAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:281:11)\n    at async <anonymous>:1:155"
+      },
+      {
+        "name": "suspend",
+        "at": 21518.799999952316,
+        "state": "running",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at TalkingHead.stop (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4246:19)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:291:67)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at GeminiLiveAdapter.stopPlayback (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/geminiLiveAdapter.js:562:39)\n    at Object.stopAssistant (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1020:10)\n    at <anonymous>:1:48"
+      },
+      {
+        "name": "suspend",
+        "at": 21519.199999809265,
+        "state": "suspended",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:295:28)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at GeminiLiveAdapter.stopPlayback (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/geminiLiveAdapter.js:562:39)\n    at Object.stopAssistant (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1020:10)\n    at <anonymous>:1:48"
+      },
+      {
+        "name": "resume",
+        "at": 41615.39999985695,
+        "state": "suspended",
+        "stack": "Error\n    at AudioContext.<computed> [as resume] (<anonymous>:1:274)\n    at TalkingHead.streamStart (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:3583:36)\n    at file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:261:20"
+      },
+      {
+        "name": "resume",
+        "at": 41648.5,
+        "state": "running",
+        "stack": "Error\n    at AudioContext.<computed> [as resume] (<anonymous>:1:274)\n    at TalkingHead.start (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4232:21)\n    at file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:271:21\n    at async AvatarController.startAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:281:11)\n    at async <anonymous>:1:155"
+      },
+      {
+        "name": "suspend",
+        "at": 51392,
+        "state": "running",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at TalkingHead.stop (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/node_modules/@met4citizen/talkinghead/modules/talkinghead.mjs:4246:19)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:291:67)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at GeminiLiveAdapter.stopPlayback (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/geminiLiveAdapter.js:562:39)\n    at setHardMute (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1057:12)\n    at HTMLButtonElement.<anonymous> (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1237:54)\n    at <anonymous>:1:70"
+      },
+      {
+        "name": "suspend",
+        "at": 51392.299999952316,
+        "state": "suspended",
+        "stack": "Error\n    at AudioContext.<computed> [as suspend] (<anonymous>:1:274)\n    at AvatarController._parkAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:295:28)\n    at AvatarController.stopAudioStream (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/avatarController.js:305:30)\n    at GeminiLiveAdapter.stopPlayback (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/geminiLiveAdapter.js:562:39)\n    at setHardMute (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1057:12)\n    at HTMLButtonElement.<anonymous> (file:///tmp/mirror-combined-yXIqbu/app/resources/app.asar/src/renderer.js:1237:54)\n    at <anonymous>:1:70"
+      }
+    ]
+  },
+  "speechPlayback": {
+    "passed": true,
+    "scope": "Actual packaged Linux Electron, real TalkingHead worklet and Web Audio fallback. Deterministic synthetic PCM with queued silence/tone/gap/tail; real output waveform drives visible rig. No cloud provider, phoneme accuracy, physical speakers or acoustic/display latency proof.",
+    "checks": [
+      {
+        "route": "stream",
+        "firstMs": 507.40000009536743,
+        "lastMs": 1585.7000000476837,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5269902183430792,
+        "tailJawMin": 0.12656521951681832,
+        "gapJawMax": 0.0013674063536114047,
+        "outputRmsBefore": 0.1266179283956467,
+        "outputRmsAfter": null,
+        "outputContextAfter": "suspended",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "fallback",
+        "firstMs": 523.5999999046326,
+        "lastMs": 1616.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5871298978304872,
+        "tailJawMin": 0.13010293099292336,
+        "gapJawMax": 0.005448885301140079,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "stream",
+        "firstMs": 480.2999999523163,
+        "lastMs": 1600.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5380428631297053,
+        "tailJawMin": 0.14276468120301025,
+        "gapJawMax": 0.0032047677790037754,
+        "outputRmsBefore": 0.1266179283956467,
+        "outputRmsAfter": null,
+        "outputContextAfter": "suspended",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "fallback",
+        "firstMs": 518.5,
+        "lastMs": 1616.2999999523163,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5845413976598909,
+        "tailJawMin": 0.1473772992450544,
+        "gapJawMax": 0.0057403942690510065,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "stream",
+        "firstMs": 479.89999985694885,
+        "lastMs": 1584,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5260064712223769,
+        "tailJawMin": 0.13794688621429943,
+        "gapJawMax": 0.004669224648109344,
+        "outputRmsBefore": 0.12928228634051786,
+        "outputRmsAfter": null,
+        "outputContextAfter": "suspended",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "fallback",
+        "firstMs": 527.5,
+        "lastMs": 1616.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5950847466662904,
+        "tailJawMin": 0.12891918315196707,
+        "gapJawMax": 0.005388332180988992,
+        "outputRmsBefore": 0.14364423875420293,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      }
+    ]
+  },
+  "baseline": {
+    "archiveSha256": "a5f85a141a50915d42761a5a5c8caa1d93ae78a12f849ce089c3f98778bf6c67",
+    "verificationPassed": false,
+    "failure": "Verifier waited only 60 s for the ordinary 180 s idle-sleep deadline. Seven earlier phase observations completed; baseline does not have a passing sleep check.",
+    "phases": [
+      {
+        "name": "portrait-camera-ar-idle",
+        "seconds": 8.049,
+        "cpuPercent": 227.481674742204,
+        "summedRssBytes": 1881784320,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 61.700000047683716,
+          "max": 84
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.699999999999818,
+          "p95": 50,
+          "max": 100
+        },
+        "submittedSceneAvatarFrames": 190,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "workletConnected": false,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "workletConnected": false,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 7,
+          "inferenceMs": 41
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 63,
+          "inferenceMs": 22.199999809265137
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 237,
+          "scene": {
+            "frames": 6,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.099999904632568
+          }
+        },
+        "observedVisibleSamples": 7,
+        "samples": 8
+      },
+      {
+        "name": "portrait-camera-ar-speech",
+        "seconds": 8.06,
+        "cpuPercent": 270.22332506203475,
+        "summedRssBytes": 1904148480,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 45.90000009536743,
+          "max": 81.90000009536743
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 83.40000000000146
+        },
+        "submittedSceneAvatarFrames": 195,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.406854286946442,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.39616451062252067,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 73,
+          "inferenceMs": 22.09999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 128,
+          "inferenceMs": 154.79999995231628
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 467,
+          "scene": {
+            "frames": 7,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 7.1000001430511475
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "portrait-camera-ar-stopped",
+        "seconds": 8.073,
+        "cpuPercent": 224.45187662578965,
+        "summedRssBytes": 1901596672,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 50.90000009536743,
+          "max": 71.69999980926514
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 66.70000000000073
+        },
+        "submittedSceneAvatarFrames": 192,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 138,
+          "inferenceMs": 21.799999952316284
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 193,
+          "inferenceMs": 22
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 695,
+          "scene": {
+            "frames": 9,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null,
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.299999952316284
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-idle",
+        "seconds": 8.081,
+        "cpuPercent": 260.48756342036876,
+        "summedRssBytes": 1941102592,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 77,
+          "max": 99.20000004768372
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50.099999999998545,
+          "max": 99.90000000000146
+        },
+        "submittedSceneAvatarFrames": 181,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 204,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 259,
+          "inferenceMs": 21.799999952316284
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 915,
+          "scene": {
+            "frames": 11,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 807.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 66,
+          "reuses": 140,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.699999809265137
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-speech",
+        "seconds": 8.14,
+        "cpuPercent": 426.6584766584766,
+        "summedRssBytes": 1958273024,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 1.0999999046325684,
+          "p95": 58.40000009536743,
+          "max": 88.5
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 66.60000000000582,
+          "max": 83.40000000000146
+        },
+        "submittedSceneAvatarFrames": 180,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.39540019385294495,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.3939414603982332,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 268,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 326,
+          "inferenceMs": 154.79999995231628
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1127,
+          "scene": {
+            "frames": 12,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 807.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 278,
+          "reuses": 140,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 29422,
+          "drawCalls": 18
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 9
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-ar-muted",
+        "seconds": 8.068,
+        "cpuPercent": 273.30193356470005,
+        "summedRssBytes": 1945505792,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 77.20000004768372,
+          "max": 93.30000019073486
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50,
+          "max": 83.30000000000291
+        },
+        "submittedSceneAvatarFrames": 181,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 337,
+          "inferenceMs": 22.09999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 391,
+          "inferenceMs": 22.40000009536743
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1342,
+          "scene": {
+            "frames": 14,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 807.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 346,
+          "reuses": 287,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.3999998569488525
+          }
+        },
+        "observedVisibleSamples": 8,
+        "samples": 8
+      },
+      {
+        "name": "rig-camera-off-muted",
+        "seconds": 8.033,
+        "cpuPercent": 79.17340968504918,
+        "summedRssBytes": 1896951808,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 0.20000004768371582,
+          "max": 3.700000047683716
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.80000000000291,
+          "max": 33.40000000000873
+        },
+        "submittedSceneAvatarFrames": 237,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 393,
+          "inferenceMs": 22.199999809265137
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 393,
+          "inferenceMs": 22.199999809265137
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1618,
+          "scene": {
+            "frames": 17,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 807.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 400,
+          "reuses": 509,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 4.299999952316284
+          }
+        },
+        "observedVisibleSamples": 0,
+        "samples": 8
+      }
+    ]
+  },
+  "failedTrials": [
+    {
+      "scope": "Unit harness scheduling",
+      "failure": "Two Promise microtasks were insufficient for the serialized cross-VM setup; starts was 0 instead of 1.",
+      "resolution": "Observe the next event-loop turn with setImmediate; retain duplicate-start and delayed-setup cancellation assertions."
+    },
+    {
+      "scope": "Initial audio suspension trial",
+      "failure": "Startup context resumed despite parking; new initial-idle assertion failed.",
+      "resolution": "Saved resume/suspend stack trace identifies TalkingHead.showAvatar/start issuing the startup resume. Suppress that unused initialization start, activate only after owned stream setup, and stop hidden animation on shutdown. Final exact archive passes."
+    }
+  ],
+  "limits": [
+    "Recorded-video decoding, canvas resampling and capture transport contribute to measured process CPU.",
+    "Injected heartbeat/RAF and CDP sampling also contribute, including during sleep. Zero scene/avatar submissions is tested; measured whole-process CPU is not zero.",
+    "Shared host with independent prior-build monitors; no controlled before/after CPU saving claim.",
+    "No microphone/cloud/live music/watch workload, physical camera/TV/Windows, physical display FPS, wattage or full goal completion proof."
+  ]
+}

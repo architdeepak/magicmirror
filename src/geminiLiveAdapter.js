@@ -559,6 +559,7 @@ export class GeminiLiveAdapter {
   stopPlayback() {
     this.playbackSuppressed = true;
     this._interruptPlayback();
+    void this.avatar.stopAudioStream?.();
     if (this.outputContext) {
       this.outputContext.close().catch(() => {});
       this.outputContext = null;

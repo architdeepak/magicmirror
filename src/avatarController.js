@@ -14,6 +14,10 @@ export class AvatarController {
     this.morphMeshes = [];
     this.speechLevel = 0;
     this.streaming = false;
+    this.audioStreamGeneration = 0;
+    this.audioTransition = Promise.resolve();
+    this.audioStreamStart = null;
+    this.audioSuspend = Promise.resolve();
     this.playbackMeter = null;
     this.onPlaybackState = () => {};
     this.visible = true;
@@ -74,7 +78,12 @@ export class AvatarController {
         lightSpotDispersion: 1.1
       });
 
-      await this._showRig(url);
+      // The hidden player must not queue an autoplay resume during model load.
+      // Its public animation loop starts only after an owned audio setup.
+      const startAnimation = this.head.start;
+      this.head.start = () => {};
+      try { await this._showRig(url); }
+      finally { this.head.start = startAnimation; }
       // TalkingHead stays mounted solely as the proven low-latency PCM player.
       // The visible performer is our face-only host below; hide every generic
       // canvas before first paint so a body can never flash on the mirror.
@@ -91,10 +100,12 @@ export class AvatarController {
       this.head.setView('head', { cameraDistance: 0.32, cameraY: -0.035 });
       this.armature = this.head.armature;
       this._collectMorphMeshes();
+      await this.stopAudioStream();
       this.onStatus('Oracle ready');
       return true;
     } catch (error) {
       console.warn('[avatar] TalkingHead could not load this GLB:', error);
+      await this.stopAudioStream();
       this.host.innerHTML = '<div class="fallback-presence"><i></i><b>✦</b></div>';
       this.onStatus('Magical fallback ready');
       return false;
@@ -239,22 +250,60 @@ export class AvatarController {
 
   async startAudioStream() {
     if (!this.head || this.streaming) return;
-    try {
-      // Gemini Live returns signed 16-bit little-endian PCM at 24 kHz. TalkingHead
-      // otherwise inherits the device's usual 48 kHz context, which plays the
-      // stream at double speed and raises the voice by an octave.
-      await this.head.streamStart({
-        sampleRate: 24000,
-        gain: 0.9,
-        lipsyncType: 'visemes',
-        waitForAudioChunks: true
-      }, () => this.playbackStarted(this.head.audioStreamGainNode),
-      () => this.finishPlayback(this.head.audioStreamGainNode));
-      this.streaming = true;
-      this.attachPlaybackNode(this.head.audioStreamGainNode);
-    } catch (error) {
-      console.warn('[avatar] audio stream unavailable', error);
+    if (this.audioStreamStart?.generation === this.audioStreamGeneration) return this.audioStreamStart.promise;
+    const head = this.head, generation = ++this.audioStreamGeneration;
+    // Serialize asynchronous worklet setup with subsequent starts. Stop still
+    // disconnects synchronously; its epoch also rejects a late setup result.
+    const promise = this.audioTransition.catch(() => {}).then(async () => {
+      await this.audioSuspend;
+      if (generation !== this.audioStreamGeneration || head !== this.head) return;
+      try {
+        await head.streamStart({ sampleRate: 24000, gain: 0.9,
+          lipsyncType: 'visemes', waitForAudioChunks: true },
+          () => this.playbackStarted(head.audioStreamGainNode),
+          () => this.finishPlayback(head.audioStreamGainNode));
+        if (generation !== this.audioStreamGeneration || head !== this.head) {
+          await this._parkAudioStream(head);
+          return;
+        }
+        this.streaming = true;
+        this.attachPlaybackNode(head.audioStreamGainNode);
+        head.start?.();
+      } catch (error) {
+        this.streaming = false;
+        this.attachPlaybackNode(null);
+        await this._parkAudioStream(head);
+        console.warn('[avatar] audio stream unavailable', error);
+      }
+    });
+    this.audioTransition = promise;
+    this.audioStreamStart = { generation, promise };
+    try { await promise; }
+    finally { if (this.audioStreamStart?.promise === promise) this.audioStreamStart = null; }
+  }
+
+  _parkAudioStream(head) {
+    const worklet = head?.streamWorkletNode;
+    try { head?.streamStop?.(); } catch (error) { console.debug('[avatar] stream stop', error.message); }
+    // Retire the old port so queued events cannot touch a later session.
+    if (worklet?.port) { worklet.port.onmessage = null; try { worklet.port.close(); } catch {} }
+    const context = head?.audioCtx;
+    if (context && context.state !== 'closed') { try { head.stop?.(); } catch {} }
+    // Explicit suspension also owns a context initially blocked by autoplay;
+    // a later user gesture must not silently start this idle graph.
+    if (context && context.state !== 'closed') {
+      try { return context.suspend().catch(() => {}); } catch { /* Device/context already closed. */ }
     }
+    return Promise.resolve();
+  }
+
+  stopAudioStream() {
+    this.audioStreamGeneration += 1;
+    this.interrupt();
+    this.streaming = false;
+    this.attachPlaybackNode(null);
+    this.audioSuspend = this._parkAudioStream(this.head);
+    return this.audioSuspend;
   }
 
   // Observe only the assistant's playback bus. Network arrival, microphone,
