@@ -368,6 +368,7 @@ elements.liveTryOnStop.addEventListener('click', () => liveTryOn.stop());
 window.addEventListener('beforeunload', () => liveTryOn.stop());
 document.addEventListener('visibilitychange', () => { if (document.hidden) liveTryOn.stop(); });
 const avatar = new AvatarController({
+  softwareGraphics,
   scene,
   camera,
   host: elements.avatarHost,

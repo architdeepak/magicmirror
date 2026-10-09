@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+Latest follow-up: [side volume, rendering benchmark and speech decay](RIG-VOLUME-AND-PERFORMANCE-2026-10-08.md). Full suite remains incomplete.
+
 Comprehensive active objective and acceptance gates: [master goal](MASTER-GOAL.md). Historical passing checks below are partial evidence; the master goal remains incomplete.
 
 2026-10-08 rig update: [selectable 3D Queen/Snow preview with actual local morphs, independent eyes and solid hair/crown](3D-FACE-2026-10-08.md). It is not a completed production facial asset or physical Windows validation.

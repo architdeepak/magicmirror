@@ -6,8 +6,8 @@ import { ExpressionMixer } from './expressionMixer.js';
 import { AvatarVideoHost } from './avatarVideoHost.js';
 
 export class AvatarController {
-  constructor({ host, onStatus }) {
-    this.host = host;
+  constructor({ host, onStatus, softwareGraphics=false }) {
+    this.host = host;this.softwareGraphics=softwareGraphics;
     this.onStatus = onStatus || (() => {});
     this.head = null;
     this.armature = null;
@@ -114,7 +114,7 @@ export class AvatarController {
 
   async ensureRigHost() {
     if (!this.rigHost) {
-      this.rigHost = new RigFaceHost(this.host,{onFailure:error=>{
+      this.rigHost = new RigFaceHost(this.host,{softwareGraphics:this.softwareGraphics,onFailure:error=>{
         const failed=this.rigHost;this.rigHost=null;failed?.dispose();this.lastRigError=error.message;this.renderStyle='portrait';this._syncAvatarSourceVisibility();this.onStyleFallback?.(error.message);
       }});
       this.rigHost.setQuality(this.quality);
@@ -327,7 +327,7 @@ export class AvatarController {
       this.faceHost?.update(elapsed);
       }
     }
-    this.speechLevel *= 0.82;
+    this.speechLevel *= Math.exp(-Math.max(0,Number(dt)||0)*6);
   }
 
   _applyFacialMorphs(expression = {}) {

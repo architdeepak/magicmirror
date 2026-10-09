@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const LEFT_UPPER=[33,246,161,160,159,158,157,173,133], LEFT_LOWER=[33,7,163,144,145,153,154,155,133];
 const RIGHT_UPPER=[263,466,388,387,386,385,384,398,362], RIGHT_LOWER=[263,249,390,373,374,380,381,382,362];
@@ -63,13 +64,54 @@ export function authorFaceMorphs(mesh) {
  return names.filter((_,i)=>targets[i].array.some(v=>v!==0));
 }
 
+export function mergeStaticMaterial(root,material) {
+ root.updateWorldMatrix(true,true);
+ const meshes=[];root.traverse(node=>{if(node.isMesh&&node.material===material)meshes.push(node);});
+ if(meshes.length<2)return null;
+ const inverse=new THREE.Matrix4().copy(root.matrixWorld).invert();
+ const copies=meshes.map(mesh=>mesh.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,mesh.matrixWorld)));
+ const geometry=mergeGeometries(copies,false);copies.forEach(g=>g.dispose());
+ if(!geometry)throw new Error('Static rig geometry could not be merged');
+ for(const mesh of meshes){mesh.removeFromParent();mesh.geometry.dispose();}
+ const merged=new THREE.Mesh(geometry,material);merged.name='sculpted-hair';root.add(merged);return merged;
+}
+
+// A posterior volume starts at the actual face oval, not an overlapping sphere.
+// Every seam vertex receives the face's exact local deformation and normal.
+export const FACE_OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+export function buildHeadVolume(face,material){
+ const source=face.geometry,p=source.attributes.position,rings=8,count=FACE_OVAL.length,positions=[],indices=[],factors=[];
+ for(let ring=0;ring<rings;ring++){
+  const angle=(ring/rings)*Math.PI/2,factor=Math.cos(angle),depth=Math.sin(angle);
+  for(const i of FACE_OVAL){positions.push(p.getX(i)*factor,.05+(p.getY(i)-.05)*factor,p.getZ(i)*(1-depth)-.96*depth);factors.push(factor);}
+ }
+ const center=positions.length/3;positions.push(0,.05,-.96);
+ for(let ring=0;ring<rings-1;ring++)for(let i=0;i<count;i++){const j=(i+1)%count,a=ring*count+i,b=ring*count+j,c=(ring+1)*count+i,d=(ring+1)*count+j;indices.push(a,b,d,a,d,c);}
+ for(let i=0;i<count;i++)indices.push((rings-1)*count+i,(rings-1)*count+(i+1)%count,center);
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+ const baseNormals=geometry.attributes.normal;
+ for(let i=0;i<count;i++){const index=FACE_OVAL[i];baseNormals.setXYZ(i,source.attributes.normal.getX(index),source.attributes.normal.getY(index),source.attributes.normal.getZ(index));}
+ const targets=source.morphAttributes.position.map(delta=>{
+  const out=new Float32Array(positions.length);for(let v=0;v<center;v++){const i=FACE_OVAL[v%count],f=factors[v];out[v*3]=delta.getX(i)*f;out[v*3+1]=delta.getY(i)*f;out[v*3+2]=delta.getZ(i)*f;}return new THREE.BufferAttribute(out,3);
+ });
+ const normalTargets=[],scratch=new THREE.BufferGeometry();scratch.setIndex(indices);
+ for(let t=0;t<targets.length;t++){
+  const values=new Float32Array(positions.length);for(let i=0;i<values.length;i++)values[i]=positions[i]+targets[t].array[i];scratch.setAttribute('position',new THREE.BufferAttribute(values,3));scratch.computeVertexNormals();
+  const out=new Float32Array(positions.length);for(let i=0;i<out.length;i++)out[i]=scratch.attributes.normal.array[i]-baseNormals.array[i];
+  for(let i=0;i<count;i++){const index=FACE_OVAL[i],n=source.morphAttributes.normal?.[t];if(n){out[i*3]=n.getX(index);out[i*3+1]=n.getY(index);out[i*3+2]=n.getZ(index);}}
+  normalTargets.push(new THREE.BufferAttribute(out,3));
+ }
+ scratch.dispose();geometry.morphTargetsRelative=true;geometry.morphAttributes.position=targets;geometry.morphAttributes.normal=normalTargets;
+ const mesh=new THREE.Mesh(geometry,material);mesh.name='continuous-head-volume';mesh.morphTargetDictionary={...face.morphTargetDictionary};mesh.morphTargetInfluences=Array(targets.length).fill(0);return mesh;
+}
+
 export function buildRigAccessories(face,persona){
  const p=face.geometry.attributes.position, group=new THREE.Group();group.name='articulated-accessories';face.add(group);
  const skin=new THREE.MeshStandardMaterial({color:0xe9b6a0,roughness:.72});
  const hair=new THREE.MeshStandardMaterial({color:persona==='solenne'?0x24160e:0x100d16,roughness:.48,metalness:0});
  const ball=(radius,mat,position,scale)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(radius,32,24),mat);m.position.set(...position);if(scale)m.scale.set(...scale);group.add(m);return m;};
  // Posterior skull closes side views; no image plane or torso participates.
- ball(1,skin,[0,.03,-.57],[.88,1.05,.68]);
+ const headVolume=buildHeadVolume(face,skin);group.add(headVolume);
  ball(1,hair,[0,.25,-.70],[1.01,1.22,.79]);
  for(const side of[-1,1])ball(1,hair,[side*.28,1.05,.25],[.42,.17,.18]);
  const eyes=[];
@@ -106,5 +148,6 @@ export function buildRigAccessories(face,persona){
  }
  const cavity=ball(1,new THREE.MeshStandardMaterial({color:0x240d16,roughness:1}),[0,-.56,.02],[.27,.10,.075]);
  const teeth=new THREE.Mesh(new THREE.BoxGeometry(.36,.045,.045),new THREE.MeshStandardMaterial({color:0xf1dfc8,roughness:.5}));teeth.position.set(0,-.535,.105);group.add(teeth);
- return {group,eyes,cavity,teeth};
+ mergeStaticMaterial(group,hair);
+ return {group,eyes,cavity,teeth,headVolume};
 }

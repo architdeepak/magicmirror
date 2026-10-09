@@ -5,6 +5,7 @@ const {createReadStream}=require('fs'),{createHash}=require('crypto');
 const {spawn,execFileSync,execFile}=require('child_process');const {promisify}=require('util');
 const {connect}=require('./cdp-client.cjs');const run=promisify(execFile);
 const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
+const graphicsRequest=process.env.MIRROR_MONITOR_GRAPHICS==='vulkan'?'vulkan':'software';
 const avatarStyle=process.env.MIRROR_MONITOR_AVATAR==='rig'?'rig':'portrait';
 const seconds=Number(process.env.MIRROR_MONITOR_SECONDS||1800);
 if(!Number.isFinite(seconds)||seconds<10||seconds>86400)throw new Error('Monitor duration must be 10–86400 seconds');
@@ -21,13 +22,13 @@ async function processTree(pid,output=[]){
  const build=path.join(profile,'app'),sourceBuild=path.join(root,`dist/linux-${process.arch}-unpacked`);
  try{await fs.cp(sourceBuild,build,{recursive:true})}catch(error){await fs.rm(profile,{recursive:true,force:true});throw error}
  const hash=createHash('sha256');for await(const chunk of createReadStream(path.join(build,'resources/app.asar')))hash.update(chunk);
- const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true,avatarStyle};
+ const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true,avatarStyle,graphicsRequest};
  await fs.writeFile(path.join(dir,'build.json'),JSON.stringify(buildInfo,null,2));
  const manager=spawn(path.join(root,'.tools/native-companion-wm/root/usr/bin/openbox'),[],{stdio:'ignore',env:{...process.env,LD_LIBRARY_PATH:path.join(root,'.tools/native-companion-wm/root/usr/lib/aarch64-linux-gnu'),XDG_DATA_DIRS:path.join(root,'.tools/native-companion-wm/root/usr/share')+':/usr/share'}});
  const binary=path.join(build,'magic-mirror-portal');
- const child=spawn(binary,['--kiosk','--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-port=0','--remote-debugging-address=127.0.0.1'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_TRYON_ENDPOINT:'',MIRROR_TRYON_API_KEY:'',MIRROR_SPOTIFY_CLIENT_ID:'',MIRROR_VERTEX_PROJECT:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
+ const child=spawn(binary,['--kiosk','--no-sandbox',...(graphicsRequest==='vulkan'?['--use-gl=angle','--use-angle=vulkan','--use-cmd-decoder=passthrough']:['--disable-gpu']),`--user-data-dir=${profile}`,'--remote-debugging-port=0','--remote-debugging-address=127.0.0.1'],{cwd:profile,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_TRYON_ENDPOINT:'',MIRROR_TRYON_API_KEY:'',MIRROR_SPOTIFY_CLIENT_ID:'',MIRROR_VERTEX_PROJECT:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
  let logs='',client,appExit=null,stopping=false;for(const stream of [child.stdout,child.stderr])stream.on('data',b=>logs=(logs+b).slice(-12000));child.on('exit',(code,signal)=>appExit={code,signal});child.on('error',error=>appExit={error:error.message});
- const errors=[],samples=[],scope='Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.';
+ const errors=[],samples=[],scope='Actual packaged Linux portrait app, graphics request '+graphicsRequest+', temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.';
  const write=async()=>fs.writeFile(path.join(dir,'summary.json'),JSON.stringify({scope,pid:child.pid,startedAt:id,updatedAt:new Date().toISOString(),status:stopping?'stopping':appExit?'app-exited':'monitoring',sampleCount:samples.length,errors,latest:samples.at(-1),appExit},null,2));
  const onStop=()=>stopping=true;process.on('SIGTERM',onStop);process.on('SIGINT',onStop);
  try{
