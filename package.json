@@ -10,7 +10,7 @@
     "pack": "electron-builder --dir",
     "dist:win": "electron-builder --win portable",
     "test": "npm run test:syntax && npm run test:avatar && npm run test:desktop && npm run test:casting && npm run test:voice && npm run test:gestures && npm run test:youtube && npm run test:watch && npm run test:depth && npm run test:body && npm run test:settings && npm run test:companion && npm run test:desktop-gestures && npm run test:audio-turns && npm run test:tryon && npm run test:garment-geometry && npm run test:camera && npm run test:garment-cache && npm run test:hand && npm run test:mirror-state && npm run test:spotify && npm run test:live-tryon && npm run test:assistant-vision && npm run test:spotify-devices && npm run test:windows-spotify && npm run test:power && npm run test:wardrobe && npm run test:starter-sleeves && npm run test:photo-sleeves && npm run test:garment-facing && npm run test:codex && npm run test:experience",
-    "test:avatar": "node tools/test-expression-mixer.mjs && node tools/test-rig-geometry.mjs && node tools/test-rig-lifecycle.cjs && node tools/test-software-rig-material.mjs && node tools/test-gpu-preparation.mjs",
+    "test:avatar": "node tools/test-expression-mixer.mjs && node tools/test-rig-geometry.mjs && node tools/test-rig-lifecycle.cjs && node tools/test-software-rig-material.mjs && node tools/test-gpu-preparation.mjs && node tools/test-speech-visemes.mjs",
     "test:health": "node tools/healthcheck.cjs",
     "preview:capture": "electron --no-sandbox --headless --disable-gpu tools/capture-preview.cjs",
     "preview:avatar-demo": "electron --no-sandbox --headless --disable-gpu tools/capture-avatar-demo.cjs",

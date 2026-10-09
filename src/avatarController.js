@@ -1,4 +1,5 @@
 import { TalkingHead } from 'talkinghead';
+import { createOutputVisemeDetector } from './speechVisemeDetector.mjs';
 import { AvatarPresence } from './avatarPresence.js';
 import { FaceHost } from './faceHost.js';
 import { RigFaceHost } from './rigFaceHost.js';
@@ -310,15 +311,29 @@ export class AvatarController {
   // Spotify and desktop audio do not own the visible speech channels.
   attachPlaybackNode(node) {
     const previous=this.playbackMeter;
-    if(previous){try{previous.node.disconnect(previous.analyser);}catch{}previous.analyser.disconnect();}
+    if(previous){this._retirePlaybackVisemes(previous);try{previous.node.disconnect(previous.analyser);}catch{}previous.analyser.disconnect();}
     this.playbackMeter=null;
     if(!node?.context?.createAnalyser)return;
     const analyser=node.context.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=0;
     node.connect(analyser); // Analyser output may remain unconnected (Web Audio).
-    this.playbackMeter={node,analyser,samples:new Float32Array(analyser.fftSize),enabled:false,accepting:false,level:0,viseme:'rest'};
+    this.playbackMeter={node,analyser,samples:new Float32Array(analyser.fftSize),enabled:false,accepting:false,level:0,viseme:'rest',detector:null,detectorGeneration:0,detectorStarting:false,detectorStatus:'idle',detected:null};
   }
 
-  beginPlayback() { if(this.playbackMeter){this.playbackMeter.enabled=true;this.playbackMeter.accepting=true;} }
+  beginPlayback() { if(this.playbackMeter){this.playbackMeter.enabled=true;this.playbackMeter.accepting=true;this._startPlaybackVisemes(this.playbackMeter);} }
+
+  _retirePlaybackVisemes(meter){
+    meter.detectorGeneration++;meter.detector?.retire();meter.detector=null;meter.detectorStarting=false;meter.detected=null;meter.detectorStatus='idle';
+  }
+
+  _startPlaybackVisemes(meter){
+    if(!meter.node.context.audioWorklet||meter.detector||meter.detectorStarting||meter.detectorStatus==='unavailable')return;
+    const generation=++meter.detectorGeneration;
+    const current=()=>this.playbackMeter===meter&&meter.detectorGeneration===generation&&meter.enabled&&meter.accepting;
+    meter.detectorStarting=true;meter.detectorStatus='loading';
+    createOutputVisemeDetector(meter.node,{current,onResult:result=>{if(current())meter.detected=result?{...result,at:performance.now()}:null;},onError:()=>{if(current()){meter.detector=null;meter.detected=null;meter.detectorStatus='unavailable';}}}).then(detector=>{
+      if(!current()){detector?.retire();return;}meter.detector=detector;meter.detectorStarting=false;meter.detectorStatus=detector?'ready':'unavailable';
+    }).catch(error=>{if(current()){meter.detectorStarting=false;meter.detectorStatus='unavailable';console.debug('[avatar] local mouth shapes unavailable',error.message);}});
+  }
 
   playbackStarted(node) {
     if(!this.playbackMeter||this.playbackMeter.node!==node||!this.playbackMeter.accepting)return;
@@ -327,6 +342,7 @@ export class AvatarController {
 
   finishPlayback(node) {
     if(!this.playbackMeter||this.playbackMeter.node!==node)return;
+    this._retirePlaybackVisemes(this.playbackMeter);
     this.playbackMeter.enabled=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';
     this.setSpeechLevel(0);this.setViseme('rest');this.setPerformance({turn:0,nod:0,lean:0});
     this.onPlaybackState(false);
@@ -334,7 +350,7 @@ export class AvatarController {
 
   getPlaybackStatus() {
     const meter=this.playbackMeter;
-    return {source:meter?'output-waveform':'manual',enabled:meter?.enabled===true,level:meter?.level||0,viseme:meter?.viseme||'rest',windowSamples:meter?.samples.length||0,contextState:meter?.node.context.state||null};
+    return {source:meter?'output-waveform':'manual',enabled:meter?.enabled===true,level:meter?.level||0,viseme:meter?.viseme||'rest',windowSamples:meter?.samples.length||0,visemeModel:meter?.detectorStatus||'idle',predictedViseme:meter?.detected?.id??null,contextState:meter?.node.context.state||null};
   }
 
   _updatePlaybackSpeech(elapsed) {
@@ -346,7 +362,7 @@ export class AvatarController {
       for(let i=0;i<meter.samples.length;i++){const value=Number.isFinite(meter.samples[i])?meter.samples[i]:0;sum+=value*value;if(i&&((value<0&&meter.samples[i-1]>=0)||(value>=0&&meter.samples[i-1]<0)))crossings++;}
       level=Math.min(1,Math.sqrt(sum/meter.samples.length)*4.2);
       // Energy/zero crossings supply only broad vowel motion, not phonemes.
-      if(level>=.09)viseme=crossings/meter.samples.length<.105&&level>.18?'O':'AA';
+      if(level>=.09){viseme=crossings/meter.samples.length<.105&&level>.18?'O':'AA';if(meter.detected&&performance.now()-meter.detected.at<150)viseme=meter.detected.shape;}
     }
     meter.level=level;meter.viseme=viseme;this.setSpeechLevel(level);this.setViseme(viseme);
     this.setPerformance({turn:Math.sin(elapsed*1000/910)*Math.min(.24,level*.44),lean:Math.sin(elapsed*1000/1430)*Math.min(.14,level*.28),nod:Math.sin(elapsed*1000/330)*Math.min(.09,level*.18)});
@@ -371,7 +387,7 @@ export class AvatarController {
   }
 
   interrupt() {
-    if(this.playbackMeter){this.playbackMeter.enabled=false;this.playbackMeter.accepting=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';}
+    if(this.playbackMeter){this._retirePlaybackVisemes(this.playbackMeter);this.playbackMeter.enabled=false;this.playbackMeter.accepting=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';}
     try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
     this.setSpeechLevel(0);
     this.setViseme('rest');
