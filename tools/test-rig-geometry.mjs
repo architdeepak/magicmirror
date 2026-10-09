@@ -1,8 +1,22 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as THREE from 'three';
-import {authorFaceMorphs,buildRigAccessories,mergeStaticMaterial,FACE_OVAL} from '../src/rigGeometry.js';
+import {authorFaceMorphs,buildRigAccessories,mergeStaticMaterial,buildCrownShell,FACE_OVAL} from '../src/rigGeometry.js';
 import {createLidTextureMapping} from '../src/rigLidTexture.js';
+const shell=buildCrownShell(),cp=shell.attributes.position,cn=shell.attributes.normal;
+assert.equal(cp.count,4*97*2);assert.equal(shell.index.count,96*4*6);assert(cp.array.every(Number.isFinite)&&cn.array.every(Number.isFinite));
+const edges=new Map(),key=i=>[cp.getX(i),cp.getY(i),cp.getZ(i)].map(v=>Math.round(v*1e6)).join(',');
+for(let i=0;i<shell.index.count;i+=3){const ids=[0,1,2].map(j=>shell.index.getX(i+j));for(let j=0;j<3;j++){const edge=[key(ids[j]),key(ids[(j+1)%3])].sort().join('|');edges.set(edge,(edges.get(edge)||0)+1)}}
+assert([...edges.values()].every(n=>n===2),'Crown shell has an open edge or overlapping seam');
+for(let strip=0;strip<4;strip++)for(let j=0;j<2;j++){
+ const a=strip*194+j,b=a+192;
+ for(let axis=0;axis<3;axis++){
+  assert(Math.abs(cp.getComponent(a,axis)-cp.getComponent(b,axis))<1e-7,'Crown back seam positions differ');
+  assert.equal(cn.getComponent(a,axis),cn.getComponent(b,axis),'Crown back seam normals differ');
+ }
+}
+assert(cp.array.some((v,i)=>i%3===2&&v<-.78),'Crown has no rear volume');
+shell.dispose();
 for(const persona of ['velora','solenne']){
  const bytes=fs.readFileSync(new URL(`../src/assets/personas/${persona}-3d-v1.glb`,import.meta.url)),length=bytes.readUInt32LE(12),gltf=JSON.parse(bytes.subarray(20,20+length)),bin=bytes.subarray(28+length),primitive=gltf.meshes[0].primitives[0];
  const accessor=gltf.accessors[primitive.attributes.POSITION],view=gltf.bufferViews[accessor.bufferView],start=(view.byteOffset||0)+(accessor.byteOffset||0),positions=new Float32Array(accessor.count*3);
@@ -50,6 +64,12 @@ for(const persona of ['velora','solenne']){
  }
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
  assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
+ if(persona==='velora'){
+  const crown=accessories.group.getObjectByName('QueenCrown');assert.equal(crown.children.length,2,'Crown metal is not batched');
+  const metal=crown.getObjectByName('sculpted-crown'),ruby=crown.getObjectByName('crown-ruby');assert(metal?.isMesh&&ruby?.isMesh);
+  assert(metal.geometry.attributes.position.array.every(Number.isFinite));assert.equal(metal.geometry.attributes.uv.count,metal.geometry.attributes.position.count);
+  assert(metal.geometry.attributes.position.count<5000,'Crown geometry exceeds its bounded budget');
+ }
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
  const lowerReach=(edge,skin,opposite)=>Math.min(8,Math.max(1,Math.abs(geometry.attributes.uv.getY(opposite)-geometry.attributes.uv.getY(edge))*.5/Math.max(1e-6,Math.abs(geometry.attributes.uv.getY(skin)-geometry.attributes.uv.getY(edge)))));
  const leftLowerReach=lowerReach(145,23,159),rightLowerReach=lowerReach(374,253,386);

@@ -92,6 +92,40 @@ export function mergeStaticMaterial(root,material) {
  const merged=new THREE.Mesh(geometry,material);merged.name='sculpted-hair';root.add(merged);return merged;
 }
 
+const CROWN_PROFILE=[[-Math.PI,.12],[-2.55,.27],[-1.95,.16],[-1.4,.24],[-1.05,.38],[-.52,.16],[0,.65],[.52,.16],[1.05,.38],[1.4,.24],[1.95,.16],[2.55,.27],[Math.PI,.12]];
+const crownHeight=angle=>{
+ for(let i=1;i<CROWN_PROFILE.length;i++)if(angle<=CROWN_PROFILE[i][0]){
+  const [a,h]=CROWN_PROFILE[i-1],[b,k]=CROWN_PROFILE[i];return 1.10+h+(k-h)*(angle-a)/(b-a);
+ }
+ return 1.22;
+};
+export function buildCrownShell(segments=96){
+ const positions=[],uv=[],indices=[];
+ // Independent strips keep the rim's normals separate from the curved wall.
+ for(let strip=0;strip<4;strip++){
+  const start=positions.length/3;
+  for(let i=0;i<=segments;i++){
+   const angle=-Math.PI+Math.PI*2*i/segments,top=crownHeight(angle);
+   for(let j=0;j<2;j++){
+    const inside=strip===1||(strip>=2&&j===1),offset=inside?-.025:.025;
+    const y=strip<2?(j?top:1.10):(strip===2?top:1.10);
+    positions.push(Math.sin(angle)*(.67+offset),y,-.23+Math.cos(angle)*(.56+offset));uv.push(i/segments,j);
+   }
+  }
+  for(let i=0;i<segments;i++){
+   const a=start+i*2,quad=[a,a+2,a+3,a,a+3,a+1];
+   if(strip===1||strip===3)for(let k=0;k<quad.length;k+=3)indices.push(quad[k],quad[k+2],quad[k+1]);else indices.push(...quad);
+  }
+ }
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
+ // The duplicate back seam has identical surface positions and normals.
+ const normal=geometry.attributes.normal;
+ for(let strip=0;strip<4;strip++)for(let j=0;j<2;j++){
+  const a=strip*(segments+1)*2+j,b=a+segments*2,n=new THREE.Vector3().fromBufferAttribute(normal,a).add(new THREE.Vector3().fromBufferAttribute(normal,b)).normalize();normal.setXYZ(a,n.x,n.y,n.z);normal.setXYZ(b,n.x,n.y,n.z);
+ }
+ return geometry;
+}
+
 // A posterior volume starts at the actual face oval, not an overlapping sphere.
 // Every seam vertex receives the face's exact local deformation and normal.
 export const FACE_OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
@@ -167,10 +201,12 @@ export function buildRigAccessories(face,persona){
  if(persona==='velora'){
   const gold=new THREE.MeshStandardMaterial({color:0xc78e31,metalness:.85,roughness:.25});
   const crown=new THREE.Group();crown.name='QueenCrown';group.add(crown);
-  const band=new THREE.Mesh(new THREE.TorusGeometry(.58,.035,10,64),gold);band.rotation.x=Math.PI/2;band.position.set(0,1.13,-.23);crown.add(band);
-  const shape=new THREE.Shape();shape.moveTo(-.64,1.10);shape.lineTo(-.62,1.48);shape.lineTo(-.31,1.25);shape.lineTo(0,1.78);shape.lineTo(.31,1.25);shape.lineTo(.62,1.48);shape.lineTo(.64,1.10);shape.closePath();
-  const front=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelSize:.025,bevelThickness:.025,bevelSegments:3,steps:1}),gold);const crownPositions=front.geometry.attributes.position;for(let i=0;i<crownPositions.count;i++){const x=crownPositions.getX(i);crownPositions.setZ(i,crownPositions.getZ(i)-.22*(x/.64)**2);}front.geometry.computeVertexNormals();front.position.z=.28;crown.add(front);
-  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.115,1),new THREE.MeshStandardMaterial({color:0x890d29,metalness:.25,roughness:.2}));gem.position.set(0,1.40,.39);gem.scale.set(.7,1.5,.5);crown.add(gem);
+  const shell=new THREE.Mesh(buildCrownShell(),gold);shell.name='wrapped-crown-shell';crown.add(shell);
+  class CrownRim extends THREE.Curve{constructor(top){super();this.top=top;}getPoint(t,target=new THREE.Vector3()){const angle=-Math.PI+t*Math.PI*2;return target.set(Math.sin(angle)*.695,this.top?crownHeight(angle):1.12,-.23+Math.cos(angle)*.585);}}
+  for(const top of [false,true])crown.add(new THREE.Mesh(new THREE.TubeGeometry(new CrownRim(top),96,top?.012:.023,6,true),gold));
+  const bezel=new THREE.Mesh(new THREE.TorusGeometry(.106,.012,8,32),gold);bezel.position.set(0,1.40,.376);bezel.scale.set(.76,1.42,1);crown.add(bezel);
+  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.115,1),new THREE.MeshStandardMaterial({color:0x890d29,metalness:.08,roughness:.18}));gem.position.set(0,1.40,.393);gem.scale.set(.7,1.5,.5);gem.name='crown-ruby';crown.add(gem);
+  const metal=mergeStaticMaterial(crown,gold);metal.name='sculpted-crown';
  }
  const cavity=ball(1,new THREE.MeshStandardMaterial({color:0x240d16,roughness:1}),[0,-.56,.02],[.27,.10,.075]);
  // Curved, separately shaped enamel; batch each static arch into one draw.
