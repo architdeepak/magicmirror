@@ -22,6 +22,7 @@ import { WakeWordListener } from './wakeWord.js';
 import { WatchPlaybackController } from './watchPlaybackController.js';
 import { YouTubeWatchPlayer } from './youtubeWatchPlayer.js';
 import { WatchCastPlayer } from './watchCastPlayer.js';
+import { WatchAudioDucking } from './watchAudioDucking.js';
 import { SpotifyDevices } from './spotifyDevices.js';
 import {
   applyOffAxisProjection,
@@ -381,9 +382,11 @@ let desktopLabel = '';
 let mode = 'mirror';
 let requestedMode = 'mirror';
 let state = 'starting';
+const watchAudioDucking = new WatchAudioDucking(elements.watchVideo);
 const castPlayer = new WatchCastPlayer({
   video: elements.watchVideo, frame: elements.watchFrame, placeholder: elements.watchPlaceholder, urlInput: elements.watchUrl,
   openWatch: () => setAssistantMode('watch'),
+  setVolume: volume => watchAudioDucking.setUserVolume(volume),
   onState: (snapshot) => {
     if (snapshot.transport === 'NO_MEDIA_PRESENT') delete elements.watchPanel.dataset.casting;
     void window.mirrorBridge?.reportCastState?.(snapshot)?.catch(() => {});
@@ -714,6 +717,7 @@ function getMirrorState() {
   const tracking = getTrackingStatus();
   const selected = closet.items.find((item) => item.id === closet.selectedId);
   const video = elements.watchVideo;
+  const watchState = watchPlayback.snapshot();
   return {
     observedAt: new Date().toISOString(),
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
@@ -739,7 +743,7 @@ function getMirrorState() {
       renderedStillAvailable: !elements.tryOnStill.disabled,
       photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category, favorite: closet.favorites.has(item.id) })) },
-    watch: { ...watchPlayback.snapshot(), castingEnabled, castActive: castPlayer.active },
+    watch: { ...watchState, audioDucking: watchState.source === 'media' ? watchAudioDucking.snapshot() : { supported: false }, castingEnabled, castActive: castPlayer.active },
     services: { findmy: { web: 'Apple Find Devices', peopleLocations: false, note: 'No Find My People bridge is configured; friends locations require the Find My app on an Apple device.' }, browserSignIn: 'User enters credentials directly; agent observation/input pauses on sign-in prompts.' },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }
   };
@@ -772,6 +776,7 @@ function setArEffect(effect, { openStudio = false } = {}) {
 
 function setState(next) {
   state = next;
+  watchAudioDucking.setActive(Boolean(gemini?.listening || browserRecognition || ['listening', 'thinking', 'speaking'].includes(next)));
   avatar.setActivity?.(next);
   if (mode === 'watch') avatar.setVisible(desktopActive || Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(next)));
   const labels = {
@@ -1892,7 +1897,7 @@ window.addEventListener('resize', () => {
   garmentOverlay.resize();
 });
 
-window.addEventListener('beforeunload', () => { removePhoneMediaListener?.(); removeCastCommandListener?.(); castPlayer.destroy(); youtubePlayer.destroy(); removeDesktopListener?.(); garmentOverlay.destroy(); wake.destroy(); gemini.disconnect(); });
+window.addEventListener('beforeunload', () => { removePhoneMediaListener?.(); removeCastCommandListener?.(); watchAudioDucking.destroy(); castPlayer.destroy(); youtubePlayer.destroy(); removeDesktopListener?.(); garmentOverlay.destroy(); wake.destroy(); gemini.disconnect(); });
 
 async function loadConfig() {
   try {

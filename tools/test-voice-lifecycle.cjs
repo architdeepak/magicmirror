@@ -281,12 +281,13 @@ async function awakeningCancellation() {
   vm.runInContext(source.slice(source.indexOf('async function toggleVoice('),source.indexOf('function appendCaption(')),context);
   await context.toggleVoice();assert.equal(stops,1,'Listen button started a session during reveal instead of stopping');
   context.speech.isSpeaking=true;await context.toggleVoice();assert.equal(stops,2,'Button did not stop the fallback greeting');
+  context.watchAudioDucking={setActive(value){this.active=value}};
   context.mode='mirror';context.elements.stateLabel={};context.elements.stateDot={};context.elements.micLabel={};
   context.elements.mic={classList:{toggle(){}},setAttribute(){}};context.returnToRequestedMode=()=>{};
   vm.runInContext(source.slice(source.indexOf('function setState('),source.indexOf('function showOracle(')),context);
   context.speech.isSpeaking=false;active.add('active');context.setState('starting');
   assert.equal(context.elements.micLabel.textContent,'STOP','Reveal had no visible Stop control');
-  active.clear();context.setState('ready');assert.equal(context.elements.micLabel.textContent,'LISTEN');
-  context.agentRunId='running';context.setState('thinking');assert.equal(context.elements.micLabel.textContent,'STOP');await context.toggleVoice();assert.equal(stops,3,'Button did not stop a delegated agent task');
+  active.clear();context.setState('ready');assert.equal(context.elements.micLabel.textContent,'LISTEN');assert.equal(context.watchAudioDucking.active,false);
+  context.agentRunId='running';context.setState('thinking');assert.equal(context.watchAudioDucking.active,true);assert.equal(context.elements.micLabel.textContent,'STOP');await context.toggleVoice();assert.equal(stops,3,'Button did not stop a delegated agent task');
 }
 (async()=>{await playbackStateLifecycle();await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -14,3 +14,6 @@ tracking.cameraActive=false;tracking.faceDetected=false;tracking.error='Camera d
 assert.equal(context.getMirrorState().camera.error,tracking.error);assert.equal(context.elements.cameraToggle.textContent,'Camera on');assert.equal(context.elements.cameraNotice.hidden,false);assert.equal(context.elements.cameraNotice.textContent,tracking.error);
 tracking.cameraActive=true;tracking.error='';context.updateTrackingUi();assert.equal(context.elements.cameraNotice.hidden,true);
 console.log('Mirror camera state passed: configured versus active sharing, face freshness, hard mute, missing camera, and ended stream.');
+
+assert.equal(context.getMirrorState().watch.audioDucking.supported,false);
+context.watchAudioDucking={snapshot:()=>({supported:true,active:true,volume:.2})};context.watchPlayback.snapshot=()=>({source:'media',playing:true});assert(context.getMirrorState().watch.audioDucking.active);context.watchPlayback.snapshot=()=>({source:'embedded-page'});assert.equal(context.getMirrorState().watch.audioDucking.supported,false,'External embed claimed local ducking');

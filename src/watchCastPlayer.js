@@ -1,8 +1,8 @@
 // The casting protocol lives in main; this adapter reports actual HTML media
 // events rather than claiming playback succeeded when a URL was merely set.
 export class WatchCastPlayer {
-  constructor({ video, frame, placeholder, urlInput, openWatch, onState, onNotice = () => {} }) {
-    Object.assign(this, { video, frame, placeholder, urlInput, openWatch, onState, onNotice });
+  constructor({ video, frame, placeholder, urlInput, openWatch, onState, onNotice = () => {}, setVolume = value => { video.volume = value; } }) {
+    Object.assign(this, { video, frame, placeholder, urlInput, openWatch, onState, onNotice, setVolume });
     this.active = false;
     this.pendingSeek = null;
     this.listeners = [];
@@ -47,7 +47,7 @@ export class WatchCastPlayer {
       else this.pendingSeek = input.position;
     } else if (action === 'volume') {
       if (!Number.isFinite(input.volume) || input.volume < 0 || input.volume > 100) throw new Error('Invalid cast volume.');
-      this.video.volume = input.volume / 100;
+      this.setVolume(input.volume / 100);
     } else if (action === 'mute') this.video.muted = Boolean(input.muted);
     else throw new Error('Unsupported cast playback command.');
     this.report(action);
