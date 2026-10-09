@@ -47,6 +47,13 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);
   await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost?.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
   let neutralLidUv;
+  const irisChecks=[];
+  const checkIris=async()=>{
+   if(process.env.MIRROR_IRIS_AUDIT!=='true')return;
+   const value=await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,irises=r.accessories.eyes.map(e=>e.group.getObjectByName('Iris'+e.side)),map=irises[0].material.map;window.__irisRetirements ||= [];const record={persona:r.persona,disposed:0};__irisRetirements.push(record);map.addEventListener('dispose',()=>record.disposed++);return{persona:r.persona,sharedMaterial:irises[0].material===irises[1].material,sharedTexture:irises[1].material.map===map,resolution:[map.image.width,map.image.height],colorSpace:map.colorSpace,textureBytes:map.image.data.length}})()`);
+   assert(value.sharedMaterial&&value.sharedTexture);assert.deepEqual(value.resolution,[128,128]);assert.equal(value.colorSpace,'srgb');assert.equal(value.textureBytes,65536);irisChecks.push(value);
+  };
+  await checkIris();
   console.log(await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,f=r.face;return{visible:f.visible,position:f.position.toArray(),scale:f.scale.toArray(),material:{visible:f.material.visible,opacity:f.material.opacity,color:f.material.color.toArray(),map:!!f.material.map},camera:r.camera.position.toArray(),bounds:f.geometry.boundingSphere}})()`));
   await client.evaluate(`const r=__mirrorDebug.avatar.rigHost;r.accessories.group.visible=false;r.signature=null`);await delay(400);await shot('face-only');await client.evaluate(`__mirrorDebug.avatar.rigHost.accessories.group.visible=true;__mirrorDebug.avatar.rigHost.signature=null`);
   const poses=[['neutral',{},{}],['blink',{eyeBlinkLeft:1,eyeBlinkRight:1},{}],['half-blink',{eyeBlinkLeft:.5,eyeBlinkRight:.5},{}],['left-blink',{eyeBlinkLeft:1},{}],['right-blink',{eyeBlinkRight:1},{}],['blink-left-30',{eyeBlinkLeft:1,eyeBlinkRight:1},{turn:-1.6}],['blink-right-30',{eyeBlinkLeft:1,eyeBlinkRight:1},{turn:1.6}],['wide',{eyeWideLeft:.6,eyeWideRight:.6},{}],['squint',{eyeSquintLeft:.8,eyeSquintRight:.8},{}],['brow',{browOuterUpLeft:.8},{}],['aa',{jawOpen:.65},{}],['oh',{jawOpen:.30,mouthFunnel:.7},{}],['ee',{jawOpen:.18,mouthStretchLeft:.44,mouthStretchRight:.44},{}],['mbp',{mouthClose:1,mouthPressLeft:.3,mouthPressRight:.3},{}],['fv',{jawOpen:.24,mouthRollLower:.7,mouthUpperUpLeft:.12,mouthUpperUpRight:.12},{}],['smile',{mouthSmileLeft:.8,mouthSmileRight:.8},{}],['left',{}, {turn:-.9}],['right',{}, {turn:.9}],['left-30',{}, {turn:-1.6}],['right-30',{}, {turn:1.6}]];
@@ -89,6 +96,8 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.evaluate(`document.querySelector('#display-quality').value='hd';document.querySelector('#display-quality').dispatchEvent(new Event('change'))`);assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.quality'),'hd');assert(await client.evaluate('__mirrorDebug.avatar.rigHost.canvas.width*__mirrorDebug.avatar.rigHost.canvas.height<=4e6'));
   await client.evaluate(`__mirrorDebug.avatar.setPersona('solenne')`);
   await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost?.ready&&__mirrorDebug.avatar.rigHost.persona==="solenne"'));
+  if(process.env.MIRROR_IRIS_AUDIT==='true')assert.equal(await client.evaluate('__irisRetirements[0].disposed'),1,'Old iris map was not retired once');
+  await checkIris();
   await delay(600);await shot('solenne');assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.persona'),'solenne');
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:1,eyeBlinkRight:1})');await delay(550);await shot('solenne-blink');
   if(process.env.MIRROR_LID_DIAGNOSTIC==='true'){
@@ -103,7 +112,9 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await checkLipContact();
   await motion('solenne');
   await client.evaluate(`__mirrorDebug.avatar.setPersona('rowan')`);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
+  let irisRetirements=[];
   await client.evaluate(`__mirrorDebug.avatar.setPersona('velora')`);await client.evaluate(`document.querySelector('#avatar-render-style').value='rig';document.querySelector('#avatar-render-style').dispatchEvent(new Event('change'))`);await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost.ready&&__mirrorDebug.avatar.renderStyle==="rig"'));
+  if(process.env.MIRROR_IRIS_AUDIT==='true'){irisRetirements=await client.evaluate('__irisRetirements');assert(irisRetirements.every(r=>r.disposed===1),'Replacing a persona retained or double-disposed an iris map');}
   const reloadGeneration=await client.evaluate('__hdGeneration');await client.call('Page.reload');await until(()=>client.evaluate('window.__hdGeneration>'+reloadGeneration+'&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")&&__mirrorDebug.avatar.rigHost?.ready'));assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'rig');
   await client.evaluate('__mirrorDebug.gemini.onModeChange("portal")');const anchors=[];
   for(const position of['center','left','right','upper','lower']){
@@ -113,6 +124,6 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await client.evaluate('__mirrorDebug.stopAssistant()');await delay(300);const stopped=await client.evaluate('({label:document.querySelector("#mic-label").textContent,playback:__mirrorDebug.avatar.getPlaybackStatus(),energy:__mirrorDebug.avatar.speechLevel})');assert.equal(stopped.label,'LISTEN');assert(!stopped.playback.enabled&&stopped.energy===0);await delay(400);assert(!(await client.evaluate('__mirrorDebug.avatar.getPlaybackStatus().enabled')),'Idle acting revived voice after Stop');
   await client.evaluate('__mirrorDebug.avatar.rigHost.renderer.forceContextLoss()');await delay(250);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');
   assert.deepEqual(errors,[]);
-  const result={passed:true,archiveSha256,lipContacts,lipContactPassed:lipContacts.length?lipContacts.every(c=>Math.max(...c.gaps)<.001&&!c.teethVisible):null,errors,anchors,frames,motionCaptures,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+  const result={passed:true,archiveSha256,irisChecks,irisRetirements,lipContacts,lipContactPassed:lipContacts.length?lipContacts.every(c=>Math.max(...c.gaps)<.001&&!c.teethVisible):null,errors,anchors,frames,motionCaptures,settledPaints:after-before,scope:'Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
  }catch(error){console.error('Application log:',logs.slice(-7000));const endpoint=logs.match(/DevTools listening on (ws:\/\/127\.0\.0\.1:\d+\/[^\s]+)/)?.[1];if(endpoint){try{console.error('Live targets:',JSON.stringify(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())))}catch{}}throw error}finally{client?.close();app.kill('SIGTERM');await delay(200);if(!exited)app.kill('SIGKILL');await fs.rm(profile,{recursive:true,force:true});}
 })().catch(error=>{console.error(error);process.exitCode=1});

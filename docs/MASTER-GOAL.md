@@ -229,3 +229,5 @@ The goal tool and this file describe the same objective. If future user steering
 - **Native camera clarity checkpoint:** [source detail, bounded GPU enhancement and lifecycle](CAMERA-CLARITY-NATIVE-2026-10-09.md). Final short packaged run covers AR/mirror/camera-off/sleep/restart with 18 samples and zero recorded errors; original source resolution retained. All eight completion gates remain open.
 
 - **Active native-clarity monitor:** immutable source `be0efb1`, archive `a847c41d68264eaa2f5ebd762ae08753e9a485d6c56927d1c616c82872042eed`, launched 30 minutes at 2026-10-09T18:18:12Z. PID verified alive and 4 live samples saved; recorded camera/AR/rig/synthetic PCM with Natural enhancement enabled. Running, not completed or final qualification. [Launch snapshot](NATIVE-CLARITY-MONITOR-LAUNCH.json).
+
+- **Iris detail checkpoint:** [bounded shared local iris surface detail](IRIS-DETAIL-2026-10-09.md), reviewed with rejected bright prototype, native/software continuous acting, replacement disposal and recorded speech playback. Stylized anatomy, hidden-rig retention, natural phoneme accuracy and all full-suite gates remain open.

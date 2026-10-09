@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { createIrisTexture, irisGeometry } from './rigIris.js';
 
 const LEFT_UPPER=[33,246,161,160,159,158,157,173,133], LEFT_LOWER=[33,7,163,144,145,153,154,155,133];
 const RIGHT_UPPER=[263,466,388,387,386,385,384,398,362], RIGHT_LOWER=[263,249,390,373,374,380,381,382,362];
@@ -193,13 +194,13 @@ export function buildRigAccessories(face,persona){
  const headVolume=buildHeadVolume(face,face.material);group.add(headVolume);
  ball(1,hair,[0,.25,-.70],[1.01,1.22,.79]);
  const eyes=[];
+ const irisMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:createIrisTexture(persona),roughness:.4});
  for(const [a,b,upper,lower,side]of[[33,133,159,145,'Left'],[263,362,386,374,'Right']]){
   const center=new THREE.Vector3((p.getX(a)+p.getX(b))/2,(p.getY(upper)+p.getY(lower))/2,.015);
   const radius=Math.abs(p.getX(a)-p.getX(b))*.55;
   const eye=new THREE.Group();eye.name='Eye'+side;eye.position.copy(center);group.add(eye);
   const sclera=new THREE.Mesh(new THREE.SphereGeometry(radius,32,24),new THREE.MeshStandardMaterial({color:0xeee5d8,roughness:.32}));sclera.scale.z=.55;eye.add(sclera);
-  const irisMaterial=new THREE.MeshStandardMaterial({color:persona==='solenne'?0x477178:0x6b482b,roughness:.4});
-  const iris=new THREE.Mesh(new THREE.SphereGeometry(radius*.51,32,20),irisMaterial);iris.scale.z=.24;iris.position.z=radius*.55;eye.add(iris);
+  const iris=new THREE.Mesh(irisGeometry(radius*.51),irisMaterial);iris.name='Iris'+side;iris.scale.z=.24;iris.position.z=radius*.55;eye.add(iris);
   const pupil=new THREE.Mesh(new THREE.SphereGeometry(radius*.25,24,16),new THREE.MeshStandardMaterial({color:0x08070b,roughness:.2}));pupil.scale.z=.25;pupil.position.z=radius*.68;eye.add(pupil);
   const glint=new THREE.Mesh(new THREE.SphereGeometry(radius*.075,12,8),new THREE.MeshBasicMaterial({color:0xfff8eb}));glint.position.set(-radius*.12,radius*.16,radius*.73);eye.add(glint);
   eyes.push({group:eye,side,center});

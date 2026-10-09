@@ -143,3 +143,5 @@ The frozen pre-audit harness monitor also completed 30 minutes with 583 samples
 and no recorded errors. A fresh frozen audit build (`5d479ab`) is running a
 two-hour monitor with no paid services or physical sensors. Its start snapshot
 is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
+
+- **Iris detail checkpoint:** [bounded shared local iris surface detail](IRIS-DETAIL-2026-10-09.md), reviewed with rejected bright prototype, native/software continuous acting, replacement disposal and recorded speech playback. Stylized anatomy, hidden-rig retention, natural phoneme accuracy and all full-suite gates remain open.

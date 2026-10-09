@@ -77,6 +77,12 @@ for(const persona of ['velora','solenne']){
   for(let t=0;t<geometry.morphAttributes.position.length;t++)for(const key of['position','normal'])for(const axis of ['X','Y','Z'])assert(Math.abs(volume.morphAttributes[key][t]['get'+axis](j)-geometry.morphAttributes[key][t]['get'+axis](i))<1e-7,'Volume seam drift '+key);
  }
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
+ const irises=accessories.eyes.map(e=>e.group.getObjectByName('Iris'+e.side));
+ assert(irises.every(i=>i?.isMesh));assert.equal(irises[0].material,irises[1].material,'Iris texture/material not shared');
+ const irisMap=irises[0].material.map;assert.equal(irisMap.image.width,128);assert.equal(irisMap.image.height,128);assert.equal(irisMap.image.data.length,128*128*4);assert.equal(irisMap.colorSpace,THREE.SRGBColorSpace);
+ assert.equal(irisMap.image.data.filter((_,i)=>i%4===3).every(a=>a===255),true);
+ assert(new Set(irisMap.image.data.filter((_,i)=>i%4===0)).size>30,'Iris lacks surface detail');
+ for(const iris of irises){const p=iris.geometry.attributes.position,uv=iris.geometry.attributes.uv;assert.equal(p.count,33*21);assert(uv.array.every(v=>Number.isFinite(v)&&v>=0&&v<=1));}
  assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
  if(persona==='velora'){
   const crown=accessories.group.getObjectByName('QueenCrown');assert.equal(crown.children.length,2,'Crown metal is not batched');

@@ -1,0 +1,14 @@
+{
+  "archiveSha256": "acec6469d55439a54dbdc579a02498cdd68c361da481f633618f77001311192c",
+  "baseRevision": "2586c4e8a596e3b8f6eaa6b8f607320c601f15df",
+  "sourceState": "Uncommitted iris changes over base revision at build/test time; exact changed source hashes below.",
+  "fullNpmTestExit": 0,
+  "syntaxFilesPassed": 214,
+  "sha256": {
+    "src/rigIris.js": "585124bcd1e94ed8e4274b8b14cff843f20f876b61b0b421eba37267dbcdd1d0",
+    "src/rigGeometry.js": "0cb6c4ed329035e1f82b83736c7636a4d00935298c78cdb98d673263ec31e108",
+    "tools/check-rig-ui.cjs": "f0a3f06f6757f32081c05998de6794d4246306f75ca01f1361d1ec0533ffc528",
+    "tools/test-rig-geometry.mjs": "af3693dc4669c5f0d97dda51347f587587de3da1d1becc16641766716144fe7d",
+    "artifacts/iris-final-tests.log": "92068ab50dced94d48fed1520b84b9fd3b655434070573d8c501469ff1d488ae"
+  }
+}
