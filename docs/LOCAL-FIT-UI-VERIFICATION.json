@@ -1,0 +1,123 @@
+{
+  "wardrobe": {
+    "status": "passed",
+    "archiveSha256": "457fdd7df5cd1fa2ed6777cf3e332e473e17c538425451278315bb9ecafdcc46",
+    "starterGarments": 30,
+    "savedGarments": 8,
+    "checks": [
+      "local fit outside optional tools at three portrait sizes, Chromium keyboard width 1.2 and reset 1",
+      "real garment upload/cutout",
+      "paired front/back cutout, persistence, original retention, voice view switching and different rear raster",
+      "invalid back PNG rejected before persistence",
+      "saved photo short sleeve inference",
+      "offline worn clothing extraction, voice/gesture crop and real persistence",
+      "real IPC persistence/reload",
+      "original retained",
+      "photo clarity voice controls and exact original restoration",
+      "independent front/back clarity drafts",
+      "invalid PNG rejected",
+      "concurrent saves",
+      "camera unavailable",
+      "synthetic camera capture",
+      "voice tool commands",
+      "interpreted swipe and pinch routing",
+      "cancel",
+      "gesture-only capture/type/save with automatic name",
+      "editor Stop/mute controls, two colored bottom captions and restoration",
+      "paired LAN phone photo upload",
+      "one-photo acceptance",
+      "unauthenticated/cross-origin/invalid phone requests rejected",
+      "compact controls below 22% of three portrait heights",
+      "wardrobe drawer pointer/voice/vertical gesture controls",
+      "AR vertical swipes retain mode",
+      "drawer closes on mode exit",
+      "quick camera control releases tracks and restarts"
+    ],
+    "limits": [
+      "No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.",
+      "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
+    ]
+  },
+  "generalUI": {
+    "checkedAt": "2026-10-09T20:32:25.615Z",
+    "passed": true,
+    "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+    "checks": [
+      {
+        "width": 1280,
+        "height": 1024,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 400,
+        "height": 710,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 540,
+        "height": 960,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "checks": [
+          "typing does not invoke mode/camera/fullscreen shortcuts",
+          "two long colored caption rows and one caption container",
+          "editor Stop leaves review open",
+          "command center accessible",
+          "typed task draft retained while muted",
+          "friends request explains missing Apple People bridge"
+        ]
+      },
+      {
+        "checks": [
+          "camera clarity selectable by real keyboard input",
+          "typed voice navigation bright/off updates renderer and persistence"
+        ]
+      }
+    ],
+    "rendererErrors": []
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/local-fit-ui-tests.log"
+  },
+  "sourceHashes": {
+    "src/index.html": "e84c82868f6e994152371d84b329f3bda077e49271cf8ed90f1d16a508172096",
+    "src/experience.css": "242c86fe5a1f50570ff4b55488065ecdc6f9f755278f5684e8de66945058225f",
+    "tools/check-wardrobe-ui.cjs": "1fe06cb5f5616389879f291a714ca66467635bb81a1a993564ec128c783205ef"
+  },
+  "priorLayoutSourceSha256": "1029299816a148fe6c33bc66f299d3ca63235b869f55a60f91c890d89e6442be"
+}

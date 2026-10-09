@@ -1,11 +1,12 @@
 // Real packaged Electron UI and persistence. Camera and recognized gestures
 // are synthetic; this does not claim physical-camera or fabric realism coverage.
 const assert=require('assert/strict'),fs=require('fs/promises'),path=require('path'),os=require('os');
-const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
+const {createHash}=require('crypto');const {spawn}=require('child_process'),{connect}=require('./cdp-client.cjs');
 const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
  const temp=await fs.mkdtemp(path.join(os.tmpdir(),'mirror-wardrobe-')),profile=path.join(temp,'profile');
  const out=path.join(root,'artifacts/wardrobe');await fs.mkdir(out,{recursive:true});
+ const archiveSha256=createHash('sha256').update(await fs.readFile(path.join(root,`dist/linux-${process.arch}-unpacked/resources/app.asar`))).digest('hex');
  const app=spawn(path.join(root,`dist/linux-${process.arch}-unpacked/magic-mirror-portal`),['--no-sandbox','--disable-gpu',`--user-data-dir=${profile}`,'--remote-debugging-address=127.0.0.1','--remote-debugging-port=0'],{cwd:temp,env:{...process.env,GEMINI_API_KEY:'',DECART_API_KEY:'',MIRROR_VERTEX_PROJECT:'',MIRROR_KIOSK:'true'},stdio:['ignore','pipe','pipe']});
  let logs='',client;for(const stream of [app.stdout,app.stderr])stream.on('data',b=>logs=(logs+b).slice(-12000));
  async function until(fn,label){const start=Date.now();while(Date.now()-start<60000){const value=await fn();if(value)return value;await delay(100)}throw new Error(label+' timed out '+logs.slice(-2000))}
@@ -31,6 +32,12 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
     await client.evaluate('document.querySelector("#studio-wardrobe-toggle").click()');
     assert.equal(await client.evaluate('document.querySelector("#studio-wardrobe-toggle").getAttribute("aria-expanded")'),'true');
     assert(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'));
+    assert(await client.evaluate('document.querySelector("#garment-fit").closest("#studio-wardrobe")&&!document.querySelector("#garment-fit").closest("#studio-tools")'),'Local fit remained behind optional tools');
+    assert(await client.evaluate('document.querySelector("#studio-tools").hidden'),'Optional tools opened with local fit');
+    await client.evaluate(`document.querySelector('#garment-width').scrollIntoView({block:'nearest'});document.querySelector('#garment-width').focus()`);
+    for(let step=0;step<10;step++)for(const type of ['keyDown','keyUp'])await client.call('Input.dispatchKeyEvent',{type,key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+    assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.fit.width'),1.2);await client.evaluate('document.querySelector("#garment-fit-reset").click()');assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.fit.width'),1);
+    await shot('local-fit-'+width);
     await client.evaluate('document.querySelector("#studio-wardrobe-toggle").click()');
   }
   await client.evaluate("__mirrorDebug.gestures.onGesture('swipe-up')");
@@ -166,7 +173,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   await client.evaluate('window.__pairReloadPending=true');await client.call('Page.reload');await until(()=>client.evaluate('!window.__pairReloadPending&&!!window.__mirrorDebug&&__mirrorDebug.garmentOverlay.backTexture'),'paired reload');
   assert.equal((await client.evaluate('window.mirrorBridge.listCloset()')).garments.find(g=>g.id===pairItem.id).backImageUrl,pairPublic.backImageUrl);
   assert.deepEqual(exceptions,[]);
-  const report={status:'passed',starterGarments:30,savedGarments:8,checks:['real garment upload/cutout','paired front/back cutout, persistence, original retention, voice view switching and different rear raster','invalid back PNG rejected before persistence','saved photo short sleeve inference','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','photo clarity voice controls and exact original restoration','independent front/back clarity drafts','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
+  const report={status:'passed',archiveSha256,starterGarments:30,savedGarments:8,checks:['local fit outside optional tools at three portrait sizes, Chromium keyboard width 1.2 and reset 1','real garment upload/cutout','paired front/back cutout, persistence, original retention, voice view switching and different rear raster','invalid back PNG rejected before persistence','saved photo short sleeve inference','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','photo clarity voice controls and exact original restoration','independent front/back clarity drafts','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
   report.checks.push('compact controls below 22% of three portrait heights','wardrobe drawer pointer/voice/vertical gesture controls','AR vertical swipes retain mode','drawer closes on mode exit','quick camera control releases tracks and restarts');
   await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
