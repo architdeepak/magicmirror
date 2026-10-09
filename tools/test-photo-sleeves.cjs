@@ -98,6 +98,24 @@ for(const angle of [0,.4,-.4]){
 }
 console.log('Torso allowance: bounded transverse hem width across frontal/leaning poses and torso-only recovery passed.');
 console.log('Shoulder caps: fixed center neckline, bounded edge lift along the torso axis, unchanged hem across frontal and opposite lean passed.');
+for(const angle of [0,.4,-.4]){
+ const down=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
+ const pixels=[[11,162,288],[12,378,288],[23,194,595],[24,346,595],[13,76,452],[14,464,452],[15,54,633],[16,486,633]];
+ const rotate=(x,y)=>({x:(540-(270+Math.cos(angle)*(x-270)-Math.sin(angle)*(y-480)))/540,y:(480+Math.sin(angle)*(x-270)+Math.cos(angle)*(y-480))/960,z:0,visibility:1});
+ for(const [i,x,y]of pixels)down[i]=rotate(x,y);
+ const raised=down.map(p=>({...p}));raised[13]=rotate(76,144);
+ const build=p=>scope.buildPhotoSleeves(p,video,view,{photoPattern:longPattern});
+ const a=build(down),b=build(raised),v=(longPattern.sides[0].outer.v+longPattern.sides[1].outer.v)/2;
+ const root=(mesh,q)=>mesh.flat().find(p=>Math.abs(p.v-v)<1e-8&&Math.abs(p.u-(longPattern.sides[0].outer.u+(longPattern.sides[1].outer.u-longPattern.sides[0].outer.u)*q))<1e-8);
+ const leftA=root(a,0),leftB=root(b,0),centerA=root(a,.5),centerB=root(b,.5),rightA=root(a,1),rightB=root(b,1);
+ assert(Math.hypot(leftA.x-leftB.x,leftA.y-leftB.y)>8,'Raised arm did not lift its shoulder');
+ assert(Math.hypot(leftA.x-leftB.x,leftA.y-leftB.y)<.045*307+1e-6,'Raised shoulder lift exceeded bound');
+ assert(Math.abs((leftB.x-leftA.x)*Math.cos(angle)+(leftB.y-leftA.y)*Math.sin(angle))<1e-6,'Raise stopped following torso axis');
+ for(const [before,after]of [[centerA,centerB],[rightA,rightB]])assert(Math.hypot(before.x-after.x,before.y-after.y)<1e-6,'Raised arm moved center neckline or opposite shoulder');
+ assert.equal(a.length,b.length);assert.equal(a.missingSleeves,b.missingSleeves);
+ const seam=new Map();for(const p of b.flat()){const k=p.u.toFixed(8)+':'+p.v.toFixed(8);if(seam.has(k)){const old=seam.get(k);assert(Math.hypot(p.x-old.x,p.y-old.y,p.z-old.z)<1e-6,'Raised arm split shared roots');}else seam.set(k,p);}
+}
+console.log('Raised shoulders: bounded per-arm torso-axis lift, fixed neckline/opposite shoulder, lean invariance and shared roots passed.');
 let gridCalls=0;
 const sharedGrid=scope.grid(4,8,(x,y)=>{gridCalls++;return{x,y,z:0,u:x,v:y}});
 assert.equal(gridCalls,45,'Shared grid points were recalculated');

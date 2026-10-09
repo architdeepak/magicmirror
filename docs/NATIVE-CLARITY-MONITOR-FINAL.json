@@ -1,0 +1,53 @@
+{
+  "artifact": "artifacts/monitor/2026-10-09T18-18-12-517Z",
+  "status": "finished",
+  "sampleCount": 579,
+  "errors": [],
+  "build": {
+    "archiveSha256": "a847c41d68264eaa2f5ebd762ae08753e9a485d6c56927d1c616c82872042eed",
+    "gitRevision": "be0efb1a5efe3b21f6cfc0f04abb0e5fb511ec94",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "samplesSha256": "7b3a02195fbea1772186b782cc098d86191331c505f078e257b3b00ee35dfc8f",
+  "scope": "Frozen be0efb1 native camera clarity, predates iris/hair-root and raised-shoulder changes. Recorded camera/local AR/rig/synthetic PCM; Natural enabled. Not current source, natural speech, physical hardware or final qualification.",
+  "phaseStats": {
+    "ar": {
+      "samples": 234,
+      "medianCpuPercentOneCore": 147.8075257471696,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 217
+    },
+    "camera-off": {
+      "samples": 117,
+      "medianCpuPercentOneCore": 17.06596652445028,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "mirror": {
+      "samples": 114,
+      "medianCpuPercentOneCore": 42.93678356511919,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "sleep": {
+      "samples": 114,
+      "medianCpuPercentOneCore": 1.965602018340038,
+      "sleepingSamples": 114,
+      "gpuEnhancementActiveSamples": 0
+    }
+  }
+}

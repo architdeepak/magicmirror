@@ -1,0 +1,13 @@
+{
+  "archiveSha256": "5f7d044da5ee834ceb3e739732ece30999adbfe3433fd5c6d063004da1a42904",
+  "baseRevision": "7c95b3672d7a28c9500db16399f9721565d885a6",
+  "sourceState": "Raised-shoulder source over base revision; exact source hashes below. Tool replay options were updated after packaging; tools are not bundled.",
+  "npmTestExit": 0,
+  "sha256": {
+    "src/photoSleeves.js": "31321312b5a8e7a5f17d2bce3bf7a8281a1ac2a7b75eff2df1b95813215d38f4",
+    "tools/test-photo-sleeves.cjs": "f2ab1a42aece8c733994d09534374cdd15d4aa055c6f780fed787bed3d492928",
+    "tools/check-photo-fit-motion.cjs": "36c0e7ba0709f422d059e02cf2ad9a0850642468d4f16c89bdc6d772360dc485",
+    "tools/check-torso-coverage-replay.cjs": "f10eb832d6aecb813824a21f43aa4f1c7d86461e4575a564d429f4114e47215c",
+    "artifacts/raised-shoulders-tests.log": "1f9b3301d8714c1a7afb5738ffc8a39eb6d792e06d497028c10c0b6639037ef2"
+  }
+}

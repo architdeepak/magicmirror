@@ -1,8 +1,10 @@
 const {app,BrowserWindow}=require('electron'),fs=require('fs/promises'),path=require('path'),assert=require('assert/strict'),{pathToFileURL}=require('url'),{createHash}=require('crypto');
 app.disableHardwareAcceleration();const root=path.resolve(__dirname,'..');
 app.whenReady().then(async()=>{
- const out=path.join(root,'artifacts/torso-coverage-replay');await fs.mkdir(out,{recursive:true});const frames=[];
- for(const second of[1,6,12,18]){const file=path.join(root,'artifacts/photo-fit-motion',`replay-${second}.json`),bytes=await fs.readFile(file);frames.push({second,inputSha256:createHash('sha256').update(bytes).digest('hex'),input:JSON.parse(bytes),cameraUrl:pathToFileURL(path.join(root,'artifacts/photo-fit-motion',`camera-${second}.png`)).href});}
+ const out=path.join(root,'artifacts',process.env.MIRROR_REPLAY_LABEL||'torso-coverage-replay');await fs.mkdir(out,{recursive:true});const frames=[];
+ const inputRoot=process.env.MIRROR_REPLAY_ROOT||'artifacts/photo-fit-motion';
+ const seconds=(process.env.MIRROR_REPLAY_SECONDS||'1,6,12,18').split(',').map(Number);assert(seconds.length<=12&&seconds.every(n=>Number.isInteger(n)&&n>0&&n<=60),'Invalid replay seconds');
+ for(const second of seconds){const file=path.resolve(root,inputRoot,`replay-${second}.json`),bytes=await fs.readFile(file);frames.push({second,inputSha256:createHash('sha256').update(bytes).digest('hex'),input:JSON.parse(bytes),cameraUrl:pathToFileURL(path.resolve(root,inputRoot,`camera-${second}.png`)).href});}
  const baselineRevision=process.env.MIRROR_TORSO_BASELINE || '8710cd2c9199b29442f9c1549a92dd1d66406a29';
  const baselineSource=require('child_process').execFileSync('git',['show',baselineRevision+':src/photoSleeves.js'],{cwd:root,encoding:'utf8'});
  const baselineLongSource=require('child_process').execFileSync('git',['show',baselineRevision+':src/longPhotoSleeves.js'],{cwd:root,encoding:'utf8'});const baselineLongFile=path.join(out,'baseline-long.mjs');await fs.writeFile(baselineLongFile,baselineLongSource);

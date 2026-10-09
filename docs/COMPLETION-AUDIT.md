@@ -147,3 +147,5 @@ is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
 - **Iris detail checkpoint:** [bounded shared local iris surface detail](IRIS-DETAIL-2026-10-09.md), reviewed with rejected bright prototype, native/software continuous acting, replacement disposal and recorded speech playback. Stylized anatomy, hidden-rig retention, natural phoneme accuracy and all full-suite gates remain open.
 
 - **Hair-root checkpoint:** [curved roots and forehead framing](HAIR-ROOTS-2026-10-09.md), with rejected thick-cap prototype, matched final archive, native/software continuous acting and real playback regression. Adds 1,344 triangles without extra draws. Hair remains stylized; all suite gates remain open.
+
+- **Raised-shoulder checkpoint:** [bounded per-arm shoulder rise](RAISED-SHOULDERS-2026-10-09.md), preserving shared roots, neckline/hem and wrist binding. Actual raised-arm frozen replay and final packaged lifecycle pass; side coverage, texture stretching and realistic drape remain open. Previous Natural camera monitor completed 579 samples/zero errors on its older archive. All suite gates remain open.

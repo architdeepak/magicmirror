@@ -61,6 +61,12 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
   const top = mix(sides[0].s,sides[1].s,.5), bottom = mix(sides[0].h,sides[1].h,.5), shoulderWidth = distance(sides[0].s,sides[1].s);
   if (shoulderWidth < 20 || distance(top,bottom) < 25) return null;
   const surface = createTorsoCurve(sides, fit.worldPose, video.width*scale, width);
+  const torsoAxis=unit({x:bottom.x-top.x,y:bottom.y-top.y});
+  const armRaise=sides.map(side=>{
+    if(!side.e||distance(side.s,side.e)<8)return 0;
+    const arm=unit({x:side.e.x-side.s.x,y:side.e.y-side.s.y});
+    return Math.max(0,Math.min(1,-arm.x*torsoAxis.x-arm.y*torsoAxis.y));
+  });
   const shoulderV = (pattern.sides[0].outer.v + pattern.sides[1].outer.v)/2;
   const body = (q,v) => {
     const t = (v <= pattern.underarm ? (v-shoulderV)/(pattern.underarm-shoulderV)*.32 : .32+(v-pattern.underarm)/(pattern.hem-pattern.underarm)*.68)*length;
@@ -82,7 +88,8 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     // Lift the outer shoulder cap without raising the center neckline. The
     // smooth transverse shape and torso-axis displacement preserve leaning
     // and shared sleeve roots; the extra lift fades out toward the hem.
-    const lift=(.035+.025*(2*q-1)**2)*(1-boundedT);
+    const edge=(2*q-1)**2,raise=armRaise[q<.5?0:1]*edge;
+    const lift=(.035+.025*edge)*(1-boundedT)+.045*raise*(1-boundedT)**2;
     return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width*allowance-(bottom.x-top.x)*lift,y:center.y+(b.y-a.y)*(q-.5)*width*allowance-(bottom.y-top.y)*lift,z:center.z+(b.z-a.z)*(q-.5)*width*allowance,u:left+(right-left)*q,v}, q, boundedT);
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
