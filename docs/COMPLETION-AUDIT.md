@@ -145,3 +145,5 @@ two-hour monitor with no paid services or physical sensors. Its start snapshot
 is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
 
 - **Iris detail checkpoint:** [bounded shared local iris surface detail](IRIS-DETAIL-2026-10-09.md), reviewed with rejected bright prototype, native/software continuous acting, replacement disposal and recorded speech playback. Stylized anatomy, hidden-rig retention, natural phoneme accuracy and all full-suite gates remain open.
+
+- **Hair-root checkpoint:** [curved roots and forehead framing](HAIR-ROOTS-2026-10-09.md), with rejected thick-cap prototype, matched final archive, native/software continuous acting and real playback regression. Adds 1,344 triangles without extra draws. Hair remains stylized; all suite gates remain open.

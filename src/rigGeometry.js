@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createIrisTexture, irisGeometry } from './rigIris.js';
+import { buildHairCap } from './rigHairCap.js';
 
 const LEFT_UPPER=[33,246,161,160,159,158,157,173,133], LEFT_LOWER=[33,7,163,144,145,153,154,155,133];
 const RIGHT_UPPER=[263,466,388,387,386,385,384,398,362], RIGHT_LOWER=[263,249,390,373,374,380,381,382,362];
@@ -193,6 +194,7 @@ export function buildRigAccessories(face,persona){
  // Posterior skull closes side views; no image plane or torso participates.
  const headVolume=buildHeadVolume(face,face.material);group.add(headVolume);
  ball(1,hair,[0,.25,-.70],[1.01,1.22,.79]);
+ const roots=new THREE.Mesh(buildHairCap(persona),hair);roots.name='curved-hair-roots';group.add(roots);
  const eyes=[];
  const irisMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:createIrisTexture(persona),roughness:.4});
  for(const [a,b,upper,lower,side]of[[33,133,159,145,'Left'],[263,362,386,374,'Right']]){

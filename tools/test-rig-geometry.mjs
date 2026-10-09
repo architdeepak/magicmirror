@@ -3,6 +3,16 @@ import fs from 'node:fs';
 import * as THREE from 'three';
 import {authorFaceMorphs,buildRigAccessories,mergeStaticMaterial,buildCrownShell,FACE_OVAL} from '../src/rigGeometry.js';
 import {createLidTextureMapping} from '../src/rigLidTexture.js';
+import {buildHairCap} from '../src/rigHairCap.js';
+for(const persona of ['velora','solenne']){
+ const cap=buildHairCap(persona),p=cap.attributes.position,n=cap.attributes.normal;
+ assert.equal(p.count,681);assert.equal(cap.index.count/3,1344);
+ assert(p.array.every(Number.isFinite)&&n.array.every(Number.isFinite));
+ assert(n.getZ(97)>.5,'Front hair roots point inward');
+ assert(n.getY(p.count-1)<0,'Hair root underside points inward');
+ assert.equal(p.getY(0)<p.getY(6),persona==='velora','Persona hairline contour changed');
+ cap.dispose();
+}
 const shell=buildCrownShell(),cp=shell.attributes.position,cn=shell.attributes.normal;
 assert.equal(cp.count,4*97*2);assert.equal(shell.index.count,96*4*6);assert(cp.array.every(Number.isFinite)&&cn.array.every(Number.isFinite));
 const edges=new Map(),key=i=>[cp.getX(i),cp.getY(i),cp.getZ(i)].map(v=>Math.round(v*1e6)).join(',');

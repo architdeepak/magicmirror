@@ -1,0 +1,13 @@
+{
+  "archiveSha256": "685949026a076067706f4ee342872f495d9a4d65584e6fae5b961ead15c38cc8",
+  "baseRevision": "7b363d8eb48dfb961a7cf6486caa385f6abf4695",
+  "sourceState": "Hair-root changes over base revision at build/test time; exact source hashes below.",
+  "fullNpmTestExit": 0,
+  "sha256": {
+    "src/rigHairCap.js": "63e5315fae89c1dd0aa2317ccc0f28ca8687395c247c2777fc4b272822e2bbf7",
+    "src/rigGeometry.js": "5137797da31ad91fccfc7d3d02f4cef7291413c56c91e429150d5f591edc4ddc",
+    "tools/test-rig-geometry.mjs": "5b8b13e78185bd2a4cf09bf8f639da1be8fd94dcaa0369de83a505eac01769c1",
+    "tools/check-rig-ui.cjs": "f0a3f06f6757f32081c05998de6794d4246306f75ca01f1361d1ec0533ffc528",
+    "artifacts/hair-roots-confirmed-tests.log": "a9e7c4d9ae8e9d7c3b52f1a69308c3be7cc4812d368d71ca1fcf42ed069319ba"
+  }
+}
