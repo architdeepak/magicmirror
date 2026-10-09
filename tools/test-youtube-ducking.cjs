@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const source=fs.readFileSync('src/youtubePlayerFrame.js','utf8'),scope=vm.createContext({});
+vm.runInContext(source.slice(source.indexOf('class YouTubeAudioDucking'),source.indexOf('const parameters'))+';globalThis.Subject=YouTubeAudioDucking;',scope);
+let ready=false,value=80,muted=true,queued=[];const player={getVolume:()=>value,isMuted:()=>muted,setVolume:v=>queued.push(v)};
+const duck=new scope.Subject(()=>ready?player:null);duck.setActive(true);assert.equal(queued.length,0);ready=true;duck.sync();assert.deepEqual(queued,[20]);duck.sync();assert(!duck.overridden&&duck.pending,'Cached old API volume treated as user override');
+value=queued.shift();duck.sync();assert(duck.snapshot().active);duck.setActive(true);assert.equal(queued.length,0);duck.setActive(false);assert.deepEqual(queued,[80]);assert(muted,'Ducking unmuted video');value=queued.shift();
+duck.setActive(true);duck.setActive(false);assert.deepEqual(queued,[20,80],'Stop before API delivery did not order restoration');queued=[];value=80;
+duck.setActive(true);value=queued.shift();duck.sync();value=65;duck.sync();assert(duck.overridden);duck.setActive(false);assert.equal(queued.length,0,'Restoration overwrote user volume');
+value=80;duck.setActive(true);value=queued.shift();duck.sync();duck.setUserVolume(20);assert(duck.overridden);duck.setActive(false);assert.deepEqual(queued,[20],'Equal-valued explicit choice was restored');queued=[];
+for(const bad of [NaN,-1,101,1.5])assert.throws(()=>duck.setUserVolume(bad),/volume/);
+value=0;duck.setActive(true);value=queued.shift();duck.sync();duck.setActive(false);assert.deepEqual(queued,[0]);
+console.log('YouTube ducking: late readiness, cached API volume, one attenuation, early Stop ordering, mute/zero, user override and explicit equal-valued choice passed.');

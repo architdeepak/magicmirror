@@ -296,6 +296,7 @@ async function awakeningCancellation() {
   context.speech.isSpeaking=true;await context.toggleVoice();assert.equal(stops,2,'Button did not stop the fallback greeting');
   context.watchAvatarLayout={schedule(){}};
   context.watchAudioDucking={setActive(value){this.active=value}};
+  context.youtubePlayer={setDucking(value){this.active=value}};
   context.mode='mirror';context.elements.stateLabel={};context.elements.stateDot={};context.elements.micLabel={};
   context.elements.mic={classList:{toggle(){}},setAttribute(){}};context.returnToRequestedMode=()=>{};
   vm.runInContext(source.slice(source.indexOf('function setState('),source.indexOf('function showOracle(')),context);

@@ -8,6 +8,7 @@ const context=vm.createContext({Number,Error});vm.runInContext(source+'\nglobalT
   const controller=new context.Subject({video,frame:{classList:{contains:()=>true}},youtube,openWatch:()=>opened++});
   assert.equal((await controller.command('play')).playing,true);assert.equal(opened,1);
   assert.equal((await controller.command('pause')).paused,true);
+  await controller.command('volume',35);assert.equal(video.volume,.35);await assert.rejects(controller.command('volume',101),/volume/);await assert.rejects(controller.command('volume',null),/volume/);
   assert.equal((await controller.command('seek',15)).position,25);
   video.currentTime=90;assert.equal((await controller.command('seek',30)).position,100);
   assert.equal((await controller.command('seek',-60)).position,40);

@@ -29,7 +29,7 @@
     "test:cast-player": "electron --no-sandbox tools/test-cast-player.cjs",
     "test:voice": "node tools/test-voice-lifecycle.cjs && node tools/test-wardrobe-replies.cjs && node tools/test-caption-stream.cjs",
     "test:gestures": "node tools/test-gestures.cjs",
-    "test:youtube": "node tools/test-youtube-bridge.cjs",
+    "test:youtube": "node tools/test-youtube-bridge.cjs && node tools/test-youtube-ducking.cjs",
     "check:gemini:live": "electron --no-sandbox tools/check-gemini-live.cjs",
     "test:watch": "node tools/test-watch-controls.cjs",
     "check:youtube:live": "electron --no-sandbox tools/check-youtube-live.cjs",

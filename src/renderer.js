@@ -396,7 +396,7 @@ const castPlayer = new WatchCastPlayer({
   onNotice: (message) => { elements.castingStatus.textContent = message; showGesture(message); }
 });
 const youtubePlayer = new YouTubeWatchPlayer(elements.watchFrame, (message) => showGesture(message));
-const watchPlayback = new WatchPlaybackController({ video: elements.watchVideo, frame: elements.watchFrame, youtube: youtubePlayer, openWatch: () => setAssistantMode('watch') });
+const watchPlayback = new WatchPlaybackController({ video: elements.watchVideo, frame: elements.watchFrame, youtube: youtubePlayer, openWatch: () => setAssistantMode('watch'),setVolume:volume=>watchAudioDucking.setUserVolume(volume) });
 let watchLoadGeneration = 0;
 let castingEnabled = false;
 let assistantTranscript = '';
@@ -764,7 +764,7 @@ function getMirrorState() {
       wardrobeControlsOpen: mode==='ar'&&!desktopActive&&elements.shell.dataset.wardrobeOpen==='true',
       photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category, favorite: closet.favorites.has(item.id) })) },
-    watch: { ...watchState, audioDucking: watchState.source === 'media' ? watchAudioDucking.snapshot() : { supported: false }, castingEnabled, castActive: castPlayer.active },
+    watch: { ...watchState, audioDucking: watchState.source === 'media' ? watchAudioDucking.snapshot() : watchState.audioDucking||{ supported: false }, castingEnabled, castActive: castPlayer.active },
     services: { findmy: { web: 'Apple Find Devices', peopleLocations: false, note: 'No Find My People bridge is configured; friends locations require the Find My app on an Apple device.' }, browserSignIn: 'User enters credentials directly; agent observation/input pauses on sign-in prompts.' },
     music: { view: elements.spotifyCard.dataset.view || 'classic', metadataKeptLocal: true }
   };
@@ -799,6 +799,7 @@ function setState(next) {
   state = next;
   watchAvatarLayout.schedule();
   watchAudioDucking.setActive(Boolean(gemini?.listening || browserRecognition || ['listening', 'thinking', 'speaking'].includes(next)));
+  youtubePlayer.setDucking(Boolean(gemini?.listening || browserRecognition || ['listening', 'thinking', 'speaking'].includes(next)));
   avatar.setActivity?.(next);
   if (mode === 'watch') avatar.setVisible(desktopActive || Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(next)));
   const labels = {
@@ -1981,7 +1982,7 @@ async function handleWatchControl(args = {}) {
     setAssistantMode('watch');
     return loadWatchVideo();
   }
-  return watchPlayback.command(action, args.seconds === undefined ? 15 : Number(args.seconds));
+  return watchPlayback.command(action, action==='volume'?args.volume:args.seconds === undefined ? 15 : Number(args.seconds));
 }
 
 async function loadWatchVideo() {

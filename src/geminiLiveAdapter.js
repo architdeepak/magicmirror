@@ -270,7 +270,8 @@ export class GeminiLiveAdapter {
             name: 'control_watch',
             description: 'Control the Watch video player, including YouTube, direct media, and phone-cast video. Load only a media URL supplied by the user. Return actual player state; loading a source does not guarantee playback. Spotify embeds use their own controls.',
             parameters: { type: 'OBJECT', properties: {
-              action: { type: 'STRING', enum: ['status', 'load', 'play', 'pause', 'seek'] },
+              action: { type: 'STRING', enum: ['status', 'load', 'play', 'pause', 'seek','volume'] },
+              volume: {type:'NUMBER',description:'For volume, an integer from 0 to 100. Applies to the current Watch player, not Spotify or the system.'},
               url: { type: 'STRING', description: 'User-supplied HTTP(S) media URL for load.' },
               seconds: { type: 'NUMBER', description: 'Relative seek in seconds, from -60 to 60; defaults to 15.' }
             }, required: ['action'] }
