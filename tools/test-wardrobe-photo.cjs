@@ -43,7 +43,7 @@ assert.throws(()=>wardrobePhotoBytes(url(Buffer.alloc(40))),/valid PNG/);
 console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimensions and invalid headers checked before decoding.');
 
 (async()=>{
- const scope=vm.createContext({Uint8ClampedArray,Uint32Array,Uint8Array});
+ const scope=vm.createContext({Uint8ClampedArray,Uint32Array,Uint8Array,AbortController});
  vm.runInContext(claritySource, scope);
  vm.runInContext(source.replaceAll('export function','function').replace('export class','class')+';globalThis.Subject=WardrobePhoto;',scope);
  const subject=Object.create(scope.Subject.prototype),buttons={capture:{},save:{}},pending=[],notices=[];
@@ -65,4 +65,28 @@ console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimens
  finishCamera(false);await camera;assert.equal(controls.save.disabled,false,'Old front capture changed the back editor readiness');assert.equal(view.source,null,'Old front capture populated the back view');
  view.switchView('front');assert.equal(view.source,front);assert.equal(view.original,'front-original');assert.equal(fields.clarity.value,'natural');assert(view.readyToSave);
  console.log('Paired photo ownership: view changes preserve drafts, ignore old camera completion and allow a reviewed front with an optional empty back.');
+ scope.crypto={randomUUID:()=> 'save-scope'};let rejectSave,closed=0,canceled=null;
+ scope.window={mirrorBridge:{cancelClosetPhoto:id=>{canceled=id;return Promise.resolve();}}};
+ const save=Object.create(scope.Subject.prototype),saveFields={name:{value:'Draft'},category:{value:'top'},phone:{}};
+ const saveButtons={save:{},'remove-back':{}};
+ Object.assign(save,{generation:20,activeView:'front',views:{front:{output:'cutout',original:'original'}},dialog:{open:true,querySelectorAll:()=>[],close:()=>closed++},field:key=>saveFields[key],button:key=>saveButtons[key],rememberView(){},syncViews(){},cancelExtraction(){},status(){},onSave:()=>new Promise((_,reject)=>rejectSave=reject),onNotice(){throw new Error('Late canceled save announced success');}});
+ const saving=save.save();assert(save.saving);save.cancelWork();assert(!save.saving);assert.equal(canceled,'save-scope');assert.equal(save.views.front.original,'original');rejectSave(new Error('canceled'));await saving;assert.equal(closed,0);assert.equal(save.saveRequestId,null);
+ let resolveLate;save.onSave=()=>new Promise(resolve=>resolveLate=resolve);const late=save.save();save.cancelWork();resolveLate({id:'committed-before-stop'});await late;assert.equal(closed,0);
+ console.log('Photo save ownership: Stop cancels pending native request, retains draft, and rejects late completion without closing or announcing success.');
+ const pairingJobs=[],pairFields={phone:{hidden:true,querySelector:()=>({})}};let disarms=0;
+ scope.window={mirrorBridge:{wardrobePhone:enabled=>enabled?new Promise(resolve=>pairingJobs.push(resolve)):(disarms++,Promise.resolve())}};
+ const phone=Object.create(scope.Subject.prototype);Object.assign(phone,{generation:30,dialog:{open:true,querySelectorAll:()=>[]},field:key=>pairFields[key],cancelExtraction(){},syncViews(){},status(){}});
+ const oldPair=phone.connectPhone();phone.cancelWork();const newPair=phone.connectPhone();pairingJobs[0]({qrDataUrl:'old'});await oldPair;assert.equal(disarms,1,'Old pairing completion disarmed its replacement');pairingJobs[1]({qrDataUrl:'new'});await newPair;assert(phone.waitingPhone);assert.equal(pairFields.phone.hidden,false);phone.cancelWork();assert(!phone.waitingPhone);assert.equal(disarms,2);
+ console.log('Phone pairing ownership: Stop disarms waiting/connecting uploads; an old completion cannot disarm the replacement session.');
+
+
+})().catch(error=>{console.error(error);process.exitCode=1});
+
+(async()=>{
+ const main=fs.readFileSync('src/main.js','utf8'),queueScope=vm.createContext({AbortController});
+ vm.runInContext(main.slice(main.indexOf('let closetPhotoQueue'),main.indexOf('\nfunction queueTryOn'))+';globalThis.photoQueue={save:saveClosetPhoto,cancel:cancelClosetPhoto,pending:()=>closetPhotoPending};',queueScope);
+ const jobs=['owned-one','owned-two','overflow'].map(requestId=>queueScope.photoQueue.save({requestId,name:'Draft',category:'top'}));
+ const outcomes=Promise.allSettled(jobs);assert.equal(queueScope.photoQueue.pending(),2);queueScope.photoQueue.cancel();const results=await outcomes;
+ assert(results.every(result=>result.status==='rejected'));assert.match(results[0].reason.message,/canceled/);assert.match(results[1].reason.message,/canceled/);assert.match(results[2].reason.message,/Wait for the current/);assert.equal(queueScope.photoQueue.pending(),0);
+ console.log('Native photo queue: two-job cap, owned queued cancellation before decoding, and pending-count cleanup passed.');
 })().catch(error=>{console.error(error);process.exitCode=1});

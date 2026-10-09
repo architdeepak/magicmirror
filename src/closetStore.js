@@ -15,6 +15,7 @@ export class ClosetStore {
     this.photo = new WardrobePhoto({ video, onStopVoice, ensureCamera, suggestName: category => this.nextPhotoName(category), onSave: input => this.savePhoto(input), onNotice: this.onNotice });
     this.selectedId = localStorage.getItem('mirror.closet.selected') || '';
     this.importButton?.addEventListener('click', () => this.importGarment());
+    document.querySelector('#closet-edit')?.addEventListener('click',()=>void this.editPhoto());
   }
 
   async load() {
@@ -38,11 +39,13 @@ export class ClosetStore {
 
   importGarment() { this.photo.show(); }
 
+  async editPhoto(){const item=this.items.find(item=>item.id===this.selectedId);if(!item||item.starter){this.onNotice('Choose one of your saved garment photos to edit.');return;}await this.photo.showSaved(item);}
+
   async savePhoto(input) {
     const item = window.mirrorBridge?.saveClosetPhoto
       ? await window.mirrorBridge.saveClosetPhoto(input)
       : { id: `preview-${Date.now()}`, name: input.name, category: input.category, imageUrl: input.imageDataUrl, backImageUrl: input.backImageDataUrl, previewOnly: true };
-    this.items.push(item); this.select(item.id);
+    const index=this.items.findIndex(current=>current.id===item.id);if(index>=0)this.items[index]=item;else this.items.push(item); if(!input.requestId||this.photo.saveRequestId===input.requestId)this.select(item.id);else this.render();
     return item;
   }
 
@@ -68,6 +71,7 @@ export class ClosetStore {
     if (/^(?:favorite|favourite|pin) (?:this|it|this garment)$/.test(text)) { this.favoriteCurrent(); return true; }
     if (/^(?:unfavorite|unfavourite|unpin|remove from favorites)(?: this| it)?$/.test(text)) { this.favoriteCurrent(true); return true; }
     if (/^(?:show|open) (?:my )?(?:favorites|favourites|all clothes|all garments|wardrobe)$/.test(text)) { this.favoritesOnly = /favou?rites/.test(text); this.render(); return true; }
+    if (/^(?:edit|adjust|recrop)(?: my| this| the)? (?:garment|garment photo|photo)$/.test(text)) { void this.editPhoto();return true; }
     if (/^(?:add|scan|upload)(?: a| my| new)? (?:garment|clothes|clothing|photo)$/.test(text)) { this.importGarment(); return true; }
     if (/^(?:next|previous)(?: garment|outfit|clothes|style)$/.test(text)) { this.cycle(text.startsWith('previous') ? -1 : 1); return true; }
     const color = text.match(/^(?:make it|change (?:the )?color to) (black|white|blue|red|green|purple)$/);
@@ -108,6 +112,7 @@ export class ClosetStore {
       return;
     }
     const visible = this.visibleItems();
+    const edit=document.querySelector('#closet-edit');if(edit)edit.disabled=!this.items.some(item=>item.id===this.selectedId&&!item.starter);
     document.querySelector('#closet-favorite')?.setAttribute('aria-pressed', String(this.favorites.has(this.selectedId)));
     document.querySelector('#closet-filter')?.setAttribute('aria-pressed', String(this.favoritesOnly));
     this.container.innerHTML = visible.length ? visible.map((item) => `

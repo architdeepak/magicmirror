@@ -998,7 +998,7 @@ window.addEventListener('resize', () => {
 });
 
 function stopAssistant() {
-  experience.cancel(); magic.cancel();
+  experience.cancel(); magic.cancel();closet.photo.cancelWork();
   clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 });
   document.querySelector('#agent-progress').hidden = true;
   cancelAgentTask();
@@ -1030,7 +1030,7 @@ function stopAssistant() {
 }
 
 async function setHardMute(muted) {
-  if (muted) { experience.cancel(); magic.cancel(); clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
+  if (muted) { experience.cancel(); magic.cancel();closet.photo.cancelWork(); clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
   if (muted) liveTryOn.stop();
   if (muted) cancelTryOnRender();
   localCaptionsAllowed = false;

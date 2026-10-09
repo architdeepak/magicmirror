@@ -74,7 +74,7 @@
     "test:power": "node tools/test-render-budget.cjs",
     "check:power:ui": "node tools/check-power-ui.cjs",
     "monitor:local": "node tools/monitor-mirror.cjs",
-    "test:wardrobe": "node tools/test-wardrobe-photo.cjs",
+    "test:wardrobe": "node tools/test-wardrobe-photo.cjs && node tools/test-photo-source.mjs",
     "check:wardrobe:ui": "node tools/check-wardrobe-ui.cjs",
     "test:starter-sleeves": "node tools/test-starter-sleeves.cjs",
     "check:sleeves": "electron --no-sandbox tools/check-sleeve-ui.cjs",

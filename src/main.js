@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, session, shell, dialog, nativeImage, safeStorage, desktopCapturer, screen, powerMonitor } = require('electron');
 const { assertBrowserAccountReady } = require('./browserAccountBoundary.cjs');
 const { wardrobePhotoBytes } = require('./wardrobePhotoValidation.cjs');
+const photoSourceValidation = import('./photoSourceValidation.mjs');
 const { LookbookStore } = require('./lookbookStore.cjs');
 const {createWakeModelServer}=require('./wakeModelServer.cjs');
 let wakeModelServer;
@@ -75,6 +76,7 @@ let phoneLinkServer = null;
 let phoneLinkToken = '';
 let phoneLinkHost = '';
 let wardrobePhoneWaiting = false;
+let wardrobePhoneGeneration=0,wardrobePhoneReceiving=false;
 let spotifyTokens = null;
 let spotifyAuthServer = null;
 let spotifyAuthState = '';
@@ -728,9 +730,8 @@ function phonePairPage() {
       if(!file)return;button.disabled=true;output.textContent='Preparing photo…';let url;
       try{
         if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>20000000)throw new Error('Choose a JPG, PNG or WebP under 20 MB.');
-        url=URL.createObjectURL(file);const image=new Image();image.src=url;await image.decode();
-        const scale=Math.min(1,1024/Math.max(image.naturalWidth,image.naturalHeight)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
-        const response=await fetch('/wardrobe-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl:canvas.toDataURL('image/png')})}),payload=await response.json();if(!response.ok)throw new Error(payload.error||'Could not send photo.');output.textContent='Sent. Check the outline and save on the mirror.';
+        const imageDataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Photo could not open.'));reader.readAsDataURL(file);});
+        const response=await fetch('/wardrobe-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageDataUrl})}),payload=await response.json();if(!response.ok)throw new Error(payload.error||'Could not send photo.');output.textContent='Sent. Check the outline and save on the mirror.';
       }catch(error){output.textContent=error.message}finally{button.disabled=false;if(url)URL.revokeObjectURL(url)}
     });
   </script></body></html>`;
@@ -775,17 +776,19 @@ async function startPhoneLink() {
       if (!phoneSessionAuthorized(request)) { json(403, { error: 'Pair this phone from the mirror first.' }); return; }
       if (request.headers.origin && request.headers.origin !== `http://${request.headers.host}`) { json(403, { error: 'Cross-site requests are not allowed.' }); return; }
       if (!wardrobePhoneWaiting) { json(409, { error: 'Tap From phone in the mirror wardrobe first.' }); return; }
+      if(wardrobePhoneReceiving){json(409,{error:'A photo is still uploading. Try again when it finishes.'});return;}
+      wardrobePhoneReceiving=true;request.setTimeout(15000,()=>request.destroy());
+      const photoGeneration=wardrobePhoneGeneration;
       try {
-        let body = '';
-        for await (const chunk of request) { body += chunk.toString('utf8'); if (Buffer.byteLength(body) > 6_000_000) throw new Error('Photo is too large.'); }
-        const value = JSON.parse(body).imageDataUrl;
-        const image = nativeImage.createFromBuffer(wardrobePhotoBytes(value)), size = image.getSize();
-        if (image.isEmpty() || size.width > 1024 || size.height > 1024) throw new Error('Photo could not open, or is too large.');
-        if (!wardrobePhoneWaiting || !mainWindow || mainWindow.isDestroyed()) throw new Error('Photo editor closed. Tap From phone again.');
+        const chunks=[];let bodyBytes=0;
+        for await (const chunk of request) { if(photoGeneration!==wardrobePhoneGeneration)throw new Error('Photo editor changed. Tap From phone again.');bodyBytes+=chunk.length;if(bodyBytes>27_000_000)throw new Error('Photo is too large.');chunks.push(chunk); }
+        const value = JSON.parse(Buffer.concat(chunks,bodyBytes).toString('utf8')).imageDataUrl;
+        await inspectPhotoOriginal(value);
+        if (photoGeneration!==wardrobePhoneGeneration || !wardrobePhoneWaiting || !mainWindow || mainWindow.isDestroyed()) throw new Error('Photo editor closed. Tap From phone again.');
         wardrobePhoneWaiting = false;
-        mainWindow.webContents.send('mirror:phone-wardrobe', image.toDataURL());
+        mainWindow.webContents.send('mirror:phone-wardrobe', value);
         json(200, { ok: true });
-      } catch (error) { json(400, { error: error.message || 'Could not send photo.' }); }
+      } catch (error) { json(400, { error: error.message || 'Could not send photo.' }); }finally{wardrobePhoneReceiving=false;}
       return;
     }
     if (request.method === 'POST' && requestUrl.pathname === '/cast') {
@@ -830,7 +833,7 @@ function phoneLinkDetails() {
 }
 
 function stopPhoneLink() {
-  wardrobePhoneWaiting = false;
+  wardrobePhoneGeneration++;wardrobePhoneWaiting = false;
   const server = phoneLinkServer;
   phoneLinkServer = null;
   phoneLinkToken = '';
@@ -868,16 +871,16 @@ async function readCloset() {
   }
 }
 
-async function writeCloset(closet) {
+async function writeCloset(closet,signal) {
   await fs.mkdir(path.dirname(closetPath), { recursive: true });
   const temporary = `${closetPath}.tmp`;
   await fs.writeFile(temporary, `${JSON.stringify(closet, null, 2)}\n`, 'utf8');
-  await fs.rename(temporary, closetPath);
+  try{signal?.throwIfAborted();await fs.rename(temporary, closetPath);}catch(error){await fs.rm(temporary,{force:true});throw error;}
   return closet;
 }
 
 function publicGarment(item) {
-  return { id: item.id, name: item.name, category: item.category, createdAt: item.createdAt, imageUrl: pathToFileURL(item.assetPath).href, ...(item.backAssetPath ? { backImageUrl: pathToFileURL(item.backAssetPath).href } : {}) };
+  return { id: item.id, name: item.name, category: item.category, createdAt: item.createdAt, imageUrl: pathToFileURL(item.assetPath).href, ...(item.backAssetPath ? { backImageUrl: pathToFileURL(item.backAssetPath).href } : {}), ...(item.original ? { original: { ...item.original, assetPath: undefined, imageUrl: pathToFileURL(item.original.assetPath).href } } : {}), ...(item.backOriginal ? { backOriginal: { ...item.backOriginal, assetPath: undefined, imageUrl: pathToFileURL(item.backOriginal.assetPath).href } } : {}) };
 }
 
 async function importClosetGarment(event, input = {}) {
@@ -903,9 +906,50 @@ async function importClosetGarment(event, input = {}) {
   return publicGarment(item);
 }
 
-let closetPhotoQueue = Promise.resolve();
+function photoOriginalRecord(original,directory,name){return {assetPath:path.join(directory,`${name}.${original.extension}`),mime:original.mime,width:original.width,height:original.height,byteLength:original.byteLength,sha256:original.sha256};}
+async function readClosetOriginal(id,side='front'){
+  if(typeof id!=='string'||id.length>200||!['front','back'].includes(side))throw new Error('Choose a saved garment photo.');
+  const item=(await readClosetRaw()).garments.find(item=>item.id===id);
+  if(!item)throw new Error('That garment is no longer in your wardrobe.');
+  const record=side==='back'?item.backOriginal:item.original;
+  const cutout=side==='back'?item.backAssetPath:item.assetPath;
+  if(!cutout)return null;
+  const file=record?.assetPath||path.join(path.dirname(cutout),side==='back'?'back-original.png':'original.png');
+  const root=path.resolve(closetAssetDirectory)+path.sep;
+  if(!path.resolve(file).startsWith(root))throw new Error('Original photo is outside your wardrobe.');
+  let resolved;try{resolved=await fs.realpath(file);}catch(error){if(error.code==='ENOENT')throw new Error('The original photo is missing. Upload the garment photo again.');throw error;}
+  const realRoot=await fs.realpath(closetAssetDirectory);
+  if(!resolved.startsWith(realRoot+path.sep))throw new Error('Original photo is outside your wardrobe.');
+  const size=(await fs.stat(resolved)).size;if(size>20_000_000)throw new Error('Original photo is too large.');
+  const bytes=await fs.readFile(resolved);if(bytes.length>20_000_000)throw new Error('Original photo is too large.');
+  const mime=record?.mime||'image/png',value=`data:${mime};base64,${bytes.toString('base64')}`;
+  const original=await inspectPhotoOriginal(value);
+  if(record?.sha256&&record.sha256!==original.sha256)throw new Error('Original photo has changed. Upload it again.');
+  return {imageDataUrl:value,width:original.width,height:original.height,legacy:!record};
+}
+async function inspectPhotoOriginal(value){
+  const {photoSourceDataUrl}=await photoSourceValidation;
+  const parsed=photoSourceDataUrl(value),bytes=Buffer.from(parsed.bytes);
+  // Originals are archives. Chromium decodes WebP for the reviewed preview;
+  // nativeImage supports PNG/JPEG only. Keep bounded WebP bytes unchanged.
+  const image=parsed.mime==='image/webp'?null:nativeImage.createFromBuffer(bytes),size=image?image.getSize():{width:parsed.width,height:parsed.height};
+  if((image?.isEmpty())||!size.width||!size.height||size.width>8192||size.height>8192||size.width*size.height>24_000_000)throw new Error('Photo could not open, or is too large.');
+  const same=size.width===parsed.width&&size.height===parsed.height;
+  const rotated=size.width===parsed.height&&size.height===parsed.width;
+  if(!same&&!rotated)throw new Error('Photo dimensions do not match its header.');
+  return {...parsed,bytes,width:size.width,height:size.height,sha256:crypto.createHash('sha256').update(bytes).digest('hex')};
+}
+let closetPhotoQueue = Promise.resolve(),closetPhotoPending=0;
+const closetPhotoControllers=new Map();
+function cancelClosetPhoto(id){for(const [key,controller] of closetPhotoControllers)if(!id||key===id)controller.abort(new Error('Wardrobe photo save canceled.'));return true;}
 function saveClosetPhoto(input = {}) {
+  if(closetPhotoPending>=2)return Promise.reject(new Error('Wait for the current wardrobe photo to finish saving.'));
+  for(const key of ['originalDataUrl','backOriginalDataUrl'])if((input[key]&&typeof input[key]!=='string')||(typeof input[key]==='string'&&input[key].length>27_000_000))return Promise.reject(new Error('Choose a photo under 20 MB.'));
+  const requestId=input.requestId||crypto.randomUUID();
+  if(typeof requestId!=='string'||!/^[-a-zA-Z0-9_]{1,100}$/.test(requestId)||closetPhotoControllers.has(requestId))return Promise.reject(new Error('Photo save is already active, or its ID is invalid.'));
+  const controller=new AbortController(),signal=controller.signal;closetPhotoControllers.set(requestId,controller);closetPhotoPending++;
   const operation = closetPhotoQueue.then(async () => {
+    signal.throwIfAborted();
     const name = String(input.name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
     if (!name) throw new Error('Give the garment a name.');
     if (!['top', 'outerwear', 'dress', 'skirt', 'bottoms'].includes(input.category)) throw new Error('Choose a clothing type.');
@@ -915,26 +959,34 @@ function saveClosetPhoto(input = {}) {
       return image.toPNG();
     };
     const image = decode(input.imageDataUrl);
-    const original = input.originalDataUrl ? decode(input.originalDataUrl) : null;
+    const original = input.originalDataUrl ? await inspectPhotoOriginal(input.originalDataUrl) : null;
     if (input.backOriginalDataUrl && !input.backImageDataUrl) throw new Error('A back original needs a reviewed back cutout.');
     const backImage = input.backImageDataUrl ? decode(input.backImageDataUrl) : null;
-    const backOriginal = input.backOriginalDataUrl ? decode(input.backOriginalDataUrl) : null;
-    const id = `garment-${crypto.randomUUID()}`, directory = path.join(closetAssetDirectory, id);
+    const backOriginal = input.backOriginalDataUrl ? await inspectPhotoOriginal(input.backOriginalDataUrl) : null;
+    const raw=await readClosetRaw(),index=input.garmentId?raw.garments.findIndex(item=>item.id===input.garmentId):-1;
+    if(input.garmentId&&index<0)throw new Error('That garment is no longer in your wardrobe.');
+    const previous=index>=0?raw.garments[index]:null;
+    if(previous&&(!original||(backImage&&!backOriginal)))throw new Error('Keep the original photo when editing this garment.');
+    const id=previous?.id||`garment-${crypto.randomUUID()}`,directory=path.join(closetAssetDirectory,`garment-${crypto.randomUUID()}`);
+    signal.throwIfAborted();
     const assetPath = path.join(directory, 'front.png'), backAssetPath = backImage ? path.join(directory,'back.png') : null;
     await fs.mkdir(directory, { recursive: true });
+    let committed=false;
     try {
       await fs.writeFile(assetPath, image);
-      if (original) await fs.writeFile(path.join(directory, 'original.png'), original);
+      if (original) await fs.writeFile(path.join(directory, `original.${original.extension}`), original.bytes);
       if (backImage) await fs.writeFile(backAssetPath, backImage);
-      if (backOriginal) await fs.writeFile(path.join(directory,'back-original.png'),backOriginal);
-      const raw = await readClosetRaw();
-      if (raw.garments.length >= 500) throw new Error('Your wardrobe has reached 500 garments.');
-      const item = { id, name, category: input.category, assetPath, ...(backAssetPath ? {backAssetPath} : {}), createdAt: new Date().toISOString(), render: { source: 'local-photo-cutout' } };
-      raw.garments.push(item); await writeCloset(raw); return publicGarment(item);
-    } catch (error) { await fs.rm(directory, { recursive: true, force: true }); throw error; }
+      if (backOriginal) await fs.writeFile(path.join(directory,`back-original.${backOriginal.extension}`),backOriginal.bytes);
+      if (!previous && raw.garments.length >= 500) throw new Error('Your wardrobe has reached 500 garments.');
+      const item = { id, name, category: input.category, assetPath, ...(backAssetPath ? {backAssetPath} : {}), ...(original?{original:photoOriginalRecord(original,directory,'original')}:{}), ...(backOriginal?{backOriginal:photoOriginalRecord(backOriginal,directory,'back-original')}:{}), createdAt: previous?.createdAt||new Date().toISOString(), render: { source: 'local-photo-cutout' } };
+      if(previous)raw.garments[index]=item;else raw.garments.push(item);
+      await writeCloset(raw,signal);committed=true;
+      if(previous){const old=path.dirname(previous.assetPath);if(path.resolve(old).startsWith(path.resolve(closetAssetDirectory)+path.sep))await fs.rm(old,{recursive:true,force:true}).catch(error=>console.warn('[closet] old revision cleanup failed',error.message));}
+      return publicGarment(item);
+    } catch (error) { if(!committed)await fs.rm(directory, { recursive: true, force: true }); throw error; }
   });
   closetPhotoQueue = operation.catch(() => {});
-  return operation;
+  return operation.finally(()=>{closetPhotoPending--;if(closetPhotoControllers.get(requestId)===controller)closetPhotoControllers.delete(requestId);});
 }
 
 function queueTryOn(input = {}) {
@@ -1231,6 +1283,8 @@ function registerBridge() {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use the mirror wardrobe to save photos.');
     return saveClosetPhoto(input);
   });
+  ipcMain.handle('mirror:cancel-closet-photo',(event,id)=>{if(event.sender!==mainWindow?.webContents||event.senderFrame!==mainWindow.webContents.mainFrame)throw new Error('Use the mirror wardrobe.');return cancelClosetPhoto(id);});
+  ipcMain.handle('mirror:read-closet-original',(event,id,side)=>{if(event.sender!==mainWindow?.webContents||event.senderFrame!==mainWindow.webContents.mainFrame)throw new Error('Use the mirror wardrobe to open photos.');return readClosetOriginal(id,side);});
   ipcMain.handle('mirror:list-closet', () => readCloset());
   ipcMain.handle('mirror:import-closet-garment', (event, input) => importClosetGarment(event, input));
   const assertTryOnFrame = (event) => {
@@ -1312,7 +1366,7 @@ function registerBridge() {
   });
   ipcMain.handle('mirror:wardrobe-phone', async (event, enabled) => {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use the wardrobe photo editor.');
-    wardrobePhoneWaiting = enabled === true;
+    wardrobePhoneGeneration++;wardrobePhoneWaiting = enabled === true;
     if (!wardrobePhoneWaiting) return null;
     try { return await startPhoneLink(); } catch (error) { wardrobePhoneWaiting = false; throw error; }
   });
@@ -1384,7 +1438,7 @@ function createWindow() {
     console.error('[watchdog] renderer process gone', details.reason);
     if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();
   });
-  win.webContents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame) { tryOnRequests.cancelAll(); liveTryOnTokens.cancel(); void stopCastReceiver(); } });
+  win.webContents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame) { cancelClosetPhoto();tryOnRequests.cancelAll(); liveTryOnTokens.cancel(); void stopCastReceiver(); } });
   win.on('closed', () => {
     if (mainWindow === win) {
       tryOnRequests.cancelAll();
@@ -1440,7 +1494,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('before-quit', () => tryOnRequests.cancelAll());
+app.on('before-quit', () => {cancelClosetPhoto();tryOnRequests.cancelAll();});
 app.on('before-quit', () => liveTryOnTokens.cancel());
 app.on('before-quit', () => windowsSpotify.close());
 app.on('before-quit',()=>{void wakeModelServer?.then(server=>server.close()).catch(()=>{});});

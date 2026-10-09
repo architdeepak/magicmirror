@@ -51,7 +51,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   const saved=JSON.parse(await fs.readFile(path.join(profile,'data/closet.json'),'utf8'));
   await until(()=>client.evaluate('!!document.querySelector(".bottom-dock ~ #live-captions")'),'caption restoration');
   assert.equal(saved.garments.length,1);assert.equal(saved.garments[0].name,'My black festival shirt');
-  assert((await fs.stat(saved.garments[0].assetPath)).size>1000);assert((await fs.stat(path.join(path.dirname(saved.garments[0].assetPath),'original.png'))).size>1000);
+  assert((await fs.stat(saved.garments[0].assetPath)).size>1000);assert((await fs.stat(saved.garments[0].original.assetPath)).size>1000);assert.deepEqual(await fs.readFile(saved.garments[0].original.assetPath),await fs.readFile(path.join(root,'.tools/rtv/assets/garment_images/lab_06_white_bg.jpg')),'Uploaded original bytes changed');
   // Invalid IPC input and parallel real saves exercise the main process boundary.
   const bad=await client.evaluate(`window.mirrorBridge.saveClosetPhoto({name:'bad',category:'dress',imageDataUrl:'data:image/png;base64,aaaa'}).then(()=>false,()=>true)`);assert(bad);
   const image=await client.evaluate(`(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='blue';x.fillRect(8,8,48,48);return c.toDataURL()})()`);

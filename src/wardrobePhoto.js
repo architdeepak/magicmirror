@@ -1,3 +1,4 @@
+import { photoSourceDimensions, photoSourceDataUrl, photoBlobDataUrl, photoBlobBytes, photoDecodedImage } from './photoSourceValidation.mjs';
 import { enhanceCameraPixels } from './cameraClarity.js';
 // Bounded CPU work when editing a photo; never runs in the camera render loop.
 export function cutoutPhoto(source, { removeBackground = true, tolerance = 35, topPercent = 0, bottomPercent = 100 } = {}) {
@@ -85,7 +86,7 @@ export class WardrobePhoto {
     this.button('save').onclick = () => void this.save();
     this.button('extract').onclick = () => void this.extractClothing();
     this.button('restore').onclick = () => {
-      this.cancelExtraction(); this.generation++; this.captureOwner = null; this.loadingOwner = null;
+      this.cancelPhotoRead();this.cancelExtraction(); this.generation++; this.captureOwner = null; this.loadingOwner = null;
       if (!this.source && this.views[this.activeView]?.source) { this.source = this.views[this.activeView].source; this.original = this.views[this.activeView].original; }
       this.field('clarity').value = 'off';
       this.clothingSource = null; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100'; this.field('remove').checked = true; this.button('capture').disabled = false; this.button('extract').disabled = !this.source; this.preview(); this.syncViews();
@@ -98,8 +99,8 @@ export class WardrobePhoto {
       if (this.saving || this.extracting || this.photoLoading || this.capturePending) { this.field('clarity').value = this.views[this.activeView]?.clarity || 'off'; return; }
       this.preview();
     };
-    this.dialog.addEventListener('close', () => { if (this.open) return; this.restoreVoiceUi(); this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null; this.original = null; this.views = {}; this.waitingPhone = false; void window.mirrorBridge?.wardrobePhone?.(false); });
-    this.dialog.addEventListener('cancel', event => { if (this.saving) event.preventDefault(); });
+    this.dialog.addEventListener('close', () => { if (this.open) return;this.cancelWork(); this.restoreVoiceUi(); this.cancelPhotoRead();this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null; this.original = null; this.views = {}; this.waitingPhone = false; void window.mirrorBridge?.wardrobePhone?.(false); });
+    this.dialog.addEventListener('cancel', () => this.cancelWork());
     this.dialog.querySelector('form').onsubmit = event => { event.preventDefault(); void this.save(); };
   }
   get open() { return this.dialog.open; }
@@ -112,8 +113,8 @@ export class WardrobePhoto {
   get capturePending() { return this.captureOwner === this.generation; }
   show() {
     if (this.open) return;
-    this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null;
-    this.views = {}; this.activeView = 'front'; this.syncViews();
+    this.cancelPhotoRead();this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null;
+    this.views = {}; this.activeView = 'front'; this.editingId=null;this.original=null;this.dialog.querySelector('h2').textContent='Add to your wardrobe';this.syncViews();
     this.field('phone').hidden = true;
     this.nameAutomatic = true;
     this.field('name').value = ''; this.field('file').value = ''; this.field('remove').checked = true;
@@ -126,6 +127,28 @@ export class WardrobePhoto {
     this.attachVoiceUi();
     this.dialog.showModal(); this.button('upload').focus();
   }
+  async showSaved(item){
+    if(this.open)return;
+    this.show();const generation=this.generation;this.cancelPhotoRead();const controller=this.photoReadController=new AbortController();this.loadingOwner=generation;this.syncViews();
+    this.status('Opening original photos…');
+    try{
+      const front=await window.mirrorBridge.readClosetOriginal(item.id,'front');
+      if(generation!==this.generation||!this.open)return;
+      const back=item.backImageUrl?await window.mirrorBridge.readClosetOriginal(item.id,'back'):null;
+      if(generation!==this.generation||!this.open)return;
+      // Decode both before changing drafts. A failed back cannot save a partial edit.
+      const decode=async photo=>{if(!photo)return null;photoSourceDataUrl(photo.imageDataUrl);return photoDecodedImage(photo.imageDataUrl,controller.signal);};
+      const frontImage=await decode(front),backImage=await decode(back);
+      if(generation!==this.generation||!this.open)return;
+      if(!frontImage)throw new Error('Original photo is unavailable. Upload it again.');
+      this.field('name').value=item.name;this.nameAutomatic=false;this.field('category').value=item.category;
+      this.setSource(frontImage,frontImage.naturalWidth,frontImage.naturalHeight,front.imageDataUrl);this.rememberView();
+      if(backImage){this.activeView='back';this.setSource(backImage,backImage.naturalWidth,backImage.naturalHeight,back.imageDataUrl);this.rememberView();this.activeView='front';const saved=this.views.front;Object.assign(this,{source:saved.source,output:saved.output,original:saved.original,clothingSource:saved.clothingSource});this.field('remove').checked=saved.remove;this.field('clarity').value=saved.clarity;this.preview();}
+      this.editingId=item.id;this.dialog.querySelector('h2').textContent='Edit garment photo';
+      this.status(front.legacy||back?.legacy?'Earlier saved photos contain a smaller original. You can adjust it or upload a higher-resolution photo.':'Original photos reopened. Adjust the cutout, then save to update this garment. Cancel keeps the saved garment.');
+    }catch(error){if(generation===this.generation&&this.open){this.editingId=null;this.source=null;this.output=null;this.views={};this.status(error.message);}}
+    finally{if(this.photoReadController===controller)this.photoReadController=null;if(this.loadingOwner===generation)this.loadingOwner=null;if(this.open)this.syncViews();}
+  }
   syncViews() {
     this.button('save').disabled = !this.readyToSave;
     for (const view of ['front','back']) { this.button(view).setAttribute('aria-pressed', String(this.activeView === view)); this.button(view).textContent = `${view === 'front' ? 'Front' : 'Back (optional)'}${this.views[view]?.output ? ' ✓' : ''}`; }
@@ -136,7 +159,7 @@ export class WardrobePhoto {
       clarity: this.field('clarity').value, remove: this.field('remove').checked, tolerance: this.field('tolerance').value, top: this.field('crop-top').value, bottom: this.field('crop-bottom').value };
   }
   clearPhoto() {
-    this.cancelExtraction(); this.generation++; this.source = null; this.output = null; this.original = null; this.clothingSource = null;
+    this.cancelPhotoRead();this.cancelExtraction(); this.generation++; this.source = null; this.output = null; this.original = null; this.clothingSource = null;
     this.field('file').value = ''; this.field('remove').checked = true; this.field('tolerance').value = '35'; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
     this.field('clarity').value = 'off';
     this.button('capture').disabled = false; this.button('extract').disabled = true; this.button('restore').disabled = true; this.button('save').disabled = !this.views.front?.output;
@@ -182,50 +205,70 @@ export class WardrobePhoto {
     }
     this.captionHome = null;
   }
-  close() { if (!this.saving) this.dialog.close(); }
+  cancelPhotoRead(){this.photoReadController?.abort();this.photoReadController=null;}
+  cancelWork(){
+    if(!this.saving&&!this.photoLoading&&!this.capturePending&&!this.extracting&&!this.waitingPhone&&this.phoneOwner!==this.generation)return;
+    const requestId=this.saveRequestId;this.saveRequestId=null;this.saving=false;
+    this.cancelPhotoRead();this.cancelExtraction();this.generation++;this.captureOwner=null;this.loadingOwner=null;this.phoneOwner=null;
+    this.waitingPhone=false;this.field('phone').hidden=true;void window.mirrorBridge?.wardrobePhone?.(false);
+    if(requestId)void window.mirrorBridge?.cancelClosetPhoto?.(requestId)?.catch(()=>{});
+    for(const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control])'))el.disabled=false;
+    this.syncViews();if(this.open)this.status('Photo work stopped. Your draft is kept.');
+  }
+  close() { this.cancelWork();this.dialog.close(); }
   status(message) { this.field('status').textContent = message; }
   async connectPhone() {
-    const generation = this.generation;
+    if(!this.open||this.saving)return;
+    const generation = this.generation;this.phoneOwner=generation;
     try {
       if (!window.mirrorBridge?.wardrobePhone) throw new Error('Phone upload is available in the desktop app.');
       const pairing = await window.mirrorBridge.wardrobePhone(true);
-      if (!this.open || generation !== this.generation) { void window.mirrorBridge.wardrobePhone(false); return; }
+      if (!this.open || generation !== this.generation) return;
       this.waitingPhone = true; this.field('phone').hidden = false;
       this.field('phone').querySelector('img').src = pairing.qrDataUrl;
       this.status('Scan with your phone and send one clothing photo. It stays on your local network until you save it here.');
-    } catch (error) { this.status(error.message); }
+    } catch (error) { if(generation===this.generation&&this.open)this.status(error.message); }
+    finally{if(this.phoneOwner===generation)this.phoneOwner=null;}
   }
   async receivePhone(value) {
     if (!this.open || this.saving || !this.waitingPhone) return;
     this.waitingPhone = false; this.field('phone').hidden = true;
+    this.cancelPhotoRead();const controller=this.photoReadController=new AbortController();
     const generation = ++this.generation; this.loadingOwner = generation; this.button('save').disabled = true;
     try {
-      const image = new Image(); image.src = value; await image.decode();
+      photoSourceDataUrl(value);
+      const image = await photoDecodedImage(value,controller.signal);
       if (generation !== this.generation || !this.open) return;
-      this.setSource(image, image.naturalWidth, image.naturalHeight);
+      this.setSource(image, image.naturalWidth, image.naturalHeight, value);
       this.status('Photo received. Check that only the garment remains, then name it and save.');
     } catch { if (generation === this.generation) this.status('Phone photo could not open. Try again.'); }
-    finally { if (this.loadingOwner === generation) this.loadingOwner = null; if (generation === this.generation) this.syncViews(); }
+    finally { if(this.photoReadController===controller)this.photoReadController=null; if (this.loadingOwner === generation) this.loadingOwner = null; if (generation === this.generation) this.syncViews(); }
   }
   async upload(file) {
-    if (!file || this.saving) return;
+    if (!file || this.saving || !this.open) return;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 20_000_000) { this.status('Choose a PNG, JPG, or WebP under 20 MB.'); return; }
     const hadName = Boolean(this.field('name').value.trim());
+    this.cancelPhotoRead();const controller=this.photoReadController=new AbortController();
     this.cancelExtraction(); this.clothingSource = null;
     const generation = ++this.generation, url = URL.createObjectURL(file); this.loadingOwner = generation;
     this.source = null; this.output = null; this.original = null;
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.button('save').disabled = true;
     try {
-      const image = new Image(); image.src = url; await image.decode();
+      photoSourceDimensions(new Uint8Array(await photoBlobBytes(file,controller.signal)), file.type);
       if (generation !== this.generation || !this.open) return;
-      this.setSource(image, image.naturalWidth, image.naturalHeight);
+      const original = await photoBlobDataUrl(file,controller.signal);
+      if (generation !== this.generation || !this.open) return;
+      const image = await photoDecodedImage(url,controller.signal);
+      if (generation !== this.generation || !this.open) return;
+      this.setSource(image, image.naturalWidth, image.naturalHeight, original);
       if (!hadName) { this.field('name').value = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').slice(0, 80); this.nameAutomatic = false; }
-    } catch { if (generation === this.generation) this.status('This photo could not open. Choose another image.'); }
-    finally { URL.revokeObjectURL(url); if (this.loadingOwner === generation) this.loadingOwner = null; if (generation === this.generation) this.syncViews(); }
+    } catch (error) { if (generation === this.generation && this.open) this.status(error.message || 'This photo could not open. Choose another image.'); }
+    finally { if(this.photoReadController===controller)this.photoReadController=null; URL.revokeObjectURL(url); if (this.loadingOwner === generation) this.loadingOwner = null; if (generation === this.generation) this.syncViews(); }
   }
   async capture() {
     if (this.saving || this.capturePending || this.extracting || this.photoLoading || !this.open) return;
+    this.cancelPhotoRead();const controller=this.photoReadController=new AbortController();
     const generation = ++this.generation;
     this.captureOwner = generation; this.button('capture').disabled = true; this.button('save').disabled = true;
     try {
@@ -235,14 +278,25 @@ export class WardrobePhoto {
       }
       if (generation !== this.generation || !this.open) return;
       if (!this.video?.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) throw new Error('Camera unavailable. Upload a photo instead.');
-      this.setSource(this.video, this.video.videoWidth, this.video.videoHeight);
+      const width=this.video.videoWidth,height=this.video.videoHeight;
+      if(width>8192||height>8192||width*height>24_000_000)throw new Error('Camera photo exceeds 24 megapixels. Choose a lower camera quality.');
+      const capture=document.createElement('canvas');capture.width=width;capture.height=height;
+      capture.getContext('2d').drawImage(this.video,0,0,width,height);
+      const blob=await new Promise(resolve=>capture.toBlob(resolve,'image/jpeg',.95));
+      if(!blob)throw new Error('Camera photo could not be captured.');
+      if(blob.size>20_000_000)throw new Error('Camera photo exceeds 20 MB. Choose a lower camera quality.');
+      const original=await photoBlobDataUrl(blob,controller.signal);
+      if(generation!==this.generation||!this.open)return;
+      // Preview and original use the same frozen camera frame.
+      this.setSource(capture,width,height,original);capture.width=capture.height=1;
     } catch (error) { if (generation === this.generation && this.open) this.status(error.message); }
-    finally { if (this.captureOwner === generation) { this.captureOwner = null; if (generation === this.generation) { this.button('capture').disabled = this.saving; this.button('save').disabled = this.saving || !this.output; this.syncViews(); } } }
+    finally { if(this.photoReadController===controller)this.photoReadController=null; if (this.captureOwner === generation) { this.captureOwner = null; if (generation === this.generation) { this.button('capture').disabled = this.saving; this.button('save').disabled = this.saving || !this.output; this.syncViews(); } } }
   }
   updateSuggestedName() {
     if (this.nameAutomatic || !this.field('name').value.trim()) { this.field('name').value = this.suggestName(this.field('category').value); this.nameAutomatic = true; }
   }
-  setSource(image, width, height) {
+  setSource(image, width, height, original) {
+    if(!original)throw new Error('Original photo is missing. Try uploading or capturing again.');
     this.cancelExtraction(); this.clothingSource = null;
     this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
     this.updateSuggestedName();
@@ -250,7 +304,7 @@ export class WardrobePhoto {
     const scale = Math.min(1, 1024 / Math.max(width, height)), canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(width * scale)); canvas.height = Math.max(1, Math.round(height * scale));
     const ctx = canvas.getContext('2d', { willReadFrequently: true }); ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    this.source = ctx.getImageData(0, 0, canvas.width, canvas.height); this.original = canvas.toDataURL('image/png');
+    this.source = ctx.getImageData(0, 0, canvas.width, canvas.height); this.original = original;
     let transparent = 0; for (let i = 3; i < this.source.data.length; i += 4) if (this.source.data[i] < 16) transparent++;
     this.field('remove').checked = transparent / (canvas.width * canvas.height) < .005;
     this.button('extract').disabled = false; this.button('restore').disabled = false;
@@ -301,14 +355,16 @@ export class WardrobePhoto {
     if (!front?.output) { this.status('Review a front photo before saving.'); return; }
     if (back?.source && !back.output) { this.status('Review the back cutout or remove the back photo before saving.'); return; }
     const name = this.field('name').value.trim(); if (!name) { this.status('Give this garment a name.'); this.field('name').focus(); return; }
+    const generation=this.generation,requestId=crypto.randomUUID();this.saveRequestId=requestId;
     this.saving = true; this.button('save').disabled = true;
-    for (const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control])')) el.disabled = true;
+    for (const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control]):not([data-action=close])')) el.disabled = true;
     this.status('Saving on this device…');
     try {
-      await this.onSave({ name, category: this.field('category').value, imageDataUrl: front.output, originalDataUrl: front.original, backImageDataUrl: back?.output || undefined, backOriginalDataUrl: back?.output ? back.original : undefined });
+      await this.onSave({ requestId,garmentId:this.editingId||undefined, name, category: this.field('category').value, imageDataUrl: front.output, originalDataUrl: front.original, backImageDataUrl: back?.output || undefined, backOriginalDataUrl: back?.output ? back.original : undefined });
+      if(generation!==this.generation||this.saveRequestId!==requestId)return;
       this.saving = false; this.dialog.close(); this.onNotice(`${name} saved locally.`);
-    } catch (error) { this.status(`Could not save: ${error.message}`); }
-    finally { this.saving = false; for (const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control])')) el.disabled = false; this.button('save').disabled = !this.views.front?.output; }
+    } catch (error) { if(generation===this.generation&&this.open)this.status(`Could not save: ${error.message}`); }
+    finally { if(this.saveRequestId!==requestId)return;this.saveRequestId=null;this.saving = false; for (const el of this.dialog.querySelectorAll('input,select,button:not([data-voice-control]):not([data-action=close])')) el.disabled = false; this.button('save').disabled = !this.views.front?.output; }
   }
   voice(text) {
     if (!this.open) return false;

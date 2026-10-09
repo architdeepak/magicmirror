@@ -1,0 +1,95 @@
+{
+  "sourceJourney": {
+    "passed": true,
+    "archiveSha256": "deffa8018d10f8b3fbd6485be82335d50e6581dd535f3a20de8847a0077adddf",
+    "checkedAt": "2026-10-09T07:03:41.905Z",
+    "checks": [
+      "4K JPG/WebP front/back originals preserved byte-for-byte with dimensions and hashes",
+      "Edit original front/back; canceled draft keeps saved cutout",
+      "Reload/re-edit/recrop updates same ID without duplicate and retains originals; old revision cleaned",
+      "Invalid original, missing edit original and unknown ID rejected without publication",
+      "Oversized compressed original rejected before native pixel decoding",
+      "Native canceled save publishes no garment",
+      "Delayed old phone request rejected after editor close/reopen; fresh draft untouched",
+      "Paired LAN full-resolution photo upload persists exact source bytes",
+      "Synthetic MediaStream camera capture retains the full 1920x1080 frozen frame separately from preview",
+      "EXIF-rotated JPG keeps exact encoded file and correct browser orientation after reopening"
+    ],
+    "scope": "Actual packaged Linux Electron, browser-generated 3840x2160 JPG/WebP fixtures, DOM uploads, native IPC/storage/reload/recrop/cancel and real authenticated LAN endpoint. No physical phone, camera, Windows, cloth realism or live gesture recognition proof."
+  },
+  "fullTests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "/tmp/mirror-full-photo-tests.log"
+  },
+  "broadWardrobeRegression": {
+    "status": "passed",
+    "starterGarments": 30,
+    "savedGarments": 8,
+    "checks": [
+      "real garment upload/cutout",
+      "paired front/back cutout, persistence, original retention, voice view switching and different rear raster",
+      "invalid back PNG rejected before persistence",
+      "saved photo short sleeve inference",
+      "offline worn clothing extraction, voice/gesture crop and real persistence",
+      "real IPC persistence/reload",
+      "original retained",
+      "photo clarity voice controls and exact original restoration",
+      "independent front/back clarity drafts",
+      "invalid PNG rejected",
+      "concurrent saves",
+      "camera unavailable",
+      "synthetic camera capture",
+      "voice tool commands",
+      "interpreted swipe and pinch routing",
+      "cancel",
+      "gesture-only capture/type/save with automatic name",
+      "editor Stop/mute controls, two colored bottom captions and restoration",
+      "paired LAN phone photo upload",
+      "one-photo acceptance",
+      "unauthenticated/cross-origin/invalid phone requests rejected"
+    ],
+    "limits": [
+      "No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.",
+      "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
+    ],
+    "archiveSha256": "deffa8018d10f8b3fbd6485be82335d50e6581dd535f3a20de8847a0077adddf",
+    "packageScope": "Final unchanged packaged source tested after source journey; tools/check-wardrobe-ui.cjs does not independently record archive hash."
+  },
+  "focusedQueueTest": {
+    "command": "npm run test:wardrobe",
+    "exitCode": 0,
+    "scope": "VM of actual native queue source: two pending job cap, cancellation before decoder work and counter cleanup; browser input/abort/capture/save/pairing fixtures run separately."
+  },
+  "priorMonitorSnapshots": [
+    {
+      "directory": "artifacts/monitor/2026-10-09T06-39-00-250Z",
+      "build": {
+        "archiveSha256": "3d7b1615ea923b91ddd7d4398474cf47cd0aeb09beece25aabf2acb8530fdc45",
+        "gitRevision": "e0c11266e435891ebbd642c515d89b378310f7ba",
+        "isolatedCopy": true,
+        "avatarStyle": "rig",
+        "graphicsRequest": "software"
+      },
+      "sampleCountAtSnapshot": 539,
+      "latestAt": "2026-10-09T07:06:28.158Z",
+      "summaryStatus": "monitoring",
+      "errorsAtSnapshot": [],
+      "scope": "Prior immutable build; not wardrobe checkpoint qualification."
+    },
+    {
+      "directory": "artifacts/monitor/2026-10-09T03-23-39-044Z",
+      "build": {
+        "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+        "gitRevision": "2eea9ad52d7019e5ebd037524db5630b9058ffb8",
+        "isolatedCopy": true,
+        "avatarStyle": "rig"
+      },
+      "sampleCountAtSnapshot": 4380,
+      "latestAt": "2026-10-09T07:06:29.299Z",
+      "summaryStatus": "monitoring",
+      "errorsAtSnapshot": [],
+      "scope": "Prior immutable build; not wardrobe checkpoint qualification."
+    }
+  ]
+}
