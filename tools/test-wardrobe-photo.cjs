@@ -47,8 +47,9 @@ console.log('Wardrobe PNG boundary: valid image bytes, oversized declared dimens
  vm.runInContext(claritySource, scope);
  vm.runInContext(source.replaceAll('export function','function').replace('export class','class')+';globalThis.Subject=WardrobePhoto;',scope);
  const subject=Object.create(scope.Subject.prototype),buttons={capture:{},save:{}},pending=[],notices=[];
- Object.assign(subject,{generation:0,dialog:{open:true},video:{},button:name=>buttons[name],status:message=>notices.push(message),syncViews:()=>{},ensureCamera:()=>new Promise(resolve=>pending.push(resolve)),setSource:()=>{throw new Error('Old capture replaced a new photo')}});
- const first=subject.capture();assert(subject.capturePending);
+ const captureSignals=[];
+ Object.assign(subject,{generation:0,dialog:{open:true},video:{},button:name=>buttons[name],status:message=>notices.push(message),syncViews:()=>{},ensureCamera:signal=>{captureSignals.push(signal);return new Promise(resolve=>pending.push(resolve))},setSource:()=>{throw new Error('Old capture replaced a new photo')}});
+ const first=subject.capture();assert(subject.capturePending);assert(captureSignals[0] instanceof AbortSignal);
  subject.generation++;subject.dialog.open=false;subject.generation++;subject.dialog.open=true;subject.output='new photo';
  assert(!subject.capturePending,'A closed editor kept a new photo blocked by an old camera request');
  const next=subject.capture();assert(subject.capturePending);pending[0](false);await first;

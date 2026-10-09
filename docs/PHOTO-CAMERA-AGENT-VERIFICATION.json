@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-09T19:02:11.968Z",
+  "passed": true,
+  "archiveSha256": "6bf506ffae5c1acfa51f79d6f33c7fd2a194537a9dc80684922a15745f3fee3d",
+  "scope": "Packaged Linux app with synthetic Codex stdio/delayed screenshot; actual UI/IPC, paired HTTP media and native AVTransport SOAP with decoded VP8 playback. No physical phone, voice, sensors or Windows.",
+  "checks": [
+    "visible Stop while agent runs",
+    "Stop kills and resolves task",
+    "late screenshot discarded",
+    "hard mute kills task",
+    "hard mute rejects new task",
+    "no late input or renderer errors",
+    "actual HTTP browser load cancelled by Stop",
+    "late page never shown",
+    "superseded load cannot close successor",
+    "Stop preserves previously visible browser",
+    "mode button cancels agent and retains requested view",
+    "AR swipe cancels agent and opens wardrobe",
+    "Return cancels agent and closes actual browser",
+    "unsupported launcher choice retires agent before error path",
+    "rapid service/mode prevents late launch and error",
+    "latest of two mode clicks wins",
+    "agent mode callback remains active until explicit Stop",
+    "immediate replacement task survives old run cancellation and retains its new observation",
+    "actual paired phone media retires old agent and pending browser",
+    "generated VP8 media decodes and plays",
+    "actual AVTransport load/play retires old agent and pending browser"
+  ]
+}

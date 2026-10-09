@@ -300,7 +300,7 @@ const dashboard = new MagicMirrorView(elements.dashboard, { city: config.city, u
 const closet = new ClosetStore({
   container: elements.closetList,
   onStopVoice: stopAssistant,
-  ensureCamera: () => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true),
+  ensureCamera: signal => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true, { signal }),
   video: elements.video,
   importButton: elements.closetImport,
   onSelect: (item) => {

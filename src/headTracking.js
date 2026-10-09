@@ -78,7 +78,8 @@ function scoreCamera(camera) {
   return score;
 }
 
-export async function startCamera(deviceId = '') {
+export async function startCamera(deviceId = '', { signal } = {}) {
+  if(signal?.aborted)return false;
   if (!navigator.mediaDevices?.getUserMedia || !videoElement) {
     status.error = 'No camera API available';
     return false;
@@ -86,6 +87,8 @@ export async function startCamera(deviceId = '') {
 
   stopCamera();
   const generation = cameraGeneration;
+  const abort=()=>{if(generation===cameraGeneration)stopCamera();};
+  signal?.addEventListener('abort',abort,{once:true});
   let stream = null;
   calibrationSamples.length = 0;
   status.error = '';
@@ -148,7 +151,7 @@ export async function startCamera(deviceId = '') {
     status.cameraActive = false;
     console.warn('[tracking]', status.error);
     return false;
-  }
+  } finally { signal?.removeEventListener('abort',abort); }
 }
 
 export function stopCamera() {
@@ -171,8 +174,8 @@ export function stopCamera() {
   latestBlendshapes = Object.freeze({});
 }
 
-export async function toggleCamera(enable) {
-  if (enable) return startCamera(currentDeviceId);
+export async function toggleCamera(enable, options = {}) {
+  if (enable) return startCamera(currentDeviceId, options);
   stopCamera();
   return false;
 }

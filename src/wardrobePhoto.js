@@ -274,7 +274,7 @@ export class WardrobePhoto {
     try {
       if (!this.video?.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) {
         this.status('Starting the mirror camera…');
-        if (!await this.ensureCamera()) throw new Error('Camera unavailable. Connect a camera, or upload a photo.');
+        if (!await this.ensureCamera(controller.signal)) throw new Error('Camera unavailable. Connect a camera, or upload a photo.');
       }
       if (generation !== this.generation || !this.open) return;
       if (!this.video?.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) throw new Error('Camera unavailable. Upload a photo instead.');

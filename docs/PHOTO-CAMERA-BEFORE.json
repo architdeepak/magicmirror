@@ -1,0 +1,31 @@
+{
+  "archiveSha256": "5f7d044da5ee834ceb3e739732ece30999adbfe3433fd5c6d063004da1a42904",
+  "results": [
+    {
+      "action": "stop",
+      "pending": 0,
+      "cameraActive": true,
+      "liveTracks": 1,
+      "editorOpen": true,
+      "status": "Photo work stopped. Your draft is kept."
+    },
+    {
+      "action": "mute",
+      "pending": 0,
+      "cameraActive": true,
+      "liveTracks": 1,
+      "editorOpen": true,
+      "status": "Photo work stopped. Your draft is kept."
+    },
+    {
+      "action": "close",
+      "pending": 0,
+      "cameraActive": true,
+      "liveTracks": 1,
+      "editorOpen": false,
+      "status": "Photo work stopped. Your draft is kept."
+    }
+  ],
+  "passed": false,
+  "scope": "Actual packaged Linux renderer and head-tracking camera startup, real canvas MediaStream tracks, deferred permission; Stop/hard mute/editor close through production callbacks. No physical camera or microphone recognition."
+}

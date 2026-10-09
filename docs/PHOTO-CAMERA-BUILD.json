@@ -1,0 +1,24 @@
+{
+  "archiveSha256": "6bf506ffae5c1acfa51f79d6f33c7fd2a194537a9dc80684922a15745f3fee3d",
+  "baseRevision": "c134abdde6ecad375e458f9cfffc26995fecdb3e",
+  "sourceState": "Photo-camera changes over base revision; exact hashes below.",
+  "fullNpmTestExit": 0,
+  "sha256": {
+    "src/headTracking.js": "9b44e9c0d7fae43da3fdb6a6665c1079658feb03154956a5cdd7a1b8492bf91e",
+    "src/renderer.js": "ff3ca2acbc47b1ce21bd00a087ed688da9e676562520367eb376f5cfdd423a18",
+    "src/wardrobePhoto.js": "011cdbc78e564a8cb69e4bb7fe765b5a2eb219e4ce14baf477071f33590ba2e8",
+    "tools/test-camera-lifecycle.cjs": "552db78c6fd46f61fc5586286629b2e7dd6a578bf87a8912392dc80cf4581e90",
+    "tools/test-wardrobe-photo.cjs": "4740af97ef145bb4d85a4f294f71aa5f4c9c292aacdd41032f9ebf472303296d",
+    "tools/check-photo-camera-cancel.cjs": "14c6a27b3b9fe875e6db062af5813d8ae4dab1cfe254f26f8c1a29d3397e47cd",
+    "artifacts/photo-camera-tests.log": "befb62569df1beb3fc1c080df3ef5dfc5e30d69af057fc305b54913f4f1091a4",
+    "artifacts/photo-camera-syntax.log": "695fb372e439866e0352966ed2519b85d07a8b503838c7994b0e482ddb082330"
+  },
+  "auditReports": {
+    "artifacts/photo-camera-before-final-fixture/result.json": "261f8ad323669a5ada3423193ea7778909a661be5c071b16a561fd626fbafb60",
+    "artifacts/photo-camera-after/result.json": "3071798dbe44cf5fe78e057cc03a8b9b2be479464033b48b84d766734fc391ad",
+    "artifacts/adversarial-ui/result.json": "cd66c5e4564744790cc22d84db6414273a3db39771f345ea19253aa1643e04b4",
+    "artifacts/wardrobe/result.json": "5508bc9e7e7203e09a50dcaa44a176ece0ce48403e77b37457dd2c5bf716bde1",
+    "artifacts/codex-lifecycle/result.json": "eabb1cdf2d49b8dca5cec90d99e500f95534bd4115bb9356dabbd71ad33b6bf9"
+  },
+  "uiWardrobeArchiveProvenance": "Same unchanged final archive, verified before native camera/UI/wardrobe runs. UI and wardrobe verifier reports do not independently record archive hashes."
+}
