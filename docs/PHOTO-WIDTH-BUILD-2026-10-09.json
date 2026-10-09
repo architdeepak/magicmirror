@@ -1,0 +1,10 @@
+{
+  "archiveSha256": "df3827d0cddc1c020b0103c6c20d3ec158852e12c895ce7ba1ba944daa43638b",
+  "files": {
+    "src/longPhotoSleeves.js": "34e2660cb390a33cd2674287254e7935d5fb54e94339032833621a4380f3b2f0",
+    "src/photoSleeves.js": "b2c107f1cd164938f044c476660b54124602dc41b1cb81ae808185d61331391f",
+    "tools/check-photo-width-corpus.cjs": "77ebae76b7b2619a34fde6d1e4dd98a02728df6c1eee2c04e543ef1b5443b7e5",
+    "tools/check-long-photo-replay.cjs": "e54d35d39ce70425f291228ef6d54c54e7bb24a6c54ff2810fb171c717068d4f"
+  },
+  "scope": "Final packaged local recorded-camera and synthetic PCM regression; corpus and frozen replay are native Electron canvas tools using the saved source files."
+}

@@ -111,3 +111,21 @@ for(let y=0;y<8;y++)for(let x=0;x<4;x++){
 }
 assert.deepEqual(JSON.parse(JSON.stringify(sharedGrid)),reference,'Vertex reuse changed triangle order or coordinates');
 console.log('Photo grid reuse: exact coordinates/triangle order, 45 mappings for 64 triangles and shared neighboring vertices passed.');
+
+// Photographed taper changes intermediate widths, while its sewn endpoints and
+// legacy patterns preserve the existing geometry. No extra source scan at draw.
+for(const side of longPattern.sides){
+ assert.equal(scope.samplePhotoSleeveWidth(side,0),1);assert.equal(scope.samplePhotoSleeveWidth(side,1),1);
+ for(const sample of side.samples){
+  assert(Number.isFinite(sample.widthScale)&&sample.widthScale>=.5&&sample.widthScale<=1.5);
+  assert(Math.abs(scope.samplePhotoSleeveWidth(side,sample.t)-sample.widthScale)<1e-8);
+ }
+ const legacy={...side,samples:side.samples.map(p=>({...p,widthScale:undefined}))};
+ for(const t of [0,.12,.5,.83,1])assert.equal(scope.samplePhotoSleeveWidth(legacy,t),1);
+}
+const profile={samples:[{t:0,widthScale:1},{t:.5,widthScale:.5},{t:1,widthScale:1}]};
+assert.equal(scope.samplePhotoSleeveWidth(profile,.25),.75);
+assert.equal(scope.samplePhotoSleeveWidth(profile,.75),.75);
+assert.equal(scope.samplePhotoSleeveWidth({samples:[{t:0,widthScale:NaN},{t:1,widthScale:Infinity}]},.5),1);
+assert.equal(scope.samplePhotoSleeveWidth({},.5),1);
+console.log('Photographed sleeve widths: bounded source profiles, exact endpoints, interpolated taper, finite invalid-value and legacy fallback passed.');

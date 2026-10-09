@@ -15,6 +15,8 @@ Refreshed October 9, 2026 through compact AR, head surface continuity, and eyeli
 
 For every task, save its reproduction, before/after evidence, exact source/archive, test scope and unresolved failures; commit and push a coherent checkpoint. All eight gates below must be closed with evidence before the goal is complete. Missing final hardware leaves those checks open while local work continues.
 
+**Latest wardrobe checkpoint:** [photographed sleeve taper](PHOTO-WIDTH-2026-10-09.md) uses the source width profile with fixed sewn roots/wrist cuffs. Native review covers 11 long photos × three pose pairs; frozen replay and final packaged lifecycle pass. Stretched fabric, shoulder/armhole realism and physical fit remain open.
+
 ## Working order and evidence discipline
 
 The active persistent goal covers the whole suite. Work proceeds through these concrete milestones, returning to any earlier milestone when integrated tests expose a regression:

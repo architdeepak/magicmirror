@@ -33,6 +33,14 @@ export function inferLongPhotoSleeves({width,height,data}){
   const add=y=>{const run=rows[y]?.[key];if(!run)return false;const outer=sign===1?run.left:run.right,inner=sign===1?run.right:run.left;
    samples.push({t:(y-centerRootY)/(cuffY-centerRootY),outer:{u:outer/width,v:y/height},inner:{u:inner/width,v:y/height}});return true;};
   for(let y=underarm;y<cuffY;y+=step)if(!add(y))return null;add(cuffY);
+  // Preserve the photographed sleeve's taper rather than assuming every
+  // sleeve is a cone. Endpoints stay sewn to the torso and tracked wrist.
+  const span=p=>Math.hypot((p.outer.u-p.inner.u)*width,(p.outer.v-p.inner.v)*height);
+  const rootSpan=span(samples[0]),cuffSpan=span(samples.at(-1));
+  for(const sample of samples){
+   const reference=rootSpan+(cuffSpan-rootSpan)*sample.t;
+   sample.widthScale=sample.t===0||sample.t===1?1:Math.max(.5,Math.min(1.5,span(sample)/Math.max(1,reference)));
+  }
   sides.push({...root,cuffOuter:samples.at(-1).outer,cuffInner:samples.at(-1).inner,samples});
  }
  // Reuse the existing torso mesh rows. A few central-run samples keep a
@@ -51,5 +59,13 @@ export function samplePhotoSleeve(side,q,t){
  if(!samples)return blendSleeveUv(blendSleeveUv(side.outer,side.inner,q),blendSleeveUv(side.cuffOuter,side.cuffInner,q),t);
  const next=samples.findIndex(p=>p.t>=t),end=next<0?samples.length-1:Math.max(1,next),a=samples[end-1],b=samples[end];
  return blendSleeveUv(blendSleeveUv(a.outer,a.inner,q),blendSleeveUv(b.outer,b.inner,q),Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t))));
+}
+export function samplePhotoSleeveWidth(side,t){
+ const samples=side.samples;if(!samples?.length)return 1;
+ const next=samples.findIndex(p=>p.t>=t),end=next<0?samples.length-1:Math.max(1,next),a=samples[end-1],b=samples[end];
+ if(!a||!b)return 1;
+ const value=p=>Number.isFinite(p.widthScale)?Math.max(.5,Math.min(1.5,p.widthScale)):1;
+ const along=Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t)));
+ return value(a)+(value(b)-value(a))*along;
 }
 function blendSleeveUv(a,b,t){return{u:a.u+(b.u-a.u)*t,v:a.v+(b.v-a.v)*t};}

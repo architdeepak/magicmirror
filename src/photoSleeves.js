@@ -1,4 +1,4 @@
-import { inferLongPhotoSleeves, samplePhotoSleeve } from './longPhotoSleeves.js';
+import { inferLongPhotoSleeves, samplePhotoSleeve, samplePhotoSleeveWidth } from './longPhotoSleeves.js';
 import { sleeveNormalRotation } from './sleeveNormals.js';
 // Infer separated long sleeves or a short-sleeved front once at image load.
 // Ambiguous outlines keep a bounded torso preview. This does
@@ -100,11 +100,14 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     const middleNormal=pattern.long?sleeveNormalRotation(armNormal,lowerNormal,fit.normalHistory,`photo-${i}-joint`)(.5):armNormal;
     const rotation=sleeveNormalRotation(rootNormal,middleNormal,fit.normalHistory,`photo-${i}`),lowerRotation=sleeveNormalRotation(middleNormal,lowerNormal,fit.normalHistory,`photo-${i}-end`);
     const sleeveRows=[...new Set([0,.125,.25,.375,.5,.625,.75,.875,1,...(pattern.long?[.5/length]:[]),...(source.samples?.map(p=>p.t)||[])])].filter(t=>t>=0&&t<=1).sort((a,b)=>a-b);
+    // Evaluate the width profile once per existing row, shared across its
+    // vertices. Short photos and older patterns retain their original taper.
+    const radii=sleeveRows.map(t=>(radius*(1-t)+shoulderWidth*width*(pattern.long?.065:.085)*t)*(pattern.long?samplePhotoSleeveWidth(source,t):1));
     triangles.push(...grid(4,sleeveRows.length-1,(q,row)=>{
-      const t=sleeveRows[Math.round(row*(sleeveRows.length-1))],along=t*length;
+      const rowIndex=Math.round(row*(sleeveRows.length-1)),t=sleeveRows[rowIndex],along=t*length;
       const first=along<=.5;
       const center=pattern.long?mix(first?root:side.e,first?side.e:side.w,first?along*2:(along-.5)*2):mix(root,cuff,t);
-      const normal=pattern.long?(first?rotation:lowerRotation)(first?along*2:(along-.5)*2):rotation(t),r=radius*(1-t)+shoulderWidth*width*(pattern.long?.065:.085)*t;
+      const normal=pattern.long?(first?rotation:lowerRotation)(first?along*2:(along-.5)*2):rotation(t),r=radii[rowIndex];
       const uv=pattern.long?samplePhotoSleeve(source,q,t):mixUV(mixUV(rootOuter,rootInner,q),mixUV(source.cuffOuter,source.cuffInner,q),t);
       return {...center,x:center.x+normal.x*r*(1-2*q),y:center.y+normal.y*r*(1-2*q)+offset*distance(top,bottom)*Math.min(1,t*2),z:center.z+(rootOuter.z-rootInner.z)*(1-2*q)*.5*(1-t),...uv};
     }));
