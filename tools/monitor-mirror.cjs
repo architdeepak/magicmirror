@@ -9,6 +9,8 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
 const graphicsRequest=process.env.MIRROR_MONITOR_GRAPHICS==='vulkan'?'vulkan':'software';
 const speechFixture=process.env.MIRROR_MONITOR_SPEECH==='true';
 const cameraFixture=process.env.MIRROR_MONITOR_CAMERA==='true';
+const clarityMode=process.env.MIRROR_MONITOR_CLARITY||'off';
+if(!['off','natural','bright'].includes(clarityMode))throw Error('Use off, natural or bright camera clarity');
 const cameraTools=require('./monitor-camera.cjs');
 const phaseSeconds=Number(process.env.MIRROR_MONITOR_PHASE_SECONDS||(cameraFixture?120:240));
 if(!Number.isFinite(phaseSeconds)||phaseSeconds<10||phaseSeconds>600)throw Error('Monitor phase duration must be 10–600 seconds');
@@ -30,7 +32,7 @@ async function processTree(pid,output=[]){
  const hash=createHash('sha256');for await(const chunk of createReadStream(path.join(build,'resources/app.asar')))hash.update(chunk);
  const fixtureHashes={};if(cameraFixture)for(const file of ['artifacts/rtv/sample_video2.mp4','.tools/rtv/assets/garment_images/lab_08_white_bg.jpg']){const h=createHash('sha256');for await(const bytes of createReadStream(path.join(root,file)))h.update(bytes);fixtureHashes[file]=h.digest('hex');}
  const monitorHashes={};for(const file of ['tools/monitor-mirror.cjs','tools/monitor-camera.cjs'])monitorHashes[file]=createHash('sha256').update(await fs.readFile(path.join(root,file))).digest('hex');
- const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true,avatarStyle,graphicsRequest,speechFixture,cameraFixture,phaseSeconds,fixtureHashes,monitorHashes};
+ const buildInfo={archiveSha256:hash.digest('hex'),gitRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),isolatedCopy:true,avatarStyle,graphicsRequest,speechFixture,cameraFixture,clarityMode,phaseSeconds,fixtureHashes,monitorHashes};
  await fs.writeFile(path.join(dir,'build.json'),JSON.stringify(buildInfo,null,2));
  const manager=spawn(path.join(root,'.tools/native-companion-wm/root/usr/bin/openbox'),[],{stdio:'ignore',env:{...process.env,LD_LIBRARY_PATH:path.join(root,'.tools/native-companion-wm/root/usr/lib/aarch64-linux-gnu'),XDG_DATA_DIRS:path.join(root,'.tools/native-companion-wm/root/usr/share')+':/usr/share'}});
  const binary=path.join(build,'magic-mirror-portal');
@@ -45,7 +47,7 @@ async function processTree(pid,output=[]){
   let target;while(!target){target=(await fetch('http://'+new URL(endpoint).host+'/json/list').then(r=>r.json())).find(t=>t.url.includes('app.asar/src/index.html'));await delay(100)}
   client=await connect(target.webSocketDebuggerUrl);await client.call('Runtime.enable');await client.call('Page.enable');await client.call('Performance.enable');
   client.onEvent(e=>{if(e.method==='Runtime.exceptionThrown')errors.push({at:new Date().toISOString(),type:'renderer-exception',message:e.params.exceptionDetails.exception?.description||e.params.exceptionDetails.text})});
-  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`window.__monitorDocument=true;localStorage.setItem('mirror.avatar-render-style','${avatarStyle}');localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');`});
+  await client.call('Page.addScriptToEvaluateOnNewDocument',{source:`window.__monitorDocument=true;localStorage.setItem('mirror.camera-clarity','${clarityMode}');localStorage.setItem('mirror.avatar-render-style','${avatarStyle}');localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');localStorage.setItem('mirror.depth-cube','false');`});
   await client.call('Page.reload');
   while(!await client.evaluate('!!window.__monitorDocument&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")')){if(appExit)throw new Error('App exited');if(Date.now()-start>90000)throw new Error('Monitor UI startup timed out');await delay(200)}
   await client.evaluate(`window.__monitor={last:performance.now(),worstLagMs:0};setInterval(()=>{const now=performance.now();__monitor.worstLagMs=Math.max(__monitor.worstLagMs,Math.max(0,now-__monitor.last-500));__monitor.last=now},500)`);

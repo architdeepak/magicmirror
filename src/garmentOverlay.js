@@ -3,7 +3,7 @@ import { GarmentOcclusion } from './garmentOcclusion.js';
 import { GarmentFacing } from './garmentFacing.js';
 import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
-import { CameraClarity } from './cameraClarity.js';
+import { CameraClarity, CAMERA_CLARITY } from './cameraClarity.js';
 import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint } from './garmentGeometry.js';
 
 export class GarmentOverlay {
@@ -115,7 +115,7 @@ export class GarmentOverlay {
     this.hasPixels = false;
     this.lastDraw = null;
     this.outsideCrop = false; this.curvedTorso = false;
-    if (!keepCamera) { if (this.cameraCanvas) this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; }
+    if (!keepCamera) { this.cameraClarity?.release(); if (this.cameraCanvas) this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; }
   }
 
   getLiveState(now = performance.now()) {
@@ -127,7 +127,7 @@ export class GarmentOverlay {
         ? (!this.tracker.ready && this.trackingMessage) || `Step back so your ${this.item?.category === 'bottoms' ? 'hips, knees, and feet' : 'shoulders and hips'} are visible.`
         : this.facing.view === 'back' && !this.backTexture ? this.backMessage || 'Add a back photo to see this garment from behind.' : this.outsideCrop ? 'Center yourself in the portrait camera view.' : visible ? this.missingSleeves?'Torso fitted; keep elbows'+(this.renderedSleeveStyle==='photo-long-sleeve'?' and wrists':'')+' visible for full sleeves.':this.renderedSleeveStyle==='torso-only'&&!this.item?.starter&&['top','outerwear'].includes(this.item?.category)?'Torso photo fit is visible; this photo has no articulated sleeves.':'The garment overlay is visible on the live camera.' : this.lastStatus||'Body detected; positioning the garment.';
     return { sleeveStyle:visible?(this.renderedSleeveStyle||'torso-only'):null,missingSleeves:visible?(this.missingSleeves||0):null,imageReady: Boolean(this.texture), visible, garmentView: this.facing.view, backImageReady: Boolean(this.backTexture), curvedTorso: visible && this.curvedTorso, cameraActive, trackingReady: Boolean(this.tracker.ready),
-      cameraClarity: this.cameraClarity?.mode || 'off', clarityCostMs: this.cameraClarity?.lastCostMs || 0,
+      cameraClarity: this.cameraClarity?.mode || 'off', clarityBackend:this.cameraClarity?.backend||'original', clarityCostMs: this.cameraClarity?.lastCostMs || 0,
       bodyDetected: Boolean(pose), frameAgeMs: pose ? Math.max(0, now - this.tracker.lastPoseAt) : null, status };
   }
 
@@ -166,7 +166,6 @@ export class GarmentOverlay {
       return;
     }
     this.tracker.update(now);
-    this.drawCameraFrame(now);
     const pose = this.tracker.getPose(now);
     const segmentation = this.tracker.getSegmentation(now);
     const worldPose = this.tracker.getWorldPose(now);
@@ -175,7 +174,7 @@ export class GarmentOverlay {
     if (!texture) { this.clear(); this._status(this.backMessage || 'Add a back photo to see this garment from behind.'); return; }
     // Tracking still advances and freshness is checked on every display tick.
     // Reuse only the raster drawing, not the camera or inference lifecycle.
-    if (this._sameDraw(pose, segmentation, worldPose)) return;
+    if (this._sameDraw(pose, segmentation, worldPose)) { if(!this.outsideCrop)this.drawCameraFrame(now);return; }
     const mesh = buildGarmentMesh(pose, { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, this.item.category, { ...this.fit, normalHistory:this.sleeveNormalHistory, worldPose, photoPattern: this.item.starter ? null : texture.photoPattern, sleeveStyle: this.item.starter ? this.item.style : '', textureBounds: texture.sourceBounds });
     if (!mesh) {
       this.clear();
@@ -191,6 +190,7 @@ export class GarmentOverlay {
       this._status('Center yourself in the portrait camera view.');
       return;
     }
+    this.drawCameraFrame(now);
     this.clear(true);
     this.hasPixels = true;this.missingSleeves=mesh.missingSleeves||0;this.renderedSleeveStyle=mesh.sleeveStyle||'torso-only'; this.curvedTorso = Boolean(mesh.curvedTorso);
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
@@ -223,6 +223,7 @@ export class GarmentOverlay {
     if (frame === this.lastCameraFrame) return;
     const { width, height } = this.viewport;
     const displayFrame = this.cameraClarity?.process(frame) || frame;
+    this.cameraCanvas.style.filter=this.cameraClarity?.backend==='original'?(CAMERA_CLARITY[this.cameraClarity.mode]?.filter||'none'):'none';
     const scale = Math.max(width/displayFrame.width, height/displayFrame.height), w = displayFrame.width*scale, h = displayFrame.height*scale;
     const ctx = this.cameraCanvas.getContext('2d');
     ctx.save(); ctx.translate(width, 0); ctx.scale(-1, 1);

@@ -1,5 +1,7 @@
 # Mirror completion audit
 
+Current full-suite review: [priorities and continuation contract](SUITE-REVIEW-2026-10-09.md). Latest camera detail checkpoint: [native clarity](CAMERA-CLARITY-NATIVE-2026-10-09.md). All G1–G8 remain open.
+
 Mouth follow-up: [distinct speech poses and dental interior](MOUTH-SHAPES-2026-10-08.md). Live phoneme accuracy and production art quality remain open.
 
 Playback follow-up: [mouth motion follows output, queued tails and Stop](PLAYBACK-SYNC-2026-10-08.md); phoneme/anatomy and physical validation remain open.

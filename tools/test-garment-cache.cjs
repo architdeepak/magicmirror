@@ -51,3 +51,14 @@ rp[11].x=.8;rp[12].x=.2;rear.tracker.lastPoseAt=3002;rear.render(3002);rear.trac
 rear.destroy();console.log('Paired raster: missing back clears/hints, back texture changes invalidate, and returning to front recovers.');
 const history=overlay.sleeveNormalHistory;history['photo-0']={first:1,last:2};overlay.clear(true);assert.equal(overlay.sleeveNormalHistory,history);assert(history['photo-0']);overlay.clear();assert.equal(overlay.sleeveNormalHistory,history);assert.equal(Object.keys(history).length,0);for(let i=0;i<50;i++)overlay.clear();assert.equal(overlay.sleeveNormalHistory,history,'Hidden clears allocated a new angular history');
 console.log('Sleeve angular history: active repaint retains it; tracking loss/disable clears entries without allocating histories on hidden ticks.');
+
+// Do not allocate/enhance a matched frame that is immediately hidden. Keep
+// camera updates independent when valid clothing raster is reused.
+let cameraDraws=0;overlay.drawCameraFrame=()=>cameraDraws++;overlay.enabled=true;tracker.enabled=true;tracker.ready=true;tracker.stream=video.srcObject;tracker.lastPoseAt=2000;tracker.pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1}));overlay.lastDraw=null;
+const savedBuild=context.buildGarmentMesh;context.buildGarmentMesh=()=>null;
+for(let i=0;i<10;i++)overlay.render(2000+i);assert.equal(cameraDraws,0,'Lost fit repeatedly enhanced hidden camera frames');
+context.buildGarmentMesh=savedBuild;overlay.facing.update=()=>{};overlay.facing.view='back';overlay.backTexture=null;
+for(let i=0;i<10;i++)overlay.render(2020+i);assert.equal(cameraDraws,0,'Missing back repeatedly enhanced hidden camera frames');
+overlay.facing.view='front';overlay.render(2040);overlay.render(2041);assert.equal(cameraDraws,2,'Cached garment stopped updating valid camera frames');
+context.buildGarmentMesh=()=>[[{x:-1000,y:0},{x:-900,y:10},{x:-950,y:20}]];overlay.lastDraw=null;for(let i=0;i<10;i++)overlay.render(2050+i);assert.equal(cameraDraws,2,'Outside crop repeatedly enhanced hidden camera frames');
+console.log('Matched camera work: loss, missing back and outside crop skip enhancement; visible cached garments retain camera updates.');

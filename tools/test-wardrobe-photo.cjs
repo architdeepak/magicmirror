@@ -1,7 +1,7 @@
 const assert = require('assert/strict'), fs = require('fs'), vm = require('vm');
 const source = fs.readFileSync('src/wardrobePhoto.js','utf8').replace(/^import .*;\n/gm,'');
 const context = vm.createContext({ Uint8ClampedArray, Uint32Array, Uint8Array });
-const claritySource = fs.readFileSync('src/cameraClarity.js','utf8').replaceAll('export ', '');
+const claritySource = fs.readFileSync('src/cameraClarity.js','utf8').replace(/^import .*;\n/gm,'').replaceAll('export ', '');
 vm.runInContext(claritySource, context);
 vm.runInContext(source.slice(0,source.indexOf('export class')).replace('export function','function'), context);
 function picture(bg,fg) {

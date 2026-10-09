@@ -5,6 +5,7 @@ const inactive=()=>{const s=sample();s.cameraActive=false;s.cameraWorkload={...s
 assert.deepEqual(checkCameraSample(inactive(),inactive()),[]);
 const mismatch=sample();mismatch.cameraWorkload.selectedName='Different shirt';assert(checkCameraSample(mismatch,sample()).some(e=>e.type==='wardrobe-state-display-mismatch'));
 for(const [field,value,type]of [['pumping',true,'unused-camera-fixture-running'],['streamActive',true,'camera-off-retained-input-or-fit'],['activeStreams',1,'camera-off-retained-input-or-fit']]){const s=inactive();s.cameraWorkload[field]=value;assert(checkCameraSample(s,inactive()).some(e=>e.type===type));}
+const clarityLeak=inactive();clarityLeak.cameraWorkload.clarity={gpuActive:true};assert(checkCameraSample(clarityLeak,inactive()).some(e=>e.type==='camera-off-clarity-gpu-retained'));
 const busy=inactive();busy.cameraWorkload.body.requests++;assert(checkCameraSample(busy,inactive()).some(e=>e.type==='camera-off-inference-requests'));
 const sleeping=()=>{const s=inactive();s.sleeping=true;s.cameraWorkload.phase='sleep';return s};
 assert.deepEqual(checkCameraSample(sleeping(),sleeping()),[]);

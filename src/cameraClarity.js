@@ -1,3 +1,4 @@
+import { CameraClarityGpu } from './cameraClarityGpu.js';
 // Display-only enhancement. Tracking and garment extraction keep original pixels.
 export const CAMERA_CLARITY = Object.freeze({
   off: { filter: 'none' },
@@ -34,18 +35,27 @@ export class CameraClarity {
   constructor(ownerDocument) {
     this.canvas = ownerDocument.createElement('canvas');
     this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-    this.quality='auto';
+    this.destroyed=false;this.quality='auto';this.gpu=null;this.gpuUnavailable=false;this.output=null;this.backend='original';
     this.mode = 'off'; this.lastFrame = null; this.lastCostMs = 0; this.failed = false;
   }
-  setQuality(id) { this.quality=id;this.lastFrame=null;this.lastCostMs=0;this.failed=false; }
+  setQuality(id) { if(id==='hd')this.release();this.quality=id;this.lastFrame=null;this.lastCostMs=0;this.failed=false; }
   setMode(mode) {
     this.mode = CAMERA_CLARITY[mode] ? mode : 'off';
+    if(this.mode==='off')this.release();else this.gpuUnavailable=false;
     this.lastFrame = null; this.failed = false; this.lastCostMs = 0;
   }
   process(frame) {
-    if (this.mode === 'off' || this.failed || this.quality==='hd') return frame; // Preserve HD source pixels; CSS tone remains active.
-    if (this.lastFrame === frame) return this.canvas;
+    if (this.destroyed || this.mode === 'off' || this.failed || this.quality==='hd') {this.backend='original';this.lastCostMs=0;return frame;} // Preserve HD source pixels; CSS tone remains active.
+    if (this.lastFrame === frame && !this.gpu?.lost && !this.gpu?.gl?.isContextLost?.()) return this.output;
     const start = performance.now();
+    // Upload once at captured resolution, without CPU readback or resizing.
+    if(!this.gpuUnavailable&&frame.width*frame.height<=1280*720){
+      try{this.gpu ||= new CameraClarityGpu(this.canvas.ownerDocument);this.output=this.gpu.process(frame,CAMERA_CLARITY[this.mode]);this.lastFrame=frame;this.lastCostMs=performance.now()-start;this.backend='gpu';return this.output;}
+      catch{this.gpu?.dispose();this.gpu=null;this.gpuUnavailable=true;}
+    }
+    // Never replace a detailed frame with a smaller enhancement preview.
+    // CSS tone remains available when native GPU enhancement cannot run.
+    if(frame.width>960||frame.height>720){this.backend='original';this.lastCostMs=0;return frame;}
     // Process once per analyzed frame, bounded independently of TV resolution.
     const scale = Math.min(1, 960 / frame.width, 720 / frame.height);
     const width = Math.max(1, Math.round(frame.width * scale)), height = Math.max(1, Math.round(frame.height * scale));
@@ -56,11 +66,12 @@ export class CameraClarity {
       enhanceCameraPixels(pixels.data, width, height, this.mode);
       this.ctx.putImageData(pixels, 0, 0);
       this.lastFrame = frame; this.lastCostMs = performance.now() - start;
-      return this.canvas;
+      this.output=this.canvas;this.backend='cpu';return this.output;
     } catch {
       // A restricted source or unavailable canvas must still show the original.
       this.failed = true; return frame;
     }
   }
-  destroy() { this.lastFrame = null; this.canvas.width = this.canvas.height = 1; }
+  release() { this.gpu?.dispose();this.gpu=null;this.gpuUnavailable=false;this.failed=false;this.output=null;this.lastFrame=null;this.lastCostMs=0;this.backend='original';if(this.canvas.width!==1||this.canvas.height!==1)this.canvas.width=this.canvas.height=1; }
+  destroy() { this.destroyed=true;this.release(); }
 }

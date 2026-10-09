@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "mode": "natural",
+      "bitmap": false,
+      "maxError": 1,
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "mode": "natural",
+      "bitmap": true,
+      "maxError": 1,
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "mode": "bright",
+      "bitmap": false,
+      "maxError": 1,
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "mode": "bright",
+      "bitmap": true,
+      "maxError": 1,
+      "resolution": [
+        256,
+        128
+      ]
+    }
+  ],
+  "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+  "fullResolution": [
+    1280,
+    720
+  ],
+  "lostContextOriginal": true,
+  "released": true,
+  "scope": "Actual NVIDIA WebGL shader, synthetic original-resolution canvas and ImageBitmap inputs; per-channel CPU reference, orientation, alpha, cache, context loss and release. Not physical camera or Windows efficiency proof."
+}

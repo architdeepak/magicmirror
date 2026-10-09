@@ -1,0 +1,53 @@
+{
+  "artifact": "artifacts/monitor/2026-10-09T18-11-30-180Z",
+  "scope": "Uncommitted enhancement source identified by exact archive hash; recorded camera/local AR/optional rig/synthetic PCM. Short lifecycle evidence, not final qualification.",
+  "status": "finished",
+  "sampleCount": 18,
+  "errors": [],
+  "build": {
+    "archiveSha256": "a847c41d68264eaa2f5ebd762ae08753e9a485d6c56927d1c616c82872042eed",
+    "gitRevision": "e28fb8626f37b7f8b22d0fe006e87a84eb514ece",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 10,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "samplesSha256": "622c5381ecb4182263da493cecd3fdee497d3a69eef6d2739b039754902e6dc7",
+  "phaseStats": {
+    "ar": {
+      "samples": 8,
+      "cpuMedianPercentOneCore": 130.73394793130805,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 8
+    },
+    "camera-off": {
+      "samples": 2,
+      "cpuMedianPercentOneCore": 60.20531189169282,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "mirror": {
+      "samples": 5,
+      "cpuMedianPercentOneCore": 45.64860426929393,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "sleep": {
+      "samples": 3,
+      "cpuMedianPercentOneCore": 11.505588428665352,
+      "sleepingSamples": 3,
+      "gpuEnhancementActiveSamples": 0
+    }
+  }
+}
