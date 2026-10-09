@@ -1,0 +1,25 @@
+{
+  "passed": false,
+  "sourceCommit": "2743f98",
+  "archiveSha256": "21372784d348c548499100e374d202707409784ceb432cd9a55e8e703115fec8",
+  "scope": "Actual packaged Linux paired HTTP media POST, generated VP8 playback, pending local browser and synthetic Codex run. No physical phone/Windows.",
+  "failure": "Media plays but old agent remains active and delayed browser appears over Watch.",
+  "observed": {
+    "agent": {
+      "active": true,
+      "provider": "codex"
+    },
+    "mode": "watch",
+    "desktop": {
+      "active": true,
+      "kind": "browser"
+    },
+    "ready": 4,
+    "time": 0.476398,
+    "paused": false,
+    "old": {
+      "ok": true,
+      "url": "http://127.0.0.1:33501/slow"
+    }
+  }
+}

@@ -106,9 +106,7 @@ async function startCastReceiver() {
     const timeout = setTimeout(() => { castCommands.delete(id); reject(new Error('The mirror player did not respond.')); }, 8000);
     castCommands.set(id, { resolve, reject, timeout });
     if (['load', 'play'].includes(command.action)) {
-      nativeCompanion.exit();
-      if (desktopWindow && !desktopWindow.isDestroyed()) desktopWindow.hide();
-      mainWindow.show(); mainWindow.focus();
+      prepareWatchPresentation();
     }
     mainWindow.webContents.send('mirror:cast-command', { ...command, id });
   }) });
@@ -171,6 +169,12 @@ function desktopPresentation() {
 
 function notifyDesktopPresentation() {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:desktop-presentation', desktopPresentation());
+}
+function prepareWatchPresentation(){
+  desktopNavigation.cancel();invalidateDesktopObservation();desktopActionAbort?.abort();
+  nativeCompanion.exit();
+  if(desktopWindow&&!desktopWindow.isDestroyed())desktopWindow.hide();
+  mainWindow.show();mainWindow.focus();
 }
 
 function layoutDesktopWindow() {
@@ -816,6 +820,7 @@ async function startPhoneLink() {
         }
         const mediaUrl = supportedPhoneMediaUrl(JSON.parse(body).url);
         if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) throw new Error('The mirror window is not available.');
+        prepareWatchPresentation();
         mainWindow.webContents.send('mirror:phone-media', mediaUrl);
         json(200, { ok: true });
       } catch (error) { json(400, { error: error.message || 'Could not send this media link.' }); }

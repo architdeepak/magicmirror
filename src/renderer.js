@@ -1482,6 +1482,7 @@ elements.castingToggle.addEventListener('click', async () => {
 });
 const removeCastCommandListener = window.mirrorBridge?.onCastCommand?.(async (command) => {
   try {
+    if(['load','play'].includes(command.action)){const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())throw new Error('Cast request superseded by a newer choice.');}
     if (command.action === 'load') { watchLoadGeneration += 1; youtubePlayer.detach(); }
     await castPlayer.command(command);
     if (command.action === 'load') {
@@ -1491,11 +1492,12 @@ const removeCastCommandListener = window.mirrorBridge?.onCastCommand?.(async (co
     await window.mirrorBridge.completeCastCommand({ id: command.id });
   } catch (error) { await window.mirrorBridge.completeCastCommand({ id: command.id, error: error.message }).catch(() => {}); }
 });
-const removePhoneMediaListener = window.mirrorBridge?.onPhoneMedia?.((url) => {
+const removePhoneMediaListener = window.mirrorBridge?.onPhoneMedia?.(async (url) => {
+  const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;
   elements.watchUrl.value = url;
   setAssistantMode('watch');
-  loadWatchVideo();
-  showGesture('Phone sent a media link');
+  await loadWatchVideo();
+  if(control.current())showGesture('Phone sent a media link');
 });
 document.querySelectorAll('[data-service]').forEach((button) => button.addEventListener('click', async () => {
   const service=button.dataset.service,label=button.textContent,control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;
