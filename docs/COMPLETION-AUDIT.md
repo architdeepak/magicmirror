@@ -157,3 +157,5 @@ is saved in `MONITOR-AUDIT-VERIFICATION.json`; completion is not claimed.
 - **YouTube conversation-volume checkpoint:** [owned ducking and explicit watch volume](YOUTUBE-DUCKING-2026-10-09.md). Actual public player reports 80→20→80; explicit 45 and same-valued 11 survive Stop, paused playback stays paused. Direct/cast waveform, full tests and four-viewport packaged UI pass. Physical audio, native Spotify and all full-suite gates remain open.
 
 - **Codex Watch checkpoint:** [shared player controls and actual installed-agent task](CODEX-WATCH-2026-10-09.md). Codex set public YouTube volume to 37 and paused it; independent player state confirmed both. Packaged shared-tool playback/ducking and full tests pass. Broad autonomous tasks and all suite gates remain open.
+
+- **Watch source-ownership checkpoint:** [invalid-link control preservation](WATCH-LOAD-OWNERSHIP-2026-10-09.md). Actual public YouTube baseline loses its bridge; final package preserves source/ready/volume and subsequent real Codex controls. Pending-load/stale-error tests, full suite and four-viewport UI pass. All full-suite gates remain open.

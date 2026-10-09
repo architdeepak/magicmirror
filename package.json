@@ -31,7 +31,7 @@
     "test:gestures": "node tools/test-gestures.cjs",
     "test:youtube": "node tools/test-youtube-bridge.cjs && node tools/test-youtube-ducking.cjs",
     "check:gemini:live": "electron --no-sandbox tools/check-gemini-live.cjs",
-    "test:watch": "node tools/test-watch-controls.cjs",
+    "test:watch": "node tools/test-watch-controls.cjs && node tools/test-watch-load-ownership.cjs",
     "check:youtube:live": "electron --no-sandbox tools/check-youtube-live.cjs",
     "check:wake:recognition": "electron --no-sandbox tools/check-wake-recognition.cjs",
     "test:depth": "node tools/test-depth.cjs",

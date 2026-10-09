@@ -1986,7 +1986,7 @@ async function handleWatchControl(args = {}) {
 }
 
 async function loadWatchVideo() {
-  const generation = ++watchLoadGeneration;
+  let generation = null;
   const url = elements.watchUrl.value.trim();
   if (!url) return;
   try {
@@ -1994,6 +1994,7 @@ async function loadWatchVideo() {
     if (!['https:', 'http:'].includes(parsed.protocol)) throw new Error('Use an http(s) video URL.');
     const videoId = youtubeId(parsed);
     if (videoId && !/^[A-Za-z0-9_-]{11}$/.test(videoId)) throw new Error('Paste a complete YouTube video link.');
+    generation = ++watchLoadGeneration;
     castPlayer.detach();
     youtubePlayer.detach();
     const spotifyEmbed = spotifyEmbedUrl(parsed);
@@ -2016,8 +2017,8 @@ async function loadWatchVideo() {
     elements.watchPlaceholder.classList.add('hidden');
     return { result: 'Media source selected; playback readiness is reported by its player.', ...watchPlayback.snapshot() };
   } catch (error) {
-    if (generation !== watchLoadGeneration) return;
-    youtubePlayer.detach();
+    if (generation !== null && generation !== watchLoadGeneration) return;
+    if (generation !== null) youtubePlayer.detach();
     showOracle(error.message, '', 'Watch mode');
     return { error: error.message };
   }
