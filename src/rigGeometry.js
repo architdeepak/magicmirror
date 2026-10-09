@@ -168,12 +168,11 @@ export function buildHeadVolume(face,material){
 
 export function buildRigAccessories(face,persona){
  const p=face.geometry.attributes.position, group=new THREE.Group();group.name='articulated-accessories';face.add(group);
- const hair=new THREE.MeshStandardMaterial({color:persona==='solenne'?0x24160e:0x100d16,roughness:.48,metalness:0});
+ const hair=new THREE.MeshStandardMaterial({color:persona==='solenne'?0x24160e:0x100d16,roughness:.68,metalness:0});
  const ball=(radius,mat,position,scale)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(radius,32,24),mat);m.position.set(...position);if(scale)m.scale.set(...scale);group.add(m);return m;};
  // Posterior skull closes side views; no image plane or torso participates.
  const headVolume=buildHeadVolume(face,face.material);group.add(headVolume);
  ball(1,hair,[0,.25,-.70],[1.01,1.22,.79]);
- for(const side of[-1,1])ball(1,hair,[side*.28,1.05,.25],[.42,.17,.18]);
  const eyes=[];
  for(const [a,b,upper,lower,side]of[[33,133,159,145,'Left'],[263,362,386,374,'Right']]){
   const center=new THREE.Vector3((p.getX(a)+p.getX(b))/2,(p.getY(upper)+p.getY(lower))/2,.015);
@@ -186,17 +185,43 @@ export function buildRigAccessories(face,persona){
   const glint=new THREE.Mesh(new THREE.SphereGeometry(radius*.075,12,8),new THREE.MeshBasicMaterial({color:0xfff8eb}));glint.position.set(-radius*.12,radius*.16,radius*.73);eye.add(glint);
   eyes.push({group:eye,side,center});
  }
- // Solid hair locks with depth, taper and a coherent parting; no billboards.
- for(const side of[-1,1])for(let i=0;i<9;i++){
-  const t=i/8,z=.16-t*.60,x=side*(.08+t*.43);
-  const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(x,1.10,z+.22),new THREE.Vector3(side*(.52+t*.25),1.10-t*.18,z+.17),new THREE.Vector3(side*(.91+t*.12),.32-t*.20,z),new THREE.Vector3(side*(1.04-t*.04),-.43-t*.23,z-.02),new THREE.Vector3(side*(.80+t*.12),-1.03-t*.10,z+.02),new THREE.Vector3(side*(.69+t*.14),-.88-t*.17,z+.04)]);
-  const geometry=new THREE.TubeGeometry(curve,36,.115+t*.035,10,false);
-  const positions=geometry.attributes.position;
+ // Broad, flattened locks sweep out from the part and end at staggered
+ // lengths. Six overlapping layers per side retain volume without a row of cords.
+ for(const side of[-1,1])for(let i=0;i<6;i++){
+  const t=i/5,z=.25-t*.64,x=side*(.055+t*.45),wave=Math.sin(i*1.7)*.035;
+  const tip=persona==='solenne'?-.99-.10*Math.sin(i*.9): -1.10-.16*Math.sin(i*.9);
+  const curve=new THREE.CatmullRomCurve3([
+   new THREE.Vector3(x,1.12+.025*Math.sin(i),z-.06),
+   new THREE.Vector3(side*(.42+t*.29),1.17-t*.20,z+.10),
+   new THREE.Vector3(side*(.88+t*.15),.40-t*.17,z+.02),
+   new THREE.Vector3(side*(.99+wave),-.25-t*.24,z-.03),
+   new THREE.Vector3(side*(.95+wave),tip+.14,z+.015),
+   new THREE.Vector3(side*(.82+t*.07),tip,z+.06)
+  ]);
+  const geometry=new THREE.TubeGeometry(curve,36,.16,8,false),positions=geometry.attributes.position;
   for(let segment=0;segment<=36;segment++){
-   const center=curve.getPointAt(segment/36),taper=segment<27?1:Math.max(.12,(36-segment)/9);
-   for(let radial=0;radial<=10;radial++){const index=segment*11+radial,v=new THREE.Vector3().fromBufferAttribute(positions,index).sub(center).multiplyScalar(taper).add(center);positions.setXYZ(index,v.x,v.y,v.z);}
+   const u=segment/36,center=curve.getPointAt(u),taper=Math.min(1,.20+u/.12)*(u<.72?1:Math.max(.10,(1-u)/.28));
+   for(let radial=0;radial<=8;radial++){
+    const index=segment*9+radial,v=new THREE.Vector3().fromBufferAttribute(positions,index).sub(center);
+    v.x*=taper*(1+.10*Math.sin(u*Math.PI*2+i));v.y*=taper;v.z*=.65*taper;
+    v.add(center);positions.setXYZ(index,v.x,v.y,v.z);
+   }
   }
-  geometry.computeVertexNormals();const lock=new THREE.Mesh(geometry,hair);group.add(lock);
+  // Close both ends, including the fine exposed tip. No hollow cut ends.
+  const values=Array.from(positions.array),uvs=Array.from(geometry.attributes.uv.array),indices=Array.from(geometry.index.array);
+  for(const end of [0,36]){
+   const center=curve.getPointAt(end/36),cap=values.length/3,ring=end*9;
+   values.push(center.x,center.y,center.z);uvs.push(.5,end/36);
+   const a=new THREE.Vector3().fromBufferAttribute(positions,ring).sub(center),b=new THREE.Vector3().fromBufferAttribute(positions,ring+1).sub(center);
+   const forward=new THREE.Vector3().crossVectors(a,b).dot(curve.getTangentAt(end/36))>0,reverse=forward===(end===0);
+   for(let radial=0;radial<8;radial++)indices.push(cap,ring+radial+(reverse?1:0),ring+radial+(reverse?0:1));
+  }
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(values,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.setIndex(indices);geometry.deleteAttribute('normal');geometry.computeVertexNormals();
+  const normals=geometry.attributes.normal;
+  for(let segment=0;segment<=36;segment++){
+   const a=segment*9,b=a+8,n=new THREE.Vector3().fromBufferAttribute(normals,a).add(new THREE.Vector3().fromBufferAttribute(normals,b)).normalize();normals.setXYZ(a,n.x,n.y,n.z);normals.setXYZ(b,n.x,n.y,n.z);
+  }
+  const lock=new THREE.Mesh(geometry,hair);group.add(lock);
  }
  if(persona==='velora'){
   const gold=new THREE.MeshStandardMaterial({color:0xc78e31,metalness:.85,roughness:.25});

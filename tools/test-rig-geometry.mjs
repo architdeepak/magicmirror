@@ -70,6 +70,17 @@ for(const persona of ['velora','solenne']){
   assert(metal.geometry.attributes.position.array.every(Number.isFinite));assert.equal(metal.geometry.attributes.uv.count,metal.geometry.attributes.position.count);
   assert(metal.geometry.attributes.position.count<5000,'Crown geometry exceeds its bounded budget');
  }
+ const hair=accessories.group.getObjectByName('sculpted-hair');assert(hair?.isMesh);const hp=hair.geometry.attributes.position;
+ assert(hp.count<6000,'Hair geometry exceeds its bounded budget');assert(hp.array.every(Number.isFinite)&&hair.geometry.attributes.normal.array.every(Number.isFinite));
+ assert.equal(hair.geometry.attributes.normal.count,hp.count);assert.equal(hair.geometry.attributes.uv.count,hp.count);
+ const hairEdges=new Map(),hairKey=i=>[hp.getX(i),hp.getY(i),hp.getZ(i)].map(v=>Math.round(v*1e6)).join(',');
+ for(let i=0;i<hair.geometry.index.count;i+=3){const ids=[0,1,2].map(j=>hair.geometry.index.getX(i+j));for(let j=0;j<3;j++){const edge=[hairKey(ids[j]),hairKey(ids[(j+1)%3])].sort().join('|');hairEdges.set(edge,(hairEdges.get(edge)||0)+1)}}
+ assert([...hairEdges.values()].every(n=>n===2),'Hair has an open cap or seam');
+ const hairNormals=new Map();for(let i=0;i<hp.count;i++){
+  const k=hairKey(i),n=[0,1,2].map(axis=>hair.geometry.attributes.normal.getComponent(i,axis)),previous=hairNormals.get(k);
+  if(previous)assert(n.every((v,axis)=>Math.abs(v-previous[axis])<1e-5),'Welded hair seam has mismatched normals');else hairNormals.set(k,n);
+ }
+
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
  const lowerReach=(edge,skin,opposite)=>Math.min(8,Math.max(1,Math.abs(geometry.attributes.uv.getY(opposite)-geometry.attributes.uv.getY(edge))*.5/Math.max(1e-6,Math.abs(geometry.attributes.uv.getY(skin)-geometry.attributes.uv.getY(edge)))));
  const leftLowerReach=lowerReach(145,23,159),rightLowerReach=lowerReach(374,253,386);
