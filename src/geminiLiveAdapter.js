@@ -19,7 +19,7 @@ const HOST_VOICES = {
 const HOST_VOICE_PRESETS = Object.freeze({ velora: 'Gacrux', solenne: 'Aoede', rowan: 'Charon' });
 
 export class GeminiLiveAdapter {
-  constructor({ avatar, config, onState, onTranscript, onSpeechStart, onError, onSessionEnd, onRemember, onTurnComplete, onModeChange, onArEffect, onSearch, onAvatarPosition, onTryOn, onTryOnAdjust, onWardrobe, onOpenService, onOpenWebpage, onCaptureScreen, onComputerAction, onSpotify, onMirrorState, onWatchControl, onAgentTask, onMirrorCommand, onToolActivity }) {
+  constructor({ avatar, config, onState, onTranscript, onSpeechStart, onError, onSessionEnd, onRemember, onTurnComplete, onModeChange, onArEffect, onSearch, onAvatarPosition, onTryOn, onTryOnAdjust, onCameraControl, onWardrobe, onOpenService, onOpenWebpage, onCaptureScreen, onComputerAction, onSpotify, onMirrorState, onWatchControl, onAgentTask, onMirrorCommand, onToolActivity }) {
     this.avatar = avatar;
     this.config = config;
     this.onState = onState || (() => {});
@@ -36,6 +36,7 @@ export class GeminiLiveAdapter {
     this.onTryOn = onTryOn || (async () => ({ result: 'Try-on is not available.' }));
     this.onWardrobe = onWardrobe || (async () => ({ result: 'Wardrobe unavailable.' }));
     this.onTryOnAdjust = onTryOnAdjust || (async () => ({ result: 'Live garment fit is not available.' }));
+    this.onCameraControl = onCameraControl || (async () => { throw new Error('Camera controls are unavailable.'); });
     this.onOpenService = onOpenService || (async () => { throw new Error('App launcher is unavailable.'); });
     this.onOpenWebpage = onOpenWebpage || (async () => { throw new Error('Web page launcher is unavailable.'); });
     this.onCaptureScreen = onCaptureScreen || (async () => { throw new Error('Screen capture is unavailable.'); });

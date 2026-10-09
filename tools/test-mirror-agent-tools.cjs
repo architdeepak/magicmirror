@@ -1,7 +1,7 @@
 const assert = require('assert/strict');
 const fs = require('fs');
 const vm = require('vm');
-const context = vm.createContext({ setTimeout: resolve => resolve(), URL });
+const context = vm.createContext({ setTimeout: resolve => resolve(), URL, AbortController });
 vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('export class', 'globalThis.MirrorAgentTools = class'), context);
 (async () => {
   let captures = 0, actions = [], resolveCapture, documentId='page-1';
@@ -40,6 +40,11 @@ vm.runInContext(fs.readFileSync('src/mirrorAgentTools.js','utf8').replace('expor
   retirement.payload={runId:'new-run'};vm.runInContext(retire,retirement);assert.equal(retirement.agentRunId,null);assert.equal(progress.hidden,true);assert.equal(progress.cancelled,1);
   progress.hidden=false;retirement.payload={runId:null};vm.runInContext(retire,retirement);assert.equal(progress.hidden,false,'Empty retirement hid unrelated voice progress');
   retirement.agentRunId='another';retirement.payload={all:true};vm.runInContext(retire,retirement);assert.equal(retirement.agentRunId,null);assert.equal(progress.hidden,true);
+  let cameraSignal,finishCamera;adapter.onCameraControl=(enabled,{signal})=>{cameraSignal=signal;return new Promise(resolve=>finishCamera=resolve)};
+  await assert.rejects(tools.execute('control_camera',{enabled:'yes'}),/true or false/);
+  const pendingCamera=tools.execute('control_camera',{enabled:true});tools.cancel();assert(cameraSignal.aborted);finishCamera({camera:{active:false}});await assert.rejects(pendingCamera,/cancelled/);assert.equal(tools.cameraStart,null);
+  const started=tools.execute('control_camera',{enabled:true}),oldSignal=cameraSignal,oldFinish=finishCamera;
+  const newer=tools.execute('control_camera',{enabled:false}),newSignal=cameraSignal;assert(oldSignal.aborted);assert(!newSignal.aborted);oldFinish({camera:{active:false}});await assert.rejects(started,/cancelled/);assert.equal(tools.cameraStart.signal,newSignal);finishCamera({camera:{active:false}});await newer;assert.equal(tools.cameraStart,null);
   const fitDefinition = require('../src/codexMirrorTools.cjs').MIRROR_TOOLS.find(t => t.name === 'adjust_try_on');assert(fitDefinition);assert.equal(fitDefinition.inputSchema.properties.width.maximum,1.5);
   adapter.onTryOnAdjust = async args => ({ fit: args, result: 'Fit adjusted' });
   const fitResult = await tools.execute('adjust_try_on',{ width:1.15, length:1.1, offset:-.08, view:'live' });assert.equal(fitResult.fit.width,1.15);assert.equal(fitResult.fit.offset,-.08);assert(fitResult.mirrorState);

@@ -1,0 +1,573 @@
+{
+  "runtime": {
+    "passed": true,
+    "archiveSha256": "7fd276ecb79218c06b652a97a203835c7d5d3029f765c5d9111eb67e0be38aaf",
+    "results": [
+      {
+        "action": "stop-permission",
+        "pending": 0,
+        "result": {
+          "error": "Agent task cancelled."
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "liveTracks": 0
+      },
+      {
+        "action": "stop-stream",
+        "pending": 0,
+        "result": {
+          "error": "Agent task cancelled."
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "liveTracks": 0
+      },
+      {
+        "action": "mute-stream",
+        "pending": 0,
+        "result": {
+          "error": "Agent task cancelled."
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "liveTracks": 0
+      },
+      {
+        "action": "off-stream",
+        "pending": 0,
+        "result": {
+          "error": "Camera request cancelled."
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "liveTracks": 0
+      }
+    ],
+    "activeCamera": {
+      "preserved": true,
+      "off": true,
+      "tracksReleased": true
+    },
+    "result": {
+      "completed": true,
+      "summary": "Verified the local stream turned on, then off; final state is `camera.active=false`, with no error and `sharedWithAssistant=false`."
+    },
+    "calls": [
+      {
+        "name": "get_mirror_state",
+        "args": {},
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        }
+      },
+      {
+        "name": "control_camera",
+        "args": {
+          "enabled": true
+        },
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        }
+      },
+      {
+        "name": "get_mirror_state",
+        "args": {},
+        "camera": {
+          "active": true,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        }
+      },
+      {
+        "name": "control_camera",
+        "args": {
+          "enabled": false
+        },
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        }
+      },
+      {
+        "name": "get_mirror_state",
+        "args": {},
+        "camera": {
+          "active": false,
+          "error": "",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        }
+      }
+    ],
+    "denial": {
+      "result": "Local camera is off.",
+      "error": "Camera permission was denied",
+      "camera": {
+        "active": false,
+        "error": "Camera permission was denied",
+        "visionSharingEnabled": true,
+        "sharedWithAssistant": false,
+        "faceTracking": {
+          "ready": true,
+          "detected": false,
+          "frameAgeMs": null,
+          "lastInferenceMs": 0
+        }
+      },
+      "mirrorState": {
+        "observedAt": "2026-10-09T20:15:34.398Z",
+        "display": {
+          "mode": "portal",
+          "requestedMode": "mirror",
+          "desktopActive": false,
+          "desktopKind": "",
+          "desktopLabel": "",
+          "sleeping": false,
+          "visible": true,
+          "width": 540,
+          "height": 960,
+          "quality": "auto",
+          "avatarAppearance": "portrait",
+          "avatarRig": null,
+          "avatarPlayback": {
+            "source": "manual",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 0,
+            "visemeModel": "idle",
+            "predictedViseme": null,
+            "contextState": null
+          },
+          "graphics": "software",
+          "effects": {
+            "quality": "auto",
+            "backend": "cpu",
+            "resolution": [
+              300,
+              150
+            ],
+            "field": [
+              0,
+              0
+            ],
+            "frames": 0,
+            "targetFps": 30,
+            "fallbackReason": null
+          },
+          "avatarPosition": "center",
+          "depthEnabled": false
+        },
+        "agent": {
+          "active": false,
+          "provider": "codex"
+        },
+        "lookbook": {
+          "open": false,
+          "capturing": false,
+          "draftReady": false,
+          "saving": false,
+          "savedCount": 0,
+          "comparison": false
+        },
+        "localTimers": [],
+        "routine": {
+          "active": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "vision": {
+          "available": false,
+          "source": "unavailable",
+          "lastSentAt": null,
+          "lastSentSource": null,
+          "enabled": true,
+          "sharedWithAssistant": false
+        },
+        "camera": {
+          "active": false,
+          "error": "Camera permission was denied",
+          "visionSharingEnabled": true,
+          "sharedWithAssistant": false,
+          "faceTracking": {
+            "ready": true,
+            "detected": false,
+            "frameAgeMs": null,
+            "lastInferenceMs": 0
+          }
+        },
+        "gestures": {
+          "requested": false,
+          "active": false,
+          "status": "off",
+          "lastInferenceMs": 0
+        },
+        "tryOn": {
+          "view": "live",
+          "rendering": false,
+          "consented": false,
+          "liveAI": {
+            "state": "idle",
+            "active": false,
+            "garment": "",
+            "provider": "Decart",
+            "quality": "",
+            "frameAgeMs": null,
+            "latencyMs": null,
+            "fps": null,
+            "error": "",
+            "configured": false,
+            "consented": false
+          },
+          "rendererConfigured": false,
+          "rendererHost": "",
+          "selected": null,
+          "fit": {
+            "width": 1,
+            "length": 1,
+            "offset": 0
+          },
+          "contourOcclusion": false,
+          "trackingInferenceMs": 0,
+          "previewReady": false,
+          "liveFit": {
+            "sleeveStyle": null,
+            "missingSleeves": null,
+            "imageReady": false,
+            "visible": false,
+            "garmentView": "front",
+            "backImageReady": false,
+            "curvedTorso": false,
+            "cameraActive": false,
+            "trackingReady": false,
+            "cameraClarity": "off",
+            "clarityBackend": "original",
+            "clarityCostMs": 0,
+            "bodyDetected": false,
+            "frameAgeMs": null,
+            "status": "Live fit is hidden."
+          },
+          "renderedStillAvailable": false,
+          "wardrobeControlsOpen": false,
+          "photoEditor": {
+            "open": false,
+            "readyToSave": false,
+            "view": "front",
+            "frontReady": false,
+            "backReady": false,
+            "extracting": false,
+            "saving": false
+          },
+          "closet": [
+            {
+              "name": "Black t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "White t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Blue t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Red t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Green t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Purple t-shirt",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Black blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "White blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Blue blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Red blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Green blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Purple blouse",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Black long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "White long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Blue long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Red long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Green long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Purple long sleeve",
+              "category": "top",
+              "favorite": false
+            },
+            {
+              "name": "Black dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "White dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "Blue dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "Red dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "Green dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "Purple dress",
+              "category": "dress",
+              "favorite": false
+            },
+            {
+              "name": "Black skirt",
+              "category": "skirt",
+              "favorite": false
+            },
+            {
+              "name": "White skirt",
+              "category": "skirt",
+              "favorite": false
+            },
+            {
+              "name": "Blue skirt",
+              "category": "skirt",
+              "favorite": false
+            },
+            {
+              "name": "Red skirt",
+              "category": "skirt",
+              "favorite": false
+            },
+            {
+              "name": "Green skirt",
+              "category": "skirt",
+              "favorite": false
+            },
+            {
+              "name": "Purple skirt",
+              "category": "skirt",
+              "favorite": false
+            }
+          ]
+        },
+        "watch": {
+          "source": "none",
+          "ready": false,
+          "playing": false,
+          "audioDucking": {
+            "supported": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "services": {
+          "findmy": {
+            "web": "Apple Find Devices",
+            "peopleLocations": false,
+            "note": "No Find My People bridge is configured; friends locations require the Find My app on an Apple device."
+          },
+          "browserSignIn": "User enters credentials directly; agent observation/input pauses on sign-in prompts."
+        },
+        "music": {
+          "view": "classic",
+          "metadataKeptLocal": true
+        }
+      }
+    },
+    "scope": "Actual packaged Linux camera lifecycle and installed Codex subscription agent, real canvas MediaStream tracks/deferred permission. Stop, hard mute, explicit off, existing-camera reuse, permission denial and on/off state verified. No physical camera, face detection accuracy, acoustic voice or Windows proof."
+  },
+  "photoRegression": {
+    "archiveSha256": "7fd276ecb79218c06b652a97a203835c7d5d3029f765c5d9111eb67e0be38aaf",
+    "results": [
+      {
+        "action": "stop",
+        "pending": 0,
+        "cameraActive": false,
+        "liveTracks": 0,
+        "editorOpen": true,
+        "status": "Photo work stopped. Your draft is kept."
+      },
+      {
+        "action": "mute",
+        "pending": 0,
+        "cameraActive": false,
+        "liveTracks": 0,
+        "editorOpen": true,
+        "status": "Photo work stopped. Your draft is kept."
+      },
+      {
+        "action": "close",
+        "pending": 0,
+        "cameraActive": false,
+        "liveTracks": 0,
+        "editorOpen": false,
+        "status": "Photo work stopped. Your draft is kept."
+      }
+    ],
+    "activeCamera": {
+      "keptExistingStream": true,
+      "tracksReleasedAfterExplicitOff": true
+    },
+    "passed": true,
+    "scope": "Actual packaged Linux renderer and head-tracking camera startup, real canvas MediaStream tracks, deferred permission; Stop/hard mute/editor close through production callbacks, plus existing-camera preservation. No physical camera or microphone recognition."
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/agent-camera-confirmed-tests.log"
+  },
+  "sourceHashes": {
+    "src/codexMirrorTools.cjs": "d8aa9fe5314e417b19f9ef8fc3a02f0bff82a0b967b2682d28dac61e6aa20d88",
+    "src/mirrorAgentTools.js": "bb6a8216478b1d1390e4c64bdc6231453f78b65ef38c3c8ae08661bc7530485b",
+    "src/renderer.js": "17c4974a1157b3c3be748009611d9807b49338bbf3abe8f8681f73427132d789",
+    "src/geminiLiveAdapter.js": "f6fe1f57320ed237ed185412c9b4148cd97690e420287145215728837a2d4262",
+    "tools/test-mirror-agent-tools.cjs": "5eb18ae6f4f5c3aaa321b62a3ad48882f1ab92fe73193071c9336d0ead7bcdda",
+    "tools/check-agent-camera.cjs": "e45fa78c883938b34ca2a3f5f3847bf69fee17d74111f389afece267ab923824"
+  }
+}

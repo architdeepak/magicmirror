@@ -451,6 +451,16 @@ const gemini = new GeminiLiveAdapter({
   },
   onTryOn: handleTryOnVoice,
   onTryOnAdjust: adjustTryOn,
+  onCameraControl: async (enabled, { signal } = {}) => {
+    if (typeof enabled !== 'boolean') throw new Error('Specify camera enabled as true or false.');
+    if (hardMuted || signal?.aborted) return { error: 'Camera request cancelled.' };
+    if (!enabled) { liveTryOn.stop(); cancelTryOnRender(); }
+    if (!enabled || !getTrackingStatus().cameraActive) await toggleCamera(enabled, { signal });
+    if (signal?.aborted) return { error: 'Camera request cancelled.' };
+    await populateCameras();
+    const camera = getMirrorState().camera;
+    return { result: camera.active ? 'Local camera is on.' : 'Local camera is off.', ...(enabled && !camera.active ? { error: camera.error || 'Camera unavailable.' } : {}), camera };
+  },
   onOpenService: async (service) => window.mirrorBridge.openService(service),
   onOpenWebpage: async (url) => window.mirrorBridge.openWebpage(url),
   onCaptureScreen: async () => {

@@ -2,7 +2,7 @@
 // input still passes through the main process's one-use observation checks.
 export class MirrorAgentTools {
   constructor(adapter) { this.adapter = adapter; this.cancel(); }
-  cancel() { this.epoch = (this.epoch || 0) + 1; this.observation = null; this.lastClick = null; }
+  cancel() { this.cameraStart?.abort(); this.cameraStart=null; this.epoch = (this.epoch || 0) + 1; this.observation = null; this.lastClick = null; }
   async execute(name, args = {}) {
     const epoch = this.epoch;
     const current = () => { if (epoch !== this.epoch) throw new Error('Agent task cancelled.'); };
@@ -20,6 +20,14 @@ export class MirrorAgentTools {
     let result;
     if (name === 'see_screen') result = await observe();
     else if (name === 'get_mirror_state') result = { mirrorState: a.onMirrorState() };
+    else if (name === 'control_camera') {
+      if (typeof args.enabled !== 'boolean') throw new Error('Specify camera enabled as true or false.');
+      this.cameraStart?.abort();
+      const controller = new AbortController(); this.cameraStart = controller;
+      this.observation = null; this.lastClick = null;
+      try { result = await a.onCameraControl(args.enabled, { signal: controller.signal }); current(); if (controller.signal.aborted) throw new Error('Camera request cancelled.'); }
+      finally { if (this.cameraStart === controller) this.cameraStart = null; }
+    }
     else if (name === 'computer_action') {
       const input = { ...args };
       const actionObservation = this.observation;
