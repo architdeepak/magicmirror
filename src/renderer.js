@@ -496,8 +496,8 @@ window.mirrorBridge?.onCodexTool?.(async payload => {
   showAgentProgress(payload.tool);
   try { result = await agentTools.execute(payload.tool, payload.args); }
   catch (error) { result = { error: error.message }; }
-  if (result.error && /sign.in|credential|password|authentication/i.test(result.error)) showAgentProgress('sign_in');
   if (payload.runId !== agentRunId) return;
+  if (result.error && /sign.in|credential|password|authentication/i.test(result.error)) showAgentProgress('sign_in');
   await window.mirrorBridge.codexToolResult({ id: payload.id, runId: payload.runId, result }).catch(() => {});
 });
 window.mirrorBridge?.onCodexCancelled?.(payload => {
@@ -515,7 +515,23 @@ async function runAgentTask(task) {
 }
 function cancelAgentTask() {
   agentRunId = null; agentTools.cancel();
-  void window.mirrorBridge?.cancelCodex?.()?.catch(() => {});
+  return window.mirrorBridge?.cancelCodex?.()?.catch(() => {});
+}
+async function takeOverAgentTask() {
+  if(!agentRunId)return;
+  voiceStartGeneration++;
+  document.querySelector('#agent-progress').hidden=true;
+  await cancelAgentTask();
+  if(!agentRunId&&!gemini.listening&&state==='thinking')setState('ready');
+}
+let manualControlGeneration=0;
+let manualDesktopRequest=null;
+function beginUserControl(){
+  const generation=++manualControlGeneration;
+  const pending=manualDesktopRequest;manualDesktopRequest=null;
+  const agent=agentRunId?takeOverAgentTask():null;
+  const desktop=pending?window.mirrorBridge?.closeDesktop?.()?.catch(()=>{}):null;
+  return {current:()=>generation===manualControlGeneration,wait:agent||desktop?Promise.all([agent,desktop]):null};
 }
 
 const wake = new WakeWordListener({
@@ -708,7 +724,8 @@ function applyDesktopPresentation(presentation) {
 }
 const removeDesktopListener = window.mirrorBridge?.onDesktopPresentation?.(applyDesktopPresentation);
 window.mirrorBridge?.desktopPresentation?.().then(applyDesktopPresentation).catch(() => {});
-elements.desktopReturn.addEventListener('click', () => {
+elements.desktopReturn.addEventListener('click', async () => {
+  const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;
   void window.mirrorBridge?.closeDesktop?.().catch((error) => showOracle(error.message, '', 'Desktop browser'));
 });
 
@@ -1253,7 +1270,7 @@ elements.dimensionSwitch?.addEventListener('click', (event) => {
 });
 elements.oracleCard.addEventListener('click', () => elements.oracleCard.classList.add('empty'));
 elements.oracleClose.addEventListener('click', () => elements.oracleCard.classList.add('empty'));
-document.querySelectorAll('.mode-btn').forEach((button) => button.addEventListener('click', () => setAssistantMode(button.dataset.mode)));
+document.querySelectorAll('.mode-btn').forEach((button) => button.addEventListener('click', async () => {const mode=button.dataset.mode,control=beginUserControl();if(control.wait)await control.wait;if(control.current())setAssistantMode(mode);}));
 elements.settingsToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.settings.classList.toggle('open'); populateCameras(); });
 elements.personaToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.personaPanel.classList.toggle('open'); });
 elements.launcherToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.launcherPanel.classList.toggle('open'); });
@@ -1481,12 +1498,14 @@ const removePhoneMediaListener = window.mirrorBridge?.onPhoneMedia?.((url) => {
   showGesture('Phone sent a media link');
 });
 document.querySelectorAll('[data-service]').forEach((button) => button.addEventListener('click', async () => {
+  const service=button.dataset.service,label=button.textContent,control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;
+  manualDesktopRequest=control;
   try {
-    await window.mirrorBridge?.openService(button.dataset.service);
-    showGesture(`Opening ${button.textContent}`);
+    await window.mirrorBridge?.openService(service);
+    if(control.current())showGesture(`Opening ${label}`);
   } catch (error) {
-    showOracle(error.message, '', 'Service launcher');
-  }
+    if(control.current())showOracle(error.message, '', 'Service launcher');
+  } finally {if(manualDesktopRequest===control)manualDesktopRequest=null;}
 }));
 elements.assistantTaskForm.addEventListener('submit', event => {
   event.preventDefault();
@@ -2162,7 +2181,8 @@ async function dispatchSpotifyGesture(type) {
 }
 
 async function dispatchGesture(type) {
-  if (type === 'palm' && (experience.capturing || experience.routineActive)) { stopAssistant(); return; }
+  if (type === 'palm' && (agentRunId || experience.capturing || experience.routineActive)) { stopAssistant(); return; }
+  if(['swipe-left','swipe-right','swipe-up','swipe-down'].includes(type)||type==='pinch'&&(desktopActive||['ar','watch','spotify'].includes(mode)||experience.dialog?.open||experience.capturing||closet.photo.open)){const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;}
   if (experience.gesture(type)) return;
   if (type !== 'palm' && closet.photo.gesture(type)) return;
   if (type === 'palm') {

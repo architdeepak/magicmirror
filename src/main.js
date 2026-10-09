@@ -265,11 +265,13 @@ async function openDesktopWebpage(value) {
 async function closeDesktopWindow() {
   desktopNavigation.cancel();
   nativeCompanion.exit();
-  if (desktopWindow && !desktopWindow.isDestroyed()) desktopWindow.close();
+  const browser=desktopWindow;desktopWindow=null;
+  if (browser && !browser.isDestroyed()) browser.close();
   else if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.show();
     if (useKiosk) mainWindow.setFullScreen(true);
   }
+  notifyDesktopPresentation();
   return true;
 }
 
@@ -1231,10 +1233,11 @@ function registerBridge() {
     mainWindow.webContents.send('mirror:codex-tool', { id, tool, args, generation, runId: activeRunId });
   }) });
   const cancelCodex = () => {
+    const cancelledRunId=activeRunId;
     activeRunId = null; codex.cancel(); desktopNavigation.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
     for (const waiter of toolWaiters.values()) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); }
     toolWaiters.clear();
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { all: true });
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { runId: cancelledRunId });
   };
   ipcMain.handle('mirror:codex-task', async (event, input) => {
     assertAgentFrame(event);
