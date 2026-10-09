@@ -60,3 +60,18 @@ for(const length of [.7,1,1.5]){
 const partialHistory={};scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern,normalHistory:partialHistory});assert.equal(Object.keys(partialHistory).length,6);
 pose[15].visibility=.1;const oneSleeve=scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern,normalHistory:partialHistory});assert.equal(Object.keys(partialHistory).length,3,'Hidden sleeve kept stale angle history');assert.equal(oneSleeve.missingSleeves,1);assert.equal(oneSleeve.coverForearms.length,1);assert(!oneSleeve.coverForearms.includes(15));pose[16].visibility=.1;const torsoOnly=scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern});assert.equal(torsoOnly.missingSleeves,2);assert.equal(torsoOnly.coverForearms.length,0);assert(torsoOnly.length>0);pose[11].visibility=0;assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:longPattern}),null);
 console.log('Long photo sleeves: separated contours, bounded source samples, finite fitted lengths, sewn roots, exact wrist cuffs and honest one/both missing-arm torso coverage passed.');
+
+// Allowance expands transverse coverage; it must rotate with the wearer.
+for(const angle of [0,.4,-.4]){
+ const coveragePose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
+ const c=Math.cos(angle),sn=Math.sin(angle),cx=270,cy=480;
+ for(const [i,x,y]of [[11,162,288],[12,378,288],[23,194.4,595.2],[24,345.6,595.2]]){
+  const dx=x-cx,dy=y-cy;coveragePose[i]={x:(540-(cx+c*dx-sn*dy))/540,y:(cy+sn*dx+c*dy)/960,z:0,visibility:1};
+ }
+ const mesh=scope.buildPhotoSleeves(coveragePose,video,view,{photoPattern:longPattern});
+ const hem=mesh.flat().filter(p=>Math.abs(p.v-longPattern.hem)<1e-8),a=hem.reduce((best,p)=>p.u<best.u?p:best),b=hem.reduce((best,p)=>p.u>best.u?p:best);
+ assert(Math.abs(Math.hypot(b.x-a.x,b.y-a.y)-151.2*1.36)<1e-6,'Hem allowance changed under torso lean');
+ assert(Math.abs((b.x-a.x)*sn-(b.y-a.y)*c)<1e-6,'Allowance stopped following torso axis');
+ assert.equal(mesh.missingSleeves,2);assert.equal(mesh.coverForearms.length,0);
+}
+console.log('Torso allowance: bounded transverse hem width across frontal/leaning poses and torso-only recovery passed.');

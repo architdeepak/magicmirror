@@ -68,7 +68,12 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     const across = Math.max(0, Math.min(1, (v-shoulderV)/(pattern.underarm-shoulderV)));
     const left = pattern.sides[0].outer.u+(pattern.sides[0].inner.u-pattern.sides[0].outer.u)*across;
     const right = pattern.sides[1].outer.u+(pattern.sides[1].inner.u-pattern.sides[1].outer.u)*across;
-    return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width,y:center.y+(b.y-a.y)*(q-.5)*width,z:center.z+(b.z-a.z)*(q-.5)*width,u:left+(right-left)*q,v}, q, Math.max(0,Math.min(1,t)));
+    // Pose joints lie inside the body. Estimate a modest garment allowance
+    // along the shoulder/hip axis, so leaning and profile views stay coherent.
+    // This is visual coverage, not a measurement of the wearer's size.
+    const boundedT=Math.max(0,Math.min(1,t)), allowance=1.2+.16*boundedT;
+    const lift=.035*(1-boundedT);
+    return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width*allowance-(bottom.x-top.x)*lift,y:center.y+(b.y-a.y)*(q-.5)*width*allowance-(bottom.y-top.y)*lift,z:center.z+(b.z-a.z)*(q-.5)*width*allowance,u:left+(right-left)*q,v}, q, boundedT);
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
   const triangles = grid(8,rows.length-1,(q,t)=>body(q,rows[Math.round(t*(rows.length-1))]));
