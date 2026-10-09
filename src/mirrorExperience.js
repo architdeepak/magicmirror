@@ -43,6 +43,7 @@ export class MirrorExperience {
     this.dialog.querySelector('[data-look-action=mute]').textContent = this.a.context().muted ? 'Unmute' : 'Mute';
   }
   cancel() {
+    this.captureCamera?.abort(); this.captureCamera = null;
     this.epoch++; this.capturing = false; this.routineActive = false; this.a.shell.dataset.capturing = 'false';
     const countdown = document.querySelector('#look-countdown'); countdown.hidden = true;
     void this.a.bridge?.cancelLook?.()?.catch(() => {});
@@ -53,12 +54,15 @@ export class MirrorExperience {
     if (this.a.editorOpen()) { this.notice('Close the garment editor before taking a look photo.'); return; }
     if (this.dialog.open) this.dialog.close();
     const epoch = ++this.epoch;
+    const controller = this.captureCamera = new AbortController();
+    let abort;
+    const stopped = new Promise(resolve => { abort = () => resolve(); controller.signal.addEventListener('abort', abort, { once: true }); });
     this.capturing = true;
     const counter = document.querySelector('#look-countdown'); counter.hidden = false;
     counter.querySelector('strong').textContent = '✧'; counter.querySelector('p').textContent = 'Preparing your camera…';
     this.a.shell.dataset.capturing = 'true';
     try {
-      await this.a.prepareCapture(); if (epoch !== this.epoch) return;
+      await Promise.race([this.a.prepareCapture(controller.signal), stopped]); if (epoch !== this.epoch || controller.signal.aborted) return;
       const snapshot = this.a.captureContext();
       counter.querySelector('p').textContent = 'Hold your pose. A little magic in three…';
       for (const number of [3, 2, 1]) {
@@ -71,7 +75,7 @@ export class MirrorExperience {
       this.capturing = false; this.a.shell.dataset.capturing = 'false'; counter.hidden = true;
       await this.open(); this.notice('Your look is ready. Save it, retake, or discard.');
     } catch (error) { if (epoch === this.epoch) this.notice(error.message); }
-    finally { if (epoch === this.epoch) { this.capturing = false; this.a.shell.dataset.capturing = 'false'; document.querySelector('#look-countdown').hidden = true; } }
+    finally { controller.signal.removeEventListener('abort', abort); if (this.captureCamera === controller) this.captureCamera = null; if (epoch === this.epoch) { this.capturing = false; this.a.shell.dataset.capturing = 'false'; document.querySelector('#look-countdown').hidden = true; } }
   }
   async saveDraft() {
     if (!this.draft || this.saving) return;

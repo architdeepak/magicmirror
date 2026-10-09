@@ -2,6 +2,9 @@ const assert = require('assert/strict'), fs = require('fs/promises'), sync = req
 const read = name => sync.readFileSync(path.join(__dirname, '../src', name), 'utf8').replace(/^import .*;\n/gm, '').replaceAll('export ', '');
 const storage = () => { const values = new Map(); return { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) }; };
 (async () => {
+  const counter={hidden:true,querySelector:()=>({})},captureScope=vm.createContext({AbortController,document:{querySelector:()=>counter}});vm.runInContext(read('mirrorExperience.js')+';globalThis.Experience=MirrorExperience',captureScope);
+  let signal,finish;const photo=Object.create(captureScope.Experience.prototype);Object.assign(photo,{epoch:0,capturing:false,saving:false,dialog:{open:false},draft:{reviewed:true},a:{bridge:{saveLook(){}},editorOpen:()=>false,shell:{dataset:{}},prepareCapture:s=>{signal=s;return new Promise(r=>finish=r)}}});
+  const pending=photo.capture();assert(signal&&!signal.aborted);photo.cancel();await pending;assert(signal.aborted);assert(counter.hidden&&!photo.capturing);assert(photo.draft.reviewed);finish();
   const scope = vm.createContext({ console }); vm.runInContext(read('localTimers.js') + ';globalThis.Timers=LocalTimers', scope);
   assert.equal(scope.parseMinutes('set a ten-minute timer'), 10); assert.equal(scope.parseMinutes('leaving in 20 minutes'), 20); assert.equal(scope.parseMinutes('two hours'), 120); assert.equal(scope.parseMinutes('900 minutes'), null);
   let now = 1000, alerts = 0; const saved = storage(), timers = new scope.Timers(saved, () => alerts++, () => now);

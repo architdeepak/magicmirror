@@ -454,7 +454,7 @@ const gemini = new GeminiLiveAdapter({
   onCameraControl: async (enabled, { signal } = {}) => {
     if (typeof enabled !== 'boolean') throw new Error('Specify camera enabled as true or false.');
     if (hardMuted || signal?.aborted) return { error: 'Camera request cancelled.' };
-    if (!enabled) { liveTryOn.stop(); cancelTryOnRender(); }
+    if (!enabled) { cancelCameraCaptures(); liveTryOn.stop(); cancelTryOnRender(); }
     if (!enabled || !getTrackingStatus().cameraActive) await toggleCamera(enabled, { signal });
     if (signal?.aborted) return { error: 'Camera request cancelled.' };
     await populateCameras();
@@ -573,12 +573,13 @@ const experience = new MirrorExperience({
   mode: setAssistantMode, clarity: setCameraClarity,
   ensureCamera: () => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true),
   note: text => { localStorage.setItem('mirror.quick-note', text); elements.quickNoteInput.value = text; dashboard.refreshNow(); showGesture(text ? 'Note saved to this mirror' : 'Note cleared'); },
-  prepareCapture: async () => {
+  prepareCapture: async (signal) => {
     if (desktopActive) await window.mirrorBridge.closeDesktop();
+    if (signal?.aborted) return;
     if (!closet.selectedId) throw new Error('Choose a garment before taking a look photo.');
     setMode('ar');
     if (tryOnView !== 'live' || liveTryOn.session) throw new Error('Use the local Live camera view to take a look photo.');
-    if (!getTrackingStatus().cameraActive && !await toggleCamera(true)) throw new Error('Turn on the camera to take a look photo.');
+    if (!getTrackingStatus().cameraActive && !await toggleCamera(true, { signal })) throw new Error('Turn on the camera to take a look photo.');
     await garmentSelection;
   },
   captureContext: () => ({ garmentId: closet.selectedId, revision: garmentRevision, mode, clarity: garmentOverlay.cameraClarity?.mode || 'off' }),
@@ -1779,9 +1780,13 @@ elements.smoothing.addEventListener('input', () => {
   setTrackingOptions({ smoothing: value });
   elements.smoothingValue.textContent = `${Math.round((1 - value) * 100)}%`;
 });
+function cancelCameraCaptures() {
+  if (experience.capturing) experience.cancel();
+  if (closet.photo.capturePending) closet.photo.cancelWork();
+}
 elements.cameraToggle.addEventListener('click', async () => {
   const enable = !getTrackingStatus().cameraActive;
-  if (!enable) liveTryOn.stop();
+  if (!enable) { cancelCameraCaptures(); liveTryOn.stop(); }
   if (!enable) cancelTryOnRender();
   await toggleCamera(enable);
   await populateCameras();
