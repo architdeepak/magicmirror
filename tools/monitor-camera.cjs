@@ -5,7 +5,11 @@ async function setupMonitorCamera(client,root){
  await client.evaluate(`(async()=>{
   const source=document.createElement('video');source.muted=true;source.loop=true;source.src=${JSON.stringify(pathToFileURL(path.join(root,'artifacts/rtv/sample_video2.mp4')).href)};
   const canvas=document.createElement('canvas');canvas.width=1280;canvas.height=720;const ctx=canvas.getContext('2d');
-  const camera=__monitor.camera={source,canvas,stream:null,streams:[],pump:null,captures:0,phase:null,phaseAt:performance.now()};
+  const camera=__monitor.camera={source,canvas,stream:null,streams:[],pump:null,captures:0,seenFrames:new WeakSet(),drawnFrames:0,lastDrawAt:null,maxDrawGapMs:0,phase:null,phaseAt:performance.now()};
+  // Count distinct synchronized frames actually drawn by the production path,
+  // not requested captures or inference submissions. This is not display FPS.
+  const overlay=__mirrorDebug.garmentOverlay,drawCameraFrame=overlay.drawCameraFrame;
+  overlay.drawCameraFrame=function(now){drawCameraFrame.call(this,now);if(this.lastCameraFrame&&!camera.seenFrames.has(this.lastCameraFrame)){camera.seenFrames.add(this.lastCameraFrame);camera.drawnFrames++;if(camera.lastDrawAt!==null)camera.maxDrawGapMs=Math.max(camera.maxDrawGapMs,now-camera.lastDrawAt);camera.lastDrawAt=now;}};
   camera.pause=()=>{clearInterval(camera.pump);camera.pump=null;source.pause();};
   camera.start=async()=>{await source.play();ctx.drawImage(source,0,0,1280,720);if(!camera.pump)camera.pump=setInterval(()=>ctx.drawImage(source,0,0,1280,720),33);};
   navigator.mediaDevices.getUserMedia=async constraints=>{if(constraints.audio)throw Error('Recorded monitor has no microphone');await camera.start();camera.streams=camera.streams.filter(stream=>stream.active);camera.stream=canvas.captureStream(30);camera.streams.push(camera.stream);camera.captures++;return camera.stream;};
@@ -41,7 +45,7 @@ async function setMonitorCameraPhase(client,phase){
  }
  if(phase==='ar')await until(client,'__mirrorDebug.garmentOverlay.getLiveState().visible','actual worker fit');
 }
-const cameraSnapshot=`(()=>{const c=__monitor.camera,t=__mirrorDebug.garmentOverlay.tracker;return{phase:c.phase,phaseAgeMs:performance.now()-c.phaseAt,captures:c.captures,pumping:!!c.pump,sourcePaused:c.source.paused,streamActive:c.stream?.active===true,activeStreams:c.streams.filter(stream=>stream.active).length,video:{width:document.querySelector('#camera-feed').videoWidth,height:document.querySelector('#camera-feed').videoHeight},fit:__mirrorDebug.garmentOverlay.getLiveState(),garmentName:__mirrorDebug.garmentOverlay.item?.name,selectedName:__mirrorDebug.getMirrorState().tryOn.selected?.name,ui:{dashboardOpacity:Number(getComputedStyle(document.querySelector('#dashboard-container')).opacity),framingHidden:__mirrorDebug.framing.element.hidden,framingReady:__mirrorDebug.framing.element.dataset.ready,framingReason:__mirrorDebug.framing.element.dataset.reason},body:{enabled:t.enabled,ready:t.ready,busy:t.busy,requests:t.requestNumber,lastPoseAt:t.lastPoseAt,inferenceMs:t.inferenceMs,worker:!!t.worker}}})()`;
+const cameraSnapshot=`(()=>{const c=__monitor.camera,t=__mirrorDebug.garmentOverlay.tracker;return{phase:c.phase,phaseAgeMs:performance.now()-c.phaseAt,captures:c.captures,drawnFrames:c.drawnFrames,lastDrawAt:c.lastDrawAt,maxDrawGapMs:c.maxDrawGapMs,pumping:!!c.pump,sourcePaused:c.source.paused,streamActive:c.stream?.active===true,activeStreams:c.streams.filter(stream=>stream.active).length,video:{width:document.querySelector('#camera-feed').videoWidth,height:document.querySelector('#camera-feed').videoHeight},fit:__mirrorDebug.garmentOverlay.getLiveState(),garmentName:__mirrorDebug.garmentOverlay.item?.name,selectedName:__mirrorDebug.getMirrorState().tryOn.selected?.name,ui:{dashboardOpacity:Number(getComputedStyle(document.querySelector('#dashboard-container')).opacity),framingHidden:__mirrorDebug.framing.element.hidden,framingReady:__mirrorDebug.framing.element.dataset.ready,framingReason:__mirrorDebug.framing.element.dataset.reason},body:{enabled:t.enabled,ready:t.ready,busy:t.busy,requests:t.requestNumber,lastPoseAt:t.lastPoseAt,inferenceMs:t.inferenceMs,worker:!!t.worker}}})()`;
 async function pauseUnusedMonitorCamera(client){
  await client.evaluate(`(()=>{if(!__mirrorDebug.getMirrorState().camera.active)__monitor.camera.pause()})()`);
 }

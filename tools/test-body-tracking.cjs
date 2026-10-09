@@ -30,6 +30,21 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
   tracker.setEnabled(true);workers[1].send({type:'ready'});video.currentTime=2;tracker.update(1400);
   const fresh=tracker.pending.id;bitmaps[2].resolve(frame());await tick();assert.equal(tracker.pending.id,fresh,'Late bitmap cleared a newer request');
   tracker.destroy();bitmaps[3].resolve(frame());await tick();assert.equal(timers.size,0,'Disposal left inference timers running');tracker.setEnabled(true);tracker.update(1500);assert.equal(tracker.enabled,false,'Disposed tracker restarted');
+  // Quality sets a maximum submission cadence; pending work and unchanged
+  // video frames still prevent additional captures at every quality.
+  for(const [quality,interval] of [['eco',100],['auto',1000/15],['hd',1000/30]]) {
+    const feed={srcObject:{active:true},readyState:2,videoWidth:640,videoHeight:480,currentTime:1};
+    const subject=new context.Subject(feed);subject.setQuality(quality);subject.setEnabled(true);
+    const worker=workers.at(-1);worker.send({type:'ready'});subject.lastFrameAt=1000;
+    const count=bitmaps.length;subject.update(1000+interval-2);
+    assert.equal(bitmaps.length,count,quality+' submitted before its cadence');
+    subject.update(1000+interval);assert.equal(bitmaps.length,count+1,quality+' missed its due frame');
+    feed.currentTime=2;subject.update(1200);assert.equal(bitmaps.length,count+1,quality+' queued while busy');
+    bitmaps.at(-1).resolve(frame());await tick();
+    worker.send({type:'pose',requestId:subject.pending.id,epoch:subject.epoch,timestamp:1000+interval,landmarks:null});
+    feed.currentTime=1;subject.update(1300);assert.equal(bitmaps.length,count+1,quality+' duplicated an unchanged video frame');
+    subject.destroy();
+  }
   const filter=new context.Filter();const pose=x=>[{x,y:.5,z:.1,visibility:1}];
   filter.update(pose(.5),0);const jitter=filter.update(pose(.51),100);assert(jitter[0].x>.5&&jitter[0].x<.51,'Jitter was not smoothed');
   assert.equal(filter.update(pose(.9),200)[0].x,.9,'Large movement left a garment trail');

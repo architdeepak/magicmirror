@@ -118,7 +118,10 @@ export class BodyTracking {
     }
     if (!this.enabled || !this.ready || this.busy) return;
     if (!this.video.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.worldPose = null; this.clearCameraFrame(); this.segmentation = null; return; }
-    if (now - this.lastFrameAt < 100 || this.video.currentTime === this.lastVideoTime) return;
+    // Submission ceilings only: busy inference and unchanged video still gate
+    // capture. Eco retains its lower cost; faster profiles keep aligned frames.
+    const interval = this.quality === 'hd' ? 1000 / 30 : this.quality === 'eco' ? 100 : 1000 / 15;
+    if (now - this.lastFrameAt < interval - 1 || this.video.currentTime === this.lastVideoTime) return;
     this.lastFrameAt = now;
     this.lastVideoTime = this.video.currentTime;
     this.busy = true;

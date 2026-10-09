@@ -15,6 +15,20 @@ Refreshed October 9, 2026 through compact AR, head surface continuity, and eyeli
 
 For every task, save its reproduction, before/after evidence, exact source/archive, test scope and unresolved failures; commit and push a coherent checkpoint. All eight gates below must be closed with evidence before the goal is complete. Missing final hardware leaves those checks open while local work continues.
 
+## Working order and evidence discipline
+
+The active persistent goal covers the whole suite. Work proceeds through these concrete milestones, returning to any earlier milestone when integrated tests expose a regression:
+
+1. **Reliable interaction:** wake → conversation → immediate Stop → standby → wake again; hard mute; two caption lines; recover from missing devices, network loss and late tool replies.
+2. **Convincing mirror:** continuous wake/idle/blink/gaze/speech recordings, centered moving glow, portrait framing and expressive face. Improve real motion and anatomy; preserve the fallback until the optional rig qualifies.
+3. **Useful local wardrobe:** easy front/back ingestion, varied starter garments, voice/gesture selection and fitting, synchronized camera/pose/occlusion. Review actual replay clips and difficult poses, not just screenshots.
+4. **Integrated daily use:** screen observation/action/result journeys; native Spotify and ambient views; YouTube/watch/casting; interruption and account recovery; content and avatar sharing the portrait screen.
+5. **Efficient release:** measure concurrent camera/AR/speech/media, retain bounded queues and zero sleeping work, freeze a candidate, complete the eight-hour combined run, rebuild Windows and qualify the actual stick/TV/sensors/accounts.
+
+Each checkpoint includes a reproducible failure or improvement, the exact tested build, visual/runtime evidence where relevant, measured resource cost, remaining gaps, and a GitHub commit. Short recorded-input Linux checks are development evidence. All eight gates remain open until their complete acceptance criteria are demonstrated; passing unit tests or a crash-free monitor alone cannot close them.
+
+**Current checkpoint:** [quality-specific body cadence](BODY-CADENCE-2026-10-09.md) retains one inference at a time and exact camera/pose alignment. Auto recorded-input comparison increases distinct synchronized camera draws from 8.42 to 13.67/s; Eco retains its 10 Hz ceiling. Higher CPU cost and shared-host measurement limits are recorded. Continuous visual realism, physical camera and Windows efficiency remain open. The older recorded-camera/speech monitor stays isolated from rebuilt archives.
+
 ## Intended experience
 
 A person approaches a portrait TV, says “mirror mirror,” sees a fluid, cinematic emergence from dark glass, and meets a convincing animated Queen. The Queen converses naturally, can see the relevant displayed state, operates useful apps and tools, and makes room for their content. Voice and simple gestures operate the mirror, its local wardrobe, music and watching. Stop silences/cancels immediately after recognition; hard mute visibly releases listening. The device remains responsive and economical enough for a Windows PC stick.
