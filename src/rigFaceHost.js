@@ -10,6 +10,7 @@ import { waitForPreparedGpu } from './gpuPreparation.js';
 import { useSoftwareRigLighting } from './softwareRigMaterial.js';
 import { boundedSurface, displayProfile } from './displayQuality.js';
 import { authorFaceMorphs, buildRigAccessories } from './rigGeometry.js';
+import { createLidTextureMapping } from './rigLidTexture.js';
 const RIGS={velora:'assets/personas/velora-3d-v1.glb',solenne:'assets/personas/solenne-3d-v1.glb'};
 function disposeTree(root){const textures=new Set(),materials=new Set(),geometries=new Set();root?.traverse(n=>{if(n.geometry)geometries.add(n.geometry);for(const m of(Array.isArray(n.material)?n.material:[n.material]))if(m)materials.add(m);});for(const m of materials){for(const v of [...Object.values(m),...(m.userData?.sourceTextures||[])])if(v?.isTexture)textures.add(v);m.dispose();}geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());}
 export class RigFaceHost {
@@ -47,11 +48,11 @@ export class RigFaceHost {
   const face=gltf.scene.getObjectByName('faceMesh');if(!face?.isMesh||face.geometry.attributes.position.count!==478){disposeTree(gltf.scene);throw new Error('3D face topology is unsupported');}
   face.removeFromParent();disposeTree(gltf.scene);face.rotation.set(0,0,0);face.position.set(0,0,0);face.scale.set(1,1,1);
   face.material.transparent=false;face.material.depthWrite=true;face.material.alphaTest=0;face.material.roughness=.7;face.material.side=THREE.DoubleSide;face.material.needsUpdate=true;
-  const supported=authorFaceMorphs(face),accessories=buildRigAccessories(face,persona);
+  const supported=authorFaceMorphs(face),accessories=buildRigAccessories(face,persona),lidTexture=createLidTextureMapping(face.geometry);
   if(this.lighting==='phong')useSoftwareRigLighting(face);
   if(generation!==this.generation){disposeTree(face);return false;}
   if(this.root){this.scene.remove(this.root);disposeTree(this.root);}
-  this.root=new THREE.Group();this.root.add(face);this.scene.add(this.root);this.face=face;this.accessories=accessories;this.supported=supported;this.persona=persona;this.width=0;this.smooth={turn:0,nod:0,lean:0,x:0,y:0};this.resize();
+  this.root=new THREE.Group();this.root.add(face);this.scene.add(this.root);this.face=face;this.accessories=accessories;this.lidTexture=lidTexture;this.supported=supported;this.persona=persona;this.width=0;this.smooth={turn:0,nod:0,lean:0,x:0,y:0};this.resize();
   this.renderer.compile(this.scene,this.camera);
   if(this.composer){
    const start=performance.now();
@@ -76,6 +77,7 @@ export class RigFaceHost {
   for(const k of Object.keys(target))this.smooth[k]+=(target[k]-this.smooth[k])*alpha;
   this.root.rotation.set(this.smooth.nod,this.smooth.turn,this.smooth.lean);
   for(const[name,index]of Object.entries(this.face.morphTargetDictionary)){const value=clamp(Number(blend[name])||0,0,1);this.face.morphTargetInfluences[index]=value;this.accessories.headVolume.morphTargetInfluences[index]=value;}
+  this.lidTexture?.update(blend);
   for(const eye of this.accessories.eyes){eye.group.rotation.y=this.smooth.x*.24;eye.group.rotation.x=this.smooth.y*.18;}
   const jaw=clamp(blend.jawOpen||0,0,1);this.accessories.cavity.scale.y=.10+jaw*.18;this.accessories.cavity.position.y=-.56-jaw*.08;this.accessories.upperTeeth.visible=jaw>.08;this.accessories.lowerTeeth.visible=jaw>.30;this.accessories.lowerTeeth.position.y=-.53-jaw*.17;this.accessories.tongue.visible=jaw>.45;this.accessories.tongue.position.y=-.56-jaw*.15;
   const sig=[...Object.values(this.smooth),...this.face.morphTargetInfluences].map(v=>Math.round(v*1000)).join(',');

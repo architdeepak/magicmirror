@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as THREE from 'three';
 import {authorFaceMorphs,buildRigAccessories,mergeStaticMaterial,FACE_OVAL} from '../src/rigGeometry.js';
+import {createLidTextureMapping} from '../src/rigLidTexture.js';
 for(const persona of ['velora','solenne']){
  const bytes=fs.readFileSync(new URL(`../src/assets/personas/${persona}-3d-v1.glb`,import.meta.url)),length=bytes.readUInt32LE(12),gltf=JSON.parse(bytes.subarray(20,20+length)),bin=bytes.subarray(28+length),primitive=gltf.meshes[0].primitives[0];
  const accessor=gltf.accessors[primitive.attributes.POSITION],view=gltf.bufferViews[accessor.bufferView],start=(view.byteOffset||0)+(accessor.byteOffset||0),positions=new Float32Array(accessor.count*3);
@@ -39,7 +40,17 @@ for(const persona of ['velora','solenne']){
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
  assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
- console.log(persona,supported.length,'authored deformation channels, independent eyes, solid accessories and stable neutral positions passed');
+ const originalUv=geometry.attributes.uv.array.slice(),mapping=createLidTextureMapping(geometry),version=geometry.attributes.uv.version;
+ assert.equal(mapping.update({}),false);assert.equal(geometry.attributes.uv.version,version);
+ assert(mapping.update({eyeBlinkLeft:.5}));assert.equal(geometry.attributes.uv.getX(386),originalUv[386*2],'Left blink changed right lid');
+ assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.375))<1e-7);
+ assert(mapping.update({eyeBlinkLeft:1}));assert(Math.abs(geometry.attributes.uv.getX(159)-(originalUv[159*2]+(originalUv[27*2]-originalUv[159*2])*.75))<1e-7);assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.75))<1e-7);
+ assert.equal(mapping.update({eyeBlinkLeft:1}),false,'Settled eyelid UVs re-uploaded');
+ assert(mapping.update({eyeBlinkRight:1}));assert(Math.abs(geometry.attributes.uv.getY(386)-(originalUv[386*2+1]+(originalUv[257*2+1]-originalUv[386*2+1])*.75))<1e-7);
+ for(const i of [10,152,14,33,133,263,362])assert.equal(geometry.attributes.uv.getY(i),originalUv[i*2+1],'Lid mapping changed unrelated face region');
+ mapping.update({eyeBlinkLeft:.0001});mapping.update({});assert.deepEqual(geometry.attributes.uv.array,originalUv,'Neutral texture was not restored exactly');
+ assert.equal(createLidTextureMapping(new THREE.BufferGeometry()),null);
+ console.log(persona,supported.length,'authored deformation channels, independent eyes/lid texture mapping, solid accessories and stable neutral positions passed');
 }
 
 const parent=new THREE.Group();parent.position.set(3,-2,1);const root=new THREE.Group();root.rotation.y=.3;parent.add(root);const material=new THREE.MeshStandardMaterial();const parts=[];for(const x of[-1,1]){const part=new THREE.Mesh(new THREE.SphereGeometry(.4,16,12),material);part.position.set(x,.1,.2);root.add(part);parts.push(part);}parent.updateMatrixWorld(true);const expected=new THREE.Box3().setFromObject(root),indices=parts.reduce((sum,m)=>sum+m.geometry.index.count,0),vertices=parts.reduce((sum,m)=>sum+m.geometry.attributes.position.count,0);const merged=mergeStaticMaterial(root,material);parent.updateMatrixWorld(true);const actual=new THREE.Box3().setFromObject(root);assert.equal(root.children.length,1);assert.equal(merged.geometry.index.count,indices);assert.equal(merged.geometry.attributes.position.count,vertices);assert(expected.min.distanceTo(actual.min)<1e-6&&expected.max.distanceTo(actual.max)<1e-6);console.log('Static mesh batching preserves indexed triangles, vertices and transformed bounds');
