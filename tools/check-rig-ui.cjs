@@ -28,15 +28,15 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   const errors=[];await client.call('Runtime.enable');client.onEvent(e=>{if(e.method==='Runtime.exceptionThrown')errors.push(e.params.exceptionDetails.text)});
   for(const[name,blend,performance]of poses){
    await client.evaluate(`(()=>{const a=__mirrorDebug.avatar;a.presence.update=()=>({expression:{},gaze:{x:0,y:0,confidence:1},performance:{turn:0,nod:0,lean:0}});a.setExpression(${JSON.stringify(blend)});a.setPerformance(${JSON.stringify(performance)});a.setSpeechLevel(0)})()`);
-   await delay(550);if(name==='neutral')neutralLidUv=await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,386].map(i=>[uv.getX(i),uv.getY(i)])})()');await shot(name);const frame=await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;return{...r.snapshot(),pose:'+JSON.stringify(name)+',turn:r.smooth.turn,mouth:{upperTeeth:r.accessories.upperTeeth.visible,lowerTeeth:r.accessories.lowerTeeth.visible,lowerY:r.accessories.lowerTeeth.position.y,tongue:r.accessories.tongue.visible}}})()');if(name.includes('-30'))assert(Math.abs(frame.turn)>=Math.PI/6);if(name==='mbp'||name==='neutral')assert(!frame.mouth.upperTeeth&&!frame.mouth.lowerTeeth&&!frame.mouth.tongue,'Closed pose leaks interior');if(name==='aa')assert(frame.mouth.upperTeeth&&frame.mouth.lowerTeeth&&frame.mouth.tongue);if(name==='fv')assert(frame.mouth.upperTeeth&&!frame.mouth.tongue);frames.push(frame);
+   await delay(550);if(name==='neutral')neutralLidUv=await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,145,386,374].map(i=>[uv.getX(i),uv.getY(i)])})()');await shot(name);const frame=await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;return{...r.snapshot(),pose:'+JSON.stringify(name)+',turn:r.smooth.turn,mouth:{upperTeeth:r.accessories.upperTeeth.visible,lowerTeeth:r.accessories.lowerTeeth.visible,lowerY:r.accessories.lowerTeeth.position.y,tongue:r.accessories.tongue.visible}}})()');if(name.includes('-30'))assert(Math.abs(frame.turn)>=Math.PI/6);if(name==='mbp'||name==='neutral')assert(!frame.mouth.upperTeeth&&!frame.mouth.lowerTeeth&&!frame.mouth.tongue,'Closed pose leaks interior');if(name==='aa')assert(frame.mouth.upperTeeth&&frame.mouth.lowerTeeth&&frame.mouth.tongue);if(name==='fv')assert(frame.mouth.upperTeeth&&!frame.mouth.tongue);frames.push(frame);
   }
   assert(frames.every(f=>f.ready&&f.triangles>25000));
   await client.evaluate('__mirrorDebug.avatar.setPerformance({});__mirrorDebug.avatar.setExpression({eyeBlinkLeft:1,eyeBlinkRight:1})');await delay(600);
   const lidDiagnostic=await client.evaluate(`(()=>{const r=__mirrorDebug.avatar.rigHost,f=r.face,p=f.geometry.attributes.position;return ['Left','Right'].map((side,k)=>{const i=f.morphTargetDictionary['eyeBlink'+side],m=f.geometry.morphAttributes.position[i],a=k?386:159,b=k?374:145,w=f.morphTargetInfluences[i];return{side,weight:w,delta:[0,1,2].map(axis=>p.getComponent(a,axis)+m.getComponent(a,axis)*w-p.getComponent(b,axis)-m.getComponent(b,axis)*w)}})})()`);
   assert(lidDiagnostic.every(l=>l.weight>.99&&Math.hypot(...l.delta)<.002),'Live blink does not fully close its 3D aperture');
   console.log(JSON.stringify({lidDiagnostic}));
-  const closedLidUv=await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,386].map(i=>[uv.getX(i),uv.getY(i)])})()');
-  assert.notDeepEqual(closedLidUv,neutralLidUv,'Live closure did not update lid texture mapping');
+  const closedLidUv=await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,145,386,374].map(i=>[uv.getX(i),uv.getY(i)])})()');
+  assert(closedLidUv.every((pair,index)=>pair.some((value,axis)=>value!==neutralLidUv[index][axis])),'Live closure did not update each upper/lower lid texture mapping');
   if(process.env.MIRROR_LID_DIAGNOSTIC==='true'){
    await shot('lid-material-original');
    await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;r.__lidMap=r.face.material.map;r.face.material.map=null;r.face.material.needsUpdate=true;r.signature=null})()');await delay(500);await shot('lid-material-no-map');
@@ -45,7 +45,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
    await client.evaluate('(()=>{const r=__mirrorDebug.avatar.rigHost;r.face.material.map=r.__lidMap;delete r.__lidMap;r.face.material.needsUpdate=true;r.accessories.headVolume.visible=true;r.accessories.eyes.forEach(e=>e.group.visible=true);r.signature=null})()');
   }
   await client.evaluate(`__mirrorDebug.avatar.setExpression({});__mirrorDebug.avatar.setPerformance({})`);await delay(1000);
-  assert.deepEqual(await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,386].map(i=>[uv.getX(i),uv.getY(i)])})()'),neutralLidUv,'Live reopening did not restore neutral texture exactly');
+  assert.deepEqual(await client.evaluate('(()=>{const uv=__mirrorDebug.avatar.rigHost.face.geometry.attributes.uv;return [159,145,386,374].map(i=>[uv.getX(i),uv.getY(i)])})()'),neutralLidUv,'Live reopening did not restore neutral texture exactly');
   const before=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');await delay(600);const after=await client.evaluate('__mirrorDebug.avatar.rigHost.frames');assert.equal(after,before,'Settled rig still draws');
   if(process.env.MIRROR_RIG_MOVIE==='true'){
    await client.evaluate('__mirrorDebug.avatar.visible=false');
@@ -63,6 +63,8 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
   await until(()=>client.evaluate('__mirrorDebug.avatar.rigHost?.ready&&__mirrorDebug.avatar.rigHost.persona==="solenne"'));
   await delay(600);await shot('solenne');assert.equal(await client.evaluate('__mirrorDebug.avatar.rigHost.persona'),'solenne');
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:1,eyeBlinkRight:1})');await delay(550);await shot('solenne-blink');
+  const snowLids=await client.evaluate('(()=>{const f=__mirrorDebug.avatar.rigHost.face;return ["Left","Right"].map(side=>f.morphTargetInfluences[f.morphTargetDictionary["eyeBlink"+side]])})()');
+  assert(snowLids.every(w=>w>.99),'Snow closed screenshot did not use full blink');console.log(JSON.stringify({snowLids}));
   await client.evaluate('__mirrorDebug.avatar.setExpression({eyeBlinkLeft:.5,eyeBlinkRight:.5})');await delay(550);await shot('solenne-half-blink');
   await client.evaluate('__mirrorDebug.avatar.setExpression({})');await delay(550);
   await client.evaluate(`__mirrorDebug.avatar.setPersona('rowan')`);assert.equal(await client.evaluate('__mirrorDebug.avatar.renderStyle'),'portrait');

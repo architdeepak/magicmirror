@@ -40,13 +40,18 @@ for(const persona of ['velora','solenne']){
  assert.equal(accessories.eyes.length,2);assert(accessories.eyes.every(e=>e.group.children.length===4));assert.equal(accessories.group.getObjectByName('QueenCrown')!=null,persona==='velora');
  assert.equal(accessories.upperTeeth.children.length,1);assert.equal(accessories.lowerTeeth.children.length,1);assert(accessories.upperTeeth.children[0].geometry.attributes.position.array.every(Number.isFinite));assert(accessories.upperTeeth.children[0].geometry.attributes.position.count>100,'Missing individual tooth shaping');assert.equal(accessories.tongue.name,'inner-tongue');
  assert(!accessories.group.children.some(n=>n.geometry?.type==='PlaneGeometry'),'No flat hair plates');
+ const lowerReach=(edge,skin,opposite)=>Math.min(4,Math.max(1,Math.abs(geometry.attributes.uv.getY(opposite)-geometry.attributes.uv.getY(edge))*.5/Math.max(1e-6,Math.abs(geometry.attributes.uv.getY(skin)-geometry.attributes.uv.getY(edge)))));
+ const leftLowerReach=lowerReach(145,23,159),rightLowerReach=lowerReach(374,253,386);
  const originalUv=geometry.attributes.uv.array.slice(),mapping=createLidTextureMapping(geometry),version=geometry.attributes.uv.version;
  assert.equal(mapping.update({}),false);assert.equal(geometry.attributes.uv.version,version);
  assert(mapping.update({eyeBlinkLeft:.5}));assert.equal(geometry.attributes.uv.getX(386),originalUv[386*2],'Left blink changed right lid');
+ assert.equal(geometry.attributes.uv.getY(374),originalUv[374*2+1],'Left blink changed right lower lid');
+ assert(Math.abs(geometry.attributes.uv.getY(145)-(originalUv[145*2+1]+(originalUv[23*2+1]-originalUv[145*2+1])*.375*leftLowerReach))<1e-7);
  assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.375))<1e-7);
  assert(mapping.update({eyeBlinkLeft:1}));assert(Math.abs(geometry.attributes.uv.getX(159)-(originalUv[159*2]+(originalUv[27*2]-originalUv[159*2])*.75))<1e-7);assert(Math.abs(geometry.attributes.uv.getY(159)-(originalUv[159*2+1]+(originalUv[27*2+1]-originalUv[159*2+1])*.75))<1e-7);
  assert.equal(mapping.update({eyeBlinkLeft:1}),false,'Settled eyelid UVs re-uploaded');
  assert(mapping.update({eyeBlinkRight:1}));assert(Math.abs(geometry.attributes.uv.getY(386)-(originalUv[386*2+1]+(originalUv[257*2+1]-originalUv[386*2+1])*.75))<1e-7);
+ assert(Math.abs(geometry.attributes.uv.getY(374)-(originalUv[374*2+1]+(originalUv[253*2+1]-originalUv[374*2+1])*.75*rightLowerReach))<1e-7);
  for(const i of [10,152,14,33,133,263,362])assert.equal(geometry.attributes.uv.getY(i),originalUv[i*2+1],'Lid mapping changed unrelated face region');
  mapping.update({eyeBlinkLeft:.0001});mapping.update({});assert.deepEqual(geometry.attributes.uv.array,originalUv,'Neutral texture was not restored exactly');
  assert.equal(createLidTextureMapping(new THREE.BufferGeometry()),null);
