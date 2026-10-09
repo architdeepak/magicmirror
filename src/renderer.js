@@ -914,6 +914,7 @@ function beginHeardCaption() {
   localCaptionsAllowed = true;
   userCaptionFromLocal = false;
   captionUserTurnActive = false;
+  captionAssistantTurnActive = false;
   localCaptionEpoch = wake.startCaptionTurn();
 }
 
@@ -923,23 +924,23 @@ function handleLocalTranscript(text, { epoch }) {
   userCaptionFromLocal = true;
 }
 
-function handleTranscript(role, text) {
-  if (!text?.trim()) return;
+function handleTranscript(role, text, { delta = false } = {}) {
+  if (!text?.trim() && !(delta && captionState[role])) return;
   const replace = role === 'user' && userCaptionFromLocal;
   if (role === 'user') {
     localCaptionsAllowed = false;
     userCaptionFromLocal = false;
     wake.stopCaptionTurn();
   }
-  appendCaption(role, text.trim(), { replace });
-  if (role === 'user' && !hardMuted && /\bmirror\s+(?:stop|mute|quiet|cancel)\b/i.test(text)) {
+  appendCaption(role, delta ? text : text.trim(), { replace, delta });
+  if (role === 'user' && !hardMuted && /\bmirror\s+(?:stop|mute|quiet|cancel)\b/i.test(captionState.user)) {
     stopAssistant();
     return;
   }
   if (role === 'assistant') {
-    assistantTranscript = `${assistantTranscript} ${text}`.trim();
+    assistantTranscript = captionState.assistant;
     showOracle(assistantTranscript, '', 'The mirror answers');
-  } else {
+  } else if (!delta || !captionAssistantTurnActive) {
     assistantTranscript = '';
     showOracle('Listening…', text.trim(), 'You said');
   }
@@ -987,26 +988,28 @@ async function toggleVoice() {
   }
 }
 
-function appendCaption(role, text, { replace = false } = {}) {
+function appendCaption(role, text, { replace = false, delta = false } = {}) {
   if (!['user', 'assistant'].includes(role)) return;
   const row = role === 'user' ? elements.captionUser : elements.captionAssistant;
   if (role === 'user' && !captionUserTurnActive) {
     captionUserTurnActive = true;
-    captionAssistantTurnActive = false;
+    if (!delta) captionAssistantTurnActive = false;
     captionState.user = '';
     elements.captionUser.querySelector('span').textContent = '';
     elements.captionUser.classList.remove('visible');
-    captionState.assistant = '';
-    elements.captionAssistant.querySelector('span').textContent = '';
-    elements.captionAssistant.classList.remove('visible');
+    if (!delta || !captionAssistantTurnActive) {
+      captionState.assistant = '';
+      elements.captionAssistant.querySelector('span').textContent = '';
+      elements.captionAssistant.classList.remove('visible');
+    }
   } else if (role === 'assistant' && !captionAssistantTurnActive) {
     captionAssistantTurnActive = true;
-    captionUserTurnActive = false;
+    if (!delta) captionUserTurnActive = false;
     captionState.assistant = '';
   }
   const valueNode = row.querySelector('span');
   const previous = captionState[role];
-  const merged = replace ? text : text === previous || previous.startsWith(text) ? previous
+  const merged = replace ? text : delta ? previous + text : text === previous || previous.startsWith(text) ? previous
     : text.startsWith(previous) ? text : `${previous} ${text}`.trim();
   // Keep a bounded transcript and scroll each single-line row to the newest words.
   const next = Array.from(merged).slice(-2000).join('');

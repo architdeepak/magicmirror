@@ -98,7 +98,7 @@ async function localCaptionLifecycle() {
   assert.equal(wake.startCaptionTurn(),0,'Paused listener created a caption decoder');
   const {context}=moduleClass('wakeWord.js','WakeWordListener',{});
   Object.assign(context,{hardMuted:false,gemini:{listening:true},localCaptionsAllowed:false,userCaptionFromLocal:false,captionUserTurnActive:true,localCaptionEpoch:0,
-    wake:{startCaptionTurn:()=>10,stopCaptionTurn(){}},appendCaption:(...args)=>context.rows.push(args),rows:[],assistantTranscript:'',showOracle(){},stopAssistant(){}});
+    wake:{startCaptionTurn:()=>10,stopCaptionTurn(){}},appendCaption:(...args)=>context.rows.push(args),rows:[],captionState:{user:'',assistant:''},assistantTranscript:'',showOracle(){},stopAssistant(){}});
   const renderer=read('renderer.js');vm.runInContext(renderer.slice(renderer.indexOf('function beginHeardCaption()'),renderer.indexOf('async function toggleVoice()')),context);
   context.beginHeardCaption();context.handleLocalTranscript('tell me a tail',{epoch:10});
   context.handleTranscript('user','Tell me a tale.');assert.equal(context.rows.at(-1)[2].replace,true,'Server transcription duplicated local interim words');
@@ -147,6 +147,9 @@ async function liveLifecycle() {
   old.onclose({code:1006});assert(live.connected && !sockets[1].closed,'Old socket close stopped the new session');
   const blob=deferred();const message=live._handleMessage({text:()=>blob.promise});live.disconnect();
   blob.resolve(JSON.stringify({serverContent:{outputTranscription:{text:'stale'}}}));await message;assert.equal(transcripts.length,0);
+  live.intentionalDisconnect=false;
+  await live._handleMessage(JSON.stringify({serverContent:{inputTranscription:{text:' Hel'},outputTranscription:{text:'lo '}}}));
+  assert.equal(transcripts[0][1],' Hel');assert.equal(transcripts[1][1],'lo ');assert(transcripts.every(t=>t[2].delta===true),'Live transcript lost raw delta metadata');transcripts.length=0;
   // Stop can fire from the first transcription inside a mixed server packet.
   live.intentionalDisconnect=false;live.onTranscript=(role,text)=>{transcripts.push([role,text]);if(role==='user')live.disconnect();};
   await live._handleMessage(JSON.stringify({serverContent:{inputTranscription:{text:'mirror stop'},outputTranscription:{text:'keep speaking'}}}));

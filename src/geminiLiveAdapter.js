@@ -491,9 +491,9 @@ export class GeminiLiveAdapter {
       }
 
       const content = message.serverContent;
-      if (content?.inputTranscription?.text) this.onTranscript('user', content.inputTranscription.text);
+      if (content?.inputTranscription?.text) this.onTranscript('user', content.inputTranscription.text, { delta: true });
       if (cancelled()) return;
-      if (content?.outputTranscription?.text) this.onTranscript('assistant', content.outputTranscription.text);
+      if (content?.outputTranscription?.text) this.onTranscript('assistant', content.outputTranscription.text, { delta: true });
 
       if (cancelled()) return;
       if (content?.interrupted) this._interruptPlayback();
