@@ -712,7 +712,7 @@ function getMirrorState() {
   return {
     observedAt: new Date().toISOString(),
     display: { mode, requestedMode, desktopActive, desktopKind, desktopLabel, sleeping, visible: document.visibilityState === 'visible', width: innerWidth, height: innerHeight,
-      quality:displayQualityId,avatarAppearance:avatar.renderStyle,avatarRig:avatar.rigHost?.snapshot()||null,graphics:softwareGraphics?'software':'accelerated-or-unknown',effects:magic.snapshot(),avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
+      quality:displayQualityId,avatarAppearance:avatar.renderStyle,avatarRig:avatar.rigHost?.snapshot()||null,avatarPlayback:avatar.getPlaybackStatus(),graphics:softwareGraphics?'software':'accelerated-or-unknown',effects:magic.snapshot(),avatarPosition: elements.shell.dataset.avatarPosition || 'center', depthEnabled },
     agent: { active: Boolean(agentRunId), provider: 'codex' },
     lookbook: { open: experience.dialog.open, capturing: experience.capturing, draftReady: Boolean(experience.draft), saving: experience.saving, savedCount: experience.looks.length, comparison: Boolean(experience.comparing) },
     localTimers: experience.timers.tick().map(item => ({ label: item.label, seconds: item.seconds, state: item.state })),

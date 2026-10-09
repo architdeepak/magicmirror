@@ -14,6 +14,8 @@ export class AvatarController {
     this.morphMeshes = [];
     this.speechLevel = 0;
     this.streaming = false;
+    this.playbackMeter = null;
+    this.onPlaybackState = () => {};
     this.visible = true;
     this.displayMode = 'portal';
     this.depthEnabled = false;
@@ -246,21 +248,73 @@ export class AvatarController {
         gain: 0.9,
         lipsyncType: 'visemes',
         waitForAudioChunks: true
-      });
+      }, () => this.playbackStarted(this.head.audioStreamGainNode),
+      () => this.finishPlayback(this.head.audioStreamGainNode));
       this.streaming = true;
+      this.attachPlaybackNode(this.head.audioStreamGainNode);
     } catch (error) {
       console.warn('[avatar] audio stream unavailable', error);
     }
   }
 
+  // Observe only the assistant's playback bus. Network arrival, microphone,
+  // Spotify and desktop audio do not own the visible speech channels.
+  attachPlaybackNode(node) {
+    const previous=this.playbackMeter;
+    if(previous){try{previous.node.disconnect(previous.analyser);}catch{}previous.analyser.disconnect();}
+    this.playbackMeter=null;
+    if(!node?.context?.createAnalyser)return;
+    const analyser=node.context.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=0;
+    node.connect(analyser); // Analyser output may remain unconnected (Web Audio).
+    this.playbackMeter={node,analyser,samples:new Float32Array(analyser.fftSize),enabled:false,accepting:false,level:0,viseme:'rest'};
+  }
+
+  beginPlayback() { if(this.playbackMeter){this.playbackMeter.enabled=true;this.playbackMeter.accepting=true;} }
+
+  playbackStarted(node) {
+    if(!this.playbackMeter||this.playbackMeter.node!==node||!this.playbackMeter.accepting)return;
+    this.playbackMeter.enabled=true;this.onPlaybackState(true);
+  }
+
+  finishPlayback(node) {
+    if(!this.playbackMeter||this.playbackMeter.node!==node)return;
+    this.playbackMeter.enabled=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';
+    this.setSpeechLevel(0);this.setViseme('rest');this.setPerformance({turn:0,nod:0,lean:0});
+    this.onPlaybackState(false);
+  }
+
+  getPlaybackStatus() {
+    const meter=this.playbackMeter;
+    return {source:meter?'output-waveform':'manual',enabled:meter?.enabled===true,level:meter?.level||0,viseme:meter?.viseme||'rest',windowSamples:meter?.samples.length||0,contextState:meter?.node.context.state||null};
+  }
+
+  _updatePlaybackSpeech(elapsed) {
+    const meter=this.playbackMeter;if(!meter)return;
+    let level=0,viseme='rest';
+    if(meter.enabled&&meter.node.context.state==='running'){
+      meter.analyser.getFloatTimeDomainData(meter.samples);
+      let sum=0,crossings=0;
+      for(let i=0;i<meter.samples.length;i++){const value=Number.isFinite(meter.samples[i])?meter.samples[i]:0;sum+=value*value;if(i&&((value<0&&meter.samples[i-1]>=0)||(value>=0&&meter.samples[i-1]<0)))crossings++;}
+      level=Math.min(1,Math.sqrt(sum/meter.samples.length)*4.2);
+      // Energy/zero crossings supply only broad vowel motion, not phonemes.
+      if(level>=.09)viseme=crossings/meter.samples.length<.105&&level>.18?'O':'AA';
+    }
+    meter.level=level;meter.viseme=viseme;this.setSpeechLevel(level);this.setViseme(viseme);
+    this.setPerformance({turn:Math.sin(elapsed*1000/910)*Math.min(.24,level*.44),lean:Math.sin(elapsed*1000/1430)*Math.min(.14,level*.28),nod:Math.sin(elapsed*1000/330)*Math.min(.09,level*.18)});
+  }
+
   pushPcm(pcm) {
     if (!this.head || !this.streaming) return;
+    this.beginPlayback();
     try { this.head.streamAudio({ audio: pcm }); } catch (error) { console.debug('[avatar] pcm', error.message); }
   }
 
   endAudioTurn() {
     if (!this.streaming) return;
     try { this.head?.streamNotifyEnd(); } catch (error) { console.debug('[avatar] end stream', error.message); }
+    // A server turn can finish before its queued PCM has played. The output
+    // waveform owns closing the mouth after the audible tail.
+    if(this.playbackMeter?.enabled)return;
     this.setSpeechLevel(0);
     this.setViseme('rest');
     this.setPerformance({ turn: 0, nod: 0, lean: 0 });
@@ -268,7 +322,7 @@ export class AvatarController {
   }
 
   interrupt() {
-    if (!this.streaming) return;
+    if(this.playbackMeter){this.playbackMeter.enabled=false;this.playbackMeter.accepting=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';}
     try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
     this.setSpeechLevel(0);
     this.setViseme('rest');
@@ -278,6 +332,7 @@ export class AvatarController {
 
   update(dt, elapsed, viewer) {
     if (!this.visible) return;
+    this._updatePlaybackSpeech(elapsed);
     const offsetX = viewer.x * (this.depthEnabled ? -15 : -7);
     // Never add a perpetual idle bounce to a face-only host. It makes a still
     // frame look like a sticker and fights deliberate nods from the performer.

@@ -11,6 +11,19 @@ function moduleClass(name, className, globals) {
   vm.runInContext(read(name).replace(/^import .*;\n/gm,'').replace(/export class /g,'class ') + `\nglobalThis.Subject=${className};`,context);
   return { Subject: context.Subject, context };
 }
+async function playbackStateLifecycle() {
+  const states=[];let ended=0,enabled=true;
+  const avatar={endAudioTurn(){ended++},getPlaybackStatus:()=>({enabled})};
+  const {Subject:Live}=moduleClass('geminiLiveAdapter.js','GeminiLiveAdapter',{document:{createElement:()=>({})}});
+  const live=new Live({avatar,config:{},onState:value=>states.push(value)});live.connected=true;live.listening=true;
+  avatar.onPlaybackState(true);assert.equal(states.at(-1),'speaking');
+  await live._handleMessage(JSON.stringify({serverContent:{turnComplete:true}}));assert.equal(ended,1);assert.equal(states.at(-1),'speaking','Server completion labeled queued output Listening');
+  enabled=false;avatar.onPlaybackState(false);assert.equal(states.at(-1),'listening');
+  await live._handleMessage(JSON.stringify({serverContent:{turnComplete:true}}));assert.equal(states.at(-1),'listening');
+  live.playbackSuppressed=true;const count=states.length;avatar.onPlaybackState(true);avatar.onPlaybackState(false);assert.equal(states.length,count,'Late playback event revived stopped state');
+  live.playbackSuppressed=false;live.intentionalDisconnect=true;avatar.onPlaybackState(true);assert.equal(states.length,count);
+  console.log('Playback UI: server end waits for queued audio, actual completion returns Listening and stopped callbacks cannot revive state');
+}
 async function wakeLifecycle() {
   const requests=[]; const contexts=[];
   class Audio {
@@ -275,4 +288,4 @@ async function awakeningCancellation() {
   active.clear();context.setState('ready');assert.equal(context.elements.micLabel.textContent,'LISTEN');
   context.agentRunId='running';context.setState('thinking');assert.equal(context.elements.micLabel.textContent,'STOP');await context.toggleVoice();assert.equal(stops,3,'Button did not stop a delegated agent task');
 }
-(async()=>{await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});
+(async()=>{await playbackStateLifecycle();await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});

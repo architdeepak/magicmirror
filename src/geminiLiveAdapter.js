@@ -76,6 +76,10 @@ export class GeminiLiveAdapter {
     this.connectionGeneration = 0;
     this.connecting = null;
     this.outputSources = new Set();
+    this.avatar.onPlaybackState = active => {
+      if(!this.connected||this.intentionalDisconnect||this.playbackSuppressed)return;
+      this.onState(active?'speaking':this.listening?'listening':'ready');
+    };
   }
 
   get available() { return Boolean(this.config?.hasGeminiKey && window.mirrorBridge); }
@@ -497,15 +501,6 @@ export class GeminiLiveAdapter {
         if (part.inlineData?.mimeType?.startsWith('audio/pcm')) {
           if (this.playbackSuppressed) continue;
           const pcm = base64ToInt16(part.inlineData.data);
-          const level = rmsLevel(pcm);
-          this.avatar.setSpeechLevel(level);
-          this.avatar.setViseme(audioViseme(pcm, level));
-          const time = performance.now();
-          this.avatar.setPerformance({
-            turn: Math.sin(time / 910) * Math.min(.24, level * .44),
-            lean: Math.sin(time / 1430) * Math.min(.14, level * .28),
-            nod: Math.sin(time / 330) * Math.min(.09, level * .18)
-          });
           if (this.avatar.streaming) this.avatar.pushPcm(pcm);
           else this._playFallbackPcm(pcm, 24000);
           this.onState('speaking');
@@ -517,7 +512,7 @@ export class GeminiLiveAdapter {
         this.screenObservation = null;
         this.lastDeliveredClick = null;
         this.avatar.endAudioTurn();
-        this.onState(this.listening ? 'listening' : 'ready');
+        if(!this.avatar.getPlaybackStatus?.().enabled)this.onState(this.listening ? 'listening' : 'ready');
         this.onTurnComplete();
       }
       if (message.toolCall) await this._queueToolCall(message.toolCall);
@@ -533,11 +528,20 @@ export class GeminiLiveAdapter {
     for (let i = 0; i < samples.length; i += 1) channel[i] = samples[i] / 32768;
     const source = this.outputContext.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.outputContext.destination);
+    if(!this.outputGain){
+      this.outputGain=this.outputContext.createGain();this.outputGain.connect(this.outputContext.destination);
+      this.avatar.attachPlaybackNode?.(this.outputGain);
+    }
+    source.connect(this.outputGain);
+    this.avatar.beginPlayback?.();
     const now = this.outputContext.currentTime;
     this.outputCursor = Math.max(now + 0.035, this.outputCursor);
     this.outputSources.add(source);
-    source.onended = () => { this.outputSources.delete(source); source.disconnect(); };
+    const outputGain=this.outputGain;
+    source.onended = () => {
+      this.outputSources.delete(source);source.disconnect();
+      if(this.outputSources.size===0)this.avatar.finishPlayback?.(outputGain);
+    };
     source.start(this.outputCursor);
     this.outputCursor += buffer.duration;
   }
@@ -558,6 +562,9 @@ export class GeminiLiveAdapter {
     if (this.outputContext) {
       this.outputContext.close().catch(() => {});
       this.outputContext = null;
+      this.outputGain?.disconnect();
+      this.outputGain = null;
+      this.avatar.attachPlaybackNode?.(null);
       this.outputCursor = 0;
     }
   }
@@ -881,20 +888,4 @@ function rmsLevel(samples) {
     sum += value * value;
   }
   return Math.min(1, Math.sqrt(sum / Math.max(samples.length, 1)) * 4.2);
-}
-
-// PCM has no phoneme labels, so this intentionally modest classifier separates
-// silence/closures from broad and rounded vowel energy. It keeps the visible
-// performer expressive while the text transcript arrives independently.
-function audioViseme(samples, level) {
-  if (level < .09) return 'rest';
-  let crossings = 0;
-  let previous = samples[0] || 0;
-  for (let i = 1; i < samples.length; i += 1) {
-    const current = samples[i];
-    if ((previous < 0 && current >= 0) || (previous >= 0 && current < 0)) crossings += 1;
-    previous = current;
-  }
-  const density = crossings / Math.max(1, samples.length);
-  return density < .105 && level > .18 ? 'O' : 'AA';
 }

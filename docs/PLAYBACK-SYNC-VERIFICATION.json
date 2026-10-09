@@ -1,0 +1,4735 @@
+{
+  "packagedNvidia": {
+    "archiveSha256": "aa6bc616f079179a73a5f044461b3a9ab16e68b134ff52ade73cffb4a56def18",
+    "graphicsRequest": "vulkan",
+    "graphics": {
+      "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+      "samples": 4
+    },
+    "passed": true,
+    "checkedAt": "2026-10-09T04:43:24.953Z",
+    "results": [
+      {
+        "route": "stream",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "rows": [
+          {
+            "ms": 16.200000047683716,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 32.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 48.200000047683716,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 64.20000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 80.20000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 96.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 112.20000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 128,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 144.20000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 160,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 176.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 192,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 208.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 224,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 240,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 256.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 272.60000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 288.7000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 304.7000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 320.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 336,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 352.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 368.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 384.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 400.40000009536743,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 416.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 432.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 448.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 464.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 480.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5085316572520941,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.10106498396389818
+          },
+          {
+            "ms": 496.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5259883292729938,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1765536863445637
+          },
+          {
+            "ms": 512,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5408640492326826,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.2341352314536313
+          },
+          {
+            "ms": 528.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5269902183430792,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.27404114828964354
+          },
+          {
+            "ms": 544,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.542778215431779,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.30513796466626125
+          },
+          {
+            "ms": 560,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.529868080682259,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3254770294013869
+          },
+          {
+            "ms": 576,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5426691430357581,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.34393289969743573
+          },
+          {
+            "ms": 592.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5267891834006148,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3530517883952766
+          },
+          {
+            "ms": 608,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.540563186378664,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.36298137798804275
+          },
+          {
+            "ms": 624.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5260064712223769,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3673917174547086
+          },
+          {
+            "ms": 640,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5369641850908016,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37259145991673176
+          },
+          {
+            "ms": 656.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5273535072345399,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.374463399886608
+          },
+          {
+            "ms": 672.6000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5327419876227222,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37699074800335836
+          },
+          {
+            "ms": 688.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5304851764853136,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3782905856233735
+          },
+          {
+            "ms": 704.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5304851764853136,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3782905856233735
+          },
+          {
+            "ms": 720.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5324803841554766,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37971101021206244
+          },
+          {
+            "ms": 736.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5346006452337058,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3811610301834581
+          },
+          {
+            "ms": 752.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5346006452337058,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3811610301834581
+          },
+          {
+            "ms": 768.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5386729524607374,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38430128725990337
+          },
+          {
+            "ms": 784.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5362762063542365,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3847700802250892
+          },
+          {
+            "ms": 800.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5417080603477735,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38624354465915295
+          },
+          {
+            "ms": 816.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5320496759503883,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3853910461222662
+          },
+          {
+            "ms": 832.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5429752058249261,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3869003225543976
+          },
+          {
+            "ms": 848.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5284168918614067,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38512266989801786
+          },
+          {
+            "ms": 864.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.4934232124415785,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3772121719106479
+          },
+          {
+            "ms": 880,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.30606813714241693,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3337038310961225
+          },
+          {
+            "ms": 896.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.24575961070141933
+          },
+          {
+            "ms": 912.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.17826190875564019
+          },
+          {
+            "ms": 928.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.12979468654327844
+          },
+          {
+            "ms": 944.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.09396795949321268
+          },
+          {
+            "ms": 960.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0695992552151293
+          },
+          {
+            "ms": 976.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0504838693681583
+          },
+          {
+            "ms": 992.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.036479624299701974
+          },
+          {
+            "ms": 1008.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.02691688719357014
+          },
+          {
+            "ms": 1024.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.01956131452801097
+          },
+          {
+            "ms": 1040.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.01421579777948829
+          },
+          {
+            "ms": 1056,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.010331049412637789
+          },
+          {
+            "ms": 1072.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.007522164025391513
+          },
+          {
+            "ms": 1089,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.005518763694430497
+          },
+          {
+            "ms": 1104.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.005518763694430497
+          },
+          {
+            "ms": 1120.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.003980286755804641
+          },
+          {
+            "ms": 1136.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0029257588041342736
+          },
+          {
+            "ms": 1152.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0021222012335348423
+          },
+          {
+            "ms": 1168.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0015481394688370083
+          },
+          {
+            "ms": 1184.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0011272193708152154
+          },
+          {
+            "ms": 1200.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.000822303168248537
+          },
+          {
+            "ms": 1216.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0006010085404780282
+          },
+          {
+            "ms": 1232.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.46162713230078933,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08849952325233848
+          },
+          {
+            "ms": 1248.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5428320350483722,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1740227119479782
+          },
+          {
+            "ms": 1264.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.527119947325894,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.22932695436884182
+          },
+          {
+            "ms": 1280.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.537384805363378,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.2710785120803033
+          },
+          {
+            "ms": 1296,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5259883292729938,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3009359718714543
+          },
+          {
+            "ms": 1312.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5408640492326826,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.32536046102460614
+          },
+          {
+            "ms": 1328.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5269902183430792,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3399122144135609
+          },
+          {
+            "ms": 1344.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.542778215431779,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.35339438991623817
+          },
+          {
+            "ms": 1360.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.529868080682259,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.36123084669751887
+          },
+          {
+            "ms": 1376,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5426691430357581,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3692490698406999
+          },
+          {
+            "ms": 1392.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5267891834006148,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3719088169355409
+          },
+          {
+            "ms": 1408.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.540563186378664,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3765876197336522
+          },
+          {
+            "ms": 1424,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5260064712223769,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37715678383592394
+          },
+          {
+            "ms": 1440.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5369641850908016,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3798448934248919
+          },
+          {
+            "ms": 1456,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5273535072345399,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37980463600098935
+          },
+          {
+            "ms": 1472.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5327419876227222,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.380834752542791
+          },
+          {
+            "ms": 1489.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5304851764853136,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3811377916588407
+          },
+          {
+            "ms": 1504.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5304851764853136,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3811377916588407
+          },
+          {
+            "ms": 1520.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5289381120836979,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3810555861484952
+          },
+          {
+            "ms": 1536.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5346006452337058,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3821201854328767
+          },
+          {
+            "ms": 1552.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5400475012395751,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3839083491512522
+          },
+          {
+            "ms": 1568.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5386729524607374,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3850164123562186
+          },
+          {
+            "ms": 1584.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5362762063542365,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38530695337987414
+          },
+          {
+            "ms": 1600.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5417080603477735,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3865516120525927
+          },
+          {
+            "ms": 1616.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3855969735991446
+          },
+          {
+            "ms": 1632.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.261698404962347
+          },
+          {
+            "ms": 1648,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.261698404962347
+          },
+          {
+            "ms": 1664.4000000953674,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.14969392550249974
+          },
+          {
+            "ms": 1680.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1083744882215083
+          },
+          {
+            "ms": 1696.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.07981350411268459
+          },
+          {
+            "ms": 1712.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.05767320691765091
+          },
+          {
+            "ms": 1728,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.042152446023153656
+          },
+          {
+            "ms": 1744.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.030517268818418056
+          },
+          {
+            "ms": 1760.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.022219998423228412
+          },
+          {
+            "ms": 1776.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0160256844712431
+          },
+          {
+            "ms": 1792,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.011847213743417634
+          },
+          {
+            "ms": 1808.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.008658943459780761
+          },
+          {
+            "ms": 1824,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00625694917830219
+          },
+          {
+            "ms": 1840,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.004573106414640507
+          },
+          {
+            "ms": 1856.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0033360674868255532
+          },
+          {
+            "ms": 1872.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0024290317307920205
+          },
+          {
+            "ms": 1888.5,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0017787177040288014
+          },
+          {
+            "ms": 1905,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001300036984531807
+          },
+          {
+            "ms": 1920.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001300036984531807
+          },
+          {
+            "ms": 1936,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0009429827531633056
+          },
+          {
+            "ms": 1952.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0006839932119959561
+          },
+          {
+            "ms": 1968.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.000495193202050203
+          },
+          {
+            "ms": 1984.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0003660785733990604
+          },
+          {
+            "ms": 2000.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00026352493478904544
+          },
+          {
+            "ms": 2016.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00019370724865419272
+          },
+          {
+            "ms": 2032.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00014104062834139456
+          },
+          {
+            "ms": 2048.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00010249848231427125
+          },
+          {
+            "ms": 2064.100000023842,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.463040464454623e-05
+          },
+          {
+            "ms": 2080.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.475386675028954e-05
+          },
+          {
+            "ms": 2096.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.949002044947665e-05
+          }
+        ],
+        "firstMs": 480.10000002384186,
+        "lastMs": 1600.1000000238419,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5260064712223769,
+        "tailJawMin": 0.32536046102460614,
+        "gapJawMax": 0.036479624299701974,
+        "outputRmsBefore": 0.12928228634051786,
+        "outputRmsAfter": 0,
+        "outputContextAfter": "running",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.542985602630175,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "stopped": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        }
+      },
+      {
+        "route": "fallback",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "rows": [
+          {
+            "ms": 16.199999928474426,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.013564432778798048
+          },
+          {
+            "ms": 32.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.013564432778798048
+          },
+          {
+            "ms": 48.299999952316284,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.008324068448621904
+          },
+          {
+            "ms": 64.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.005969428126092928
+          },
+          {
+            "ms": 80.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.004329928945199066
+          },
+          {
+            "ms": 96.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0031706960254721988
+          },
+          {
+            "ms": 112.29999995231628,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0023174121955864438
+          },
+          {
+            "ms": 128.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001677745839397931
+          },
+          {
+            "ms": 144.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0012215873645920108
+          },
+          {
+            "ms": 160.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.000896238364287044
+          },
+          {
+            "ms": 176.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0006427182251660037
+          },
+          {
+            "ms": 192.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0004760421544461994
+          },
+          {
+            "ms": 208.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0003446420733960214
+          },
+          {
+            "ms": 224.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00025189350779256564
+          },
+          {
+            "ms": 240.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00018271113538184468
+          },
+          {
+            "ms": 256.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00013379468333290243
+          },
+          {
+            "ms": 272,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 9.816074692343599e-05
+          },
+          {
+            "ms": 288.6999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.160797204399382e-05
+          },
+          {
+            "ms": 304.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.160797204399382e-05
+          },
+          {
+            "ms": 320.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.174389276493759e-05
+          },
+          {
+            "ms": 336.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.796278772822792e-05
+          },
+          {
+            "ms": 352.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 2.7379824525341568e-05
+          },
+          {
+            "ms": 368.39999997615814,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.9935586680489096e-05
+          },
+          {
+            "ms": 384.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.4626082551254803e-05
+          },
+          {
+            "ms": 400.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.0548739879334945e-05
+          },
+          {
+            "ms": 416.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.709909195978276e-06
+          },
+          {
+            "ms": 432.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.6136796250416234e-06
+          },
+          {
+            "ms": 448.60000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 4.102950746673732e-06
+          },
+          {
+            "ms": 464.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.010199663866138e-06
+          },
+          {
+            "ms": 480.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 2.1917633646278416e-06
+          },
+          {
+            "ms": 496.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.0248330622257993,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.5897971184285683e-06
+          },
+          {
+            "ms": 512.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.4321867990196875,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08632107524434406
+          },
+          {
+            "ms": 528.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5845413976598909,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.17495564098147232
+          },
+          {
+            "ms": 544.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5958624695443654,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.24438402794858619
+          },
+          {
+            "ms": 560.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5864108502864852,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.2937146340249655
+          },
+          {
+            "ms": 576.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6033058027676523,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3315699292426408
+          },
+          {
+            "ms": 592.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5901416514801562,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.35694576944314615
+          },
+          {
+            "ms": 608.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6024144426340065,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3778247417084476
+          },
+          {
+            "ms": 624.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5947895084679352,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3913945482278882
+          },
+          {
+            "ms": 640.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5994356606180983,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.40260094037404315
+          },
+          {
+            "ms": 656.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5991949323595952,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4103166350394982
+          },
+          {
+            "ms": 672.6000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5950847466662904,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.41519957181979095
+          },
+          {
+            "ms": 689.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6022843770409655,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4201634577956112
+          },
+          {
+            "ms": 704.3999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6022843770409655,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4201634577956112
+          },
+          {
+            "ms": 720.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5904184279684002,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42149915022367646
+          },
+          {
+            "ms": 736.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5908836840088967,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4225804725544748
+          },
+          {
+            "ms": 752.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5865958529230875,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42251722194733904
+          },
+          {
+            "ms": 768.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5955722784302381,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4241673402206602
+          },
+          {
+            "ms": 784.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5845901789434076,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4232534048468975
+          },
+          {
+            "ms": 800.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.599826342768855,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42556161786670216
+          },
+          {
+            "ms": 816.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5849151564367757,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42436526290741317
+          },
+          {
+            "ms": 832.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6026132446908089,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4270181336911875
+          },
+          {
+            "ms": 848.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5896916396215075,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4263853289482143
+          },
+          {
+            "ms": 864.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.603265485002591,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4286386311269548
+          },
+          {
+            "ms": 880.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5861156565887183,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42685295253515926
+          },
+          {
+            "ms": 896.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.601627205160981,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42850044734390735
+          },
+          {
+            "ms": 912.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.27791835384703534,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3642043520406164
+          },
+          {
+            "ms": 928.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.26568598890794676
+          },
+          {
+            "ms": 944.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.19418573901294311
+          },
+          {
+            "ms": 960.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.14085276385477144
+          },
+          {
+            "ms": 976.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.10294708484093593
+          },
+          {
+            "ms": 992.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.07567252268798837
+          },
+          {
+            "ms": 1008.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.05395849375311321
+          },
+          {
+            "ms": 1024.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.05395849375311321
+          },
+          {
+            "ms": 1040.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.029154670334349153
+          },
+          {
+            "ms": 1056.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.021268245033651916
+          },
+          {
+            "ms": 1072.6000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.015456275741329187
+          },
+          {
+            "ms": 1088.6999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.011382932873757438
+          },
+          {
+            "ms": 1104.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.011382932873757438
+          },
+          {
+            "ms": 1120.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.008147532468523249
+          },
+          {
+            "ms": 1136.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0060231785436600915
+          },
+          {
+            "ms": 1152.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.004360623785799723
+          },
+          {
+            "ms": 1168.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0032053302225562206
+          },
+          {
+            "ms": 1184.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0023205752757459947
+          },
+          {
+            "ms": 1200.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0016864321058202268
+          },
+          {
+            "ms": 1216.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001237279624228644
+          },
+          {
+            "ms": 1232.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0008974616571452174
+          },
+          {
+            "ms": 1248.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0006460457981554025
+          },
+          {
+            "ms": 1264.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5483675955458196,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.10231311507680427
+          },
+          {
+            "ms": 1280.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6027202651745904,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1970281609513684
+          },
+          {
+            "ms": 1296.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5850136505142826,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.25642233291301303
+          },
+          {
+            "ms": 1312.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.600052797703608,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3041700784377427
+          },
+          {
+            "ms": 1328.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5845413976598909,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3358993004400495
+          },
+          {
+            "ms": 1344.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5958624695443654,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.36057074197025085
+          },
+          {
+            "ms": 1360.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5864108502864852,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3775015166823021
+          },
+          {
+            "ms": 1376.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6033058027676523,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.39312320047829874
+          },
+          {
+            "ms": 1392.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5901416514801562,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4018073840169511
+          },
+          {
+            "ms": 1408.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6024144426340065,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4103561347276354
+          },
+          {
+            "ms": 1424.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5947895084679352,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4151960583300086
+          },
+          {
+            "ms": 1440.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5994356606180983,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.41967703213510743
+          },
+          {
+            "ms": 1456.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5991949323595952,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42293463343577953
+          },
+          {
+            "ms": 1472.3999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5950847466662904,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42439105527338256
+          },
+          {
+            "ms": 1489.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6022843770409655,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42695803421024553
+          },
+          {
+            "ms": 1504.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6022843770409655,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42695803421024553
+          },
+          {
+            "ms": 1520.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5904184279684002,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4264609303616702
+          },
+          {
+            "ms": 1536.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5908836840088967,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4261851735389471
+          },
+          {
+            "ms": 1552.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5865958529230875,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4251581353749674
+          },
+          {
+            "ms": 1568.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5955722784302381,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4261515872710182
+          },
+          {
+            "ms": 1584.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5845901789434076,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.424717833915042
+          },
+          {
+            "ms": 1600.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.599826342768855,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42663398176611816
+          },
+          {
+            "ms": 1616.3999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5849151564367757,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.425102110217754
+          },
+          {
+            "ms": 1632.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6026132446908089,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4275012623014448
+          },
+          {
+            "ms": 1648.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42043705470757603
+          },
+          {
+            "ms": 1664.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.30093514493945317
+          },
+          {
+            "ms": 1680.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.30093514493945317
+          },
+          {
+            "ms": 1696.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.16290949107702044
+          },
+          {
+            "ms": 1712.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1188419877432632
+          },
+          {
+            "ms": 1728.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08554946764421681
+          },
+          {
+            "ms": 1744.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.06324365306426187
+          },
+          {
+            "ms": 1760.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.04587382881889348
+          },
+          {
+            "ms": 1776.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0335284648888146
+          },
+          {
+            "ms": 1792.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.024227655641252316
+          },
+          {
+            "ms": 1808.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.017775032012433196
+          },
+          {
+            "ms": 1824.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.012942219228043422
+          },
+          {
+            "ms": 1840.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.009423388875415804
+          },
+          {
+            "ms": 1856.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.006848261166628868
+          },
+          {
+            "ms": 1872,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.004986303118225623
+          },
+          {
+            "ms": 1889,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0036031006868905337
+          },
+          {
+            "ms": 1904.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0036031006868905337
+          },
+          {
+            "ms": 1920.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0026334500080254473
+          },
+          {
+            "ms": 1936.5,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001917447310706279
+          },
+          {
+            "ms": 1952.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0014014322869576896
+          },
+          {
+            "ms": 1968.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001020400071260585
+          },
+          {
+            "ms": 1984.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0007529132807065803
+          },
+          {
+            "ms": 2000.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0005482054114892178
+          },
+          {
+            "ms": 2016.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00039388148149220354
+          },
+          {
+            "ms": 2032.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00028842931754985066
+          },
+          {
+            "ms": 2048.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0002096102920942814
+          },
+          {
+            "ms": 2064.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00015320088817009293
+          },
+          {
+            "ms": 2080.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.000110702902242452
+          },
+          {
+            "ms": 2096.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 8.19943264468188e-05
+          },
+          {
+            "ms": 2112.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.880048217920626e-05
+          }
+        ],
+        "firstMs": 512.1999999284744,
+        "lastMs": 1632.1999999284744,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5845413976598909,
+        "tailJawMin": 0.3041700784377427,
+        "gapJawMax": 0.07567252268798837,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.6018978633658132,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      }
+    ],
+    "speechReplay": {
+      "durationSec": 2.3000416666666665,
+      "sampleRate": 24000,
+      "pcmFrames": 55201,
+      "resolution": [
+        475,
+        883
+      ],
+      "mimeType": "video/webm;codecs=vp9,opus",
+      "sourceSha256": "3c5a154dd0fdb03a18a6e3c0b32c7fd379228c3e2fa2d15aa62e993f6c1137a5",
+      "scope": "Existing recorded Gemini greeting replayed locally through actual worklet; browser MediaRecorder captures rig canvas plus same PCM bus. 30fps capture request, not physical display/performance or accurate consonant proof."
+    },
+    "scope": "Actual packaged Linux Electron, real TalkingHead worklet and Web Audio fallback. Deterministic synthetic PCM with queued silence/tone/gap/tail; real output waveform drives visible rig. No cloud provider, phoneme accuracy, physical speakers or acoustic/display latency proof."
+  },
+  "fullRegressionPassed": true,
+  "packageBuildPassed": true,
+  "scope": "Final source after stale-start cancellation gate; physical Windows, microphones, speakers and phoneme accuracy remain open.",
+  "packagedSoftwareRepeat": {
+    "archiveSha256": "aa6bc616f079179a73a5f044461b3a9ab16e68b134ff52ade73cffb4a56def18",
+    "graphicsRequest": "software",
+    "graphics": {
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "samples": 0
+    },
+    "passed": true,
+    "checkedAt": "2026-10-09T04:45:18.086Z",
+    "results": [
+      {
+        "route": "stream",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "rows": [
+          {
+            "ms": 26.199999928474426,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 32.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 48.199999928474426,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 64.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 80.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 96.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 112.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 128.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 144.29999995231628,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 160,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 176.19999992847443,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 192.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 208,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 224.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 240.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 256.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 272.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 288.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 304,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 320.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 336.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 352.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 368.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 384.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 400.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 416.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 432.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 448,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 464.09999990463257,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0
+          },
+          {
+            "ms": 623.8999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5085316572520941,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1694342014350826
+          },
+          {
+            "ms": 653.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5260064712223769,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.29082266698519926
+          },
+          {
+            "ms": 656.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5260064712223769,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.29082266698519926
+          },
+          {
+            "ms": 672.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5260064712223769,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.29082266698519926
+          },
+          {
+            "ms": 702.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5327419876227222,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3446185741650325
+          },
+          {
+            "ms": 704,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5327419876227222,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3446185741650325
+          },
+          {
+            "ms": 749.8999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5346006452337058,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.36798903059890914
+          },
+          {
+            "ms": 752.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5346006452337058,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.36798903059890914
+          },
+          {
+            "ms": 797.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.526087241825555,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3742494250378936
+          },
+          {
+            "ms": 800.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.526087241825555,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3742494250378936
+          },
+          {
+            "ms": 848.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5429752058249261,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38393120446840445
+          },
+          {
+            "ms": 880.3999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5421729816841022,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38689510330759547
+          },
+          {
+            "ms": 896.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5421729816841022,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38689510330759547
+          },
+          {
+            "ms": 959.5999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08763259674598138
+          },
+          {
+            "ms": 976,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08763259674598138
+          },
+          {
+            "ms": 1007.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.03680569063331218
+          },
+          {
+            "ms": 1024.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.03680569063331218
+          },
+          {
+            "ms": 1052.6999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.01550484367072983
+          },
+          {
+            "ms": 1056,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.01550484367072983
+          },
+          {
+            "ms": 1101.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.006512034341706529
+          },
+          {
+            "ms": 1104,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.006512034341706529
+          },
+          {
+            "ms": 1120.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.006512034341706529
+          },
+          {
+            "ms": 1186.8999999761581,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001425398374197599
+          },
+          {
+            "ms": 1200.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001425398374197599
+          },
+          {
+            "ms": 1235.5999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0005986673171629916
+          },
+          {
+            "ms": 1248.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0005986673171629916
+          },
+          {
+            "ms": 1285.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.527119947325894,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.22037673027650173
+          },
+          {
+            "ms": 1296.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.527119947325894,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.22037673027650173
+          },
+          {
+            "ms": 1332.6999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5408640492326826,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.31842305367569895
+          },
+          {
+            "ms": 1344.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5408640492326826,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.31842305367569895
+          },
+          {
+            "ms": 1382.7999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.529868080682259,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3550105930367049
+          },
+          {
+            "ms": 1392.1999999284744,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.529868080682259,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3550105930367049
+          },
+          {
+            "ms": 1431.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.540563186378664,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37484363570714613
+          },
+          {
+            "ms": 1440.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.540563186378664,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.37484363570714613
+          },
+          {
+            "ms": 1479.2999999523163,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5413104822198068,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3834855843719927
+          },
+          {
+            "ms": 1488.0999999046326,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5413104822198068,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3834855843719927
+          },
+          {
+            "ms": 1628,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5277697490807114,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3808150176539085
+          },
+          {
+            "ms": 1673.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1943603168403399
+          },
+          {
+            "ms": 1703.6999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08767297860039952
+          },
+          {
+            "ms": 1712.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08767297860039952
+          },
+          {
+            "ms": 1751.3999999761581,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0368226510121678
+          },
+          {
+            "ms": 1760.0999999046326,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0368226510121678
+          },
+          {
+            "ms": 1792.0999999046326,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.018265484260208468
+          },
+          {
+            "ms": 1824.8999999761581,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.009555464334261353
+          },
+          {
+            "ms": 1860.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0048954841177471725
+          },
+          {
+            "ms": 1896.5,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00248908001694326
+          },
+          {
+            "ms": 1930.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0012703763200161318
+          },
+          {
+            "ms": 1936.0999999046326,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0012703763200161318
+          },
+          {
+            "ms": 2000.3999999761581,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0003476751100487748
+          },
+          {
+            "ms": 2016.2999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0003476751100487748
+          },
+          {
+            "ms": 2049.7999999523163,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00014602354622048544
+          },
+          {
+            "ms": 2064.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.78565385422094e-05
+          },
+          {
+            "ms": 2080.0999999046326,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 7.78565385422094e-05
+          },
+          {
+            "ms": 2096.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 4.166943490667999e-05
+          },
+          {
+            "ms": 2112.1999999284744,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 4.166943490667999e-05
+          }
+        ],
+        "firstMs": 623.8999999761581,
+        "lastMs": 1628,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.529868080682259,
+        "tailJawMin": 0.31842305367569895,
+        "gapJawMax": 0.03680569063331218,
+        "outputRmsBefore": 0.12928228634051786,
+        "outputRmsAfter": 0,
+        "outputContextAfter": "running",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5355762556236597,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "stopped": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        }
+      },
+      {
+        "route": "fallback",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "rows": [
+          {
+            "ms": 75.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.003209261696797328
+          },
+          {
+            "ms": 80.20000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.003209261696797328
+          },
+          {
+            "ms": 119.40000009536743,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0014726167343348392
+          },
+          {
+            "ms": 150.70000004768372,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0007747932250081446
+          },
+          {
+            "ms": 160.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0007747932250081446
+          },
+          {
+            "ms": 196.80000007152557,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00032541315450342073
+          },
+          {
+            "ms": 229.30000007152557,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00017317378380640524
+          },
+          {
+            "ms": 263.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 9.268397787307417e-05
+          },
+          {
+            "ms": 272.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 9.268397787307417e-05
+          },
+          {
+            "ms": 309.60000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.8927270706691155e-05
+          },
+          {
+            "ms": 320.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.8927270706691155e-05
+          },
+          {
+            "ms": 355.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.6523689082848186e-05
+          },
+          {
+            "ms": 368.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.6523689082848186e-05
+          },
+          {
+            "ms": 402.40000009536743,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 6.939949414796239e-06
+          },
+          {
+            "ms": 416.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 6.939949414796239e-06
+          },
+          {
+            "ms": 446.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 2.9147787542144207e-06
+          },
+          {
+            "ms": 448.10000002384186,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 2.9147787542144207e-06
+          },
+          {
+            "ms": 464.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 2.9147787542144207e-06
+          },
+          {
+            "ms": 480.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.2242070767700568e-06
+          },
+          {
+            "ms": 496.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 1.2242070767700568e-06
+          },
+          {
+            "ms": 527.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5985255210170681,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.19853785618860526
+          },
+          {
+            "ms": 528.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5985255210170681,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.19853785618860526
+          },
+          {
+            "ms": 544.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5985255210170681,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.19853785618860526
+          },
+          {
+            "ms": 575.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5864108502864852,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3282710706788504
+          },
+          {
+            "ms": 592.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5864108502864852,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3282710706788504
+          },
+          {
+            "ms": 625.5,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6024144426340065,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38944212092907826
+          },
+          {
+            "ms": 640.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6024144426340065,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38944212092907826
+          },
+          {
+            "ms": 673.9000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5991949323595952,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4137894945435798
+          },
+          {
+            "ms": 688.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5991949323595952,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4137894945435798
+          },
+          {
+            "ms": 720.9000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5904184279684002,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4203503232279074
+          },
+          {
+            "ms": 736.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5904184279684002,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4203503232279074
+          },
+          {
+            "ms": 771.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6020500489754949,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42796323620788773
+          },
+          {
+            "ms": 784.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6020500489754949,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42796323620788773
+          },
+          {
+            "ms": 821.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5849151564367757,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42400512853531036
+          },
+          {
+            "ms": 832.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5849151564367757,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42400512853531036
+          },
+          {
+            "ms": 867.6000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5896916396215075,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42433738269077187
+          },
+          {
+            "ms": 880.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5896916396215075,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42433738269077187
+          },
+          {
+            "ms": 917.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5126951469316812,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.39232319408879424
+          },
+          {
+            "ms": 928.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5126951469316812,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.39232319408879424
+          },
+          {
+            "ms": 964.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.1647757415172936
+          },
+          {
+            "ms": 994.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08835699841438194
+          },
+          {
+            "ms": 1008.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.08835699841438194
+          },
+          {
+            "ms": 1043.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.037109939334040415
+          },
+          {
+            "ms": 1056.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.037109939334040415
+          },
+          {
+            "ms": 1092.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.015586174520296977
+          },
+          {
+            "ms": 1104.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.015586174520296977
+          },
+          {
+            "ms": 1143.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0065461932985247315
+          },
+          {
+            "ms": 1152.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0065461932985247315
+          },
+          {
+            "ms": 1194.8000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0027494011853803875
+          },
+          {
+            "ms": 1200.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0027494011853803875
+          },
+          {
+            "ms": 1243,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001154748497859763
+          },
+          {
+            "ms": 1248.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001154748497859763
+          },
+          {
+            "ms": 1292.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6027202651745904,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.25218097710601
+          },
+          {
+            "ms": 1326.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.600052797703608,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3357771061925334
+          },
+          {
+            "ms": 1328.1000000238419,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.600052797703608,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.3357771061925334
+          },
+          {
+            "ms": 1360.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6018978633658132,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38336919065247665
+          },
+          {
+            "ms": 1376.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.6018978633658132,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.38336919065247665
+          },
+          {
+            "ms": 1442,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5947895084679352,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.41703646128623617
+          },
+          {
+            "ms": 1481.4000000953674,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.584694544140459,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.41903869641868474
+          },
+          {
+            "ms": 1488.3000000715256,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.584694544140459,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.41903869641868474
+          },
+          {
+            "ms": 1529.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5904184279684002,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4225549880154515
+          },
+          {
+            "ms": 1561.2000000476837,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5865958529230875,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4224555465420617
+          },
+          {
+            "ms": 1595,
+            "source": "output-waveform",
+            "enabled": true,
+            "level": 0.5987817516953193,
+            "viseme": "O",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.4265279059674063
+          },
+          {
+            "ms": 1629,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.42717057698353633
+          },
+          {
+            "ms": 1669.8000000715256,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.2264634151498866
+          },
+          {
+            "ms": 1700.6000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.10917841837093699
+          },
+          {
+            "ms": 1712.3000000715256,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.10917841837093699
+          },
+          {
+            "ms": 1747.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.045854935715793535
+          },
+          {
+            "ms": 1760.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.045854935715793535
+          },
+          {
+            "ms": 1795.3000000715256,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.019259073000633287
+          },
+          {
+            "ms": 1832,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.009337908277027308
+          },
+          {
+            "ms": 1869.5,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0046761834467891955
+          },
+          {
+            "ms": 1872.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0046761834467891955
+          },
+          {
+            "ms": 1916.3000000715256,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001963997047651462
+          },
+          {
+            "ms": 1920.1000000238419,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.001963997047651462
+          },
+          {
+            "ms": 1951.9000000953674,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0010023845456692232
+          },
+          {
+            "ms": 1968.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0010023845456692232
+          },
+          {
+            "ms": 1999.9000000953674,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.00042100150918107377
+          },
+          {
+            "ms": 2016.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0002140557334884779
+          },
+          {
+            "ms": 2032.2000000476837,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.0002140557334884779
+          },
+          {
+            "ms": 2073.4000000953674,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 0.000110502309244763
+          },
+          {
+            "ms": 2080.100000023842,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.9254185420163346e-05
+          },
+          {
+            "ms": 2096.100000023842,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 5.9254185420163346e-05
+          },
+          {
+            "ms": 2112.100000023842,
+            "source": "output-waveform",
+            "enabled": false,
+            "level": 0,
+            "viseme": "rest",
+            "windowSamples": 512,
+            "contextState": "running",
+            "jaw": 3.053081245164122e-05
+          }
+        ],
+        "firstMs": 527.1000000238419,
+        "lastMs": 1595,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.584694544140459,
+        "tailJawMin": 0.3357771061925334,
+        "gapJawMax": 0.08835699841438194,
+        "outputRmsBefore": 0.14075388675018435,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5958624695443654,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      }
+    ],
+    "speechReplay": null,
+    "scope": "Actual packaged Linux Electron, real TalkingHead worklet and Web Audio fallback. Deterministic synthetic PCM with queued silence/tone/gap/tail; real output waveform drives visible rig. No cloud provider, phoneme accuracy, physical speakers or acoustic/display latency proof."
+  },
+  "softwareTimingConcern": {
+    "initialFinalRun": "Failed onset assertion; raw samples were not written by that earlier tool version. No completion claim.",
+    "failureOutput": "AssertionError [ERR_ASSERTION]: Mouth onset did not follow output on stream\n    at /home/addeepak/AdvitResearch/magicmirror/tools/check-playback-sync.cjs:44:139 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n",
+    "passingRepeatWorstSamplingGapMs": {
+      "stream": 159.80000007152557,
+      "fallback": 65.79999995231628
+    },
+    "conclusion": "Software first speech includes a main-thread sampling gap; responsiveness remains unqualified. Exact cost owner has not been proven."
+  },
+  "monitorSnapshots": {
+    "2026-10-09T04-28-05-971Z": {
+      "build": {
+        "archiveSha256": "5dac3c4b103a2bf3345c28a771cb82611bae2bf5f712f094bf9f7b5a43296055",
+        "gitRevision": "987ddd72759130f5d43ba3ea9ea04d20747207fc",
+        "isolatedCopy": true,
+        "avatarStyle": "rig",
+        "graphicsRequest": "vulkan"
+      },
+      "snapshot": {
+        "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+        "pid": 2537362,
+        "startedAt": "2026-10-09T04-28-05-971Z",
+        "updatedAt": "2026-10-09T04:47:24.406Z",
+        "status": "monitoring",
+        "sampleCount": 379,
+        "errors": [],
+        "latest": {
+          "at": "2026-10-09T04:47:24.358Z",
+          "elapsedSec": 1155.81,
+          "cpuPercent": 9.186351706036746,
+          "summedRssBytes": 855863296,
+          "processCount": 5,
+          "rendererHeapBytes": 14317820,
+          "gpu": {
+            "deviceWide": "4.42, 0, [N/A]"
+          },
+          "mode": "spotify",
+          "sleeping": false,
+          "avatarAppearance": "rig",
+          "avatarRig": {
+            "ready": true,
+            "persona": "velora",
+            "quality": "auto",
+            "graphics": {
+              "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+              "samples": 4
+            },
+            "antialiasing": "msaa",
+            "resolution": [
+              253,
+              471
+            ],
+            "frames": 4372,
+            "reuses": 13307,
+            "supported": [
+              "browDownLeft",
+              "browDownRight",
+              "browInnerUp",
+              "browOuterUpLeft",
+              "browOuterUpRight",
+              "cheekPuff",
+              "cheekSquintLeft",
+              "cheekSquintRight",
+              "eyeBlinkLeft",
+              "eyeBlinkRight",
+              "eyeSquintLeft",
+              "eyeSquintRight",
+              "eyeWideLeft",
+              "eyeWideRight",
+              "jawForward",
+              "jawLeft",
+              "jawOpen",
+              "jawRight",
+              "mouthClose",
+              "mouthFrownLeft",
+              "mouthFrownRight",
+              "mouthFunnel",
+              "mouthLeft",
+              "mouthLowerDownLeft",
+              "mouthLowerDownRight",
+              "mouthPressLeft",
+              "mouthPressRight",
+              "mouthPucker",
+              "mouthRight",
+              "mouthSmileLeft",
+              "mouthSmileRight",
+              "mouthStretchLeft",
+              "mouthStretchRight",
+              "mouthUpperUpLeft",
+              "mouthUpperUpRight",
+              "noseSneerLeft",
+              "noseSneerRight"
+            ],
+            "triangles": 28812,
+            "drawCalls": 15
+          },
+          "power": {
+            "targetFps": 12,
+            "frames": 25004,
+            "scene": {
+              "frames": 17,
+              "dynamic": false,
+              "dirty": false,
+              "maxDynamicFps": 60
+            }
+          },
+          "eventLoopLagMs": 0.2999999523162842,
+          "cameraActive": false,
+          "hardMuted": true
+        },
+        "appExit": null
+      },
+      "scope": "Earlier immutable build, does not verify this playback change."
+    },
+    "2026-10-09T03-23-39-044Z": {
+      "build": {
+        "archiveSha256": "7b9713a22acd17916af1b4a127bb08dbf27387e838bb6aa8f3390dd9fbfe5316",
+        "gitRevision": "2eea9ad52d7019e5ebd037524db5630b9058ffb8",
+        "isolatedCopy": true,
+        "avatarStyle": "rig"
+      },
+      "snapshot": {
+        "scope": "Actual packaged Linux portrait app, software rendering, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+        "pid": 2507210,
+        "startedAt": "2026-10-09T03-23-39-044Z",
+        "updatedAt": "2026-10-09T04:47:26.381Z",
+        "status": "monitoring",
+        "sampleCount": 1645,
+        "errors": [],
+        "latest": {
+          "at": "2026-10-09T04:47:26.335Z",
+          "elapsedSec": 5022.949,
+          "cpuPercent": 6.2356416147029865,
+          "summedRssBytes": 886046720,
+          "processCount": 5,
+          "rendererHeapBytes": 14394064,
+          "gpu": {
+            "deviceWide": "4.39, 0, [N/A]"
+          },
+          "mode": "mirror",
+          "sleeping": true,
+          "avatarAppearance": "rig",
+          "avatarRig": {
+            "ready": true,
+            "persona": "velora",
+            "quality": "auto",
+            "resolution": [
+              253,
+              471
+            ],
+            "frames": 10927,
+            "reuses": 36526,
+            "supported": [
+              "browDownLeft",
+              "browDownRight",
+              "browInnerUp",
+              "browOuterUpLeft",
+              "browOuterUpRight",
+              "cheekPuff",
+              "cheekSquintLeft",
+              "cheekSquintRight",
+              "eyeBlinkLeft",
+              "eyeBlinkRight",
+              "eyeSquintLeft",
+              "eyeSquintRight",
+              "eyeWideLeft",
+              "eyeWideRight",
+              "jawForward",
+              "jawLeft",
+              "jawOpen",
+              "jawRight",
+              "mouthClose",
+              "mouthFrownLeft",
+              "mouthFrownRight",
+              "mouthFunnel",
+              "mouthLeft",
+              "mouthLowerDownLeft",
+              "mouthLowerDownRight",
+              "mouthPressLeft",
+              "mouthPressRight",
+              "mouthPucker",
+              "mouthRight",
+              "mouthSmileLeft",
+              "mouthSmileRight",
+              "mouthStretchLeft",
+              "mouthStretchRight",
+              "mouthUpperUpLeft",
+              "mouthUpperUpRight",
+              "noseSneerLeft",
+              "noseSneerRight"
+            ],
+            "triangles": 29744,
+            "drawCalls": 35
+          },
+          "power": {
+            "targetFps": 0,
+            "frames": 80936,
+            "scene": {
+              "frames": 66,
+              "dynamic": false,
+              "dirty": true,
+              "maxDynamicFps": 15
+            }
+          },
+          "eventLoopLagMs": 0.20000004768371582,
+          "cameraActive": false,
+          "hardMuted": true
+        },
+        "appExit": null
+      },
+      "scope": "Earlier immutable build, does not verify this playback change."
+    }
+  }
+}
