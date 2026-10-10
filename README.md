@@ -37,6 +37,15 @@ npm start
 
 ### Windows laptop setup
 
+For the PC stick, download the self-contained Windows x64 ZIP from the
+[October 10 Windows preview](https://github.com/architdeepak/magicmirror/releases/tag/windows-preview-2026-10-10).
+Extract the whole ZIP, then use **Open Settings Window.cmd** to select the camera
+and configure voice. Set Windows display orientation to Portrait and choose the
+TV as the audio output. **Start Mirror.cmd** launches the kiosk. No Node.js, npm
+or Git installation is needed. See [the included setup guide](release/windows/README.txt).
+This unsigned preview includes the latest changes from `codex/local-ar-wardrobe`;
+Windows hardware validation remains pending.
+
 This is the recommended development and camera-testing setup. Electron runs on
 the laptop, so its USB webcam, microphone, GPU, and browser permissions are
 all local—no SSH camera forwarding is needed.

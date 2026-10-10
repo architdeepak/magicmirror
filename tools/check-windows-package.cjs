@@ -15,6 +15,13 @@ const root = path.resolve(__dirname, '..');
   assert.equal(executable.readUInt16LE(pe + 4), 0x8664, 'Package is not Windows x64');
   const archive = path.join(directory, 'resources/app.asar');
   const files = listPackage(archive);
+  const sourceHashes = {};
+  for (const file of files.filter(file => /^\/src\/.*\.(?:js|mjs|cjs|html|css|ps1)$/.test(file))) {
+    const relative = file.slice(1), packaged = extractFile(archive, relative);
+    const current = await fs.readFile(path.join(root, relative));
+    assert(packaged.equals(current), 'Packaged source differs from checkout: ' + relative);
+    sourceHashes[relative] = crypto.createHash('sha256').update(current).digest('hex');
+  }
   for (const required of ['src/main.js', 'src/preload.js', 'src/nativeDesktop.ps1', 'src/windowsSpotify.cjs', 'src/windowsSpotify.ps1', 'src/wakeModelServer.cjs', 'src/assets/models/vosk-small-en-us-0.15.tar.gz', 'src/assets/models/VOSK-APACHE-2.0.txt', 'src/assistantVision.js', 'src/spotifyDevices.js', 'src/vendor/decart-sdk.js', 'src/vendor/frame-metadata-worker.js', 'src/assets/avatar.glb', 'node_modules/vosk-browser/dist/vosk.js', 'node_modules/three/examples/jsm/loaders/GLTFLoader.js']) assert(files.includes('/' + required), 'Missing ' + required);
   const modelMetadata=JSON.parse(extractFile(archive,'src/assets/models/vosk-model.json'));
   const wakeModel=extractFile(archive,'src/assets/models/vosk-small-en-us-0.15.tar.gz');
@@ -46,7 +53,7 @@ with archive.open('rb') as stream: digest=hashlib.file_digest(stream,'sha256').h
 print(json.dumps({'zipSha256':digest,'zipBytes':archive.stat().st_size,'zipIntegrity':'passed'}))
 `, filename, directory], { encoding: 'utf8', maxBuffer: 100000 });
   assert.equal(zipAudit.status, 0, zipAudit.stderr || 'ZIP audit failed');
-  const result = { ...JSON.parse(zipAudit.stdout), executableArchitecture: 'Windows x64', requiredAssets: 'passed', sourceDataExclusion: 'passed', kioskLauncher: 'included', windowsRuntimeVerified: false };
+  const result = { ...JSON.parse(zipAudit.stdout), archiveSha256: crypto.createHash('sha256').update(await fs.readFile(archive)).digest('hex'), packagedSourceMatches: true, sourceHashes, executableArchitecture: 'Windows x64', requiredAssets: 'passed', sourceDataExclusion: 'passed', kioskLauncher: 'included', windowsRuntimeVerified: false };
   await fs.mkdir(path.join(root, 'artifacts/windows-package'), { recursive: true });
   await fs.writeFile(path.join(root, 'artifacts/windows-package/result.json'), JSON.stringify(result, null, 2) + '\n');
   await fs.writeFile(filename + '.sha256', `${result.zipSha256}  ${path.basename(filename)}\n`);
