@@ -20,6 +20,13 @@ self.onmessage = async ({ data }) => {
       catch { delegate = 'CPU'; options.baseOptions.delegate = delegate; landmarker = await FaceLandmarker.createFromOptions(vision, options); }
       self.postMessage({ type: 'ready', delegate });
     } catch (error) { self.postMessage({ type: 'error', message: `Face tracker unavailable: ${error.message}` }); }
+  } else if (data.type === 'options') {
+    // Blendshapes and the head-pose matrix are only needed to puppet the host.
+    // Skipping them roughly halves inference on a CPU delegate.
+    try {
+      const full = data.options?.full !== false;
+      await landmarker?.setOptions({ outputFaceBlendshapes: full, outputFacialTransformationMatrixes: full });
+    } catch { /* keep the current outputs */ }
   } else if (data.type === 'frame') {
     let result;
     try {

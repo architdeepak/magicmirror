@@ -27,6 +27,7 @@ export class FrameTracking {
         if (data.type === 'ready') {
           clearTimeout(this.initTimeout); this.initTimeout = null; this.ready = true;
           this.delegate = data.delegate; this._finishInit(true); this.onStatus('ready');
+          if (this.workerOptions) worker.postMessage({ type: 'options', options: this.workerOptions });
         } else if (data.type === this.task) {
           const request = this.pending;
           if (!request || request.id !== data.requestId) return;
@@ -78,6 +79,12 @@ export class FrameTracking {
       if (this.pending !== request) return;
       clearTimeout(request.timeout); this.pending = null; this.onResult(null, now);
     });
+  }
+  // Worker-side options (for example face blendshapes) that can be changed
+  // without reloading the model. Remembered and re-sent when the worker is ready.
+  configure(options) {
+    this.workerOptions = { ...(this.workerOptions || {}), ...options };
+    if (this.worker && this.ready) this.worker.postMessage({ type: 'options', options: this.workerOptions });
   }
   destroy() {
     this.disposed = true; this.enabled = false; this.ready = false; this.epoch += 1;

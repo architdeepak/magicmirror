@@ -113,6 +113,7 @@ export function createDepthScene(scene) {
   let mode = 'portal';
   let depthEnabled = false;
   let avatarAnchor = { x: 0, y: -.05 };
+  let followX = 0; // the host drifts toward wherever the viewer stands
   return {
     root,
     fire,
@@ -136,6 +137,7 @@ export function createDepthScene(scene) {
       if(avatarStage){avatarStage.width=textureSize;avatarStage.height=textureSize;avatarTexture.needsUpdate=true;}
     },
     setCubeContent() {}, // Information lives in the plain HTML overlay, not a 3D panel.
+    setAvatarFollow(offset) { followX = Number.isFinite(offset) ? Math.max(-.6, Math.min(.6, offset)) : 0; },
     setAvatarPosition(position) {
       avatarAnchor = { center: { x: 0, y: -.05 }, left: { x: -.95, y: -.26 }, right: { x: .95, y: -.26 }, upper: { x: 0, y: .72 }, lower: { x: 0, y: -1.2 } }[position] || { x: 0, y: -.05 };
     },
@@ -159,7 +161,7 @@ export function createDepthScene(scene) {
       cube.rotation.y = head.x * -.045;
       cube.rotation.x = head.y * .025;
 
-      avatarPlane.position.x = avatarAnchor.x + head.x * -.035;
+      avatarPlane.position.x = avatarAnchor.x + followX + head.x * -.035;
       avatarPlane.position.y = avatarAnchor.y - head.y * .025;
       avatarPlane.rotation.y = head.x * .055;
       avatarPlane.rotation.x = -head.y * .025;

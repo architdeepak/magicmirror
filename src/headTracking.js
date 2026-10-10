@@ -57,6 +57,7 @@ export async function initHeadTracking(video) {
   });
   faceTracking = tracker;
   setTrackingAmbient(ambientCadence);
+  tracker.configure?.({ full: faceDetailFull });
   const ready = await tracker.init();
   if (faceTracking !== tracker) return status.cameraActive;
   status.ready = ready;
@@ -199,7 +200,15 @@ export function setCameraQuality(id) {
 
 // Ambient (idle mirror) needs presence, not a 30 Hz virtual window: dropping
 // to ~4 Hz removes most of the main-thread frame-capture cost on small PCs.
+let faceDetailFull = true;
 let ambientCadence = false;
+// Full face detail (blendshapes + head matrix) only while the host mirrors the
+// viewer's expressions; landmarks alone drive parallax and gaze.
+export function setFaceDetail(full) {
+  faceDetailFull = Boolean(full);
+  faceTracking?.configure?.({ full: faceDetailFull });
+}
+
 export function setTrackingAmbient(ambient) {
   ambientCadence = Boolean(ambient);
   if (faceTracking) { faceTracking.interval = ambientCadence ? 250 : 32; faceTracking.maxAge = ambientCadence ? 900 : 300; }

@@ -197,3 +197,6 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 #app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]):is([data-mode="ar"], [data-mode="portal"], [data-mode="mirror"]) :is(#camera-feed, .garment-sync-camera) { visibility: hidden; }
 #app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) .mirror-frame { box-shadow: none; }
 #app-shell[data-glass-profile="night"] { filter: brightness(.7); }
+
+/* The host re-centres on the viewer (value set from head tracking). */
+#avatar-engine { translate: var(--follow-x, 0px) 0; }

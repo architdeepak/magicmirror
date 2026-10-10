@@ -42,7 +42,8 @@ import {
   switchCamera,
   toggleCamera,
   updateHeadTracking,
-  setTrackingAmbient
+  setTrackingAmbient,
+  setFaceDetail
 } from './headTracking.js';
 
 const elements = {
@@ -388,6 +389,7 @@ let desktopKind = '';
 let desktopLabel = '';
 let mode = 'mirror';
 setTrackingAmbient(true); // the app starts in the ambient mirror
+setFaceDetail(localStorage.getItem('mirror.face-puppet') === 'true');
 let requestedMode = 'mirror';
 let state = 'starting';
 const watchAvatarLayout = new WatchAvatarLayout({shell:elements.shell,panel:elements.watchPanel,host:elements.avatarHost,getState:()=>({active:mode==='watch'&&!desktopActive&&avatar.visible,position:elements.shell.dataset.avatarPosition||'center'})});
@@ -421,6 +423,7 @@ let idleTimer = null;
 let sleepTimer = null;
 let sleeping = false;
 let lastVoiceActivity = Date.now(), cameraIdlePaused = false;
+let followX = 0, followMe = localStorage.getItem('mirror.follow') !== 'false';
 const searchPool = { root: null, timer: 0 }; // filled in once the card exists
 let cameraWasActiveBeforeSleep = false;
 let diagnosticsTimer = 0;
@@ -616,6 +619,7 @@ document.querySelector('#closet-filter').addEventListener('click', () => { close
 for (const [selector, key, object, property] of [['#framing-toggle','mirror.framing',framing,'enabled'],['#reduced-motion-toggle','mirror.reduced-motion',magic,'reduced'],['#magic-sounds-toggle','mirror.magic-sounds',magic,'sound']]) {
   const field = document.querySelector(selector); field.checked = object[property]; field.addEventListener('change', () => { object[property] = field.checked; localStorage.setItem(key, String(field.checked)); magic.applyPreferences(); if (property === 'reduced' || property === 'sound') magic.cancel(); });
 }
+const followToggle=document.querySelector('#follow-toggle');followToggle.checked=followMe;followToggle.addEventListener('change',()=>{followMe=followToggle.checked;localStorage.setItem('mirror.follow',String(followMe));});
 const atmosphereToggle=document.querySelector('#atmosphere-toggle');
 atmosphereToggle.checked=localStorage.getItem('mirror.atmosphere')==='true';
 atmosphereToggle.addEventListener('change',()=>{localStorage.setItem('mirror.atmosphere',String(atmosphereToggle.checked));ambience.setContext({muted:hardMuted||sleeping,duck:desktopActive||['watch','spotify'].includes(mode)||['listening','thinking','speaking'].includes(state)});void ambience.setEnabled(atmosphereToggle.checked);});
@@ -1641,6 +1645,7 @@ elements.gestureToggle.addEventListener('change', () => {
 elements.facePuppetToggle.addEventListener('change', () => {
   localStorage.setItem('mirror.face-puppet', String(elements.facePuppetToggle.checked));
   avatar.setFacePuppetEnabled(elements.facePuppetToggle.checked);
+  setFaceDetail(elements.facePuppetToggle.checked);
   showGesture(elements.facePuppetToggle.checked ? 'Face puppet on · webcam input' : 'Face puppet off · AI animation');
 });
 elements.tryOnConsent.addEventListener('change', () => {
@@ -1992,6 +1997,15 @@ function animate() {
   const dt = Math.min(frameDelta, 0.05);
   const elapsed = clock.elapsedTime;
   const viewer = updateHeadTracking(performance.now());
+  // Re-centre on the person: the host eases toward where the viewer stands,
+  // ignoring small sways (dead zone) and moving slowly enough to feel calm.
+  {
+    const raw = viewer.x, dead = .12, outside = Math.abs(raw) < dead ? 0 : (raw - Math.sign(raw) * dead);
+    const wants = followMe && mode === 'portal' && elements.shell.dataset.avatarPosition === 'center' && getTrackingStatus().faceDetected;
+    followX += ((wants ? Math.max(-1, Math.min(1, outside)) : 0) - followX) * (1 - Math.exp(-dt / .9));
+    elements.shell.style.setProperty('--follow-x', `${Math.round(followX * viewportSize().width * .22)}px`);
+    depthScene.setAvatarFollow(followX * .5);
+  }
   if (depthEnabled) {
     elements.shell.style.setProperty('--viewer-x', `${Math.round(viewer.x * 42)}px`);
     elements.shell.style.setProperty('--viewer-y', `${Math.round(viewer.y * 30)}px`);
