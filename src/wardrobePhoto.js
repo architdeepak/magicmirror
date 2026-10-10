@@ -38,6 +38,25 @@ export function cutoutPhoto(source, { removeBackground = true, tolerance = 35, t
   return { data, width, height, bounds: { left, top, width: right - left + 1, height: bottom - top + 1 } };
 }
 
+function orientedPhoto(source, degrees, removeBackground) {
+  if (!degrees) return source;
+  const angle=degrees*Math.PI/180,c=Math.abs(Math.cos(angle)),s=Math.abs(Math.sin(angle));
+  const w=source.width*c+source.height*s,h=source.height*c+source.width*s,scale=Math.min(1,1024/Math.max(w,h));
+  const input=document.createElement('canvas');input.width=source.width;input.height=source.height;
+  input.getContext('2d').putImageData(new ImageData(source.data,source.width,source.height),0,0);
+  const output=document.createElement('canvas');output.width=Math.max(1,Math.round(w*scale));output.height=Math.max(1,Math.round(h*scale));
+  const ctx=output.getContext('2d',{willReadFrequently:true});
+  if(removeBackground){
+    const corners=[0,source.width-1,(source.height-1)*source.width,source.width*source.height-1];
+    const color=[0,1,2].map(channel=>corners.reduce((sum,p)=>sum+source.data[p*4+channel],0)/4);
+    if(corners.some(p=>color.some((v,ch)=>Math.abs(source.data[p*4+ch]-v)>35)))throw new Error('Use a plain background, or turn off Remove background and upload a cutout PNG.');
+    if(corners.every(p=>source.data[p*4+3]>16)){ctx.fillStyle=`rgb(${color.join(',')})`;ctx.fillRect(0,0,output.width,output.height);}
+  }
+  ctx.translate(output.width/2,output.height/2);ctx.rotate(angle);ctx.scale(scale,scale);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.drawImage(input,-source.width/2,-source.height/2);
+  return ctx.getImageData(0,0,output.width,output.height);
+}
+
 export class WardrobePhoto {
   constructor({ video, onSave, onNotice = () => {}, onStopVoice = () => {}, ensureCamera = async () => false, suggestName = category => `My ${category}` }) {
     this.video = video; this.onSave = onSave; this.onNotice = onNotice; this.generation = 0; this.onStopVoice = onStopVoice; this.suggestName = suggestName; this.ensureCamera = ensureCamera;
@@ -51,11 +70,14 @@ export class WardrobePhoto {
       <div class="wardrobe-photo-actions"><button type="button" data-action="extract" disabled>Extract worn clothing</button><button type="button" data-action="restore" disabled>Restore photo</button></div>
       <input data-field="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
       <canvas width="480" height="540" aria-label="Garment cutout preview"></canvas>
+      <div class="wardrobe-photo-actions"><button type="button" data-action="rotate-left" disabled>Rotate left</button><button type="button" data-action="rotate-right" disabled>Rotate right</button></div>
       <label>Name <input data-field="name" maxlength="80" placeholder="My blue summer dress"></label>
       <label>Clothing type <select data-field="category"><option value="top">Top / T-shirt</option><option value="outerwear">Jacket / coat</option><option value="dress">Dress</option><option value="skirt">Skirt</option><option value="bottoms">Trousers</option></select></label>
       <label>Photo clarity <select data-field="clarity"><option value="off">Original</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></label>
       <p>Original photo is retained. Bright changes apparent colors. Say “enhance photo”, “brighten photo”, or “original photo”.</p>
       <details class="wardrobe-refine"><summary>Adjust cutout</summary>
+      <label>Straighten <output data-field="angle-value">0°</output><input data-field="angle" type="range" min="-10" max="10" step="1" value="0" aria-label="Straighten photo in degrees"></label>
+      <p>Say “rotate photo left”, “rotate photo right”, or “straighten left” / “straighten right” for a one-degree adjustment. Restore photo resets orientation.</p>
       <label class="wardrobe-check"><input data-field="remove" type="checkbox" checked> Remove plain background</label>
       <label>Cutout strength <input data-field="tolerance" type="range" min="8" max="80" value="35"></label>
       <label>Top edge <input data-field="crop-top" type="range" min="0" max="95" value="0"></label>
@@ -75,6 +97,9 @@ export class WardrobePhoto {
     this.voiceButton('mute').onclick = () => document.querySelector('#mute-btn')?.click();
 
     this.views = {}; this.activeView = 'front';
+    this.quarterTurns = 0;
+    this.button('rotate-left').onclick = () => this.rotatePhoto(-1);
+    this.button('rotate-right').onclick = () => this.rotatePhoto(1);
     this.button('front').onclick = () => this.switchView('front');
     this.button('back').onclick = () => this.switchView('back');
     this.button('remove-back').onclick = () => { this.views.back = null; if (this.activeView === 'back') { this.clearPhoto(); this.syncViews(); } else this.syncViews(); };
@@ -89,12 +114,13 @@ export class WardrobePhoto {
       this.cancelPhotoRead();this.cancelExtraction(); this.generation++; this.captureOwner = null; this.loadingOwner = null;
       if (!this.source && this.views[this.activeView]?.source) { this.source = this.views[this.activeView].source; this.original = this.views[this.activeView].original; }
       this.field('clarity').value = 'off';
+      this.quarterTurns=0;this.field('angle').value='0';
       this.clothingSource = null; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100'; this.field('remove').checked = true; this.button('capture').disabled = false; this.button('extract').disabled = !this.source; this.preview(); this.syncViews();
     };
     this.field('name').oninput = () => { this.nameAutomatic = false; };
     this.field('category').onchange = () => this.updateSuggestedName();
     this.field('file').onchange = () => void this.upload(this.field('file').files?.[0]);
-    for (const name of ['remove', 'tolerance', 'crop-top', 'crop-bottom']) this.field(name).oninput = () => this.preview();
+    for (const name of ['remove', 'tolerance', 'crop-top', 'crop-bottom','angle']) this.field(name).oninput = () => {if(!this.saving&&!this.extracting&&!this.photoLoading&&!this.capturePending)this.preview();};
     this.field('clarity').onchange = () => {
       if (this.saving || this.extracting || this.photoLoading || this.capturePending) { this.field('clarity').value = this.views[this.activeView]?.clarity || 'off'; return; }
       this.preview();
@@ -113,6 +139,7 @@ export class WardrobePhoto {
   get capturePending() { return this.captureOwner === this.generation; }
   show() {
     if (this.open) return;
+    this.quarterTurns=0;this.field('angle').value='0';
     this.cancelPhotoRead();this.cancelExtraction(); this.clothingSource = null; this.generation++; this.source = null; this.output = null;
     this.views = {}; this.activeView = 'front'; this.editingId=null;this.original=null;this.dialog.querySelector('h2').textContent='Add to your wardrobe';this.syncViews();
     this.field('phone').hidden = true;
@@ -143,7 +170,7 @@ export class WardrobePhoto {
       if(!frontImage)throw new Error('Original photo is unavailable. Upload it again.');
       this.field('name').value=item.name;this.nameAutomatic=false;this.field('category').value=item.category;
       this.setSource(frontImage,frontImage.naturalWidth,frontImage.naturalHeight,front.imageDataUrl);this.rememberView();
-      if(backImage){this.activeView='back';this.setSource(backImage,backImage.naturalWidth,backImage.naturalHeight,back.imageDataUrl);this.rememberView();this.activeView='front';const saved=this.views.front;Object.assign(this,{source:saved.source,output:saved.output,original:saved.original,clothingSource:saved.clothingSource});this.field('remove').checked=saved.remove;this.field('clarity').value=saved.clarity;this.preview();}
+      if(backImage){this.activeView='back';this.setSource(backImage,backImage.naturalWidth,backImage.naturalHeight,back.imageDataUrl);this.rememberView();this.activeView='front';const saved=this.views.front;Object.assign(this,{source:saved.source,output:saved.output,original:saved.original,clothingSource:saved.clothingSource,quarterTurns:saved.quarterTurns||0});this.field('angle').value=saved.angle||'0';this.field('remove').checked=saved.remove;this.field('clarity').value=saved.clarity;this.preview();}
       this.editingId=item.id;this.dialog.querySelector('h2').textContent='Edit garment photo';
       this.status(front.legacy||back?.legacy?'Earlier saved photos contain a smaller original. You can adjust it or upload a higher-resolution photo.':'Original photos reopened. Adjust the cutout, then save to update this garment. Cancel keeps the saved garment.');
     }catch(error){if(generation===this.generation&&this.open){this.editingId=null;this.source=null;this.output=null;this.views={};this.status(error.message);}}
@@ -151,14 +178,19 @@ export class WardrobePhoto {
   }
   syncViews() {
     this.button('save').disabled = !this.readyToSave;
+    for(const action of ['rotate-left','rotate-right']){const button=this.button(action);if(button)button.disabled=!this.source||this.saving||this.extracting||this.photoLoading||this.capturePending;}
+    const angle=this.field('angle');if(angle)angle.disabled=!this.source||this.saving||this.extracting||this.photoLoading||this.capturePending;
+    const angleValue=this.field('angle-value');if(angleValue)angleValue.textContent=`${Number(angle?.value||0)}°`;
     for (const view of ['front','back']) { this.button(view).setAttribute('aria-pressed', String(this.activeView === view)); this.button(view).textContent = `${view === 'front' ? 'Front' : 'Back (optional)'}${this.views[view]?.output ? ' ✓' : ''}`; }
     this.button('remove-back').hidden = !(this.views.back?.source || (this.activeView === 'back' && this.source));
   }
   rememberView() {
     this.views[this.activeView] = { source: this.source, output: this.output, original: this.original, clothingSource: this.clothingSource,
+      quarterTurns:this.quarterTurns||0,angle:this.field('angle')?.value||'0',
       clarity: this.field('clarity').value, remove: this.field('remove').checked, tolerance: this.field('tolerance').value, top: this.field('crop-top').value, bottom: this.field('crop-bottom').value };
   }
   clearPhoto() {
+    this.quarterTurns=0;if(this.field('angle'))this.field('angle').value='0';
     this.cancelPhotoRead();this.cancelExtraction(); this.generation++; this.source = null; this.output = null; this.original = null; this.clothingSource = null;
     this.field('file').value = ''; this.field('remove').checked = true; this.field('tolerance').value = '35'; this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
     this.field('clarity').value = 'off';
@@ -172,6 +204,7 @@ export class WardrobePhoto {
     const saved = this.views[view];
     if (saved?.source) {
       Object.assign(this, { source: saved.source, output: saved.output, original: saved.original, clothingSource: saved.clothingSource });
+      this.quarterTurns=saved.quarterTurns||0;if(this.field('angle'))this.field('angle').value=saved.angle||'0';
       this.field('remove').checked = saved.remove; this.field('tolerance').value = saved.tolerance; this.field('crop-top').value = saved.top; this.field('crop-bottom').value = saved.bottom;
       this.field('clarity').value = saved.clarity || 'off';
       this.button('extract').disabled = false; this.button('restore').disabled = false; this.preview();
@@ -254,6 +287,7 @@ export class WardrobePhoto {
     this.source = null; this.output = null; this.original = null;
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.button('save').disabled = true;
+    this.syncViews();
     try {
       photoSourceDimensions(new Uint8Array(await photoBlobBytes(file,controller.signal)), file.type);
       if (generation !== this.generation || !this.open) return;
@@ -271,6 +305,7 @@ export class WardrobePhoto {
     this.cancelPhotoRead();const controller=this.photoReadController=new AbortController();
     const generation = ++this.generation;
     this.captureOwner = generation; this.button('capture').disabled = true; this.button('save').disabled = true;
+    this.syncViews();
     try {
       if (!this.video?.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) {
         this.status('Starting the mirror camera…');
@@ -296,6 +331,7 @@ export class WardrobePhoto {
     if (this.nameAutomatic || !this.field('name').value.trim()) { this.field('name').value = this.suggestName(this.field('category').value); this.nameAutomatic = true; }
   }
   setSource(image, width, height, original) {
+    this.quarterTurns=0;this.field('angle').value='0';
     if(!original)throw new Error('Original photo is missing. Try uploading or capturing again.');
     this.cancelExtraction(); this.clothingSource = null;
     this.field('crop-top').value = '0'; this.field('crop-bottom').value = '100';
@@ -311,11 +347,18 @@ export class WardrobePhoto {
     this.preview();
   }
   get extracting() { return this.extractionOwner === this.generation; }
+  rotatePhoto(direction) {
+    if(!this.open||!this.source||this.saving||this.extracting||this.photoLoading||this.capturePending)return false;
+    this.quarterTurns=((this.quarterTurns||0)+direction+4)%4;
+    this.field('crop-top').value='0';this.field('crop-bottom').value='100';
+    this.preview();if(this.output)this.status(`Photo rotated ${direction<0?'left':'right'}. Review the outline, then save.`);return true;
+  }
   cancelExtraction() { this.extractionJob?.cancel(); this.extractionJob = null; this.extractionOwner = null; }
   async extractClothing() {
     if (!this.open || !this.source || this.saving || this.capturePending || this.extracting) return;
     const generation = this.generation; this.extractionOwner = generation;
     this.button('extract').disabled = true; this.button('save').disabled = true;
+    this.syncViews();
     this.status('Extracting clothing locally… Keep just one garment visible in the photo.');
     try {
       const { extractPhotoClothing } = await import('./photoClothing.js');
@@ -333,7 +376,8 @@ export class WardrobePhoto {
     this.output = null; this.button('save').disabled = true;
     if (!this.source) return;
     try {
-      const result = cutoutPhoto(this.clothingSource || this.source, { removeBackground: this.field('remove').checked, tolerance: Number(this.field('tolerance').value), topPercent: Number(this.field('crop-top').value), bottomPercent: Number(this.field('crop-bottom').value) });
+      const working=orientedPhoto(this.clothingSource || this.source,(this.quarterTurns||0)*90+Number(this.field('angle').value),this.field('remove').checked);
+      const result = cutoutPhoto(working, { removeBackground: this.field('remove').checked, tolerance: Number(this.field('tolerance').value), topPercent: Number(this.field('crop-top').value), bottomPercent: Number(this.field('crop-bottom').value) });
       enhanceCameraPixels(result.data, result.width, result.height, this.field('clarity').value || 'off');
       const temp = document.createElement('canvas'); temp.width = result.width; temp.height = result.height;
       temp.getContext('2d').putImageData(new ImageData(result.data, result.width, result.height), 0, 0);
@@ -368,6 +412,8 @@ export class WardrobePhoto {
   }
   voice(text) {
     if (!this.open) return false;
+    const rotation=text.trim().match(/^(rotate(?: (?:the )?photo)?|straighten(?: (?:the )?photo)?) (left|right)[.!]?$/i);
+    if(rotation){if(/^rotate/i.test(rotation[1]))this.rotatePhoto(rotation[2].toLowerCase()==='left'?-1:1);else if(this.source&&!this.saving&&!this.extracting&&!this.photoLoading&&!this.capturePending){const field=this.field('angle');field.value=String(Math.max(-10,Math.min(10,Number(field.value)+(rotation[2].toLowerCase()==='left'?-1:1))));this.preview();if(this.output)this.status(`Straightening: ${field.value}°. Review the outline, then save.`);}return true;}
     if (/^(?:enhance|brighten|original|restore original) photo[.!]?$/i.test(text.trim())) {
       if (!this.saving && !this.extracting && !this.photoLoading && !this.capturePending) {
         this.field('clarity').value = /brighten/i.test(text) ? 'bright' : /original/i.test(text) ? 'off' : 'natural'; this.preview();

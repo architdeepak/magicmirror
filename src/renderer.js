@@ -773,7 +773,7 @@ function getMirrorState() {
       liveFit: garmentOverlay.getLiveState(),
       renderedStillAvailable: !elements.tryOnStill.disabled,
       wardrobeControlsOpen: mode==='ar'&&!desktopActive&&elements.shell.dataset.wardrobeOpen==='true',
-      photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
+      photoEditor: { open: closet.photo.open, readyToSave: closet.photo.readyToSave, view: closet.photo.activeView, quarterTurns:closet.photo.quarterTurns||0,straightenDegrees:Number(closet.photo.field('angle').value), frontReady: Boolean(closet.photo.views.front?.output), backReady: Boolean(closet.photo.views.back?.output), extracting: Boolean(closet.photo.extracting), saving: Boolean(closet.photo.saving) },
       closet: closet.items.slice(0, 80).map((item) => ({ name: item.name, category: item.category, favorite: closet.favorites.has(item.id) })) },
     watch: { ...watchState, audioDucking: watchState.source === 'media' ? watchAudioDucking.snapshot() : watchState.audioDucking||{ supported: false }, castingEnabled, castActive: castPlayer.active },
     services: { findmy: { web: 'Apple Find Devices', peopleLocations: false, note: 'No Find My People bridge is configured; friends locations require the Find My app on an Apple device.' }, browserSignIn: 'User enters credentials directly; agent observation/input pauses on sign-in prompts.' },

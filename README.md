@@ -355,6 +355,8 @@ The packaged portrait app was explored using screenshots and actual mouse/keyboa
 
 Try on includes 30 bundled starter garments in five styles and six colors. **Add garment** opens a photo preview: upload a photo, take one with the mirror camera, or choose **From phone** to scan a QR and upload over local Wi-Fi, choose a name/type, adjust a plain-background cutout, and save on this device. Say “add garment”, “take photo”, “name it my blue dress”, “type dress”, and “save garment”. In the editor, swipe changes type and pinch captures/saves; outside it, swipe selects clothes. Say “make it red” or “change style to blouse” for starter variations. Your own photos retain their original colors.
 
+Use **Rotate left/right** for quarter turns and **Straighten** under **Adjust cutout** for up to ten degrees in either direction. Say “rotate photo right” for a quarter turn or “straighten left” for a one-degree adjustment. Front and optional back photos keep independent adjustments; **Restore photo** resets orientation. Saving retains the original upload alongside the reviewed cutout. Reopening a saved garment starts from its original photos.
+
 See [AR wardrobe progress and limitations](docs/AR-WARDROBE.md). This front-image mesh preview does not yet provide realistic 3D fabric or measured fit.
 
 ### Verified assistant delegation
