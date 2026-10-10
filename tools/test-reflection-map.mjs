@@ -21,6 +21,15 @@ const hidden = pose.map(p => ({ ...p, visibility: .1 }));
 assert.equal(reflectionTransform({ pose: hidden, video, viewport, previous: t }), t);
 const tiny = pose.map(p => ({ ...p })); tiny[11].x = tiny[12].x + .0001;
 assert.equal(reflectionTransform({ pose: tiny, video, viewport, previous: null }), null);
+// A turned body (narrow shoulders) must not inflate the scale when the trunk is long.
+{
+  const turned = pose.map(p => ({ ...p }));
+  turned[11] = { x: .5 + 8 / 720, y: .5, visibility: 1 }; turned[12] = { x: .5 - 8 / 720, y: .5, visibility: 1 };
+  turned[23] = { x: .5 + 8 / 720, y: .5 + 200 / 1280, visibility: 1 }; turned[24] = { x: .5 - 8 / 720, y: .5 + 200 / 1280, visibility: 1 };
+  const withTrunk = reflectionTransform({ pose: turned, video, viewport, screenWidthM: .51 });
+  const shouldersOnly = reflectionTransform({ pose: turned.map((p, i) => i >= 23 ? { ...p, visibility: 0 } : p), video, viewport, screenWidthM: .51 });
+  assert.ok(withTrunk.g < shouldersOnly.g / 2, 'trunk length should cap the turned-body scale');
+}
 const smoothed = reflectionTransform({ pose, video, viewport, screenWidthM: .3, previous: t, smoothing: .5 });
 assert.ok(smoothed.g > t.g && smoothed.g < Math.min(4, .5 * 2.736 / .3), 'smoothing moves part of the way');
 console.log('Reflection map: scale from shoulders, eye/plane alignment, limits, smoothing and fallback passed.');

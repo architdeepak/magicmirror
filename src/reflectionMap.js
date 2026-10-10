@@ -12,13 +12,22 @@
 // drawing, so a single canvas transform places the garment, its occlusion and
 // its shading consistently.
 const SHOULDER_WIDTH_M = 0.38;
+const TRUNK_LENGTH_M = 0.5;
 
 export function reflectionTransform({ pose, video, viewport, screenWidthM = 0.51, mount = 'top', previous = null, smoothing = 0.35, sizePercent = 100, nudgeYPercent = 0 }) {
   const left = pose?.[11], right = pose?.[12];
   if (!left || !right || (left.visibility ?? 1) < .5 || (right.visibility ?? 1) < .5) return previous;
   const shoulderPx = Math.hypot((right.x - left.x) * video.width, (right.y - left.y) * video.height);
   if (!(shoulderPx > 12)) return previous;
-  const cameraFieldM = SHOULDER_WIDTH_M * video.width / shoulderPx;           // scene width the camera sees at the wearer's depth
+  // Scene width the camera sees at the wearer's depth. Shoulder width shrinks
+  // when the body turns; the shoulder-to-hip trunk does not, so take the closer
+  // (smaller) of the two estimates rather than letting a turn blow the scale up.
+  let cameraFieldM = SHOULDER_WIDTH_M * video.width / shoulderPx;
+  const leftHip = pose[23], rightHip = pose[24];
+  if (leftHip && rightHip && (leftHip.visibility ?? 1) >= .5 && (rightHip.visibility ?? 1) >= .5) {
+    const trunkPx = Math.hypot(((left.x + right.x) - (leftHip.x + rightHip.x)) / 2 * video.width, ((left.y + right.y) - (leftHip.y + rightHip.y)) / 2 * video.height);
+    if (trunkPx > 12) cameraFieldM = Math.min(cameraFieldM, TRUNK_LENGTH_M * video.width / trunkPx);
+  }
   const g = Math.min(4, Math.max(.5, .5 * cameraFieldM / screenWidthM * Math.min(1.5, Math.max(.6, sizePercent / 100))));       // glass-plane px per camera-display px
   const scale = Math.max(viewport.width / video.width, viewport.height / video.height);
   const width = video.width * scale, height = video.height * scale;
