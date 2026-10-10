@@ -200,3 +200,10 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 
 /* The host re-centres on the viewer (value set from head tracking). */
 #avatar-engine { translate: var(--follow-x, 0px) 0; }
+
+/* Settings polish found in review: numeric fields look like the selects, and
+   helper text sits under its control instead of beside it. */
+.setting input[type="number"] { width: 100%; box-sizing: border-box; height: 35px; padding: 0 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 9px; color: #fff3cf; background: #000; font: inherit; outline: 0; }
+.setting input[type="number"]:focus { border-color: var(--gold); }
+.setting > small { display: block; margin-top: 6px; color: var(--muted); font-size: .85em; line-height: 1.4; }
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) .setting select { background: #000; border-color: rgba(255, 236, 190, .35); }
