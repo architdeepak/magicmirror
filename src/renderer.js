@@ -40,7 +40,8 @@ import {
   setCameraQuality,
   switchCamera,
   toggleCamera,
-  updateHeadTracking
+  updateHeadTracking,
+  setTrackingAmbient
 } from './headTracking.js';
 
 const elements = {
@@ -247,7 +248,7 @@ const smallPc = (navigator.hardwareConcurrency || 8) <= 4 && (navigator.deviceMe
 let displayQualityId=['eco','auto','hd'].includes(localStorage.getItem('mirror.display-quality'))?localStorage.getItem('mirror.display-quality'):smallPc?'eco':'auto';
 const preferredPixelRatio = () => {
   const { width, height } = viewportSize();
-  const budgetRatio = Math.sqrt((softwareGraphics?2_000_000:displayQualityId==='eco'?1_200_000:RENDER_PIXEL_BUDGET) / Math.max(1, width * height));
+  const budgetRatio = Math.sqrt((softwareGraphics?2_000_000:displayQualityId==='eco'?1_200_000:displayQualityId==='auto'?4_500_000:RENDER_PIXEL_BUDGET) / Math.max(1, width * height));
   return Math.min(window.devicePixelRatio || 1,budgetRatio);
 };
 const softwareGraphics = (() => { try { const gl = renderer.getContext(); const info = gl.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software/i.test(String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '')); } catch { return false; } })();
@@ -705,6 +706,7 @@ function setMode(nextMode) {
   if (mode === 'ar' && nextMode !== 'ar') { setWardrobePanelOpen(false); cancelTryOnRender(); liveTryOn.stop(); }
   if (mode === 'watch' && nextMode !== 'watch') { elements.watchVideo.pause(); youtubePlayer.pause(); }
   mode = nextMode;
+  setTrackingAmbient(nextMode === 'mirror');
   if (nextMode !== 'mirror') void restoreCameraAfterIdle();
   if (experience.capturing && nextMode !== 'ar') experience.cancel();
   if (changed) magic.cancel();

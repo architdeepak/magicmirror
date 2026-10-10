@@ -56,6 +56,7 @@ export async function initHeadTracking(video) {
     if (status.cameraActive) status.mode = status.ready ? 'camera' : 'camera-preview';
   });
   faceTracking = tracker;
+  setTrackingAmbient(ambientCadence);
   const ready = await tracker.init();
   if (faceTracking !== tracker) return status.cameraActive;
   status.ready = ready;
@@ -196,6 +197,14 @@ export function setCameraQuality(id) {
   });cameraQualityQueue=job.catch(()=>{});return job;
 }
 
+// Ambient (idle mirror) needs presence, not a 30 Hz virtual window: dropping
+// to ~4 Hz removes most of the main-thread frame-capture cost on small PCs.
+let ambientCadence = true; // the app starts in the ambient mirror
+export function setTrackingAmbient(ambient) {
+  ambientCadence = Boolean(ambient);
+  if (faceTracking) { faceTracking.interval = ambientCadence ? 250 : 32; faceTracking.maxAge = ambientCadence ? 900 : 300; }
+}
+
 export function setTrackingOptions(next) {
   if(['eco','auto','hd'].includes(next.cameraQuality))options.cameraQuality=next.cameraQuality;
   if (Number.isFinite(next.sensitivity)) options.sensitivity = Math.min(2, Math.max(0.5, next.sensitivity));
@@ -246,7 +255,7 @@ function acceptFaceResult(landmarks, timestamp, data = {}) {
 export function updateHeadTracking(now = performance.now()) {
   faceTracking?.update(now);
 
-  if (now - lastFaceAt > 300) {
+  if (now - lastFaceAt > (ambientCadence ? 900 : 300)) {
     status.faceDetected = false;
     latestLandmarks = null; latestMatrix = null;
     latestBlendshapes = Object.freeze({});

@@ -13,7 +13,9 @@ export class AROverlay {
     const bounds = this.canvas.parentElement?.getBoundingClientRect();
     const width = Math.round(bounds?.width || window.innerWidth);
     const height = Math.round(bounds?.height || window.innerHeight);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Decorative vector effects: bound the backing store (a 4K portrait
+    // panel at 2x would otherwise hold a 33 MB surface for thin lines).
+    const dpr = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(2_400_000 / Math.max(1, width * height)));
     this.canvas.width = Math.round(width * dpr);
     this.canvas.height = Math.round(height * dpr);
     this.canvas.style.width = '100%';
