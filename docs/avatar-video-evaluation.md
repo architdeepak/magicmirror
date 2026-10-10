@@ -1,5 +1,10 @@
 # Live Avatar Evaluation
 
+Current implementation (2026-10-08): portrait is the default; the compact
+[3D face rig](3D-FACE-2026-10-08.md) is a selectable preview. The primary-route
+recommendations below describe the desired production result, not evidence
+that a finished 52-channel asset has been delivered.
+
 The mirror has two intentionally separate host paths:
 
 1. **Rigged host** — deterministic, low-latency GLB/VRM face. This remains the

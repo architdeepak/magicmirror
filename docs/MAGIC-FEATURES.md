@@ -4,7 +4,7 @@
 | Phrase | Result |
 |---|---|
 | "mirror mirror" | Wakes the host: cloud reveal, greeting, live conversation |
-| "search for …", "look up …", "what's the news" | Grounded answer card with source chips (needs a Gemini key; otherwise results open inside the mirror frame) |
+| "search for …", "look up …", "what's the news" | Google-grounded answer card with source chips. If Search grounding is unavailable on the key (it has its own quota), timeless questions get a labelled "From memory" answer and time-sensitive ones open real results inside the mirror frame. Set `GEMINI_SEARCH_MODEL` to change the model. |
 | "what's the weather", "do I need an umbrella" | Weather card from the dashboard forecast |
 | "what's on my calendar" | Opens the calendar inside the mirror frame |
 | "set a timer for 10 minutes for the tea", "cancel the timer" | Countdown chips (top centre), bell when done, up to four |
