@@ -1,0 +1,34 @@
+{
+  "status": "interrupted",
+  "checkedAt": "2026-10-10T17:42:48.096Z",
+  "reason": "Recorded app PID is absent and no monitor process remains; saved report never reached finished. Cause of termination is unknown.",
+  "lastSavedStatus": "monitoring",
+  "sampleCount": 484,
+  "errors": [],
+  "lastSampleAt": "2026-10-09T20:35:28.817Z",
+  "elapsedSec": 1506.035,
+  "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+  "build": {
+    "archiveSha256": "5c78a0c7931b7b0f30b0c73b669cbd096afaa9a4456553f10194e39f9e09b85b",
+    "gitRevision": "c14aa05cfe6c364fea9da0217f3ae746845d85ae",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "limits": [
+    "484 samples without recorded errors do not prove the planned 30-minute run completed.",
+    "Archive predates camera cancellation and main-panel fit changes. No physical Windows, account, microphone or wake-fog validation."
+  ]
+}

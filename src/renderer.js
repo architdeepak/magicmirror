@@ -286,7 +286,7 @@ depthScene.setAvatarPosition(savedAvatarPosition);
 const arOverlay = new AROverlay(elements.arCanvas);
 const garmentOverlay = new GarmentOverlay(elements.garmentCanvas, elements.video, (message) => {
   elements.liveFitStatus.textContent = message;
-  if (tryOnView === 'live' && elements.shell.dataset.liveTryon !== 'true') elements.studioSummary.textContent = message;
+  if (tryOnView === 'live' && elements.shell.dataset.liveTryon !== 'true') elements.studioSummary.textContent = localFitSummary(message);
 });
 let tryOnView = 'live';
 let garmentSelection = Promise.resolve(false);
@@ -336,7 +336,7 @@ const liveTryOn = new LiveTryOn({
     elements.garmentFit.hidden = snapshot.active || tryOnView !== 'live';
     elements.tryOnLive.setAttribute('aria-pressed', String(!snapshot.active && tryOnView === 'live'));
     if (snapshot.active) elements.studioSummary.textContent = `${snapshot.state === 'streaming' ? 'Live AI outfit' : 'Connecting live AI'} · ${snapshot.garment}`;
-    else if (tryOnView === 'live') elements.studioSummary.textContent = garmentOverlay.lastStatus || 'Choose a garment to see your live fit.';
+    else if (tryOnView === 'live') elements.studioSummary.textContent = localFitSummary();
     garmentOverlay.setEnabled(!snapshot.active && mode === 'ar' && tryOnView === 'live' && !desktopActive);
     updateLiveTryOnControls();
     updateVisionNotice();
@@ -1729,6 +1729,14 @@ function setStudioToolsOpen(open) {
   elements.studioToolsToggle.textContent = open ? 'Hide tools' : 'Show tools';
 }
 
+function localFitSummary(message = garmentOverlay.lastStatus) {
+  const name = garmentOverlay.item?.name;
+  const status = message || 'Turn on the camera to see your live fit.';
+  if (!name) return message || 'Choose a garment to see your live fit.';
+  return status.startsWith(`Loading ${name} for live fit`) || status.startsWith(`Live fit · ${name}`)
+    ? status : `${name} · ${status}`;
+}
+
 function setTryOnView(view) {
   if (view === 'rendered' && !elements.tryOnOverlay.getAttribute('src')) return false;
   liveTryOn.stop();
@@ -1740,7 +1748,7 @@ function setTryOnView(view) {
   elements.garmentFit.hidden = tryOnView !== 'live';
   elements.studioSummary.textContent = tryOnView === 'rendered'
     ? `Rendered still · ${garmentOverlay.item?.name || 'selected look'}`
-    : garmentOverlay.lastStatus || 'Choose a garment to see your live fit.';
+    : localFitSummary();
   garmentOverlay.setEnabled(mode === 'ar' && tryOnView === 'live');
   return true;
 }

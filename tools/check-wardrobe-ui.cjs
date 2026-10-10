@@ -23,6 +23,11 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal((await tool('change style to dress')).selected,'Blue dress');
   assert.equal((await tool('make it red')).selected,'Red dress');
   const loaded=await until(()=>client.evaluate('!!__mirrorDebug.garmentOverlay.texture'),'starter texture');assert(loaded);
+  await until(()=>client.evaluate('document.querySelector("#studio-summary").textContent === "Red dress · Turn on the camera to see your live fit."'),'selected garment with camera off');
+  await tool('make it blue');
+  await until(()=>client.evaluate('document.querySelector("#studio-summary").textContent === "Blue dress · Turn on the camera to see your live fit."'),'new selection with camera off');
+  await tool('make it red');
+  await until(()=>client.evaluate('document.querySelector("#studio-summary").textContent === "Red dress · Turn on the camera to see your live fit."'),'restored selection with camera off');
   // Actual compact wardrobe controls, portrait geometry, and interpreted commands.
   assert.equal(await client.evaluate('__mirrorDebug.getMirrorState().tryOn.wardrobeControlsOpen'),false);
   for(const [width,height] of [[540,960],[720,1280],[1080,1920]]){
@@ -105,6 +110,13 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   await client.evaluate('document.querySelector("#studio-camera-toggle").click()');
   await until(()=>client.evaluate('document.querySelector("#studio-camera-toggle").getAttribute("aria-pressed")==="false"'),'quick camera off');
   assert(await client.evaluate('__wardrobeStream.getTracks().every(t=>t.readyState==="ended")'),'Quick camera off did not release tracks');
+  await delay(1000);
+  const offSummary=await client.evaluate('({text:document.querySelector("#studio-summary").textContent,name:__mirrorDebug.garmentOverlay.item?.name,status:__mirrorDebug.garmentOverlay.lastStatus,enabled:__mirrorDebug.garmentOverlay.enabled,mode:__mirrorDebug.getMirrorState().display.mode})');
+  assert.equal(offSummary.name,'Camera blue top');
+  assert.equal(offSummary.text, `${offSummary.name} · ${offSummary.status}`,JSON.stringify(offSummary));
+  assert.match(offSummary.status,/transparent PNG|plain white background/,'Unusable photo warning was lost');
+  await tool('change style to dress');
+  await until(()=>client.evaluate('document.querySelector("#studio-summary").textContent === __mirrorDebug.garmentOverlay.item.name+" · Turn on the camera to see your live fit."'),'supported garment after camera off');
   await client.evaluate('document.querySelector("#studio-camera-toggle").click()');
   await until(()=>client.evaluate('document.querySelector("#studio-camera-toggle").getAttribute("aria-pressed")==="true"'),'quick camera on');
   await tool('add garment');
@@ -175,6 +187,7 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(r=>setTimeout(r,ms
   assert.deepEqual(exceptions,[]);
   const report={status:'passed',archiveSha256,starterGarments:30,savedGarments:8,checks:['local fit outside optional tools at three portrait sizes, Chromium keyboard width 1.2 and reset 1','real garment upload/cutout','paired front/back cutout, persistence, original retention, voice view switching and different rear raster','invalid back PNG rejected before persistence','saved photo short sleeve inference','offline worn clothing extraction, voice/gesture crop and real persistence','real IPC persistence/reload','original retained','photo clarity voice controls and exact original restoration','independent front/back clarity drafts','invalid PNG rejected','concurrent saves','camera unavailable','synthetic camera capture','voice tool commands','interpreted swipe and pinch routing','cancel','gesture-only capture/type/save with automatic name','editor Stop/mute controls, two colored bottom captions and restoration','paired LAN phone photo upload','one-photo acceptance','unauthenticated/cross-origin/invalid phone requests rejected'],limits:['No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.','Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed.']};
   report.checks.push('compact controls below 22% of three portrait heights','wardrobe drawer pointer/voice/vertical gesture controls','AR vertical swipes retain mode','drawer closes on mode exit','quick camera control releases tracks and restarts');
+  report.checks.push('camera-off starter selection updates Red / Blue / Red','camera-off photo selection retains its unusable-cutout warning','switching to a supported starter restores selected-name camera guidance');
   await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{client?.close();app.kill('SIGTERM');await delay(600);if(app.exitCode===null)app.kill('SIGKILL');await fs.rm(temp,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});
