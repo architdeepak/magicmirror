@@ -23,6 +23,13 @@ for(const mode of ['down','raised','crossed']){
 pose[13].visibility=.1;const partial=scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern});assert.equal(partial.missingSleeves,1);assert(partial.length>128);
 pose[13]={...pose[11]};assert.equal(scope.buildPhotoSleeves(pose,video,view,{photoPattern:pattern}).missingSleeves,1);
 console.log('Photo sleeves: silhouette inference, rectangle/empty rejection, finite down/raised/crossed geometry, shared UV seams and missing/degenerate arm fallback.');
+const asymmetric=JSON.parse(JSON.stringify(pattern));asymmetric.sides[0].outer.v+=.035;asymmetric.sides[1].outer.v-=.025;
+const asymPose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:0}));
+for(const [i,x,y]of [[11,.7,.3],[12,.3,.3],[23,.64,.62],[24,.36,.62],[13,.86,.47],[14,.14,.47]])Object.assign(asymPose[i],{x,y,visibility:1});
+const asymMesh=scope.buildPhotoSleeves(asymPose,video,view,{photoPattern:asymmetric});
+for(const side of asymmetric.sides)for(const anchor of [side.outer,side.inner])assert(asymMesh.flat().some(p=>Math.abs(p.u-anchor.u)<1e-8&&Math.abs(p.v-anchor.v)<1e-8),'Asymmetric photographed root was replaced by an average');
+const asymSeams=new Map();for(const p of asymMesh.flat()){const key=p.u.toFixed(8)+':'+p.v.toFixed(8),old=asymSeams.get(key);if(old)assert(Math.hypot(old.x-p.x,old.y-p.y,old.z-p.z)<1e-6,'Asymmetric photo split sewn root');else asymSeams.set(key,p);}
+console.log('Asymmetric photographed shoulders: exact outer/inner source anchors and continuous sewn roots passed.');
 
 const world=Array.from({length:33},()=>({x:0,y:0,z:0}));
 world[11]={x:.2,y:-.45,z:0};world[12]={x:-.2,y:-.45,z:0};world[23]={x:.16,y:0,z:0};world[24]={x:-.16,y:0,z:0};

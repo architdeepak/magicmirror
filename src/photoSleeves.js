@@ -90,7 +90,13 @@ export function buildPhotoSleeves(pose, video, viewport, fit) {
     // and shared sleeve roots; the extra lift fades out toward the hem.
     const edge=(2*q-1)**2,raise=armRaise[q<.5?0:1]*edge;
     const lift=(.035+.025*edge)*(1-boundedT)+.045*raise*(1-boundedT)**2;
-    return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width*allowance-(bottom.x-top.x)*lift,y:center.y+(b.y-a.y)*(q-.5)*width*allowance-(bottom.y-top.y)*lift,z:center.z+(b.z-a.z)*(q-.5)*width*allowance,u:left+(right-left)*q,v}, q, boundedT);
+    // Keep each photographed shoulder at its own source height. Fade this
+    // UV correction toward the top and underarms, preserving the neckline
+    // center and lower fabric while keeping the body/sleeve roots identical.
+    const shoulderSourceV=pattern.sides[0].outer.v+(pattern.sides[1].outer.v-pattern.sides[0].outer.v)*q;
+    const shoulderWeight=v<shoulderV?Math.max(0,Math.min(1,v/Math.max(1e-6,shoulderV))):1-across;
+    const sourceV=v+(shoulderSourceV-shoulderV)*shoulderWeight;
+    return surface.curve({...center,x:center.x+(b.x-a.x)*(q-.5)*width*allowance-(bottom.x-top.x)*lift,y:center.y+(b.y-a.y)*(q-.5)*width*allowance-(bottom.y-top.y)*lift,z:center.z+(b.z-a.z)*(q-.5)*width*allowance,u:left+(right-left)*q,v:sourceV}, q, boundedT);
   };
   const rows = [...new Set([0,shoulderV,pattern.underarm,.5,.65,.8,.99,1])].sort((a,b)=>a-b);
   const triangles = grid(8,rows.length-1,(q,t)=>body(q,rows[Math.round(t*(rows.length-1))]));
