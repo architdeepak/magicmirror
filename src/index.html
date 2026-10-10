@@ -732,7 +732,8 @@
         <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
         <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
         <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
-        <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button type="button" disabled>Press D to toggle</button></div>
+        <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button id="save-diagnostics" type="button">Save diagnostics</button></div>
+        <p class="config-note" id="diagnostics-status" role="status">Press D for live diagnostics. Save a troubleshooting report with runtime status and recent errors; keys, conversations and images are excluded.</p>
         <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
         <form id="connection-form" class="connections" aria-label="Assistant, music, and try-on connections">
           <div class="setting"><label for="gemini-key">Gemini API key</label><input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a key to enable live voice" maxlength="256"></div>

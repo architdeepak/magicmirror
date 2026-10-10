@@ -26,6 +26,8 @@ const { NativeCompanion } = require('./nativeCompanion.cjs');
 const { createWindowsSpotify } = require('./windowsSpotify.cjs');
 const windowsSpotify = createWindowsSpotify();
 const { IntegrationSettings, tryOnConnection } = require('./integrationSettings.cjs');
+const { DiagnosticLog, diagnosticSummary } = require('./diagnostics.cjs');
+const { RendererRecovery } = require('./rendererRecovery.cjs');
 const { createYouTubePlayerServer } = require('./youtubePlayerServer.cjs');
 let youtubePlayerServer = null;
 
@@ -52,6 +54,11 @@ const closetPath = path.join(writableDataDirectory, 'closet.json');
 const closetAssetDirectory = path.join(writableDataDirectory, 'closet');
 const tryOnDirectory = path.join(writableDataDirectory, 'tryon');
 const integrationSettings = new IntegrationSettings(app.getPath('userData'), safeStorage);
+const diagnosticLog = new DiagnosticLog(path.join(app.getPath('userData'), 'diagnostics'));
+let cancelRendererAgent = () => {};
+let diagnosticExportPending = false;
+let diagnosticSourceHashes = null;
+if (ownsInstanceLock) diagnosticLog.record('app-start');
 const { LiveTryOnTokens, DESTINATION: liveTryOnDestinationId } = require('./liveTryOnTokens.cjs');
 const decartApiKey = () => integrationSettings.value('decartApiKey', process.env.DECART_API_KEY || '');
 const liveTryOnTokens = new LiveTryOnTokens({ key: decartApiKey });
@@ -168,7 +175,7 @@ function desktopPresentation() {
 }
 
 function notifyDesktopPresentation() {
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:desktop-presentation', desktopPresentation());
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isCrashed?.()) mainWindow.webContents.send('mirror:desktop-presentation', desktopPresentation());
 }
 function prepareWatchPresentation(){
   desktopNavigation.cancel();invalidateDesktopObservation();desktopActionAbort?.abort();
@@ -1269,13 +1276,44 @@ function registerBridge() {
     toolWaiters.set(id, { resolve, timer, runId: activeRunId });
     mainWindow.webContents.send('mirror:codex-tool', { id, tool, args, generation, runId: activeRunId });
   }) });
-  const cancelCodex = () => {
+  const cancelCodex = (notify = true) => {
     const cancelledRunId=activeRunId;
     activeRunId = null; codex.cancel(); desktopNavigation.cancel(); invalidateDesktopObservation(); desktopActionAbort?.abort();
     for (const waiter of toolWaiters.values()) { clearTimeout(waiter.timer); waiter.resolve({ cancelled: true }); }
     toolWaiters.clear();
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:codex-cancelled', { runId: cancelledRunId });
+    if (notify && mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isCrashed?.()) mainWindow.webContents.send('mirror:codex-cancelled', { runId: cancelledRunId });
   };
+  cancelRendererAgent = () => cancelCodex(false);
+  const diagnosticsReport = async input => {
+    if (!diagnosticSourceHashes) {
+      const files = ['main.js', 'preload.js', 'renderer.js', 'diagnostics.cjs', 'rendererRecovery.cjs'];
+      diagnosticSourceHashes = Object.fromEntries(await Promise.all(files.map(async file => [file, crypto.createHash('sha256').update(await fs.readFile(path.join(__dirname, file))).digest('hex')])));
+    }
+    return {
+    version: 1, createdAt: new Date().toISOString(),
+    application: { version: app.getVersion(), platform: process.platform, arch: process.arch, electron: process.versions.electron, chromium: process.versions.chrome, osRelease: os.release() },
+    sourceHashes: diagnosticSourceHashes,
+    graphics: app.getGPUFeatureStatus(),
+    displays: screen.getAllDisplays().map(display => ({ width: display.size.width, height: display.size.height, scaleFactor: display.scaleFactor, rotation: display.rotation })),
+    state: diagnosticSummary(input), lifecycle: await diagnosticLog.snapshot(),
+    };
+  };
+  ipcMain.handle('mirror:diagnostics-report', async (event, input) => { assertAgentFrame(event); return diagnosticsReport(input); });
+  ipcMain.handle('mirror:save-diagnostics', async (event, input) => {
+    assertAgentFrame(event);
+    if (diagnosticExportPending) throw new Error('A diagnostic export is already open.');
+    diagnosticExportPending = true;
+    // Snapshot safe fields before the dialog; never retain the full input.
+    const state = diagnosticSummary(input);
+    input = null;
+    try {
+      const result = await dialog.showSaveDialog(mainWindow, { title: 'Save mirror diagnostics', defaultPath: path.join(app.getPath('documents'), `mirror-diagnostics-${new Date().toISOString().replace(/[:.]/g, '-')}.json`), filters: [{ name: 'Diagnostic report', extensions: ['json'] }] });
+      if (result.canceled || !result.filePath) return { saved: false };
+      const report = await diagnosticsReport(state);
+      await fs.writeFile(result.filePath, JSON.stringify(report, null, 2) + '\n', { mode: 0o600 });
+      return { saved: true };
+    } finally { diagnosticExportPending = false; }
+  });
   ipcMain.handle('mirror:codex-task', async (event, input) => {
     assertAgentFrame(event);
     if (codex.child) return { error: 'An agent task is already running.' };
@@ -1440,6 +1478,14 @@ function registerBridge() {
   });
 }
 
+function retireRendererWork() {
+  cancelRendererAgent();
+  cancelClosetPhoto(); tryOnRequests.cancelAll(); lookCaptures.cancelAll(); liveTryOnTokens.cancel();
+  void closeDesktopWindow().catch(() => diagnosticLog.record('cleanup-failed'));
+  void stopCastReceiver().catch(() => diagnosticLog.record('cleanup-failed'));
+  void stopPhoneLink();
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     // Vertical 43" TV portrait dimensions (9:16 aspect ratio)
@@ -1461,37 +1507,42 @@ function createWindow() {
     }
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
   mainWindow = win;
   for (const event of ['resize', 'move', 'enter-full-screen', 'leave-full-screen']) win.on(event, layoutDesktopWindow);
-  win.webContents.on('did-finish-load', notifyDesktopPresentation);
+  win.webContents.on('did-finish-load', () => { diagnosticLog.record('renderer-ready'); notifyDesktopPresentation(); });
+  win.webContents.on('did-fail-load', (_event, errorCode, _description, _url, isMainFrame) => { if (isMainFrame && errorCode !== -3) diagnosticLog.record('load-failed', { errorCode }); });
 
+  let lastConsoleError = 0;
   win.webContents.on('console-message', (event, level, message, line, sourceId) => {
     console.log(`[Renderer] ${message}`);
+    if (level >= 3 && Date.now() - lastConsoleError >= 1000) {
+      lastConsoleError = Date.now();
+      let source; try { source = path.basename(new URL(sourceId).pathname); } catch { /* No source URL. */ }
+      diagnosticLog.record('console-error', { source, line });
+    }
   });
 
   if (isDev) win.webContents.openDevTools({ mode: 'detach' });
 
-  // A portrait mirror normally runs for days. Recover the renderer if a GPU
-  // driver or media stack wedges instead of leaving a black, unresponsive TV.
-  let unresponsiveTimer = null;
-  win.on('unresponsive', () => {
-    console.warn('[watchdog] renderer became unresponsive; scheduling reload');
-    clearTimeout(unresponsiveTimer);
-    unresponsiveTimer = setTimeout(() => {
-      if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();
-    }, 5000);
+  const recovery = new RendererRecovery({
+    reload: () => { if (!win.isDestroyed()) win.webContents.reloadIgnoringCache(); },
+    retire: retireRendererWork, log: (event, fields) => diagnosticLog.record(event, fields),
+    onLimit: () => {
+      if (win.isDestroyed()) return;
+      void dialog.showMessageBox(win, { type: 'error', title: 'Mirror display recovery', message: 'The mirror display stopped repeatedly.', detail: 'Automatic reloads have paused. You can retry, open the local diagnostic logs, or close the mirror. The Debug Mirror launcher opens troubleshooting tools.', buttons: ['Retry', 'Open diagnostic logs', 'Close mirror'], defaultId: 1, cancelId: 2 }).then(async ({ response }) => {
+        if (win.isDestroyed()) return;
+        if (response === 0) recovery.retry();
+        else if (response === 1) { await fs.mkdir(diagnosticLog.directory, { recursive: true }); await shell.openPath(diagnosticLog.directory); }
+        else app.quit();
+      }).catch(() => diagnosticLog.record('cleanup-failed'));
+    },
   });
-  win.on('responsive', () => clearTimeout(unresponsiveTimer));
-  win.webContents.on('render-process-gone', (_event, details) => {
-    liveTryOnTokens.cancel();
-    nativeCompanion.exit();
-    void stopCastReceiver();
-    console.error('[watchdog] renderer process gone', details.reason);
-    if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();
-  });
-  win.webContents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame) { cancelClosetPhoto();tryOnRequests.cancelAll(); liveTryOnTokens.cancel(); void stopCastReceiver(); } });
+  win.on('unresponsive', () => recovery.unresponsive());
+  win.on('responsive', () => recovery.responsive());
+  win.webContents.on('render-process-gone', (_event, details) => recovery.gone(details.reason, details.exitCode));
+  win.webContents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame && !_inPlace) retireRendererWork(); });
   win.on('closed', () => {
+    recovery.close();
     if (mainWindow === win) {
       tryOnRequests.cancelAll();
       liveTryOnTokens.cancel();
@@ -1499,11 +1550,14 @@ function createWindow() {
       mainWindow = null; void stopCastReceiver();
     }
   });
+  void win.loadFile(path.join(__dirname, 'index.html')).catch(error => { if (error.code !== 'ERR_ABORTED' && !win.isDestroyed()) diagnosticLog.record('load-failed'); });
   return win;
 }
 
 app.whenReady().then(async () => {
   if (!ownsInstanceLock) return;
+  diagnosticLog.record('app-ready');
+  app.on('child-process-gone', (_event, details) => diagnosticLog.record('child-gone', details));
   powerMonitor.on('resume', () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('mirror:system-resume'); });
   await integrationSettings.load();
   registerBridge();
@@ -1539,6 +1593,7 @@ app.on('second-instance', (_event, argv) => {
     mainWindow.setKiosk(kioskRequested);
     mainWindow.setFullScreen(kioskRequested);
     mainWindow.show(); mainWindow.focus();
+    if (argv.includes('--dev')) mainWindow.webContents.openDevTools({ mode: 'detach' });
   });
 });
 
@@ -1546,7 +1601,15 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('before-quit', () => {cancelClosetPhoto();tryOnRequests.cancelAll();});
+let diagnosticQuitFlushed = false;
+app.on('before-quit', event => {
+  if (!ownsInstanceLock || diagnosticQuitFlushed) return;
+  event.preventDefault(); diagnosticQuitFlushed = true;
+  diagnosticLog.record('app-quit');
+  let deadline;
+  void Promise.race([diagnosticLog.queue, new Promise(resolve => { deadline = setTimeout(resolve, 1000); })]).finally(() => { clearTimeout(deadline); app.quit(); });
+});
+app.on('before-quit', () => { cancelClosetPhoto();tryOnRequests.cancelAll();lookCaptures.cancelAll(); });
 app.on('before-quit', () => liveTryOnTokens.cancel());
 app.on('before-quit', () => windowsSpotify.close());
 app.on('before-quit',()=>{void wakeModelServer?.then(server=>server.close()).catch(()=>{});});

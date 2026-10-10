@@ -1808,6 +1808,15 @@ elements.calibrateDepth.addEventListener('click', () => {
   );
 });
 elements.diagnosticsToggle.addEventListener('click', () => elements.diagnostics.classList.toggle('open'));
+document.querySelector('#save-diagnostics').addEventListener('click', async event => {
+  const button = event.currentTarget, status = document.querySelector('#diagnostics-status');
+  button.disabled = true; status.textContent = 'Preparing report…';
+  try {
+    const result = await window.mirrorBridge.saveDiagnostics(getMirrorState());
+    status.textContent = result.saved ? 'Diagnostic report saved.' : 'Export canceled.';
+  } catch { status.textContent = 'Could not save diagnostics. Try another folder.'; }
+  finally { button.disabled = false; }
+});
 elements.fullscreenToggle.addEventListener('click', () => window.mirrorBridge?.toggleFullscreen());
 
 function resetIdle() {

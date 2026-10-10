@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('mirrorBridge', {
+  diagnosticsReport: input => ipcRenderer.invoke('mirror:diagnostics-report', input),
+  saveDiagnostics: input => ipcRenderer.invoke('mirror:save-diagnostics', input),
   codexTask: input => ipcRenderer.invoke('mirror:codex-task', input),
   cancelCodex: () => ipcRenderer.invoke('mirror:codex-cancel'),
   codexToolResult: input => ipcRenderer.invoke('mirror:codex-tool-result', input),
