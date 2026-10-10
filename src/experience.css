@@ -181,3 +181,19 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 .live-captions { overflow: visible; }
 #app-shell:has(.live-captions.visible) .oracle-card { opacity: 0; visibility: hidden; }
 #app-shell[data-voice-active="true"] .wake-status { opacity: 0; }
+
+/* ---- One-way mirror profiles ("glass" and "night") ----
+   Behind a two-way mirror black pixels stay a mirror and every lit pixel is
+   light leaking through. So: a truly black ground, no tinted panels, no
+   camera picture (you see your own reflection), bright thin strokes. */
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) {
+  --panel: #000; --glass: #000; --panel-line: rgba(255, 236, 190, .55);
+  background: #000 !important;
+}
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) :is(.vignette, .noise, .scanline) { display: none; }
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) :is(.glass-widget, .oracle-card, .search-pool, .settings-panel, .live-captions, .privacy-chip, .timer-chip span, .mode-switch, .bottom-dock, .wake-status.armed, .studio-card, .live-fit, .closet, .wardrobe, #studio-panel > *) {
+  background: #000 !important; backdrop-filter: none !important;
+}
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]):is([data-mode="ar"], [data-mode="portal"], [data-mode="mirror"]) :is(#camera-feed, .garment-sync-camera) { visibility: hidden; }
+#app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) .mirror-frame { box-shadow: none; }
+#app-shell[data-glass-profile="night"] { filter: brightness(.7); }

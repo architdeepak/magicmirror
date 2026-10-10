@@ -258,7 +258,7 @@ function createChamber() {
     const gem=new THREE.Mesh(new THREE.IcosahedronGeometry(size,0),crystalMaterial);gem.scale.y=1.7;gem.position.set(x,y,z);group.add(gem);crystals.push({gem,y});
   }
   // A painted castle-hall backdrop: one static texture, so it costs one quad.
-  const backdropMaterial=new THREE.MeshBasicMaterial({map:paintCastleHall(),transparent:false,depthWrite:false,color:0xffffff});
+  const backdropMaterial=new THREE.MeshBasicMaterial({map:paintCastleHall(),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,color:0xffffff});
   const backdrop=new THREE.Mesh(new THREE.PlaneGeometry(7.6,13.5),backdropMaterial);
   backdrop.position.set(0,-.2,-5.95);backdrop.renderOrder=-10;group.add(backdrop);
   const moon=new THREE.Mesh(new THREE.SphereGeometry(.15,16,12),new THREE.MeshBasicMaterial({color:0xb4bdab}));

@@ -5,6 +5,7 @@ import { inferPhotoSleeves } from './photoSleeves.js';
 import { BodyTracking } from './bodyTracking.js';
 import { CameraClarity, CAMERA_CLARITY } from './cameraClarity.js';
 import { buildGarmentMesh, drawTexturedTriangle, projectCameraPoint } from './garmentGeometry.js';
+import { reflectionTransform } from './reflectionMap.js';
 
 export class GarmentOverlay {
   constructor(canvas, video, onStatus = () => {}) {
@@ -37,6 +38,12 @@ export class GarmentOverlay {
     this.outsideCrop = false; this.curvedTorso = false;
     this.drawPose = new Float64Array(33 * 4);
     this.resize();
+  }
+
+  // Behind two-way glass the garment is drawn where the wearer's reflection is.
+  setReflection(options) {
+    const next = options && options.enabled ? { screenWidthM: options.screenWidthCm / 100, mount: options.mount, sizePercent: options.sizePercent, nudgeYPercent: options.nudgeYPercent } : null;
+    if (JSON.stringify(next) !== JSON.stringify(this.reflection)) { this.reflection = next; this.reflectionState = null; this.clear(true); }
   }
 
   setQuality(id) { this.quality=id;this.tracker.setQuality(id);this.cameraClarity?.setQuality(id);this.resize(); }
@@ -193,6 +200,10 @@ export class GarmentOverlay {
     }
     this.drawCameraFrame(now);
     this.clear(true);
+    const glass = this.reflection
+      ? (this.reflectionState = reflectionTransform({ pose, video: { width: this.video.videoWidth, height: this.video.videoHeight }, viewport: this.viewport, screenWidthM: this.reflection.screenWidthM, mount: this.reflection.mount, sizePercent: this.reflection.sizePercent, nudgeYPercent: this.reflection.nudgeYPercent, previous: this.reflectionState }))
+      : null;
+    if (glass) { this.ctx.save(); this.ctx.translate(glass.tx, glass.ty); this.ctx.scale(glass.g, glass.g); }
     this.hasPixels = true;this.missingSleeves=mesh.missingSleeves||0;this.renderedSleeveStyle=mesh.sleeveStyle||'torso-only'; this.curvedTorso = Boolean(mesh.curvedTorso);
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
     this._relight(vertices);
@@ -200,6 +211,7 @@ export class GarmentOverlay {
     const detailedOcclusion = this.occlusion.erase(this.ctx, segmentation, pose,
       { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, coverage);
     if (!detailedOcclusion) this._occludeForearms(pose, coverage);
+    if (glass) this.ctx.restore();
     this._rememberDraw(pose, segmentation, worldPose);
     this._status(`Live fit · ${this.item.name}${mesh.missingSleeves?' · Keep elbows'+(texture.photoPattern?.long?' and wrists':'')+' visible for full sleeves':!this.item.starter&&!texture.photoPattern&&['top','outerwear'].includes(this.item.category)?' · Torso photo fit':''} · ${detailedOcclusion ? 'local contour occlusion' : this.tracker.segmentationNotice || 'on-device tracking'}`);
   }

@@ -1373,11 +1373,27 @@ elements.cameraMount.addEventListener('change', () => {
   showGesture(mount === 'top' ? 'Top-mounted camera profile selected' : 'Centered camera profile selected');
 });
 elements.citySelect.addEventListener('change', () => dashboard.setCity(elements.citySelect.value));
+// Behind one-way glass, black is the mirror and any lit pixel is light leaking
+// through; clothes are placed on the reflection instead of the camera picture.
+const screenWidthInput = document.querySelector('#screen-width-cm');
+screenWidthInput.value = localStorage.getItem('mirror.screen-width-cm') || '51';
+const glassSize = document.querySelector('#glass-size'), glassNudge = document.querySelector('#glass-nudge');
+glassSize.value = localStorage.getItem('mirror.glass-size') || '100';
+glassNudge.value = localStorage.getItem('mirror.glass-nudge') || '0';
+function applyGlassGeometry() {
+  const widthCm = Math.min(200, Math.max(20, Number(screenWidthInput.value) || 51));
+  garmentOverlay.setReflection({ enabled: elements.shell.dataset.glassProfile !== 'monitor', screenWidthCm: widthCm, mount: elements.cameraMount.value === 'center' ? 'center' : 'top', sizePercent: Number(glassSize.value) || 100, nudgeYPercent: Number(glassNudge.value) || 0 });
+}
+for (const [input, key] of [[glassSize, 'mirror.glass-size'], [glassNudge, 'mirror.glass-nudge']]) input.addEventListener('input', () => { localStorage.setItem(key, input.value); applyGlassGeometry(); });
+applyGlassGeometry();
+screenWidthInput.addEventListener('change', () => { localStorage.setItem('mirror.screen-width-cm', screenWidthInput.value); applyGlassGeometry(); showGesture('Mirror size saved'); });
+elements.cameraMount.addEventListener('change', applyGlassGeometry);
 elements.glassProfile.addEventListener('change', () => {
-  const profile = elements.glassProfile.value === 'night' ? 'night' : 'glass';
+  const profile = ['night', 'monitor'].includes(elements.glassProfile.value) ? elements.glassProfile.value : 'glass';
   elements.shell.dataset.glassProfile = profile;
   localStorage.setItem('mirror.glass-profile', profile);
-  showGesture(profile === 'glass' ? 'Glass ready · high contrast' : 'Night calm · reduced glow');
+  applyGlassGeometry();
+  showGesture({ glass: 'One-way mirror · pure black', night: 'One-way mirror · night calm', monitor: 'Plain monitor · camera picture shown' }[profile]);
 });
 elements.arEffect.addEventListener('change', () => setArEffect(elements.arEffect.value));
 elements.effectGrid.addEventListener('click', (event) => {

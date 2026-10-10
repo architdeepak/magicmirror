@@ -77,6 +77,23 @@ export class MagicTheatre {
       delay.delayTime.value=.21; feedback.gain.value=.19;
       master.connect(delay); delay.connect(feedback); feedback.connect(delay); delay.connect(this.audio.destination);
       this.soundGraph = [master, filter, delay, feedback];
+      // A breath of wind that rises with the cloud: band-passed noise swept
+      // upward with a soft low swell under it. Synthesised; nothing to load.
+      if (kind === 'wake' || kind === 'arrival') {
+        const length = kind === 'wake' ? 2.4 : 1.1;
+        const buffer = this.audio.createBuffer(1, Math.ceil(this.audio.sampleRate * length), this.audio.sampleRate), data = buffer.getChannelData(0);
+        let low = 0; for (let i = 0; i < data.length; i++) { low = .86 * low + .14 * (Math.random() * 2 - 1); data[i] = low * 2.2; }
+        const wind = this.audio.createBufferSource(), band = this.audio.createBiquadFilter(), air = this.audio.createGain();
+        wind.buffer = buffer; band.type = 'bandpass'; band.Q.value = .9;
+        band.frequency.setValueAtTime(260, now); band.frequency.exponentialRampToValueAtTime(kind === 'wake' ? 2600 : 1800, now + length * .8);
+        air.gain.setValueAtTime(0.0001, now); air.gain.exponentialRampToValueAtTime(kind === 'wake' ? .5 : .22, now + length * .55); air.gain.exponentialRampToValueAtTime(.0001, now + length);
+        wind.connect(band); band.connect(air); air.connect(master); wind.start(now); wind.stop(now + length + .05);
+        const swell = this.audio.createOscillator(), swellGain = this.audio.createGain();
+        swell.type = 'sine'; swell.frequency.setValueAtTime(55, now); swell.frequency.exponentialRampToValueAtTime(98, now + length * .7);
+        swellGain.gain.setValueAtTime(0.0001, now); swellGain.gain.linearRampToValueAtTime(kind === 'wake' ? .22 : .1, now + length * .5); swellGain.gain.exponentialRampToValueAtTime(.0001, now + length);
+        swell.connect(swellGain); swellGain.connect(master); swell.start(now); swell.stop(now + length + .05);
+        this.nodes.push(wind, swell); this.soundGraph.push(band, air, swellGain);
+      }
       const notes = kind === 'wake' ? [196,293.66,392,466.16] : kind === 'arrival' ? [293.66,392] : [392];
       for (const [i, frequency] of notes.entries()) for (const [partial, weight] of [[1,1],[2.01,.25],[3.97,.07]]) {
         const oscillator = this.audio.createOscillator(), gain = this.audio.createGain();

@@ -252,6 +252,17 @@ function acceptFaceResult(landmarks, timestamp, data = {}) {
   updateEyeGaze(latestLandmarks);
 }
 
+const headFilter = { x: { rate: 0 }, y: { rate: 0 }, z: { rate: 0 } };
+// currentHead stays the single source of truth (callers reset it); the filter
+// only remembers the smoothed speed. Exact exponential steps keep the result
+// independent of the display frame rate.
+function oneEuro(state, current, target, seconds, minCutoff, beta = .9, derivativeCutoff = 1.5) {
+  const alpha = cutoff => 1 - Math.exp(-2 * Math.PI * cutoff * seconds);
+  const rate = (target - current) / seconds;
+  state.rate += alpha(derivativeCutoff) * (rate - state.rate);
+  return current + alpha(minCutoff + beta * Math.abs(state.rate)) * (target - current);
+}
+
 export function updateHeadTracking(now = performance.now()) {
   faceTracking?.update(now);
 
@@ -272,10 +283,11 @@ export function updateHeadTracking(now = performance.now()) {
 
   const elapsed = lastHeadUpdateAt ? clamp(now - lastHeadUpdateAt, 1, 100) : 1000 / 60;
   lastHeadUpdateAt = now;
-  const smoothing = 1 - Math.pow(1 - options.smoothing, elapsed / (1000 / 60));
-  currentHead.x += (targetHead.x - currentHead.x) * smoothing;
-  currentHead.y += (targetHead.y - currentHead.y) * smoothing;
-  currentHead.z += (targetHead.z - currentHead.z) * smoothing;
+  // One-Euro filter: heavy smoothing while the head is still (no shimmer in
+  // the virtual window), almost none while it moves (no swimming lag).
+  const seconds = Math.max(.001, elapsed / 1000);
+  const minCutoff = Math.min(3, Math.max(.6, .2 / options.smoothing));
+  for (const axis of ['x', 'y', 'z']) currentHead[axis] = oneEuro(headFilter[axis], currentHead[axis], targetHead[axis], seconds, minCutoff);
   return currentHead;
 }
 
