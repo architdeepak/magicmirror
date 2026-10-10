@@ -2179,6 +2179,7 @@ function showSearchResult(result) {
     // No grounded answer: show ordinary results inside the mirror frame.
     return showUrlInFrame({ url: result.url }).then(() => ({ result: `Showing search results for ${result.query}.`, query: result.query }));
   }
+  document.querySelector('#search-pool-eyebrow').textContent = result.eyebrow || 'The mirror found';
   document.querySelector('#search-pool-query').textContent = result.query;
   document.querySelector('#search-pool-answer').textContent = result.answer;
   const holder = document.querySelector('#search-pool-sources');
@@ -2257,6 +2258,26 @@ function runVoiceNavigation(prompt) {
   if(wardrobeCommand){const open=['open','show'].includes(wardrobeCommand[1]);if(open)setAssistantMode('ar');setWardrobePanelOpen(open);showGesture(open?'Wardrobe opened':'Wardrobe closed');return true;}
   const spoken = prompt.toLowerCase().replace(/[.,!?']/g, '').replace(/\s+/g, ' ').trim();
   if (/^(?:close|dismiss|hide|clear|go away|never ?mind)(?: (?:that|this|it|the (?:result|answer|card|search)))?$/.test(spoken) && !searchPool.root.hidden) { hideSearchResult(); avatar.react?.('dismiss'); return true; }
+  // Glanceable pop-ups. Weather reads what the dashboard already fetched;
+  // news goes through grounded search; the calendar opens inside the frame.
+  if (/^(?:whats|what is|hows|how is|show me|tell me)?(?: the)? ?(?:weather|forecast|temperature)(?: like)?(?: today| now| outside| right now| tomorrow)?$|^(?:do i need|should i (?:bring|take)) (?:an |a |my )?(?:umbrella|jacket|coat)$|^is it (?:cold|hot|warm|raining|going to rain)(?: outside| today)?$/.test(spoken)) {
+    const read = id => document.querySelector(id)?.textContent?.trim() || '';
+    const temperature = read('#weather-temp'), condition = read('#weather-condition'), advice = read('#weather-advice'), city = read('#weather-city');
+    if (!temperature || temperature.startsWith('--')) { showOracle('The forecast has not reached the glass yet. Try again in a moment.', '', 'Weather'); return true; }
+    showSearchResult({ grounded: true, eyebrow: 'The sky over ' + city.toLowerCase().replace(/(^| )./g, match => match.toUpperCase()), query: `${temperature} · ${condition.toLowerCase()}`, answer: advice || 'No hourly advice available.', sources: [] });
+    return true;
+  }
+  if (/^(?:whats|what is|show me|tell me|read me)? ?(?:the )?(?:news|headlines|top stories|latest news)(?: today| for today)?$|^whats happening (?:in the world|today)$/.test(spoken)) {
+    showOracle('Consulting the glass…', '', 'Headlines');
+    window.mirrorBridge?.searchWeb('top news headlines today, three bullet-free sentences')
+      .then(result => showSearchResult(result.grounded ? { ...result, eyebrow: 'Headlines', query: 'Today in the world' } : result))
+      .catch(error => showOracle(error.message, '', 'Headlines'));
+    return true;
+  }
+  if (/^(?:whats|what is|show me|open|check)? ?(?:on )?(?:my |the )?(?:calendar|schedule|agenda|plans)(?: today| tomorrow)?$|^what do i have (?:on |today|tomorrow|planned)/.test(spoken)) {
+    openServiceFrame('calendar').then(() => showGesture('Your calendar')).catch(error => showOracle(error.message, '', 'Calendar'));
+    return true;
+  }
   const timerCommand = parseTimerCommand(prompt);
   if (timerCommand) {
     if (timerCommand.cancel) { const count = mirrorTimers.cancelAll(); showOracle(count ? 'The timers are cleared.' : 'There are no timers running.', '', 'Timer'); return true; }
