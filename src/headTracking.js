@@ -199,7 +199,7 @@ export function setCameraQuality(id) {
 
 // Ambient (idle mirror) needs presence, not a 30 Hz virtual window: dropping
 // to ~4 Hz removes most of the main-thread frame-capture cost on small PCs.
-let ambientCadence = true; // the app starts in the ambient mirror
+let ambientCadence = false;
 export function setTrackingAmbient(ambient) {
   ambientCadence = Boolean(ambient);
   if (faceTracking) { faceTracking.interval = ambientCadence ? 250 : 32; faceTracking.maxAge = ambientCadence ? 900 : 300; }

@@ -386,6 +386,7 @@ let desktopActive = false;
 let desktopKind = '';
 let desktopLabel = '';
 let mode = 'mirror';
+setTrackingAmbient(true); // the app starts in the ambient mirror
 let requestedMode = 'mirror';
 let state = 'starting';
 const watchAvatarLayout = new WatchAvatarLayout({shell:elements.shell,panel:elements.watchPanel,host:elements.avatarHost,getState:()=>({active:mode==='watch'&&!desktopActive&&avatar.visible,position:elements.shell.dataset.avatarPosition||'center'})});
