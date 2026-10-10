@@ -12,21 +12,18 @@ self.onmessage = async ({ data }) => {
         if (!probe || /swiftshader|llvmpipe|softpipe|software/i.test(renderer)) delegate = 'CPU';
         probe?.getExtension('WEBGL_lose_context')?.loseContext();
       } catch { delegate = 'CPU'; }
+      // An explicit delegate (benchmarks, or a stored per-device preference) wins.
+      if (data.options?.delegate === 'CPU' || data.options?.delegate === 'GPU') delegate = data.options.delegate;
       const options = { baseOptions: {
         modelAssetPath: new URL('./assets/models/face_landmarker.task', self.location.href).href, delegate },
-        runningMode: 'VIDEO', numFaces: 1, outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true,
+        // Blendshapes and the head matrix only puppet the host; landmarks drive
+        // parallax and gaze, so leave them out unless the owner asks for them.
+        runningMode: 'VIDEO', numFaces: 1, outputFaceBlendshapes: data.options?.full !== false, outputFacialTransformationMatrixes: data.options?.full !== false,
         minFaceDetectionConfidence: .55, minFacePresenceConfidence: .55, minTrackingConfidence: .5 };
       try { landmarker = await FaceLandmarker.createFromOptions(vision, options); }
       catch { delegate = 'CPU'; options.baseOptions.delegate = delegate; landmarker = await FaceLandmarker.createFromOptions(vision, options); }
       self.postMessage({ type: 'ready', delegate });
     } catch (error) { self.postMessage({ type: 'error', message: `Face tracker unavailable: ${error.message}` }); }
-  } else if (data.type === 'options') {
-    // Blendshapes and the head-pose matrix are only needed to puppet the host.
-    // Skipping them roughly halves inference on a CPU delegate.
-    try {
-      const full = data.options?.full !== false;
-      await landmarker?.setOptions({ outputFaceBlendshapes: full, outputFacialTransformationMatrixes: full });
-    } catch { /* keep the current outputs */ }
   } else if (data.type === 'frame') {
     let result;
     try {

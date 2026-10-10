@@ -45,10 +45,7 @@ window.addEventListener('pointermove', (event) => {
   mouseY = event.clientY / Math.max(window.innerHeight, 1);
 });
 
-export async function initHeadTracking(video) {
-  videoElement = video;
-  const generation = cameraGeneration;
-  faceTracking?.destroy();
+function createFaceTracker(video) {
   const tracker = new FaceTracking(video, acceptFaceResult, (state, message) => {
     if (faceTracking !== tracker) return;
     status.ready = state === 'ready' || (state !== 'unavailable' && Boolean(faceTracking?.ready));
@@ -57,7 +54,15 @@ export async function initHeadTracking(video) {
   });
   faceTracking = tracker;
   setTrackingAmbient(ambientCadence);
-  tracker.configure?.({ full: faceDetailFull });
+  tracker.configure?.({ full: faceDetailFull, ...(faceDelegate ? { delegate: faceDelegate } : {}) });
+  return tracker;
+}
+
+export async function initHeadTracking(video) {
+  videoElement = video;
+  const generation = cameraGeneration;
+  faceTracking?.destroy();
+  const tracker = createFaceTracker(video);
   const ready = await tracker.init();
   if (faceTracking !== tracker) return status.cameraActive;
   status.ready = ready;
@@ -200,13 +205,24 @@ export function setCameraQuality(id) {
 
 // Ambient (idle mirror) needs presence, not a 30 Hz virtual window: dropping
 // to ~4 Hz removes most of the main-thread frame-capture cost on small PCs.
+let lastHeadSample = { at: 0, x: 0, y: 0, z: 1 };
+const headVelocity = { x: 0, y: 0, z: 0 };
 let faceDetailFull = true;
+// The face model can run on the GPU (fast when the GPU is idle) or the CPU
+// (steady). Rendering at 4K can queue the GPU for hundreds of ms, so the
+// delegate is measured and the faster one is kept per device.
+let faceDelegate = (() => { try { const saved = localStorage.getItem('mirror.face-delegate'); return saved === 'CPU' || saved === 'GPU' ? saved : ''; } catch { return ''; } })();
+const delegateTrial = { frames: 0, ema: 0, gpuEma: 0, triedCpu: false, settled: Boolean(faceDelegate) };
 let ambientCadence = false;
 // Full face detail (blendshapes + head matrix) only while the host mirrors the
 // viewer's expressions; landmarks alone drive parallax and gaze.
 export function setFaceDetail(full) {
-  faceDetailFull = Boolean(full);
-  faceTracking?.configure?.({ full: faceDetailFull });
+  const next = Boolean(full);
+  if (next === faceDetailFull) return;
+  faceDetailFull = next;
+  if (!faceTracking || !videoElement) return;
+  // Rebuild the tracker with the new outputs; it resumes if the camera is on.
+  restartFaceTracker();
 }
 
 export function setTrackingAmbient(ambient) {
@@ -225,8 +241,40 @@ export function setTrackingOptions(next) {
   }
 }
 
+function judgeFaceDelegate(inferenceMs) {
+  const trial = delegateTrial;
+  if (trial.settled || !Number.isFinite(inferenceMs) || !faceTracking?.delegate) return;
+  trial.frames += 1;
+  if (trial.frames > 4) trial.ema = trial.ema ? trial.ema * .8 + inferenceMs * .2 : inferenceMs;   // skip warm-up
+  if (trial.frames < 40) return;
+  const delegate = faceTracking.delegate;
+  if (delegate === 'GPU' && !trial.triedCpu) {
+    if (trial.ema <= 90) { trial.settled = true; return; }                    // GPU is fine
+    // Slow GPU path: try the CPU delegate and compare.
+    Object.assign(trial, { gpuEma: trial.ema, triedCpu: true, frames: 0, ema: 0 });
+    faceDelegate = 'CPU'; restartFaceTracker();
+  } else if (delegate === 'CPU' && trial.triedCpu) {
+    trial.settled = true;
+    if (trial.gpuEma && trial.gpuEma < trial.ema * .8) { faceDelegate = 'GPU'; restartFaceTracker(); }
+    try { localStorage.setItem('mirror.face-delegate', faceDelegate); } catch {}
+  }
+}
+
+function restartFaceTracker() {
+  if (!faceTracking || !videoElement) return;
+  faceTracking.destroy();
+  const tracker = createFaceTracker(videoElement), resume = status.cameraActive;
+  status.ready = false;
+  void tracker.init().then(ready => {
+    if (faceTracking !== tracker) return;
+    status.ready = ready;
+    if (resume && status.cameraActive) tracker.setEnabled(true);
+  });
+}
+
 function acceptFaceResult(landmarks, timestamp, data = {}) {
   if (!status.cameraActive || !videoElement?.srcObject) return;
+  if (landmarks) judgeFaceDelegate(data.inferenceMs);
   latestLandmarks = landmarks;
   latestMatrix = data.matrix || null;
   latestBlendshapes = categoriesToBlendshapes(data.blendshapes);
@@ -258,6 +306,24 @@ function acceptFaceResult(landmarks, timestamp, data = {}) {
   const verticalResponse = options.mount === 'top' ? 1.42 : 1.8;
   targetHead.y = clamp((eyeCenter.y - reference.y) * verticalResponse * options.sensitivity, -1.1, 1.1);
   targetHead.z = clamp(reference.eyeDistance / Math.max(eyeDistance, 0.045), 0.62, 1.55);
+  // The result describes where the head WAS when the frame was captured. On a
+  // slow device that is 150-400 ms ago, which reads as parallax lag. Carry the
+  // measured head velocity forward by the result's age (damped and clamped).
+  {
+    const ageSec = Math.min(.4, Math.max(0, (performance.now() - timestamp) / 1000));
+    const dtSec = lastHeadSample.at ? (timestamp - lastHeadSample.at) / 1000 : 0;
+    if (dtSec > .005 && dtSec < .6) {
+      for (const axis of ['x', 'y', 'z']) {
+        const rate = clamp((targetHead[axis] - lastHeadSample[axis]) / dtSec, -3, 3);
+        headVelocity[axis] += (rate - headVelocity[axis]) * .5;
+      }
+    } else { headVelocity.x = headVelocity.y = headVelocity.z = 0; }
+    lastHeadSample = { at: timestamp, x: targetHead.x, y: targetHead.y, z: targetHead.z };
+    const lead = ageSec * .7;
+    targetHead.x = clamp(targetHead.x + clamp(headVelocity.x * lead, -.25, .25), -1.25, 1.25);
+    targetHead.y = clamp(targetHead.y + clamp(headVelocity.y * lead, -.25, .25), -1.1, 1.1);
+    targetHead.z = clamp(targetHead.z + clamp(headVelocity.z * lead, -.25, .25), 0.62, 1.55);
+  }
   updateEyeGaze(latestLandmarks);
 }
 
@@ -275,7 +341,7 @@ function oneEuro(state, current, target, seconds, minCutoff, beta = .9, derivati
 export function updateHeadTracking(now = performance.now()) {
   faceTracking?.update(now);
 
-  if (now - lastFaceAt > (ambientCadence ? 900 : 300)) {
+  if (now - lastFaceAt > Math.max(ambientCadence ? 900 : 300, faceTracking?.effectiveMaxAge?.() ?? 0)) {
     status.faceDetected = false;
     latestLandmarks = null; latestMatrix = null;
     latestBlendshapes = Object.freeze({});

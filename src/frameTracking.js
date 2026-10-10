@@ -27,7 +27,6 @@ export class FrameTracking {
         if (data.type === 'ready') {
           clearTimeout(this.initTimeout); this.initTimeout = null; this.ready = true;
           this.delegate = data.delegate; this._finishInit(true); this.onStatus('ready');
-          if (this.workerOptions) worker.postMessage({ type: 'options', options: this.workerOptions });
         } else if (data.type === this.task) {
           const request = this.pending;
           if (!request || request.id !== data.requestId) return;
@@ -35,12 +34,12 @@ export class FrameTracking {
           if (!this.enabled || data.epoch !== this.epoch || request.stream !== this.video.srcObject || request.stream?.active === false) return;
           this.inferenceMs = data.inferenceMs;
           // Reject results that are already too old to drive the current view or controls.
-          if (!Number.isFinite(data.timestamp) || performance.now() - data.timestamp > this.maxAge) { this.onResult(null, performance.now()); return; }
+          if (!Number.isFinite(data.timestamp) || performance.now() - data.timestamp > this.effectiveMaxAge()) { this.onResult(null, performance.now()); return; }
           this.onResult(data.landmarks || null, data.timestamp, data);
         } else if (data.type === 'error') this._fail(data.message);
       };
       worker.onerror = () => { if (this.worker === worker) this._fail(`${this.label} tracking unavailable. ${this.retry}`); };
-      worker.postMessage({ type: 'init' });
+      worker.postMessage({ type: 'init', options: this.workerOptions || {} });
     } catch { this._fail(`${this.label} tracking unavailable. ${this.retry}`); }
     return promise;
   }
@@ -80,12 +79,17 @@ export class FrameTracking {
       clearTimeout(request.timeout); this.pending = null; this.onResult(null, now);
     });
   }
-  // Worker-side options (for example face blendshapes) that can be changed
-  // without reloading the model. Remembered and re-sent when the worker is ready.
-  configure(options) {
-    this.workerOptions = { ...(this.workerOptions || {}), ...options };
-    if (this.worker && this.ready) this.worker.postMessage({ type: 'options', options: this.workerOptions });
+  // A result is only useful while it is fresh, but a slow device has a floor on
+  // how fresh any result can be. Without this a 300 ms detector on a 300 ms
+  // freshness limit rejects every result and never locks on at all.
+  effectiveMaxAge() {
+    const cost = Number.isFinite(this.inferenceMs) ? this.inferenceMs : 0;
+    return Math.min(1500, Math.max(this.maxAge, cost * 2 + 60));
   }
+  // Model options (for example face blendshapes) are fixed when the worker is
+  // built: changing a MediaPipe graph live stalled the worker, so a change means
+  // a clean rebuild by the owner.
+  configure(options) { this.workerOptions = { ...(this.workerOptions || {}), ...options }; }
   destroy() {
     this.disposed = true; this.enabled = false; this.ready = false; this.epoch += 1;
     clearTimeout(this.initTimeout); clearTimeout(this.pending?.timeout); this.pending = null;
