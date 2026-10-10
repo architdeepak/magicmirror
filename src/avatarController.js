@@ -212,6 +212,8 @@ export class AvatarController {
   setQuality(id) { this.quality=id;this.faceHost?.setQuality(id);this.rigHost?.setQuality(id); }
 
   setActivity(activity) { this.presence.setActivity(activity); }
+  // Emotional one-shot beat: ponder, delight, smug, startle, dismiss, scheming.
+  react(kind) { this.presence.react(kind); }
 
   setExpression(expression = {}) { this.expression = expression || {}; }
 
@@ -423,7 +425,7 @@ export class AvatarController {
         this.head.setValue('eyesRotateX', clamp(-viewer.y * .22 + gazeY, -.24, .28), 90);
       } catch (error) { /* avatar can still be settling during first frames */ }
     }
-    const presence = this.presence.update(elapsed, { reduced: this.host.closest('#app-shell')?.dataset.reducedMotion === 'true', trackedEyes: this.facePuppetEnabled && this.faceBlendshapes.eyeBlinkLeft != null });
+    const presence = this.presence.update(elapsed, { reduced: this.host.closest('#app-shell')?.dataset.reducedMotion === 'true', trackedEyes: this.facePuppetEnabled && this.faceBlendshapes.eyeBlinkLeft != null, energy: this.speechLevel });
     const tracking = this.facePuppetEnabled ? { ...this.faceBlendshapes } : {};
     // An explicit close request may accent the camera. It cannot reopen or
     // erase a tracked blink; automatic blinks remain disabled for tracked eyes.

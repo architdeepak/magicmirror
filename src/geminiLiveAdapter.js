@@ -200,7 +200,7 @@ export class GeminiLiveAdapter {
         }, {
           functionDeclarations: [{
             name: 'search_web',
-            description: 'Search the web for current information by opening results in the assistant desktop browser, where you can inspect the page with see_screen.',
+            description: 'Search the web for current information. Returns a short grounded answer with sources and shows them on the mirror.',
             parameters: {
               type: 'OBJECT',
               properties: { query: { type: 'STRING', description: 'A short search phrase.' } },
@@ -746,9 +746,11 @@ export class GeminiLiveAdapter {
           functionResponses.push({ name: call.name, id: call.id, response: result });
         } else if (call.name === 'search_web') {
           const query = String(call.args?.query || '').trim().slice(0, 240);
-          await this.onSearch(query);
+          const found = await this.onSearch(query);
           this.lastDeliveredClick = null;
-          functionResponses.push({ name: call.name, id: call.id, response: { result: `opened browser search for: ${query}` } });
+          functionResponses.push({ name: call.name, id: call.id, response: found?.answer
+            ? { result: found.answer, sources: (found.sources || []).map(source => source.host), note: 'The answer and its sources are already shown on the mirror. Say it briefly in your own voice.' }
+            : { result: `showing search results for: ${query}` } });
         } else if (call.name === 'open_service') {
           const services = ['youtube', 'netflix', 'spotify', 'calendar', 'photos', 'maps', 'findmy'];
           const service = services.includes(call.args?.service) ? call.args.service : '';

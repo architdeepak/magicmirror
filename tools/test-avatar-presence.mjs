@@ -21,3 +21,24 @@ for(let i=0;i<18;i++){actor.setEyeGaze({x:-.5,y:0,confidence:1});actor.update(1/
 assert.equal(face.gaze.x,1,'Tracking overwrote requested look');assert(face.values.eyeBlinkLeft>.9,'Explicit blink failed with camera');assert(face.values.eyeBlinkRight>.8,'Manual blink erased the other tracked eye');
 actor.setGazeOverride(null);actor.setExpression({});actor.update(1/30,.7,{x:0,y:0});assert.equal(face.gaze.x,-.5,'Gaze never returned to tracking');
 console.log('Avatar control ownership: requested gaze survives tracking frames, explicit closure preserves tracked eyes, clearing returns gaze to camera passed.');
+
+// Reaction beats: bounded, one-shot, and they never replace tracked eyes.
+{
+  const actor = new AvatarPresence();
+  actor.update(100);
+  actor.react('smug'); actor.update(101);
+  const peak = actor.update(101.95);
+  assert((peak.expression.mouthSmileLeft || 0) > .6, 'Smug beat never raised the smirk');
+  assert((peak.expression.mouthSmileRight || 0) < .3, 'Smug beat must stay asymmetric');
+  const later = actor.update(104);
+  assert.equal(later.expression.noseSneerLeft === undefined || later.expression.noseSneerLeft < .3, true, 'Beat did not release');
+  actor.react('not-a-real-beat');
+  assert.equal(actor.pendingReaction ?? null, null, 'Unknown beats must be ignored');
+  actor.react('startle'); actor.update(110);
+  const tracked = actor.update(110.5, { trackedEyes: true });
+  assert.equal(tracked.expression.eyeBlinkLeft, undefined, 'Beat replaced tracked blink');
+  actor.setActivity('speaking');
+  const quiet = actor.update(200, { energy: 0 }), loud = actor.update(200, { energy: .9 });
+  assert((loud.expression.browOuterUpLeft || 0) >= (quiet.expression.browOuterUpLeft || 0), 'Voice energy did not drive emphasis');
+  console.log('Avatar reactions: one-shot beats, asymmetric smirk, release, tracked-eye ownership and voice-energy emphasis passed.');
+}

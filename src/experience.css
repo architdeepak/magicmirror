@@ -150,3 +150,33 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 /* Apps (YouTube, Maps, Calendar...) get a tall frame suited to a portrait TV. */
 #watch-frame.loaded.app { aspect-ratio: auto; height: min(68vh, 1500px); border-radius: 18px; }
 #app-shell[data-mode="watch"] #watch-frame.loaded.app { height: 100%; }
+
+/* Search / knowledge pop-up: a scrying pool of text that rises over the lower
+   third, leaves the host's face clear, and is dismissed by voice, tap or time. */
+.search-pool { position: absolute; z-index: 16; left: 50%; bottom: clamp(150px, 14cqw, 300px); width: min(86%, 920px); max-height: 38%; overflow: auto; transform: translateX(-50%); padding: clamp(18px,1.8cqw,34px) clamp(22px,2.2cqw,40px); border-radius: 22px; border: 1px solid rgba(240,207,132,.4); background: linear-gradient(180deg, rgba(34,20,62,.9), rgba(10,6,20,.94)); box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 40px rgba(183,155,255,.18), inset 0 1px 0 rgba(255,240,200,.14); animation: pool-rise .55s var(--ease-magic) both; }
+.search-pool[hidden] { display: none; }
+.search-pool-eyebrow { font: 600 clamp(9px,.8cqw,14px) Cinzel, serif; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+.search-pool h2 { margin: .35em 0 .5em; font: 500 clamp(18px,1.9cqw,32px) Cinzel, serif; color: #fff3cf; }
+.search-pool p { margin: 0; font: 400 clamp(15px,1.6cqw,26px)/1.5 Manrope, sans-serif; color: #f1e9ff; }
+.search-pool-sources { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.search-pool-sources button { padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(240,207,132,.38); background: rgba(255,255,255,.06); color: #ffe9ab; font: 600 clamp(10px,.9cqw,15px) Manrope, sans-serif; cursor: pointer; transition: transform .25s var(--ease-magic), background .25s; }
+.search-pool-sources button:hover { transform: translateY(-2px); background: rgba(240,207,132,.16); }
+.search-pool-close { position: absolute; top: 10px; right: 14px; border: 0; background: none; color: rgba(255,240,200,.7); font-size: 26px; line-height: 1; cursor: pointer; }
+@keyframes pool-rise { from { opacity: 0; transform: translate(-50%, 24px) scale(.97); } }
+#app-shell[data-mode="watch"] .search-pool { bottom: auto; top: 14%; }
+
+.timer-chip { position: absolute; z-index: 15; left: 50%; transform: translateX(-50%); bottom: clamp(92px,7.4cqw,160px); display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 80%; }
+.timer-chip[hidden] { display: none; }
+.timer-chip span { padding: 6px 16px; border-radius: 999px; background: rgba(34,20,62,.82); border: 1px solid rgba(240,207,132,.4); color: #fff3cf; font: 600 clamp(12px,1.1cqw,20px) Cinzel, serif; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+
+/* One message at a time: the search card owns the lower third while it is open. */
+#app-shell:has(.search-pool:not([hidden])) :is(.oracle-card, .quote-widget, .live-captions) { opacity: 0; visibility: hidden; }
+
+/* Layout hygiene found in review: one message surface at a time, timers at the
+   top centre (clear of captions and the wake hint), and captions that wrap
+   instead of clipping their first letter. */
+.timer-chip { bottom: auto; top: clamp(112px, 9.5cqw, 210px); }
+.caption-line, .live-captions { max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; box-sizing: border-box; }
+.live-captions { overflow: visible; }
+#app-shell:has(.live-captions.visible) .oracle-card { opacity: 0; visibility: hidden; }
+#app-shell[data-voice-active="true"] .wake-status { opacity: 0; }

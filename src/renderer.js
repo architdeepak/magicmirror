@@ -10,6 +10,7 @@ import { GarmentOverlay } from './garmentOverlay.js';
 import { CAMERA_CLARITY } from './cameraClarity.js';
 import { MirrorExperience } from './mirrorExperience.js';
 import { MirrorAmbience } from './mirrorAmbience.js';
+import { MirrorTimers, parseTimerCommand, formatRemaining } from './mirrorTimers.js';
 import { MagicTheatre } from './magicTheatre.js';
 import { FramingGuide, evaluateFraming } from './framingGuide.js';
 import { LiveTryOn } from './liveTryOn.js';
@@ -420,6 +421,7 @@ let idleTimer = null;
 let sleepTimer = null;
 let sleeping = false;
 let lastVoiceActivity = Date.now(), cameraIdlePaused = false;
+const searchPool = { root: null, timer: 0 }; // filled in once the card exists
 let cameraWasActiveBeforeSleep = false;
 let diagnosticsTimer = 0;
 
@@ -445,7 +447,7 @@ const gemini = new GeminiLiveAdapter({
   },
   onModeChange: async (nextMode) => setAssistantMode(nextMode),
   onArEffect: async (effect) => setArEffect(effect),
-  onSearch: async (query) => window.mirrorBridge.searchWeb(query),
+  onSearch: async (query) => showSearchResult(await window.mirrorBridge.searchWeb(query)),
   onAvatarPosition: async (position) => setAvatarPosition(position),
   onWardrobe: async ({ command = '' } = {}) => {
     setAssistantMode('ar');
@@ -685,7 +687,7 @@ async function initialize() {
   else updateWakeStatus('paused');
 }
 
-window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic, showAssistant, setAssistantMode, handleWakeWord,
+window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic, showAssistant, setAssistantMode, handleWakeWord, runVoiceNavigation, showSearchResult,
   getWakeState: () => ({ enabled: wake.enabled, assistantActive: wake.assistantActive, microphoneReady: Boolean(wake.processor && wake.stream?.active), generation: wake.generation }),
   getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
@@ -1081,6 +1083,7 @@ function stopAssistant() {
   for (const role of ['user','assistant']) captionState[role] = '';
   for (const row of [elements.captionUser,elements.captionAssistant]) { row.querySelector('span').textContent = ''; row.classList.remove('visible'); }
   elements.captions.classList.remove('visible');
+  hideSearchResult();
   experience.cancel(); magic.cancel();closet.photo.cancelWork();
   clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 });
   document.querySelector('#agent-progress').hidden = true;
@@ -2110,7 +2113,13 @@ async function handleWatchControl(args = {}) {
 // Apps live in the mirror's own frame so the mirror never loses the screen.
 async function openServiceFrame(service) {
   const info = await window.mirrorBridge.openService(service);
+  return showUrlInFrame(info);
+}
+
+async function showUrlInFrame(info) {
   if (!info?.url) return info;
+  try { if (new URL(info.url).protocol !== 'https:') throw new Error('Only https pages can open inside the mirror.'); }
+  catch (error) { throw new Error(error.message || 'That link cannot be shown.'); }
   const generation = ++watchLoadGeneration;
   castPlayer.detach(); youtubePlayer.detach();
   elements.watchVideo.pause(); elements.watchVideo.removeAttribute('src'); elements.watchVideo.classList.remove('loaded');
@@ -2121,6 +2130,72 @@ async function openServiceFrame(service) {
   elements.watchPlaceholder.classList.add('hidden');
   return { ok: true, target: 'mirror-frame', url: info.url };
 }
+
+// ---- Timers: spoken countdowns shown as chips; the bell respects hard mute.
+const timerChip = document.querySelector('#timer-chip');
+let timerTick = 0;
+function renderTimers(list) {
+  timerChip.hidden = list.length === 0;
+  timerChip.replaceChildren(...list.map(item => { const chip = document.createElement('span'); chip.textContent = `${item.label ? item.label + ' · ' : ''}${formatRemaining(item.remainingMs)}`; return chip; }));
+  clearInterval(timerTick);
+  if (list.length) timerTick = setInterval(() => renderTimers(mirrorTimers.list()), 1000);
+}
+let bellContext = null;
+function ringBell() {
+  if (hardMuted) return;
+  try {
+    bellContext ||= new AudioContext(); void bellContext.resume();
+    const now = bellContext.currentTime;
+    [660, 880, 1100].forEach((frequency, index) => {
+      const osc = bellContext.createOscillator(), gain = bellContext.createGain();
+      osc.type = 'sine'; osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(0, now + index * .18);
+      gain.gain.linearRampToValueAtTime(.18, now + index * .18 + .02);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + index * .18 + 1.2);
+      osc.connect(gain).connect(bellContext.destination); osc.start(now + index * .18); osc.stop(now + index * .18 + 1.3);
+    });
+  } catch {}
+}
+const mirrorTimers = new MirrorTimers({
+  onChange: renderTimers,
+  onDone: timer => {
+    ringBell(); avatar.react?.('delight');
+    const message = `Your ${timer.label ? timer.label + ' ' : ''}timer is done.`;
+    showOracle(message, '', 'Timer'); showGesture(message);
+  }
+});
+window.addEventListener('beforeunload', () => { mirrorTimers.destroy(); clearInterval(timerTick); });
+window.__mirrorDebug.mirrorTimers = mirrorTimers;
+
+// ---- Search pool: grounded answers and their sources as a dismissible card.
+searchPool.root = document.querySelector('#search-pool');
+function hideSearchResult() {
+  clearTimeout(searchPool.timer);
+  if (searchPool.root) searchPool.root.hidden = true;
+}
+function showSearchResult(result) {
+  if (!result) return result;
+  if (!result.grounded || !result.answer) {
+    // No grounded answer: show ordinary results inside the mirror frame.
+    return showUrlInFrame({ url: result.url }).then(() => ({ result: `Showing search results for ${result.query}.`, query: result.query }));
+  }
+  document.querySelector('#search-pool-query').textContent = result.query;
+  document.querySelector('#search-pool-answer').textContent = result.answer;
+  const holder = document.querySelector('#search-pool-sources');
+  holder.replaceChildren(...(result.sources || []).map(source => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.textContent = source.host; button.title = source.title;
+    button.addEventListener('click', () => { hideSearchResult(); void showUrlInFrame({ url: source.url }).catch(error => showOracle(error.message, '', 'Search')); });
+    return button;
+  }));
+  searchPool.root.hidden = false;
+  clearTimeout(searchPool.timer);
+  searchPool.timer = setTimeout(hideSearchResult, 60000);
+  avatar.react?.('ponder');
+  return result;
+}
+document.querySelector('#search-pool-close').addEventListener('click', hideSearchResult);
+window.addEventListener('keydown', event => { if (event.key === 'Escape') hideSearchResult(); });
 
 async function loadWatchVideo() {
   let generation = null;
@@ -2180,6 +2255,28 @@ function spotifyEmbedUrl(url) {
 function runVoiceNavigation(prompt) {
   const wardrobeCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim().match(/^(open|show|close|hide) (?:the )?(?:wardrobe|closet|fitting controls)$/);
   if(wardrobeCommand){const open=['open','show'].includes(wardrobeCommand[1]);if(open)setAssistantMode('ar');setWardrobePanelOpen(open);showGesture(open?'Wardrobe opened':'Wardrobe closed');return true;}
+  const spoken = prompt.toLowerCase().replace(/[.,!?']/g, '').replace(/\s+/g, ' ').trim();
+  if (/^(?:close|dismiss|hide|clear|go away|never ?mind)(?: (?:that|this|it|the (?:result|answer|card|search)))?$/.test(spoken) && !searchPool.root.hidden) { hideSearchResult(); avatar.react?.('dismiss'); return true; }
+  const timerCommand = parseTimerCommand(prompt);
+  if (timerCommand) {
+    if (timerCommand.cancel) { const count = mirrorTimers.cancelAll(); showOracle(count ? 'The timers are cleared.' : 'There are no timers running.', '', 'Timer'); return true; }
+    if (timerCommand.error) { showOracle(timerCommand.error, '', 'Timer'); return true; }
+    try { mirrorTimers.add(timerCommand.seconds, timerCommand.label); showGesture(`Timer set · ${formatRemaining(timerCommand.seconds * 1000)}`); avatar.react?.('smug'); }
+    catch (error) { showOracle(error.message, '', 'Timer'); }
+    return true;
+  }
+  if (/\b(?:who(?:s| is) the fairest|fairest of (?:them )?all|am i the fairest|who(?:s| is) the (?:prettiest|most beautiful))\b/.test(spoken)) {
+    const answers = [
+      'You, my dear, are the fairest here — but do keep your voice down. I have an image to maintain.',
+      'Fairest? Flattery will get you everywhere. Today, it is you. Tomorrow, we shall see.',
+      'Oh, the answer is obvious. Ask me again and I may even sound sincere.'
+    ];
+    const reply = answers[Math.floor(Math.random() * answers.length)];
+    showAssistant(); avatar.react?.('smug'); magic.play('arrival', { muted: hardMuted });
+    appendCaption('assistant', reply, { replace: true }); showOracle(reply, prompt, 'The mirror answers');
+    speech.setPersona(avatar.persona || 'velora'); void speech.speak(reply).catch(() => {});
+    return true;
+  }
   if (experience.voice(prompt)) return true;
   const qualityCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim();
   if(/^(?:use |show |switch to )?(?:3d (?:face|avatar)|portrait (?:face|avatar))$/.test(qualityCommand)){void applyAvatarStyle(qualityCommand.includes('3d')?'rig':'portrait');showGesture('Avatar appearance updated');return true;}
@@ -2265,8 +2362,10 @@ function runVoiceNavigation(prompt) {
   }
   const searchMatch = text.match(/\b(?:search(?: the web)? for|look up)\s+(.+)/);
   if (searchMatch) {
+    showOracle('Consulting the glass…', searchMatch[1].trim(), 'Searching');
     window.mirrorBridge?.searchWeb(searchMatch[1].trim())
-      .then(() => showGesture('Opening web search'))
+      .then(showSearchResult)
+      .then(() => showGesture('The mirror has found something'))
       .catch((error) => showOracle(error.message, '', 'Web search'));
     return true;
   }

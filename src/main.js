@@ -17,6 +17,7 @@ const dotenv = require('dotenv');
 const QRCode = require('qrcode');
 const { GoogleAuth } = require('google-auth-library');
 const { IdleGallery } = require('./idleGallery.cjs');
+const { groundedSearch } = require('./groundedSearch.cjs');
 const { CodexMirrorAgent } = require('./codexMirrorAgent');
 const { TryOnRequests } = require('./tryOnRequests.cjs');
 const tryOnRequests = new TryOnRequests();
@@ -1472,7 +1473,13 @@ function registerBridge() {
   ipcMain.handle('mirror:search-web', async (_event, query) => {
     const terms = String(query || '').replace(/\s+/g, ' ').trim().slice(0, 240);
     if (!terms) throw new Error('Give me something to search for.');
-    return openDesktopWebpage(`https://www.google.com/search?q=${encodeURIComponent(terms)}`);
+    const apiKey = integrationSettings.value('geminiApiKey', process.env.GEMINI_API_KEY || '');
+    if (apiKey) {
+      try { return { grounded: true, ...await groundedSearch({ apiKey, query: terms, model: process.env.GEMINI_SEARCH_MODEL || undefined }) }; }
+      catch (error) { diagnosticLog.record('search-fallback'); }
+    }
+    // No key (or the call failed): show ordinary results inside the mirror frame.
+    return { grounded: false, query: terms, url: `https://www.google.com/search?q=${encodeURIComponent(terms)}` };
   });
   ipcMain.handle('mirror:wardrobe-phone', async (event, enabled) => {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use the wardrobe photo editor.');
@@ -1628,17 +1635,16 @@ app.whenReady().then(async () => {
   // Apps are shown inside the mirror's own iframe instead of separate windows.
   // Only sub-frames of the mirror page, and only for the launcher's own
   // services, have their framing restrictions relaxed.
-  const frameableHosts = new Set([...Object.values(serviceUrls).map(url => new URL(url).hostname), 'www.youtube.com', 'accounts.spotify.com', 'accounts.google.com', 'appleid.apple.com', 'idmsa.apple.com']);
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     let host = '';
     try { host = new URL(details.url).hostname; } catch {}
-    if (details.resourceType !== 'subFrame' || !mainWindow || details.webContentsId !== mainWindow.webContents.id || !frameableHosts.has(host)) return callback({});
+    if (details.resourceType !== 'subFrame' || !mainWindow || details.webContentsId !== mainWindow.webContents.id || !/^https:/.test(details.url)) return callback({});
     const headers = { ...details.responseHeaders };
     for (const name of Object.keys(headers)) {
       const key = name.toLowerCase();
       if (key === 'x-frame-options') delete headers[name];
       else if (key === 'content-security-policy' || key === 'content-security-policy-report-only') {
-        headers[name] = headers[name].map(value => value.split(';').filter(part => !/^\s*frame-ancestors/i.test(part)).join(';'));
+        headers[name] = headers[name].map(value => value.split(';').filter(part => !/^\s*frame-ancestors\b/i.test(part)).join(';'));
       }
     }
     callback({ responseHeaders: headers });
