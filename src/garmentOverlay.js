@@ -195,12 +195,39 @@ export class GarmentOverlay {
     this.clear(true);
     this.hasPixels = true;this.missingSleeves=mesh.missingSleeves||0;this.renderedSleeveStyle=mesh.sleeveStyle||'torso-only'; this.curvedTorso = Boolean(mesh.curvedTorso);
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
+    this._relight(vertices);
     const coverage = { coverForearms: mesh.coverForearms?.length?mesh.coverForearms:mesh.sleeveStyle === 'long sleeve' };
     const detailedOcclusion = this.occlusion.erase(this.ctx, segmentation, pose,
       { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, coverage);
     if (!detailedOcclusion) this._occludeForearms(pose, coverage);
     this._rememberDraw(pose, segmentation, worldPose);
     this._status(`Live fit · ${this.item.name}${mesh.missingSleeves?' · Keep elbows'+(texture.photoPattern?.long?' and wrists':'')+' visible for full sleeves':!this.item.starter&&!texture.photoPattern&&['top','outerwear'].includes(this.item.category)?' · Torso photo fit':''} · ${detailedOcclusion ? 'local contour occlusion' : this.tracker.segmentationNotice || 'on-device tracking'}`);
+  }
+
+  // Volume shading: soft darkening toward the sides and hem plus a faint
+  // shoulder highlight, drawn source-atop so only garment pixels change. This is
+  // procedural on purpose: sampling the camera picked up the wearer's own
+  // clothing and read as blotches rather than light.
+  _relight(vertices) {
+    if (!vertices.length || this.item?.noShading) return;
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    for (const point of vertices) { if (point.x < left) left = point.x; if (point.x > right) right = point.x; if (point.y < top) top = point.y; if (point.y > bottom) bottom = point.y; }
+    const width = right - left, height = bottom - top;
+    if (!(width > 16 && height > 16)) return;
+    const context = this.ctx;
+    if (typeof context.createLinearGradient !== 'function') return;
+    context.save();
+    context.globalCompositeOperation = 'source-atop';
+    const sides = context.createLinearGradient(left, 0, right, 0);
+    sides.addColorStop(0, 'rgba(12,10,20,.30)'); sides.addColorStop(.22, 'rgba(12,10,20,.05)');
+    sides.addColorStop(.5, 'rgba(255,255,255,.05)');
+    sides.addColorStop(.78, 'rgba(12,10,20,.05)'); sides.addColorStop(1, 'rgba(12,10,20,.30)');
+    context.fillStyle = sides; context.fillRect(left, top, width, height);
+    const hem = context.createLinearGradient(0, top, 0, bottom);
+    hem.addColorStop(0, 'rgba(255,255,255,.07)'); hem.addColorStop(.35, 'rgba(0,0,0,0)');
+    hem.addColorStop(.8, 'rgba(12,10,20,.06)'); hem.addColorStop(1, 'rgba(12,10,20,.22)');
+    context.fillStyle = hem; context.fillRect(left, top, width, height);
+    context.restore();
   }
 
   _occludeForearms(pose, { coverForearms = false } = {}) {

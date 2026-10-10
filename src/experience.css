@@ -106,8 +106,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 @keyframes dot-twinkle { 50% { transform: scale(1.5); opacity: .7; } }
 
 /* Panels and cards */
-.glass-widget, .oracle-card, .experience-panel, .settings-panel { border-color: var(--panel-line); box-shadow: 0 16px 48px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,200,.1); }
-.settings-panel, #settings-panel, .experience-panel { background: linear-gradient(180deg, rgba(26, 16, 48, .88), rgba(8, 5, 16, .92)); }
+.glass-widget, .oracle-card, .settings-panel { border-color: var(--panel-line); box-shadow: 0 16px 48px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,200,.1); }
+/* Never tint .experience-panel itself: in Try on it spans the camera picture. */
+.settings-panel, #settings-panel { background: linear-gradient(180deg, rgba(26, 16, 48, .88), rgba(8, 5, 16, .92)); }
 select, input[type="text"], input[type="url"] { background: rgba(255,255,255,.06); border: 1px solid rgba(240,207,132,.28); border-radius: 12px; color: #fff3cf; transition: border-color .25s, box-shadow .25s; }
 select:hover, input:hover { border-color: rgba(240,207,132,.55); }
 input[type="checkbox"] { accent-color: #e9c36a; }

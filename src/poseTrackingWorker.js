@@ -8,6 +8,7 @@ let segmentationFrames = 0;
 let slowFrames = 0;
 let poseFrames = 0;
 let segmentationStride = 1;
+let maskCostEma = 0;
 self.onmessage = async ({ data }) => {
   if (data.type === 'init') {
     try {
@@ -81,7 +82,14 @@ self.onmessage = async ({ data }) => {
       if (segmentation) {
         // Spend slow CPU mask work on one in three poses, allowing fresh
         // lightweight pose results between masks instead of flashing stale fit.
-        if (segmentationDelegate === 'CPU' && inferenceMs > 130) segmentationStride = 3;
+        // Pose + mask on one frame is the expensive case. Smooth that cost and
+        // thin the masks to fit the budget on any delegate (a mask every pose
+        // on a mid-range iGPU measured ~130 ms end to end; every third pose
+        // keeps pose-only frames near 40 ms and the fit reads far more live).
+        maskCostEma = maskCostEma ? maskCostEma * .7 + inferenceMs * .3 : inferenceMs;
+        // Pathologically slow masks (software GL) keep every frame so the
+        // slow-delegate detector below can switch to CPU promptly.
+        segmentationStride = inferenceMs > 280 ? 1 : maskCostEma > 110 ? 3 : maskCostEma > 62 ? 2 : 1;
         segmentationFrames += 1;
         slowFrames = segmentationFrames > 1 && inferenceMs > 280 ? slowFrames + 1 : 0;
         if (slowFrames >= 3) {
