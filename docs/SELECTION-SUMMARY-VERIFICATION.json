@@ -1,0 +1,135 @@
+{
+  "checkedAt": "2026-10-10T17:47:24.917Z",
+  "archiveSha256": "e34690b0375d387ab76b226c4a74ffe771a90a57e61b78ff8a84e071e5e66a35",
+  "rendererMatchesPackaged": true,
+  "featureChecks": [
+    "camera-off starter selection changes Red / Blue / Red and preserves instruction",
+    "camera tracks end after quick off; selected photo name and unusable-cutout warning both remain",
+    "supported starter selected after off restores camera guidance"
+  ],
+  "wardrobe": {
+    "status": "passed",
+    "archiveSha256": "e34690b0375d387ab76b226c4a74ffe771a90a57e61b78ff8a84e071e5e66a35",
+    "starterGarments": 30,
+    "savedGarments": 8,
+    "checks": [
+      "local fit outside optional tools at three portrait sizes, Chromium keyboard width 1.2 and reset 1",
+      "real garment upload/cutout",
+      "paired front/back cutout, persistence, original retention, voice view switching and different rear raster",
+      "invalid back PNG rejected before persistence",
+      "saved photo short sleeve inference",
+      "offline worn clothing extraction, voice/gesture crop and real persistence",
+      "real IPC persistence/reload",
+      "original retained",
+      "photo clarity voice controls and exact original restoration",
+      "independent front/back clarity drafts",
+      "invalid PNG rejected",
+      "concurrent saves",
+      "camera unavailable",
+      "synthetic camera capture",
+      "voice tool commands",
+      "interpreted swipe and pinch routing",
+      "cancel",
+      "gesture-only capture/type/save with automatic name",
+      "editor Stop/mute controls, two colored bottom captions and restoration",
+      "paired LAN phone photo upload",
+      "one-photo acceptance",
+      "unauthenticated/cross-origin/invalid phone requests rejected",
+      "compact controls below 22% of three portrait heights",
+      "wardrobe drawer pointer/voice/vertical gesture controls",
+      "AR vertical swipes retain mode",
+      "drawer closes on mode exit",
+      "quick camera control releases tracks and restarts"
+    ],
+    "limits": [
+      "No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.",
+      "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
+    ]
+  },
+  "generalUI": {
+    "checkedAt": "2026-10-10T17:45:02.684Z",
+    "passed": true,
+    "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+    "checks": [
+      {
+        "width": 1280,
+        "height": 1024,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 400,
+        "height": 710,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 540,
+        "height": 960,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "checks": [
+          "typing does not invoke mode/camera/fullscreen shortcuts",
+          "two long colored caption rows and one caption container",
+          "editor Stop leaves review open",
+          "command center accessible",
+          "typed task draft retained while muted",
+          "friends request explains missing Apple People bridge"
+        ]
+      },
+      {
+        "checks": [
+          "camera clarity selectable by real keyboard input",
+          "typed voice navigation bright/off updates renderer and persistence"
+        ]
+      }
+    ],
+    "rendererErrors": []
+  },
+  "syntax": {
+    "passed": true,
+    "log": "artifacts/selection-summary-syntax.log"
+  },
+  "runtimeLog": "artifacts/selection-summary-ui-confirmed.log",
+  "sourceHashes": {
+    "src/renderer.js": "ed14853a2a6b713ad3b090fdd4ab9fed5cba2c337b81d94a663f11daa35b0d8f",
+    "tools/check-wardrobe-ui.cjs": "3b46fd7df916cc72d4e950e717eb9eb35377a9e8be4c12d87988590271addf84"
+  },
+  "testExecutionNote": "The feature assertions ran in the confirmed log. Three descriptive report labels were added afterward; assertion code is unchanged.",
+  "limits": [
+    "No physical camera, recognized acoustic speech, physical gestures, account sign-in, Windows or garment realism qualification.",
+    "Initial UI run lacked DISPLAY. Two subsequent audits rejected an incorrect test expectation: the unusable camera-photo fixture correctly preserves its cutout warning. Those are excluded from passing evidence."
+  ]
+}

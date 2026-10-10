@@ -1,0 +1,134 @@
+{
+  "build": {
+    "archiveSha256": "0265262ff213ed6019d597959f5b95fadb0bb2b8fb61a892908dc60b2e5d8b24",
+    "gitRevision": "692b4538086ff4b3e41bdcf57b5229790a5034a3",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true
+  },
+  "summary": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, no microphone/cloud/camera/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 585,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T15:01:55.397Z",
+      "elapsedSec": 1801.766,
+      "cpuPercent": 10.512483574244415,
+      "summedRssBytes": 931094528,
+      "processCount": 5,
+      "rendererHeapBytes": 14486096,
+      "gpu": {
+        "deviceWide": "4.73, 0, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          161,
+          184
+        ],
+        "frames": 3749,
+        "reuses": 7956,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 28353,
+        "scene": {
+          "frames": 85,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.6000001430511475,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 59,
+        "finishedAt": 1792547.4000000954,
+        "idleMs": 10231.699999809265
+      },
+      "hardMuted": false
+    },
+    "appExit": null,
+    "build": {
+      "archiveSha256": "0265262ff213ed6019d597959f5b95fadb0bb2b8fb61a892908dc60b2e5d8b24",
+      "gitRevision": "692b4538086ff4b3e41bdcf57b5229790a5034a3",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true
+    }
+  }
+}

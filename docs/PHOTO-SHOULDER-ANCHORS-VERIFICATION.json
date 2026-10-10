@@ -1,0 +1,619 @@
+{
+  "checkedAt": "2026-10-10T18:04:27.472Z",
+  "archiveSha256": "8b835f8abbf26d7a90a94ed0fc59558e47a0dda7be1dedefffa4a8a6c61e1657",
+  "packagedSourceMatches": true,
+  "baselineRevision": "941bd00",
+  "baselineUnit": {
+    "failed": true,
+    "log": "artifacts/asymmetric-photo-baseline-tests.log",
+    "error": "Asymmetric photographed root was replaced by an average"
+  },
+  "renders": [
+    {
+      "label": "asymmetric-photo-original",
+      "passed": true,
+      "baselineRevision": "941bd00",
+      "rotationDeg": 0,
+      "baselineSourceSha256": "31321312b5a8e7a5f17d2bce3bf7a8281a1ac2a7b75eff2df1b95813215d38f4",
+      "cases": [
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "down",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.006172839506172839,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "raised",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.006172839506172839,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "crossed",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.006172839506172839,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "lean",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.006172839506172839,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "partial",
+          "metrics": [
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.006172839506172839,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            },
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07160493827160494,
+                0.08395061728395062
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_08_white_bg.jpg",
+          "mode": "down",
+          "metrics": [
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0.008793969849246241,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            },
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_08_white_bg.jpg",
+          "mode": "raised",
+          "metrics": [
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0.008793969849246241,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            },
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_08_white_bg.jpg",
+          "mode": "crossed",
+          "metrics": [
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0.008793969849246241,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            },
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_08_white_bg.jpg",
+          "mode": "lean",
+          "metrics": [
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0.008793969849246241,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            },
+            {
+              "triangles": 448,
+              "missingSleeves": 0,
+              "coveredForearms": [
+                15,
+                16
+              ],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_08_white_bg.jpg",
+          "mode": "partial",
+          "metrics": [
+            {
+              "triangles": 280,
+              "missingSleeves": 1,
+              "coveredForearms": [
+                16
+              ],
+              "sourceAnchorError": 0.008793969849246241,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            },
+            {
+              "triangles": 280,
+              "missingSleeves": 1,
+              "coveredForearms": [
+                16
+              ],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07537688442211055,
+                0.09296482412060302
+              ]
+            }
+          ]
+        }
+      ],
+      "scope": "Actual software Electron canvas, selected public short/long garment photographs, five explicit synthetic landmark poses each; optional rotation affects both variants equally. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy."
+    },
+    {
+      "label": "asymmetric-photo-short-plus",
+      "passed": true,
+      "baselineRevision": "941bd00",
+      "rotationDeg": 3,
+      "baselineSourceSha256": "31321312b5a8e7a5f17d2bce3bf7a8281a1ac2a7b75eff2df1b95813215d38f4",
+      "cases": [
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "down",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.018087855297157632,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "raised",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.018087855297157632,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "crossed",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.018087855297157632,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "lean",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.018087855297157632,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "partial",
+          "metrics": [
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.018087855297157632,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            },
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.06459948320413436,
+                0.10077519379844961
+              ]
+            }
+          ]
+        }
+      ],
+      "scope": "Actual software Electron canvas, selected public short/long garment photographs, five explicit synthetic landmark poses each; optional rotation affects both variants equally. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy."
+    },
+    {
+      "label": "asymmetric-photo-short-minus",
+      "passed": true,
+      "baselineRevision": "941bd00",
+      "rotationDeg": -3,
+      "baselineSourceSha256": "31321312b5a8e7a5f17d2bce3bf7a8281a1ac2a7b75eff2df1b95813215d38f4",
+      "cases": [
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "down",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.002590673575129543,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "raised",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.002590673575129543,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "crossed",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.002590673575129543,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "lean",
+          "metrics": [
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.002590673575129543,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            },
+            {
+              "triangles": 240,
+              "missingSleeves": 0,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            }
+          ]
+        },
+        {
+          "name": "lab_06_white_bg.jpg",
+          "mode": "partial",
+          "metrics": [
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0.002590673575129543,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            },
+            {
+              "triangles": 176,
+              "missingSleeves": 1,
+              "coveredForearms": [],
+              "sourceAnchorError": 0,
+              "shoulderHeights": [
+                0.07253886010362694,
+                0.07772020725388601
+              ]
+            }
+          ]
+        }
+      ],
+      "scope": "Actual software Electron canvas, selected public short/long garment photographs, five explicit synthetic landmark poses each; optional rotation affects both variants equally. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy."
+    }
+  ],
+  "motion": {
+    "scope": "Recorded public human motion through actual offline workers and camera stream, software graphics; no physical input or sizing accuracy validation.",
+    "seconds": 22.4885,
+    "trackingTicks": 610,
+    "visibleTrackingTicks": 558,
+    "inferences": 188,
+    "lossCleared": true,
+    "maxBeatGapMs": 113,
+    "log": "artifacts/asymmetric-photo-motion.log"
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/asymmetric-photo-full-tests.log"
+  },
+  "sourceHashes": {
+    "src/photoSleeves.js": "2e4ab9f061f92fc7a78bf99446fb713bdcc5f4302ec6474ff40aadcf816fb723",
+    "tools/test-photo-sleeves.cjs": "350d561e88c1a316fb4afc65baaca3d95a8f5f23251b449e1a51f9f57577d87a",
+    "tools/check-photo-shoulders.cjs": "44beb63375133f77c009346de276c892d79fa21128ba6719d58a0fe2ddd71dbe"
+  },
+  "fixtures": {
+    "lab_06_white_bg.jpg": "28e113e80368cb128a24abb1b3c6d3538ce6e42545fe6328b52e4f955225f7f5",
+    "lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+  },
+  "limits": [
+    "Both original photographs pass five synthetic poses; short photo also passes at +3 and -3 degrees. A +3-degree long photograph is rejected by silhouette inference and is excluded.",
+    "No physical camera, accurate sizing, generated cloth or drape qualification. Same geometry does not imply realistic fit.",
+    "Running NVIDIA monitor retains older immutable source 48888e5; it does not qualify this patch."
+  ]
+}

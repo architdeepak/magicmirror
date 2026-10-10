@@ -1,13 +1,15 @@
+import { displayProfile, boundedSurface } from './displayQuality.js';
+import { FaceFeatures } from './faceFeatures.js';
 const HEADS = Object.freeze({
   // V2 is an original, deliberately simplified avatar family: large face
   // planes, sculpted hair masses and matte materials. Do not pair it with the
   // older illustrative speaking frames—the mismatch is visibly uncanny.
-  velora: { image: 'assets/personas/evil-queen-head-v3.png', speaking: 'assets/personas/evil-queen-head-v3-speaking.png', rounded: 'assets/personas/evil-queen-head-v3-o.png', mouth: '#3c0c1f', lip: '#6f1e39', lid: '#e4b39d', mouthY: .232, eyeY: .085, eyeX: .125 },
+  velora: { image: 'assets/personas/evil-queen-head-v3.png', speaking: 'assets/personas/evil-queen-head-v3-speaking.png', rounded: 'assets/personas/evil-queen-head-v3-o.png', mouth: '#3c0c1f', lip: '#6f1e39', lid: '#e4b39d', mouthY: .232, eyeY: .066, eyeX: .114 },
   // Keep the last coherent Snow performance live while the next host moves to
   // a real feature rig. The current raster experiment is retained as an asset
   // for art direction, but is deliberately not used as the speaking performer.
   solenne: { image: 'assets/personas/snow-head-v3.png', speaking: 'assets/personas/snow-head-v2-speaking.png', rounded: 'assets/personas/snow-head-v2-o.png', mouth: '#4a1820', lip: '#b84e58', lid: '#f0c0aa', mouthY: .22, eyeY: .015, eyeX: .132, proceduralMouth: false },
-  rowan: { image: 'assets/personas/advit-head-reference.png', mouth: '#31140e', lip: '#7b3d37', lid: '#4a281e', mouthY: .323 }
+  rowan: { image: 'assets/personas/advit-head-reference.png', mouth: '#31140e', lip: '#7b3d37', lid: '#4a281e', mouthY: .247 }
 });
 
 // The host is deliberately a face cutout, not a conventional character avatar.
@@ -30,6 +32,9 @@ export class FaceHost {
     this.ready = false;
     this.speakingReady = false;
     this.roundedReady = false;
+    this.speakingPatch = null;
+    this.roundedPatch = null;
+    this.fallbackMouthPatch = null; this.features = null;
     this.viseme = 'rest';
     this.poseBlend = { AA: 0, O: 0 };
     this.performance = { turn: 0, nod: 0, lean: 0 };
@@ -38,12 +43,14 @@ export class FaceHost {
     this.blendshapes = {};
     this.gaze = { x: 0, y: 0, confidence: 0 };
     this.viewer = { x: 0, y: 0 };
+    this.lastIdleSignature = null; this.drawCount = 0; this.quality='auto';this.lastElapsed=null;this.gazeSmooth={x:0,y:0};
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.setPersona(this.persona);
   }
 
   setPersona(persona) {
+    this.lastIdleSignature = null;
     this.persona = HEADS[persona] ? persona : 'velora';
     this.ready = false;
     this.image = new Image();
@@ -51,15 +58,27 @@ export class FaceHost {
     this.roundedImage = new Image();
     this.speakingReady = false;
     this.roundedReady = false;
+    this.speakingPatch = null;
+    this.roundedPatch = null;
+    this.fallbackMouthPatch = null; this.features = null;
     this.poseBlend = { AA: 0, O: 0 };
-    this.image.onload = () => { this.ready = true; this.draw(0); };
+    const neutral = this.image;
+    this.image.onload = () => {
+      if (this.image !== neutral) return;
+      if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
+      this.features = new FaceFeatures(neutral, HEADS[this.persona]);this.features.detail=displayProfile(this.quality).featureDetail;
+      this.ready = true;
+      this.draw(0);
+    };
     this.image.src = HEADS[this.persona].image;
     if (HEADS[this.persona].speaking) {
-      this.speakingImage.onload = () => { this.speakingReady = true; };
+      const speaking = this.speakingImage;
+      this.speakingImage.onload = () => { if (this.speakingImage !== speaking) return; this.speakingPatch = createMouthPatch(speaking, HEADS[this.persona]); this.speakingReady = true; };
       this.speakingImage.src = HEADS[this.persona].speaking;
     }
     if (HEADS[this.persona].rounded) {
-      this.roundedImage.onload = () => { this.roundedReady = true; };
+      const rounded = this.roundedImage;
+      this.roundedImage.onload = () => { if (this.roundedImage !== rounded) return; this.roundedPatch = createMouthPatch(rounded, HEADS[this.persona]); this.roundedReady = true; };
       this.roundedImage.src = HEADS[this.persona].rounded;
     }
   }
@@ -81,43 +100,59 @@ export class FaceHost {
     };
   }
 
+  setQuality(id) { this.quality=id;if(this.features)this.features.detail=displayProfile(id).featureDetail;this.resize(); }
+
   resize() {
+    this.lastIdleSignature = null;
     // The source art is ~1.2K; retain it for close viewing on the TV while
     // keeping the host canvas bounded on high-density desktop previews.
-    // Render the portrait at higher backing resolution on 1080p signage too;
-    // the source art has enough detail to benefit even when display DPR is 1.
-    const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 3);
+    const profile=displayProfile(this.quality);
     const width = Math.max(1, this.host.clientWidth);
     const height = Math.max(1, this.host.clientHeight);
-    this.canvas.width = Math.round(width * dpr);
-    this.canvas.height = Math.round(height * dpr);
+    const surface=boundedSurface(width,height,window.devicePixelRatio||1,profile.avatarPixels,profile.avatarDpr);
+    this.canvas.width=surface.width;this.canvas.height=surface.height;
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.ctx.setTransform(this.canvas.width/width, 0, 0, this.canvas.height/height, 0, 0);
+    // Resizing resets canvas state, including the high-quality sampler.
+    this.ctx.imageSmoothingEnabled = true;
+    this.ctx.imageSmoothingQuality = 'high';
     this.width = width;
     this.height = height;
   }
 
-  update(elapsed, dt = 1 / 60) { this.draw(elapsed, dt); }
+  update(elapsed) { this.draw(elapsed); }
 
-  draw(elapsed, dt = 1 / 60) {
+  draw(elapsed) {
     const { ctx, width: w, height: h } = this;
     if (!ctx || !w || !h) return;
+    const dt=this.lastElapsed==null?1/30:Math.min(.06,Math.max(.001,elapsed-this.lastElapsed));this.lastElapsed=elapsed;
+    this.gazeSmooth ||= {x:0,y:0};const gazeTarget={x:(this.gaze.x||0)*(this.gaze.confidence||0),y:(this.gaze.y||0)*(this.gaze.confidence||0)};
+    const gazeAlpha=1-Math.exp(-dt*22);for(const key of ['x','y'])this.gazeSmooth[key]+=(gazeTarget[key]-this.gazeSmooth[key])*gazeAlpha;
+    if (!this.ready) {
+      if (this.lastIdleSignature !== 'loading') { ctx.clearRect(0, 0, w, h); this.canvas._mirrorRevision = ++this.drawCount; this.lastIdleSignature = 'loading'; }
+      return;
+    }
+    // The poised resting performer has no idle bounce. Repainting identical
+    // pixels forces costly full-window composition on software graphics.
+    const settled = this.speech < .001 && (this.blendshapes.jawOpen || 0) < .01 && this.poseBlend.AA < .001 && this.poseBlend.O < .001
+      && ['turn','nod','lean'].every(key => Math.abs(this.performanceSmooth[key] - this.performance[key]) < .0005);
+    const stable = value => Number.isFinite(value) ? Number(value.toFixed(4)) : 0;
+    const signature = settled ? [this.persona, w, h, this.speakingReady, this.roundedReady, this.viseme,
+      ...Object.entries(this.blendshapes).flatMap(([key,value]) => [key, typeof value === 'number' ? Math.abs(value) < .001 ? 0 : stable(value) : value]), stable(this.gaze.x), stable(this.gaze.y), stable(this.gaze.confidence), stable(this.viewer.x), stable(this.viewer.y),stable(this.gazeSmooth.x),stable(this.gazeSmooth.y),
+      ...Object.values(this.performanceSmooth).map(value => value.toFixed(4))].join(':') : null;
+    if (settled && signature === this.lastIdleSignature) return;
+    this.lastIdleSignature = signature;
     ctx.clearRect(0, 0, w, h);
-    if (!this.ready) return;
-    const spec = HEADS[this.persona];
-    // Fit using the source image's real aspect ratio. Treat `base` as height
-    // so the face and all feature coordinates stay aligned to the artwork.
-    const aspect = this.image.naturalWidth / this.image.naturalHeight;
-    const base = Math.min(h, w / aspect) * .98;
-    const faceWidth = base * aspect;
+    this.canvas._mirrorRevision = ++this.drawCount;
+    const aspect=(this.image.naturalHeight||1)/(this.image.naturalWidth||1);
+    const base = Math.min(w, h/aspect) * 1.02,headHeight=base*aspect;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.
-    const motionAlpha = 1 - Math.exp(-Math.max(0, dt) * 8);
-    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * motionAlpha;
+    for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * (1-Math.exp(-dt*4.2));
     const bob = this.performanceSmooth.nod * h * .032;
-    const gazeX = (this.gaze.x || 0) * (this.gaze.confidence || 0) * w * .006;
-    const gazeY = (this.gaze.y || 0) * (this.gaze.confidence || 0) * h * .004;
+    const gazeX = this.gazeSmooth.x * w * .006;
+    const gazeY = this.gazeSmooth.y * h * .004;
     ctx.save();
     const turn = Math.max(-1, Math.min(1, this.performanceSmooth.turn));
     ctx.translate(w / 2 + gazeX + turn * base * .038, h / 2 + bob + gazeY);
@@ -125,102 +160,120 @@ export class FaceHost {
     // without exposing a body or turning it into a flat sliding sticker.
     ctx.rotate((this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13);
     const jaw = Math.max(this.blendshapes.jawOpen || 0, this.speech);
-    const energy = Math.min(1, Math.max(0, jaw) * 1.6);
-    const targetO = ['O', 'OU'].includes(this.viseme) ? energy : 0;
-    const targetAA = targetO === 0 && jaw > .04 ? energy : 0;
+    const mouthStrength = Math.max(0, Math.min(1, jaw * 1.5));
+    const targetAA = this.viseme === 'AA' || this.viseme === 'EE' || (this.viseme === 'rest' && jaw > .12) ? mouthStrength : 0;
+    const targetO = ['O','OU'].includes(this.viseme) ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
-    const mouthAlpha = 1 - Math.exp(-Math.max(0, dt) * 20);
-    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * mouthAlpha;
-    this.poseBlend.O += (targetO - this.poseBlend.O) * mouthAlpha;
+    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * (1-Math.exp(-dt*6.7));
+    this.poseBlend.O += (targetO - this.poseBlend.O) * (1-Math.exp(-dt*6.7));
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));
     const rounded = Math.max(0, Math.min(1 - aa, this.poseBlend.O));
     // Do not squeeze the face to fake a turn. Width distortion is more
     // distracting than a stable front-on pose; real turns belong to the GLB.
-    ctx.drawImage(this.image, -faceWidth / 2, -base / 2, faceWidth, base);
+    ctx.drawImage(this.image, -base / 2, -headHeight / 2, base, headHeight);
     // Only the mouth region crossfades. Blending entire head renders changes
     // cheeks, eyes and hair simultaneously, which reads as a melting face.
-    const mouthY = base * (spec.mouthY ?? .323);
+    const spec = HEADS[this.persona];
+    const mouthY = headHeight * (spec.mouthY ?? .323);
     if ((this.speakingReady && aa > .015) || (this.roundedReady && rounded > .015)) {
       ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(0, mouthY, faceWidth * .16, base * .082, 0, 0, Math.PI * 2);
-      ctx.clip();
-      if (this.speakingReady && aa > .015) {
+      if (this.speakingPatch && aa > .015) {
         ctx.globalAlpha = aa;
-        ctx.drawImage(this.speakingImage, -faceWidth / 2, -base / 2, faceWidth, base);
+        ctx.drawImage(this.speakingPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
       }
-      if (this.roundedReady && rounded > .015) {
+      if (this.roundedPatch && rounded > .015) {
         ctx.globalAlpha = rounded;
-        ctx.drawImage(this.roundedImage, -faceWidth / 2, -base / 2, faceWidth, base);
+        ctx.drawImage(this.roundedPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
       }
       ctx.restore();
     }
-    // Feature overlays use the same transformed coordinate system as the head.
     // Face proportions are held across the three deliberately front-on head
     // assets. The overlays sit inside existing features, so resting frames
     // retain the full-resolution art rather than a drawn approximation.
+    // Every feature follows the same head transform, including turn/lean.
+    // Screen-space lids and fallback mouths used to drift off the face.
     const cx = 0;
     const cy = 0;
-    // The expression bus supplies brief automatic or tracked blinks.
+    // Blinks come from the camera puppet. Avoid a timer-driven full eyelid
+    // overlay: it can freeze an otherwise beautiful still frame mid-blink.
     const lid = Math.max(this.blendshapes.eyeBlinkLeft || 0, this.blendshapes.eyeBlinkRight || 0);
-    if (lid > .08) this.drawLids(ctx, cx, cy, faceWidth, base, lid);
-    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) this.drawMouth(ctx, cx, cy, faceWidth, base, jaw);
+    if (this.features) this.features.draw(ctx, base, this.blendshapes, {...this.gazeSmooth,confidence:1}, jaw,headHeight);
+    else if (lid > .08) {ctx.save();ctx.scale(1,aspect);this.drawLids(ctx,cx,cy,base,lid);ctx.restore();}
+    if (spec.proceduralMouth !== false && jaw > .055 && !this.speakingReady && !this.roundedReady) {ctx.save();ctx.scale(1,aspect);this.drawMouth(ctx,cx,cy,base,jaw);ctx.restore();}
     // The generated hosts already contain sculpted brows. Drawing a second
     // eyebrow layer on top produces a visible double-brow artifact; reserve
     // the procedural fallback for the unstyled reference host only.
-    if (this.persona === 'rowan') this.drawBrows(ctx, cx, cy, faceWidth, base);
+    if (!this.features && this.persona === 'rowan') this.drawBrows(ctx, cx, cy, base);
     ctx.restore();
+    // The soft glass glow shares the texture's actual facial center and all
+    // layout moves; it never uses an unrelated world-space ring position.
+    const faceCenter = ((spec.eyeY ?? .06) + (spec.mouthY ?? .23)) * .5;
+    const angle = (this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13;
+    const anchorX = w / 2 + gazeX + turn * base * .038 - Math.sin(angle) * headHeight * faceCenter;
+    const anchorY = h / 2 + bob + gazeY + Math.cos(angle) * headHeight * faceCenter;
+    this.faceAnchor = { x: anchorX, y: anchorY, size: base };
+    this.host?.style?.setProperty('--face-center-x', anchorX + 'px');
+    this.host?.style?.setProperty('--face-center-y', anchorY + 'px');
+    this.host?.style?.setProperty('--face-glow-size', base * 1.45 + 'px');
   }
 
-  drawLids(ctx, cx, cy, width, height, amount) {
+  drawLids(ctx, cx, cy, size, amount) {
     const spec = HEADS[this.persona];
-    const y = cy + height * (spec.eyeY ?? .06);
-    const lidHeight = height * .040 * Math.min(1, amount);
-    const halfWidth = width * .082;
+    const y = cy + size * (spec.eyeY ?? .06);
+    const height = size * .040 * Math.min(1, amount);
+    const halfWidth = size * .082;
     ctx.save();
     ctx.fillStyle = spec.lid;
     ctx.globalAlpha = Math.min(.96, amount * 1.08);
-    for (const x of [cx - width * (spec.eyeX ?? .135), cx + width * (spec.eyeX ?? .135)]) {
+    for (const x of [cx - size * (spec.eyeX ?? .135), cx + size * (spec.eyeX ?? .135)]) {
       ctx.beginPath();
       // Match the eye's almond footprint; a small skin-colored ellipse located
       // at the actual landmarks reads as a closing lid rather than a sticker.
-      ctx.ellipse(x, y, halfWidth, lidHeight, 0, 0, Math.PI * 2);
+      ctx.ellipse(x, y, halfWidth, height, 0, 0, Math.PI * 2);
       ctx.fill();
       if (amount > .55) {
         ctx.globalAlpha = (amount - .55) * .7;
-        ctx.strokeStyle = '#36232a'; ctx.lineWidth = Math.max(1, height * .006); ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x - halfWidth * .72, y); ctx.quadraticCurveTo(x, y + height * .009, x + halfWidth * .72, y); ctx.stroke();
+        ctx.strokeStyle = '#36232a'; ctx.lineWidth = Math.max(1, size * .006); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x - halfWidth * .72, y); ctx.quadraticCurveTo(x, y + size * .009, x + halfWidth * .72, y); ctx.stroke();
         ctx.globalAlpha = Math.min(.96, amount * 1.08);
       }
     }
     ctx.restore();
   }
 
-  drawMouth(ctx, cx, cy, width, height, amount) {
+  drawMouth(ctx, cx, cy, size, amount) {
     const spec = HEADS[this.persona];
+    if (this.fallbackMouthPatch) {
+      // The reference already has detailed teeth and lips. Keep that painted
+      // mouth as one soft-edged layer; an additional dark oval reads as a
+      // second mouth, even when its center is correctly aligned.
+      const stretch = 1 + Math.min(1, amount) * .28;
+      ctx.drawImage(this.fallbackMouthPatch, cx - size * .11, cy + size * (spec.mouthY - .05), size * .22, size * .10 * stretch);
+      return;
+    }
     const round = Math.max(this.blendshapes.mouthFunnel || 0, this.blendshapes.mouthPucker || 0);
     const smile = Math.max(this.blendshapes.mouthSmileLeft || 0, this.blendshapes.mouthSmileRight || 0);
     // Keep the cavity comfortably inside the painted lips. A large dark oval
     // reads as a sticker on a clean emoji face; short, narrow openings preserve
     // the designed lip silhouette while still communicating speech.
-    const openness = height * (.003 + amount * .018);
-    const y = cy + height * (spec.mouthY ?? .323);
+    const openness = size * (.003 + amount * .018);
+    const y = cy + size * (spec.mouthY ?? .323);
     ctx.save();
     ctx.fillStyle = spec.mouth;
     ctx.beginPath();
-    ctx.ellipse(cx, y, width * (round > .25 ? .026 : .038 + amount * .003), openness, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, y, size * (round > .25 ? .026 : .038 + amount * .003), openness, 0, 0, Math.PI * 2);
     ctx.fill();
     if (amount > .38) {
       ctx.fillStyle = 'rgba(255,191,191,.72)';
       ctx.beginPath();
-      ctx.ellipse(cx, y + openness * .35, width * .028, openness * .18, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, y + openness * .35, size * .028, openness * .18, 0, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
   }
 
-  drawBrows(ctx, cx, cy, width, height) {
+  drawBrows(ctx, cx, cy, size) {
     const left = this.blendshapes.browInnerUp || 0;
     const right = this.blendshapes.browOuterUpRight || 0;
     const lift = Math.max(left, right);
@@ -228,15 +281,39 @@ export class FaceHost {
     ctx.save();
     ctx.globalAlpha = Math.min(.28, lift * .3);
     ctx.strokeStyle = this.persona === 'rowan' ? '#25150f' : '#2a1622';
-    ctx.lineWidth = Math.max(1.5, height * .009);
+    ctx.lineWidth = Math.max(1.5, size * .009);
     ctx.lineCap = 'round';
-    const y = cy + height * .012 - lift * height * .028;
+    const y = cy + size * .012 - lift * size * .028;
     for (const direction of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(cx + direction * width * .055, y + height * .014);
-      ctx.quadraticCurveTo(cx + direction * width * .14, y - height * .026, cx + direction * width * .205, y + height * .006);
+      ctx.moveTo(cx + direction * size * .055, y + size * .014);
+      ctx.quadraticCurveTo(cx + direction * size * .14, y - size * .026, cx + direction * size * .205, y + size * .006);
       ctx.stroke();
     }
     ctx.restore();
   }
+}
+
+function createMouthPatch(image, spec) {
+  // Blend only the lips and their immediate edge. A large hard ellipse exposed
+  // the older speaking art's cheek/nose lighting as a conspicuous face patch.
+  // The feathered crop is cached when the image loads, never per frame.
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+  const patch = document.createElement('canvas');
+  patch.width = Math.ceil(width * .22);
+  patch.height = Math.ceil(height * .10);
+  const context = patch.getContext('2d');
+  context.drawImage(image, width * .39, height * (.5 + spec.mouthY - .05), width * .22, height * .10,
+    0, 0, patch.width, patch.height);
+  context.globalCompositeOperation = 'destination-in';
+  context.translate(patch.width / 2, patch.height / 2);
+  context.scale(patch.width / 2, patch.height / 2);
+  const mask = context.createRadialGradient(0, 0, 0, 0, 0, 1);
+  mask.addColorStop(0, '#fff');
+  mask.addColorStop(.68, '#fff');
+  mask.addColorStop(1, 'rgba(255,255,255,0)');
+  context.fillStyle = mask;
+  context.fillRect(-1, -1, 2, 2);
+  return patch;
 }

@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-09T11:59:34.305Z",
+  "passed": true,
+  "archiveSha256": "21372784d348c548499100e374d202707409784ceb432cd9a55e8e703115fec8",
+  "scope": "Packaged Linux app, synthetic Codex stdio server and delayed screenshot. Actual Stop/mute buttons and IPC; no real voice/physical sensors/Windows.",
+  "checks": [
+    "visible Stop while agent runs",
+    "Stop kills and resolves task",
+    "late screenshot discarded",
+    "hard mute kills task",
+    "hard mute rejects new task",
+    "no late input or renderer errors",
+    "actual HTTP browser load cancelled by Stop",
+    "late page never shown",
+    "superseded load cannot close successor",
+    "Stop preserves previously visible browser",
+    "mode button cancels agent and retains requested view",
+    "AR swipe cancels agent and opens wardrobe",
+    "Return cancels agent and closes actual browser",
+    "unsupported launcher choice retires agent before error path",
+    "rapid service/mode prevents late launch and error",
+    "latest of two mode clicks wins",
+    "agent mode callback remains active until explicit Stop",
+    "immediate replacement task survives old run cancellation and retains its new observation"
+  ]
+}

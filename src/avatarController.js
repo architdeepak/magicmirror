@@ -1,20 +1,26 @@
 import { TalkingHead } from 'talkinghead';
+import { createOutputVisemeDetector } from './speechVisemeDetector.mjs';
+import { AvatarPresence } from './avatarPresence.js';
 import { FaceHost } from './faceHost.js';
 import { RigFaceHost } from './rigFaceHost.js';
 import { ExpressionMixer } from './expressionMixer.js';
 import { AvatarVideoHost } from './avatarVideoHost.js';
-import { AvatarPresence } from './avatarPresence.js';
-import { MemojiFaceHost } from './memojiFaceHost.js';
 
 export class AvatarController {
-  constructor({ host, onStatus }) {
-    this.host = host;
+  constructor({ host, onStatus, softwareGraphics=false }) {
+    this.host = host;this.softwareGraphics=softwareGraphics;
     this.onStatus = onStatus || (() => {});
     this.head = null;
     this.armature = null;
     this.morphMeshes = [];
     this.speechLevel = 0;
     this.streaming = false;
+    this.audioStreamGeneration = 0;
+    this.audioTransition = Promise.resolve();
+    this.audioStreamStart = null;
+    this.audioSuspend = Promise.resolve();
+    this.playbackMeter = null;
+    this.onPlaybackState = () => {};
     this.visible = true;
     this.displayMode = 'portal';
     this.depthEnabled = false;
@@ -24,29 +30,25 @@ export class AvatarController {
     this.faceBlendshapes = {};
     this.smoothedBlendshapes = {};
     this.eyeGaze = { x: 0, y: 0, confidence: 0 };
+    this.gazeOverride = null;
     this.viseme = 'rest';
     this.performance = { turn: 0, nod: 0, lean: 0 };
     this.expression = {};
     this.expressionMixer = new ExpressionMixer();
+    this.presence = new AvatarPresence();
     this.fallbackRigUrl = 'assets/avatar.glb';
     this.loadedRigUrl = null;
     this.lastRigError = null;
+    this.quality='auto';
     this.faceHost = null;
     this.rigHost = null;
+    this.renderStyle = 'portrait';this.styleGeneration=0;this.onSurfaceChange=()=>{};
     this.videoHost = null;
-    this.presence = new AvatarPresence();
-    this.visualStyle = localStorage.getItem('mirror.avatar-style') === 'memoji' ? 'memoji' : 'portrait';
-    this.audioPending = false;
-    this.audioSamples = null;
   }
 
   async init(url = 'assets/avatar.glb') {
     this.fallbackRigUrl = url;
     this.onStatus('Loading 3D oracle…');
-    this.faceHost = new FaceHost(this.host);
-    this.memojiHost = new MemojiFaceHost(this.host);
-    this.videoHost = new AvatarVideoHost(this.host);
-    this._syncAvatarSourceVisibility();
     try {
       this.head = new TalkingHead(this.host, {
         cameraView: 'head',
@@ -77,28 +79,36 @@ export class AvatarController {
         lightSpotDispersion: 1.1
       });
 
-      this.host.querySelectorAll('canvas:not(.face-host-canvas)').forEach((canvas) => { canvas.style.display = 'none'; });
-
-      await this._showRig(url);
+      // The hidden player must not queue an autoplay resume during model load.
+      // Its public animation loop starts only after an owned audio setup.
+      const startAnimation = this.head.start;
+      this.head.start = () => {};
+      try { await this._showRig(url); }
+      finally { this.head.start = startAnimation; }
       // TalkingHead stays mounted solely as the proven low-latency PCM player.
       // The visible performer is our face-only host below; hide every generic
       // canvas before first paint so a body can never flash on the mirror.
-      this.host.querySelectorAll('canvas:not(.face-host-canvas)').forEach((canvas) => { canvas.style.display = 'none'; });
-      this.rigHost = new RigFaceHost(this.host);
-      this.rigHost.setPersona(this.persona)
-        // Keep the experimental GLB renderer staged until its crop, materials,
-        // and persona art meet the face-only presentation bar. A rig must never
-        // replace the polished host merely because it happened to load.
-        .then(() => { this.rigHost.canvas.style.display = 'none'; })
-        .catch((error) => console.warn('[avatar] rig fallback', error));
+      this.host.querySelectorAll('canvas').forEach((canvas) => { canvas.style.display = 'none'; });
+      // This renderer is never presented: TalkingHead owns PCM/viseme timing,
+      // while FaceHost owns the visible performer. Avoid drawing an invisible
+      // full GLB on every audio animation tick. Keep its audio clock intact.
+      this.head.renderer.render = () => {};
+      const aura = document.createElement('div'); aura.className = 'host-aura'; aura.setAttribute('aria-hidden','true'); this.host.append(aura);
+      this.faceHost = new FaceHost(this.host);this.faceHost.setQuality(this.quality);
+      this.videoHost = new AvatarVideoHost(this.host);
+      // Experimental rig previews are explicitly created by their preview
+      // tool. Normal use needs neither its WebGL context nor its model loads.
       this.head.setView('head', { cameraDistance: 0.32, cameraY: -0.035 });
       this.armature = this.head.armature;
       this._collectMorphMeshes();
+      await this.stopAudioStream();
       this.onStatus('Oracle ready');
       return true;
     } catch (error) {
       console.warn('[avatar] TalkingHead could not load this GLB:', error);
-      this.onStatus('Local character ready; voice engine unavailable');
+      await this.stopAudioStream();
+      this.host.innerHTML = '<div class="fallback-presence"><i></i><b>✦</b></div>';
+      this.onStatus('Magical fallback ready');
       return false;
     }
   }
@@ -115,6 +125,30 @@ export class AvatarController {
     });
     this.loadedRigUrl = url;
   }
+
+  async ensureRigHost() {
+    if (!this.rigHost) {
+      this.rigHost = new RigFaceHost(this.host,{softwareGraphics:this.softwareGraphics,onFailure:error=>{
+        const failed=this.rigHost;this.rigHost=null;failed?.dispose();this.lastRigError=error.message;this.renderStyle='portrait';this._syncAvatarSourceVisibility();this.onStyleFallback?.(error.message);
+      }});
+      this.rigHost.setQuality(this.quality);
+    }
+    await this.rigHost.setPersona(this.persona);
+    return this.rigHost;
+  }
+
+  async setRenderStyle(style) {
+    const generation=++this.styleGeneration;
+    this.renderStyle=style==='rig'?'rig':'portrait';
+    if(this.renderStyle==='rig') {
+      try { const loading=this.ensureRigHost();this._syncAvatarSourceVisibility();await loading; }
+      catch(error) { if(generation!==this.styleGeneration)return false;this.lastRigError=error.message;this.renderStyle='portrait';this.onStyleFallback?.(error.message); }
+    }
+    if(generation!==this.styleGeneration)return false;
+    this._syncAvatarSourceVisibility();return this.renderStyle===style;
+  }
+
+  getVisibleCanvas() { if(this.videoHost?.active)return null;return this.renderStyle==='rig'&&this.rigHost?.ready?this.rigHost.canvas:this.faceHost?.canvas; }
 
   _collectMorphMeshes() {
     this.morphMeshes = [];
@@ -136,7 +170,6 @@ export class AvatarController {
 
   setDepthEnabled(enabled) {
     this.depthEnabled = Boolean(enabled);
-    if (this.faceHost?.canvas) this.faceHost.canvas.style.opacity = this.depthEnabled ? '.001' : '1';
     this._syncAvatarSourceVisibility();
   }
 
@@ -148,10 +181,8 @@ export class AvatarController {
     const moods = { velora: 'neutral', solenne: 'happy', rowan: 'neutral' };
     this.setMood(moods[this.persona]);
     this.faceHost?.setPersona(this.persona);
-    this.memojiHost?.setPersona(this.persona);
-    this.rigHost?.setPersona(this.persona)
-      .then(() => { this.rigHost.canvas.style.display = 'none'; })
-      .catch((error) => console.warn('[avatar] rig fallback', error));
+    if(this.renderStyle==='rig') await this.setRenderStyle('rig');
+    else this._syncAvatarSourceVisibility();
   }
 
   setFacePuppetEnabled(enabled) {
@@ -170,11 +201,17 @@ export class AvatarController {
     this.eyeGaze = gaze || { x: 0, y: 0, confidence: 0 };
   }
 
+  setGazeOverride(gaze) { this.gazeOverride = gaze ? { x: clamp(Number(gaze.x) || 0,-1,1), y: clamp(Number(gaze.y) || 0,-1,1), confidence: 1 } : null; }
+
   setSpeechLevel(level) { this.speechLevel = Math.min(1, Math.max(0, level)); }
 
   setViseme(viseme) { this.viseme = viseme || 'rest'; }
 
   setPerformance(performance) { this.performance = performance || { turn: 0, nod: 0, lean: 0 }; }
+
+  setQuality(id) { this.quality=id;this.faceHost?.setQuality(id);this.rigHost?.setQuality(id); }
+
+  setActivity(activity) { this.presence.setActivity(activity); }
 
   setExpression(expression = {}) { this.expression = expression || {}; }
 
@@ -201,22 +238,10 @@ export class AvatarController {
   }
 
   _syncAvatarSourceVisibility() {
-    const streaming = Boolean(this.videoHost?.active);
-    const memoji = this.visualStyle === 'memoji' && !this.depthEnabled;
-    if (this.faceHost?.canvas) this.faceHost.canvas.style.display = streaming || memoji ? 'none' : 'block';
-    if (this.memojiHost?.svg) this.memojiHost.svg.style.display = !streaming && memoji ? 'block' : 'none';
-    if (this.rigHost?.canvas) this.rigHost.canvas.style.display = 'none';
-  }
-
-  setConversationState(state) {
-    this.presence.setState(state);
-    this.host.dataset.conversationState = state;
-  }
-
-  setVisualStyle(style) {
-    this.visualStyle = style === 'memoji' ? 'memoji' : 'portrait';
-    localStorage.setItem('mirror.avatar-style', this.visualStyle);
-    this._syncAvatarSourceVisibility();
+    const streaming=Boolean(this.videoHost?.active),rig=this.renderStyle==='rig'&&this.rigHost?.ready;
+    if(this.faceHost?.canvas){this.faceHost.canvas.style.display=streaming||rig?'none':'block';this.faceHost.canvas.style.opacity=this.depthEnabled?'.001':'1';}
+    if(this.rigHost?.canvas){this.rigHost.canvas.style.display=!streaming&&rig?'block':'none';this.rigHost.canvas.style.opacity=this.depthEnabled?'.001':'1';}
+    this.onSurfaceChange(this.getVisibleCanvas());
   }
 
   setMood(mood) {
@@ -226,39 +251,135 @@ export class AvatarController {
 
   async startAudioStream() {
     if (!this.head || this.streaming) return;
-    try {
-      // Gemini Live returns signed 16-bit little-endian PCM at 24 kHz. TalkingHead
-      // otherwise inherits the device's usual 48 kHz context, which plays the
-      // stream at double speed and raises the voice by an octave.
-      await this.head.streamStart({
-        sampleRate: 24000,
-        gain: 0.9,
-        lipsyncType: 'visemes',
-        waitForAudioChunks: true
-      }, () => this.onAudioPlaybackStart?.(), () => {
-        this.audioPending = false;
-        this.resetSpeech();
-        this.onAudioPlaybackEnd?.();
-      });
-      this.streaming = true;
-    } catch (error) {
-      console.warn('[avatar] audio stream unavailable', error);
+    if (this.audioStreamStart?.generation === this.audioStreamGeneration) return this.audioStreamStart.promise;
+    const head = this.head, generation = ++this.audioStreamGeneration;
+    // Serialize asynchronous worklet setup with subsequent starts. Stop still
+    // disconnects synchronously; its epoch also rejects a late setup result.
+    const promise = this.audioTransition.catch(() => {}).then(async () => {
+      await this.audioSuspend;
+      if (generation !== this.audioStreamGeneration || head !== this.head) return;
+      try {
+        await head.streamStart({ sampleRate: 24000, gain: 0.9,
+          lipsyncType: 'visemes', waitForAudioChunks: true },
+          () => this.playbackStarted(head.audioStreamGainNode),
+          () => this.finishPlayback(head.audioStreamGainNode));
+        if (generation !== this.audioStreamGeneration || head !== this.head) {
+          await this._parkAudioStream(head);
+          return;
+        }
+        this.streaming = true;
+        this.attachPlaybackNode(head.audioStreamGainNode);
+        head.start?.();
+      } catch (error) {
+        this.streaming = false;
+        this.attachPlaybackNode(null);
+        await this._parkAudioStream(head);
+        console.warn('[avatar] audio stream unavailable', error);
+      }
+    });
+    this.audioTransition = promise;
+    this.audioStreamStart = { generation, promise };
+    try { await promise; }
+    finally { if (this.audioStreamStart?.promise === promise) this.audioStreamStart = null; }
+  }
+
+  _parkAudioStream(head) {
+    const worklet = head?.streamWorkletNode;
+    try { head?.streamStop?.(); } catch (error) { console.debug('[avatar] stream stop', error.message); }
+    // Retire the old port so queued events cannot touch a later session.
+    if (worklet?.port) { worklet.port.onmessage = null; try { worklet.port.close(); } catch {} }
+    const context = head?.audioCtx;
+    if (context && context.state !== 'closed') { try { head.stop?.(); } catch {} }
+    // Explicit suspension also owns a context initially blocked by autoplay;
+    // a later user gesture must not silently start this idle graph.
+    if (context && context.state !== 'closed') {
+      try { return context.suspend().catch(() => {}); } catch { /* Device/context already closed. */ }
     }
+    return Promise.resolve();
+  }
+
+  stopAudioStream() {
+    this.audioStreamGeneration += 1;
+    this.interrupt();
+    this.streaming = false;
+    this.attachPlaybackNode(null);
+    this.audioSuspend = this._parkAudioStream(this.head);
+    return this.audioSuspend;
+  }
+
+  // Observe only the assistant's playback bus. Network arrival, microphone,
+  // Spotify and desktop audio do not own the visible speech channels.
+  attachPlaybackNode(node) {
+    const previous=this.playbackMeter;
+    if(previous){this._retirePlaybackVisemes(previous);try{previous.node.disconnect(previous.analyser);}catch{}previous.analyser.disconnect();}
+    this.playbackMeter=null;
+    if(!node?.context?.createAnalyser)return;
+    const analyser=node.context.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=0;
+    node.connect(analyser); // Analyser output may remain unconnected (Web Audio).
+    this.playbackMeter={node,analyser,samples:new Float32Array(analyser.fftSize),enabled:false,accepting:false,level:0,viseme:'rest',detector:null,detectorGeneration:0,detectorStarting:false,detectorStatus:'idle',detected:null};
+  }
+
+  beginPlayback() { if(this.playbackMeter){this.playbackMeter.enabled=true;this.playbackMeter.accepting=true;this._startPlaybackVisemes(this.playbackMeter);} }
+
+  _retirePlaybackVisemes(meter){
+    meter.detectorGeneration++;meter.detector?.retire();meter.detector=null;meter.detectorStarting=false;meter.detected=null;meter.detectorStatus='idle';
+  }
+
+  _startPlaybackVisemes(meter){
+    if(!meter.node.context.audioWorklet||meter.detector||meter.detectorStarting||meter.detectorStatus==='unavailable')return;
+    const generation=++meter.detectorGeneration;
+    const current=()=>this.playbackMeter===meter&&meter.detectorGeneration===generation&&meter.enabled&&meter.accepting;
+    meter.detectorStarting=true;meter.detectorStatus='loading';
+    createOutputVisemeDetector(meter.node,{current,onResult:result=>{if(current())meter.detected=result?{...result,at:performance.now()}:null;},onError:()=>{if(current()){meter.detector=null;meter.detected=null;meter.detectorStatus='unavailable';}}}).then(detector=>{
+      if(!current()){detector?.retire();return;}meter.detector=detector;meter.detectorStarting=false;meter.detectorStatus=detector?'ready':'unavailable';
+    }).catch(error=>{if(current()){meter.detectorStarting=false;meter.detectorStatus='unavailable';console.debug('[avatar] local mouth shapes unavailable',error.message);}});
+  }
+
+  playbackStarted(node) {
+    if(!this.playbackMeter||this.playbackMeter.node!==node||!this.playbackMeter.accepting)return;
+    this.playbackMeter.enabled=true;this.onPlaybackState(true);
+  }
+
+  finishPlayback(node) {
+    if(!this.playbackMeter||this.playbackMeter.node!==node)return;
+    this._retirePlaybackVisemes(this.playbackMeter);
+    this.playbackMeter.enabled=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';
+    this.setSpeechLevel(0);this.setViseme('rest');this.setPerformance({turn:0,nod:0,lean:0});
+    this.onPlaybackState(false);
+  }
+
+  getPlaybackStatus() {
+    const meter=this.playbackMeter;
+    return {source:meter?'output-waveform':'manual',enabled:meter?.enabled===true,level:meter?.level||0,viseme:meter?.viseme||'rest',windowSamples:meter?.samples.length||0,visemeModel:meter?.detectorStatus||'idle',predictedViseme:meter?.detected?.id??null,contextState:meter?.node.context.state||null};
+  }
+
+  _updatePlaybackSpeech(elapsed) {
+    const meter=this.playbackMeter;if(!meter)return;
+    let level=0,viseme='rest';
+    if(meter.enabled&&meter.node.context.state==='running'){
+      meter.analyser.getFloatTimeDomainData(meter.samples);
+      let sum=0,crossings=0;
+      for(let i=0;i<meter.samples.length;i++){const value=Number.isFinite(meter.samples[i])?meter.samples[i]:0;sum+=value*value;if(i&&((value<0&&meter.samples[i-1]>=0)||(value>=0&&meter.samples[i-1]<0)))crossings++;}
+      level=Math.min(1,Math.sqrt(sum/meter.samples.length)*4.2);
+      // Energy/zero crossings supply only broad vowel motion, not phonemes.
+      if(level>=.09){viseme=crossings/meter.samples.length<.105&&level>.18?'O':'AA';if(meter.detected&&performance.now()-meter.detected.at<150)viseme=meter.detected.shape;}
+    }
+    meter.level=level;meter.viseme=viseme;this.setSpeechLevel(level);this.setViseme(viseme);
+    this.setPerformance({turn:Math.sin(elapsed*1000/910)*Math.min(.24,level*.44),lean:Math.sin(elapsed*1000/1430)*Math.min(.14,level*.28),nod:Math.sin(elapsed*1000/330)*Math.min(.09,level*.18)});
   }
 
   pushPcm(pcm) {
     if (!this.head || !this.streaming) return;
-    this.audioPending = true;
+    this.beginPlayback();
     try { this.head.streamAudio({ audio: pcm }); } catch (error) { console.debug('[avatar] pcm', error.message); }
   }
 
   endAudioTurn() {
     if (!this.streaming) return;
     try { this.head?.streamNotifyEnd(); } catch (error) { console.debug('[avatar] end stream', error.message); }
-    if (!this.audioPending) this.resetSpeech();
-  }
-
-  resetSpeech() {
+    // A server turn can finish before its queued PCM has played. The output
+    // waveform owns closing the mouth after the audible tail.
+    if(this.playbackMeter?.enabled)return;
     this.setSpeechLevel(0);
     this.setViseme('rest');
     this.setPerformance({ turn: 0, nod: 0, lean: 0 });
@@ -266,37 +387,27 @@ export class AvatarController {
   }
 
   interrupt() {
-    this.audioPending = false;
-    if (this.streaming) {
-      try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
-    }
-    this.resetSpeech();
+    if(this.playbackMeter){this._retirePlaybackVisemes(this.playbackMeter);this.playbackMeter.enabled=false;this.playbackMeter.accepting=false;this.playbackMeter.level=0;this.playbackMeter.viseme='rest';}
+    try { this.head?.streamInterrupt(); } catch (error) { console.debug('[avatar] interrupt', error.message); }
+    this.setSpeechLevel(0);
+    this.setViseme('rest');
+    this.setPerformance({ turn: 0, nod: 0, lean: 0 });
+    this.setExpression({});
   }
 
   update(dt, elapsed, viewer) {
     if (!this.visible) return;
-    // Sample audible playback rather than network arrival bursts.
-    const analyser = this.audioPending && (this.streaming ? this.head?.audioAnalyzerNode : this.outputAnalyser);
-    if (analyser) {
-      if (this.audioSamples?.length !== analyser.fftSize) this.audioSamples = new Float32Array(analyser.fftSize);
-      analyser.getFloatTimeDomainData(this.audioSamples);
-      let sum = 0;
-      for (const value of this.audioSamples) sum += value * value;
-      this.speechLevel = Math.min(1, Math.sqrt(sum / this.audioSamples.length) * 4.2);
-    }
-    const presence = this.presence.update(dt, viewer, this.speechLevel);
-    const gaze = this.facePuppetEnabled ? this.eyeGaze : presence.gaze;
-    const performance = Object.fromEntries(['turn', 'nod', 'lean'].map((key) => [key, clamp((this.performance[key] || 0) + presence.performance[key], -1, 1)]));
+    this._updatePlaybackSpeech(elapsed);
     const offsetX = viewer.x * (this.depthEnabled ? -15 : -7);
     // Never add a perpetual idle bounce to a face-only host. It makes a still
     // frame look like a sticker and fights deliberate nods from the performer.
     const offsetY = viewer.y * (this.depthEnabled ? 8 : 4);
-    const modeScale = this.displayMode === 'ar' ? 0.58 : 1;
-    const modeX = this.displayMode === 'ar' ? window.innerWidth * 0.19 : 0;
-    const modeY = this.displayMode === 'ar' ? window.innerHeight * 0.2 : 0;
     const rotateY = this.depthEnabled ? viewer.x * -.9 : 0;
     const rotateX = this.depthEnabled ? viewer.y * .45 : 0;
-    this.host.style.transform = `perspective(1400px) translate3d(${modeX + offsetX}px, ${modeY + offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${modeScale})`;
+    // Layout owns the host's size and position, including its compact Try On
+    // corner. Window-relative mode offsets can push it over the viewer's body
+    // or outside a portrait display when the surrounding desktop is wider.
+    this.host.style.transform = `perspective(1400px) translate3d(${offsetX}px, ${offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
 
     if (this.head && elapsed - this.lastLookAt > 0.1) {
       this.lastLookAt = elapsed;
@@ -312,25 +423,32 @@ export class AvatarController {
         this.head.setValue('eyesRotateX', clamp(-viewer.y * .22 + gazeY, -.24, .28), 90);
       } catch (error) { /* avatar can still be settling during first frames */ }
     }
+    const presence = this.presence.update(elapsed, { reduced: this.host.closest('#app-shell')?.dataset.reducedMotion === 'true', trackedEyes: this.facePuppetEnabled && this.faceBlendshapes.eyeBlinkLeft != null });
+    const tracking = this.facePuppetEnabled ? { ...this.faceBlendshapes } : {};
+    // An explicit close request may accent the camera. It cannot reopen or
+    // erase a tracked blink; automatic blinks remain disabled for tracked eyes.
+    for (const key of ['eyeBlinkLeft','eyeBlinkRight']) if (this.expression[key] > 0) tracking[key] = Math.max(tracking[key] || 0,this.expression[key]);
     const expression = this.expressionMixer.update({
-      tracking: this.facePuppetEnabled ? this.faceBlendshapes : {},
+      tracking,
       manual: { ...presence.expression, ...this.expression },
       speech: this.speechLevel,
+      speechActive: this.playbackMeter?.enabled === true,
       viseme: this.viseme,
       dt
     });
     this.smoothedBlendshapes = expression;
     this._applyFacialMorphs(expression);
     if (!this.videoHost?.active) {
-      this.faceHost?.setFace(expression, gaze, this.speechLevel, viewer);
+      const gaze=this.gazeOverride || (this.eyeGaze.confidence > .15 ? this.eyeGaze : presence.gaze);
+      const acting={turn:(this.performance.turn||0)+(this.gazeOverride?this.gazeOverride.x*.12:presence.performance.turn),nod:(this.performance.nod||0)+presence.performance.nod,lean:(this.performance.lean||0)+presence.performance.lean};
+      if(this.renderStyle==='rig'&&this.rigHost?.ready){this.rigHost.update(expression,gaze,acting,dt,viewer);}else{
+      this.faceHost?.setFace(expression, this.gazeOverride || (this.eyeGaze.confidence > .15 ? this.eyeGaze : presence.gaze), this.speechLevel, viewer);
       this.faceHost?.setViseme(this.viseme);
-      this.faceHost?.setPerformance(performance);
-      this.faceHost?.update(elapsed, dt);
-      this.memojiHost?.setFace(expression, gaze, this.speechLevel, viewer);
-      this.memojiHost?.setPerformance(performance);
-      this.memojiHost?.update(elapsed, dt);
+      this.faceHost?.setPerformance({ turn: (this.performance.turn || 0) + (this.gazeOverride ? this.gazeOverride.x * .12 : presence.performance.turn), nod: (this.performance.nod || 0) + presence.performance.nod, lean: (this.performance.lean || 0) + presence.performance.lean });
+      this.faceHost?.update(elapsed);
+      }
     }
-    this.speechLevel *= Math.exp(-dt * 12);
+    this.speechLevel *= Math.exp(-Math.max(0,Number(dt)||0)*6);
   }
 
   _applyFacialMorphs(expression = {}) {

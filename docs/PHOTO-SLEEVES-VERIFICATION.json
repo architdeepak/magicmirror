@@ -1,0 +1,61 @@
+{
+  "scope": "Actual public garment photographs, synthetic body poses, finite canvas output and visual inspection; no fit accuracy validation.",
+  "pattern": {
+    "kind": "photo-short-sleeve",
+    "sides": [
+      {
+        "outer": {
+          "u": 0.23837209302325582,
+          "v": 0.08395061728395062
+        },
+        "inner": {
+          "u": 0.15988372093023256,
+          "v": 0.5728395061728395
+        },
+        "cuffOuter": {
+          "u": 0.020348837209302327,
+          "v": 0.43950617283950616
+        },
+        "cuffInner": {
+          "u": 0.020348837209302327,
+          "v": 0.5111111111111111
+        }
+      },
+      {
+        "outer": {
+          "u": 0.7354651162790697,
+          "v": 0.07160493827160494
+        },
+        "inner": {
+          "u": 0.813953488372093,
+          "v": 0.5728395061728395
+        },
+        "cuffOuter": {
+          "u": 0.9767441860465116,
+          "v": 0.43950617283950616
+        },
+        "cuffInner": {
+          "u": 0.9767441860465116,
+          "v": 0.5456790123456791
+        }
+      }
+    ],
+    "underarm": 0.5728395061728395,
+    "hem": 0.99
+  },
+  "longSleeveFallback": true,
+  "frames": [
+    {
+      "mode": "down",
+      "triangles": 240
+    },
+    {
+      "mode": "raised",
+      "triangles": 240
+    },
+    {
+      "mode": "crossed",
+      "triangles": 240
+    }
+  ]
+}

@@ -1,0 +1,560 @@
+{
+  "benchmarks": {
+    "lighting-before": {
+      "archiveSha256": "36d67965d49d0239e8841a51120e2e8a221c70f18e5654f42998320805b5f2ec",
+      "scope": "Actual packaged app, isolated profile, requested graphics path recorded and actual backend in snapshots, fixed 720x1280 DPR1.5 viewport and deterministic acting, camera/voice providers off. Process-tree CPU; renderer synchronous draw timings exclude asynchronous completion. Shared host, no physical Windows/wattage proof.",
+      "cases": [
+        {
+          "style": "portrait",
+          "activity": "settled",
+          "cpuPercent": 17.725627262514045,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.011
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 14.86570893191755,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.005
+        },
+        {
+          "style": "portrait",
+          "activity": "moving",
+          "cpuPercent": 106.04546590057457,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.006
+        },
+        {
+          "style": "rig",
+          "activity": "moving",
+          "cpuPercent": 737.9198401797977,
+          "submittedFrames": 167,
+          "submittedFramesPerSecond": 20.851542015232862,
+          "cpuMsPerSubmittedFrame": 353.89221556886224,
+          "seconds": 8.009
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 13.481462988390964,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.011
+        }
+      ]
+    },
+    "lighting-final": {
+      "archiveSha256": "3cc16ac06fc6634e49f125dfc0c3ac268ed319f3aaef8bd301474875ac5057cf",
+      "scope": "Actual packaged app, isolated profile, requested graphics path recorded and actual backend in snapshots, fixed 720x1280 DPR1.5 viewport and deterministic acting, camera/voice providers off. Process-tree CPU; renderer synchronous draw timings exclude asynchronous completion. Shared host, no physical Windows/wattage proof.",
+      "cases": [
+        {
+          "style": "portrait",
+          "activity": "settled",
+          "cpuPercent": 18.597104343484773,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.012
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 13.737979268140379,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.007
+        },
+        {
+          "style": "portrait",
+          "activity": "moving",
+          "cpuPercent": 123.50149850149852,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.008
+        },
+        {
+          "style": "rig",
+          "activity": "moving",
+          "cpuPercent": 476.83277132509056,
+          "submittedFrames": 175,
+          "submittedFramesPerSecond": 21.855876108405145,
+          "cpuMsPerSubmittedFrame": 218.17142857142858,
+          "seconds": 8.007
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 8.739076154806492,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.01
+        }
+      ]
+    },
+    "prepared-final": {
+      "archiveSha256": "3d37658f454be82ec588ecfab379167536ea539cd9a4a91dc8140a5c38837c0d",
+      "scope": "Actual packaged app, isolated profile, requested graphics path recorded and actual backend in snapshots, fixed 720x1280 DPR1.5 viewport and deterministic acting, camera/voice providers off. Process-tree CPU; renderer synchronous draw timings exclude asynchronous completion. Shared host, no physical Windows/wattage proof.",
+      "cases": [
+        {
+          "style": "portrait",
+          "activity": "settled",
+          "cpuPercent": 20.339406039430997,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.014
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 16.61046584238791,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.007
+        },
+        {
+          "style": "portrait",
+          "activity": "moving",
+          "cpuPercent": 113.65055576370676,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.007
+        },
+        {
+          "style": "rig",
+          "activity": "moving",
+          "cpuPercent": 500.06242976651265,
+          "submittedFrames": 183,
+          "submittedFramesPerSecond": 22.849294543638404,
+          "cpuMsPerSubmittedFrame": 218.85245901639345,
+          "seconds": 8.009
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 7.868115399025853,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.007
+        }
+      ]
+    },
+    "release-software": {
+      "archiveSha256": "3d7b1615ea923b91ddd7d4398474cf47cd0aeb09beece25aabf2acb8530fdc45",
+      "scope": "Actual packaged app, isolated profile, requested graphics path recorded and actual backend in snapshots, fixed 720x1280 DPR1.5 viewport and deterministic acting, camera/voice providers off. Process-tree CPU; renderer synchronous draw timings exclude asynchronous completion. Shared host, no physical Windows/wattage proof.",
+      "cases": [
+        {
+          "style": "portrait",
+          "activity": "settled",
+          "cpuPercent": 19.715497878712256,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.014
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 16.49175412293853,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.004
+        },
+        {
+          "style": "portrait",
+          "activity": "moving",
+          "cpuPercent": 106.86641697877653,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.01
+        },
+        {
+          "style": "rig",
+          "activity": "moving",
+          "cpuPercent": 492.13090182363226,
+          "submittedFrames": 180,
+          "submittedFramesPerSecond": 22.483137646764927,
+          "cpuMsPerSubmittedFrame": 218.88888888888889,
+          "seconds": 8.006
+        },
+        {
+          "style": "rig",
+          "activity": "settled",
+          "cpuPercent": 7.364873299213582,
+          "submittedFrames": 0,
+          "submittedFramesPerSecond": 0.0,
+          "cpuMsPerSubmittedFrame": null,
+          "seconds": 8.011
+        }
+      ]
+    }
+  },
+  "playback": {
+    "archiveSha256": "3d7b1615ea923b91ddd7d4398474cf47cd0aeb09beece25aabf2acb8530fdc45",
+    "rigSnapshot": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "preparationMs": 861.5999999046326,
+      "preparationDraws": 2,
+      "lighting": "phong",
+      "graphics": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+        "samples": 0
+      },
+      "antialiasing": "fxaa",
+      "resolution": [
+        475,
+        883
+      ],
+      "frames": 334,
+      "reuses": 72,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthRollLower",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 28814,
+      "drawCalls": 17
+    },
+    "diagnosticWarmAll": false,
+    "graphicsRequest": "software",
+    "graphics": {
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "samples": 0
+    },
+    "passed": true,
+    "checkedAt": "2026-10-09T06:33:16.378Z",
+    "speechReplay": null,
+    "scope": "Actual packaged Linux Electron, real TalkingHead worklet and Web Audio fallback. Deterministic synthetic PCM with queued silence/tone/gap/tail; real output waveform drives visible rig. No cloud provider, phoneme accuracy, physical speakers or acoustic/display latency proof.",
+    "results": [
+      {
+        "route": "stream",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 509.59999990463257,
+        "lastMs": 1607.7000000476837,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.540563186378664,
+        "tailJawMin": 0.1421725532501715,
+        "gapJawMax": 0.0014290141830442483,
+        "outputRmsBefore": 0.12928228634051786,
+        "outputRmsAfter": 0,
+        "outputContextAfter": "running",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5420559225284581,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "stopped": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        }
+      },
+      {
+        "route": "fallback",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 542.8999998569489,
+        "lastMs": 1632.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5845413976598909,
+        "tailJawMin": 0.10937052262872768,
+        "gapJawMax": 0.005450778909780914,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5845413976598909,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "stream",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 485.2000000476837,
+        "lastMs": 1584.1000001430511,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5260064712223769,
+        "tailJawMin": 0.13339427547409283,
+        "gapJawMax": 0.0014254393325639453,
+        "outputRmsBefore": 0.1266179283956467,
+        "outputRmsAfter": 0,
+        "outputContextAfter": "running",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5313765692079984,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "stopped": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        }
+      },
+      {
+        "route": "fallback",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 538,
+        "lastMs": 1616.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.584694544140459,
+        "tailJawMin": 0.14215214548890437,
+        "gapJawMax": 0.009624499202273783,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5958624695443654,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      },
+      {
+        "route": "stream",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 482.40000009536743,
+        "lastMs": 1584,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5260064712223769,
+        "tailJawMin": 0.1373976938970576,
+        "gapJawMax": 0.004556370916553575,
+        "outputRmsBefore": 0.1266179283956467,
+        "outputRmsAfter": 0,
+        "outputContextAfter": "running",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5421729816841022,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "stopped": {
+          "source": "output-waveform",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 512,
+          "contextState": "running"
+        }
+      },
+      {
+        "route": "fallback",
+        "queuedState": "Speaking",
+        "completedState": "Listening",
+        "stoppedLabel": "LISTEN",
+        "firstMs": 518.3999998569489,
+        "lastMs": 1584.0999999046326,
+        "queuedSilenceMax": 0,
+        "gapMax": 0,
+        "tailMin": 0.5847710470303753,
+        "tailJawMin": 0.12903980435787654,
+        "gapJawMax": 0.006188214380302386,
+        "outputRmsBefore": 0.13962163102059172,
+        "outputRmsAfter": null,
+        "outputContextAfter": "closed",
+        "beforeStop": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.5845413976598909,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "immediate": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "stopped": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        }
+      }
+    ]
+  },
+  "completedPriorNvidiaMonitor": {
+    "build": {
+      "archiveSha256": "5dac3c4b103a2bf3345c28a771cb82611bae2bf5f712f094bf9f7b5a43296055",
+      "gitRevision": "987ddd72759130f5d43ba3ea9ea04d20747207fc",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan"
+    },
+    "status": "finished",
+    "sampleCount": 2361,
+    "errors": [],
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+  },
+  "limitations": [
+    "Short shared-host measurements; 100% CPU is one core.",
+    "Three composer render passes per submitted avatar frame: use snapshot frame deltas, not raw renderer.render calls.",
+    "No physical display FPS, wattage, Windows PC stick or combined camera/media/voice proof.",
+    "Software trace readback wait establishes native stall ownership, not the exact internal sampler/JIT cause."
+  ],
+  "finalHardwarePoseAudit": {
+    "passed": true,
+    "errors": [],
+    "settledPaints": 0,
+    "scope": "Packaged Linux actual 3D preview, graphics backend recorded per frame; explicit expressions/turns, context loss, no physical camera or accelerated-device throughput proof.",
+    "graphics": {
+      "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+      "samples": 4
+    },
+    "lighting": "physical",
+    "preparationDraws": 0
+  },
+  "fullTestSuite": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "/tmp/mirror-software-checkpoint-tests.log"
+  }
+}

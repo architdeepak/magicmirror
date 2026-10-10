@@ -1,0 +1,10 @@
+{
+  "archiveSha256": "8c123456e0bc0575b0046d7500adfc801e7e7b2b4f38c87e77b6e63ea86d8f19",
+  "files": {
+    "src/expressionMixer.js": "9139b0d6586729c71338e0fbf8a38c4016a789d48c601c1ccdf30c24bda781ad",
+    "src/avatarController.js": "64715038fcf8e0677657b4cf5c8d64f89ca7936c7e407726b02cf101dec395a0",
+    "tools/check-playback-sync.cjs": "a0448930c1177d62ef1607d8bec870f3686c7018032e1a047824cb504be4d0cc",
+    "tools/test-expression-mixer.mjs": "38604bbbbd4ee389f60e1fac954dfff64804b227ccb5b5e4b9560f6c89e8fe9b",
+    "tools/test-rig-lifecycle.cjs": "5ce52e4572077c1031dda0c3e9c54451d4c7a9132dae4802860b574d72de5730"
+  }
+}

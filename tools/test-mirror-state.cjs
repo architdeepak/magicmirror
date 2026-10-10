@@ -1,0 +1,25 @@
+const assert=require('assert/strict');const fs=require('fs');const path=require('path');const vm=require('vm');
+const source=fs.readFileSync(path.join(__dirname,'../src/renderer.js'),'utf8');
+const tracking={cameraActive:true,ready:true,faceDetected:true,frameAgeMs:100,lastInferenceMs:50};
+const context=vm.createContext({displayQualityId:'auto',softwareGraphics:true,magic:{snapshot:()=>({backend:'cpu'})},experience:{dialog:{open:false},capturing:false,saving:false,looks:[],timers:{tick:()=>[]}},agentRunId:null,liveTryOn:{session:null,snapshot:()=>({state:'idle'}),stop(){}},Date,document:{visibilityState:'visible'},innerWidth:540,innerHeight:960,getTrackingStatus:()=>tracking,closet:{favorites:new Set(),photo:{views:{},activeView:'front',readyToSave:false,open:false,output:null,saving:false},items:[]},mode:'portal',requestedMode:'portal',desktopActive:false,desktopKind:'',desktopLabel:'',sleeping:false,depthEnabled:true,state:'ready',voiceStarting:false,gemini:{listening:false,connected:true,videoTimer:1},browserRecognition:null,hardMuted:false,avatar:{persona:'velora',getPlaybackStatus:()=>({source:'output-waveform',enabled:true,level:.4,viseme:'O',windowSamples:512,contextState:'running'})},visionEnabled:true,gestures:{enabled:true,tracker:{ready:true},status:'tracking'},tryOnView:'live',tryOnRendering:false,config:{},garmentOverlay:{getLiveState:()=>({visible:false,imageReady:false}),fit:{},tracker:{getSegmentation:()=>null}},watchPlayback:{snapshot:()=>({})},castingEnabled:false,castPlayer:{active:false},elements:{visionToggle:{checked:true},liveTryOnConsent:{checked:false},watchVideo:{},video:{srcObject:{active:true},readyState:2},shell:{dataset:{}},wakeToggle:{checked:true},gestureToggle:{checked:true},tryOnConsent:{checked:false},tryOnStill:{disabled:true},spotifyCard:{dataset:{}}}});
+context.closet.photo.field=()=>({value:'-3'});context.closet.photo.quarterTurns=1;
+vm.runInContext(source.slice(source.indexOf('function getMirrorState()'),source.indexOf('function showAssistant()')),context);
+assert.equal(context.getMirrorState().tryOn.photoEditor.quarterTurns,1);assert.equal(context.getMirrorState().tryOn.photoEditor.straightenDegrees,-3,'Photo orientation missing from assistant state');
+assert.equal(context.getMirrorState().display.avatarPlayback.source,'output-waveform');assert.equal(context.getMirrorState().display.avatarPlayback.level,.4);assert.equal(context.getMirrorState().services.findmy.peopleLocations,false);assert(context.getMirrorState().camera.visionSharingEnabled);assert.equal(context.getMirrorState().camera.sharedWithAssistant,false,'Configured sharing was reported as active during a typed session');
+context.gemini.listening=true;assert(context.getMirrorState().camera.sharedWithAssistant);assert.equal(context.getMirrorState().camera.faceTracking.frameAgeMs,100);
+context.elements.visionToggle.checked=false;assert.equal(context.getMirrorState().vision.enabled,false);assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.elements.visionToggle.checked=true;
+context.hardMuted=true;assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.hardMuted=false;
+context.elements.video.srcObject=null;assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);context.elements.video.srcObject={active:false};assert.equal(context.getMirrorState().camera.sharedWithAssistant,false);
+const quickCamera={setAttribute(name,value){this[name]=value}};
+context.document.querySelector=selector=>selector==='#studio-camera-toggle'?quickCamera:null;
+context.elements.trackingBadge={};context.elements.cameraToggle={};context.elements.cameraNotice={};
+vm.runInContext(source.slice(source.indexOf('function updateTrackingUi()'),source.indexOf('function refreshConnectionSettings()')),context);
+tracking.cameraActive=false;tracking.faceDetected=false;tracking.error='Camera disconnected. Reconnect it, then choose Camera on.';context.updateTrackingUi();
+assert.equal(context.getMirrorState().camera.error,tracking.error);assert.equal(context.elements.cameraToggle.textContent,'Camera on');assert.equal(context.elements.cameraNotice.hidden,false);assert.equal(context.elements.cameraNotice.textContent,tracking.error);
+assert.equal(quickCamera.textContent,'Camera on');assert.equal(quickCamera['aria-pressed'],'false');
+tracking.cameraActive=true;tracking.error='';context.updateTrackingUi();assert.equal(context.elements.cameraNotice.hidden,true);
+assert.equal(quickCamera.textContent,'Camera off');assert.equal(quickCamera['aria-pressed'],'true');
+console.log('Mirror camera state passed: configured versus active sharing, face freshness, hard mute, missing camera, and ended stream.');
+
+assert.equal(context.getMirrorState().watch.audioDucking.supported,false);
+context.watchAudioDucking={snapshot:()=>({supported:true,active:true,volume:.2})};context.watchPlayback.snapshot=()=>({source:'media',playing:true});assert(context.getMirrorState().watch.audioDucking.active);context.watchPlayback.snapshot=()=>({source:'embedded-page'});assert.equal(context.getMirrorState().watch.audioDucking.supported,false,'External embed claimed local ducking');

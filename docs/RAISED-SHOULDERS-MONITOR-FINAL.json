@@ -1,0 +1,49 @@
+{
+  "status": "finished",
+  "artifact": "artifacts/monitor/2026-10-09T18-55-16-978Z",
+  "sampleCount": 574,
+  "errors": [],
+  "build": {
+    "archiveSha256": "5f7d044da5ee834ceb3e739732ece30999adbfe3433fd5c6d063004da1a42904",
+    "gitRevision": "5fc96b7cc34cce4b0ec990e46d765ea5101f9676",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "samplesSha256": "8f7592abdf5cac106d735d660987fddfd0523569601598500c8fb05809876c11",
+  "scope": "Frozen raised-shoulder build 5fc96b7; recorded camera/local AR/rig/synthetic PCM/Natural enhancement. Predates photo camera cancellation, streamed captions and YouTube ducking. Not current-build, natural speech, physical hardware or release qualification.",
+  "phaseStats": {
+    "ar": {
+      "samples": 230,
+      "medianCpuPercentOneCore": 173.05452285309792,
+      "sleepingSamples": 0
+    },
+    "camera-off": {
+      "samples": 114,
+      "medianCpuPercentOneCore": 25.895821270869853,
+      "sleepingSamples": 0
+    },
+    "mirror": {
+      "samples": 115,
+      "medianCpuPercentOneCore": 65.66970091027308,
+      "sleepingSamples": 0
+    },
+    "sleep": {
+      "samples": 115,
+      "medianCpuPercentOneCore": 2.923026956804157,
+      "sleepingSamples": 115
+    }
+  }
+}

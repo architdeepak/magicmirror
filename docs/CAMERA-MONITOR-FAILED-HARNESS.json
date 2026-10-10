@@ -1,0 +1,72 @@
+{
+  "build": {
+    "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+    "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "phaseSeconds": 10,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "fcbcbedfa2de98d8f4763a6a2cb8c9790935c2854eb7d822c8864c5b48559c56",
+      "tools/monitor-camera.cjs": "fc05f5b5b9e7923bd503f36bd75eecb4e4af444b959409ca68045a7dc6030ad6"
+    }
+  },
+  "summary": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded 1280x720/30 Hz synthetic camera with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 0,
+    "errors": [
+      {
+        "at": "2026-10-09T15:19:23.039Z",
+        "type": "renderer-exception",
+        "message": "Uncaught"
+      },
+      {
+        "at": "2026-10-09T15:19:23.043Z",
+        "type": "renderer-exception",
+        "message": "Uncaught (in promise)"
+      },
+      {
+        "at": "2026-10-09T15:19:23.115Z",
+        "type": "renderer-exception",
+        "message": "Uncaught"
+      },
+      {
+        "at": "2026-10-09T15:19:23.148Z",
+        "type": "renderer-exception",
+        "message": "Uncaught"
+      },
+      {
+        "at": "2026-10-09T15:20:09.257Z",
+        "type": "monitor-error",
+        "message": "Recorded monitor actual worker fit timed out"
+      }
+    ],
+    "appExit": null,
+    "build": {
+      "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+      "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": true,
+      "phaseSeconds": 10,
+      "fixtureHashes": {
+        "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+        ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+      },
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "fcbcbedfa2de98d8f4763a6a2cb8c9790935c2854eb7d822c8864c5b48559c56",
+        "tools/monitor-camera.cjs": "fc05f5b5b9e7923bd503f36bd75eecb4e4af444b959409ca68045a7dc6030ad6"
+      }
+    }
+  },
+  "classification": "Failed monitor harness, zero samples; not an application tracking failure or qualification."
+}

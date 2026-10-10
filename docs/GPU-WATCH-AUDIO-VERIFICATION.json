@@ -1,0 +1,2144 @@
+{
+  "archiveSha256": "a2ef6ed3f2f856ac88d072ce092b4572b1699828c255da28bd411c5152573fcf",
+  "gitParentAtRun": "ca4415c7dab8b34b064177494924885a0a3c6198",
+  "sourceModulesSha256": {
+    "src/renderer.js": "449cdcd532eda7f96cfd677147a98c51f4787adc7e6a4b9c5a18a405280e4fff",
+    "src/watchAudioDucking.js": "e664a7d4a05e03f5acc773cf72ca1ef761f3c65ff2515e6b85dfe20e0bbd28fa",
+    "src/watchCastPlayer.js": "200255b99c54e8e5e036ccdff049e4bd9fa2a95d1544cf76cf6e6e8328ea4db9"
+  },
+  "packagedSourceMatches": true,
+  "fullTestExitCode": 0,
+  "packExitCode": 0,
+  "acceleratedCombined": {
+    "passed": true,
+    "graphicsRequest": "vulkan",
+    "scope": "Actual immutable packaged Linux vulkan graphics request (actual rig backend recorded), portrait 720x1280 DPR1, recorded 1920x1080 source resampled into 1280x720 at requested 30 Hz synthetic camera transport, actual local face/body workers and AR, local TalkingHead PCM playback with output-waveform animation. Gesture recognition disabled. No microphone/cloud/real music, physical camera/TV/display FPS, Windows or wattage proof. Process-tree CPU; summed RSS can double-count shared memory. Idle sleep deadline accelerated from 180 s to 1.5 s for cleanup assertions. Concurrent development monitors share host; phases are indicative, not a controlled hardware benchmark.",
+    "phases": [
+      {
+        "name": "portrait-camera-ar-idle",
+        "seconds": 8.051,
+        "cpuPercent": 110.42106570612346,
+        "summedRssBytes": 1892888576,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 5.700000047683716,
+          "max": 8.700000047683716
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.699999999999818,
+          "p95": 16.700000000000728,
+          "max": 16.80000000000109
+        },
+        "sceneAvatarSubmissions": 241,
+        "submittedPerSec": 29.934169668364177,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 9,
+          "inferenceMs": 24.59999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 78,
+          "inferenceMs": 25.09999990463257
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 304,
+          "scene": {
+            "frames": 4,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "portrait-camera-ar-speech",
+        "seconds": 8.03,
+        "cpuPercent": 131.75591531755916,
+        "summedRssBytes": 1910734848,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 3.8000001907348633,
+          "max": 8.599999904632568
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999891,
+          "p95": 16.799999999999272,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 237,
+        "submittedPerSec": 29.514321295143215,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.40437698855494647,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.393857223655439,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 90,
+          "inferenceMs": 25.59999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 158,
+          "inferenceMs": 24.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 580,
+          "scene": {
+            "frames": 5,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "portrait-camera-ar-stopped",
+        "seconds": 8.036,
+        "cpuPercent": 106.76953708312594,
+        "summedRssBytes": 1931317248,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 4.700000047683716,
+          "max": 6.5
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.799999999999272,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 237,
+        "submittedPerSec": 29.492284718765557,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 170,
+          "inferenceMs": 22.40000009536743
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 237,
+          "inferenceMs": 22.899999856948853
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 859,
+          "scene": {
+            "frames": 7,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "rig-camera-ar-idle",
+        "seconds": 8.038,
+        "cpuPercent": 120.67678526996765,
+        "summedRssBytes": 1999364096,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 3.0999999046325684,
+          "max": 5.400000095367432
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.700000000004366,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 241,
+        "submittedPerSec": 29.98258273202289,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 250,
+          "inferenceMs": 24.5
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 318,
+          "inferenceMs": 24.299999952316284
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1143,
+          "scene": {
+            "frames": 7,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 0,
+          "preparationDraws": 0,
+          "lighting": "physical",
+          "graphics": {
+            "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+            "samples": 4
+          },
+          "antialiasing": "msaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 60,
+          "reuses": 218,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28812,
+          "drawCalls": 15
+        }
+      },
+      {
+        "name": "rig-camera-ar-speech",
+        "seconds": 8.027,
+        "cpuPercent": 136.6637598106391,
+        "summedRssBytes": 2016292864,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 3.0999999046325684,
+          "max": 7.799999952316284
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 236,
+        "submittedPerSec": 29.400772393173042,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.39540019385294495,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.406854286946442,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 329,
+          "inferenceMs": 45.700000047683716
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 397,
+          "inferenceMs": 22.600000143051147
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1419,
+          "scene": {
+            "frames": 8,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 0,
+          "preparationDraws": 0,
+          "lighting": "physical",
+          "graphics": {
+            "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+            "samples": 4
+          },
+          "antialiasing": "msaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 336,
+          "reuses": 218,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 29420,
+          "drawCalls": 16
+        }
+      },
+      {
+        "name": "rig-camera-ar-muted",
+        "seconds": 8.038,
+        "cpuPercent": 120.92560338392634,
+        "summedRssBytes": 2039099392,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 1.7999999523162842,
+          "max": 3.299999952316284
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 239,
+        "submittedPerSec": 29.733764618064193,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 408,
+          "inferenceMs": 42.200000047683716
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 476,
+          "inferenceMs": 43.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1699,
+          "scene": {
+            "frames": 10,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 0,
+          "preparationDraws": 0,
+          "lighting": "physical",
+          "graphics": {
+            "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+            "samples": 4
+          },
+          "antialiasing": "msaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 416,
+          "reuses": 418,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28812,
+          "drawCalls": 15
+        }
+      },
+      {
+        "name": "rig-camera-off-muted",
+        "seconds": 8.03,
+        "cpuPercent": 15.940224159402243,
+        "summedRssBytes": 2003460096,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 0.39999985694885254,
+          "max": 0.7000000476837158
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 238,
+        "submittedPerSec": 29.638854296388544,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 478,
+          "inferenceMs": 44.5
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 478,
+          "inferenceMs": 44.5
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1978,
+          "scene": {
+            "frames": 10,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 0,
+          "preparationDraws": 0,
+          "lighting": "physical",
+          "graphics": {
+            "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+            "samples": 4
+          },
+          "antialiasing": "msaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 484,
+          "reuses": 629,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28812,
+          "drawCalls": 15
+        }
+      },
+      {
+        "name": "sleep-muted",
+        "seconds": 8.039,
+        "cpuPercent": 6.344072645851474,
+        "summedRssBytes": 1921785856,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 0.2999999523162842,
+          "max": 0.40000009536743164
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "max": 16.80000000000291
+        },
+        "sceneAvatarSubmissions": 0,
+        "submittedPerSec": 0.0,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 478,
+          "inferenceMs": 44.5
+        },
+        "afterBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 478,
+          "inferenceMs": 44.5
+        },
+        "afterPower": {
+          "targetFps": 0,
+          "frames": 2102,
+          "scene": {
+            "frames": 12,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 60
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 0,
+          "preparationDraws": 0,
+          "lighting": "physical",
+          "graphics": {
+            "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+            "samples": 4
+          },
+          "antialiasing": "msaa",
+          "resolution": [
+            317,
+            589
+          ],
+          "frames": 507,
+          "reuses": 730,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28812,
+          "drawCalls": 15
+        }
+      }
+    ],
+    "rendererExceptions": []
+  },
+  "previousSoftwareCohort": {
+    "archiveSha256": "115073b8520be99f9215c245511cd98978042b3268b95c82aba4b6f07cb818b8",
+    "scope": "Actual immutable packaged Linux software renderer, portrait 720x1280 DPR1, recorded 1920x1080 source resampled into 1280x720 at requested 30 Hz synthetic camera transport, actual local face/body workers and AR, local TalkingHead PCM playback with output-waveform animation. Gesture recognition disabled. No microphone/cloud/real music, physical camera/TV/display FPS, Windows or wattage proof. Process-tree CPU; summed RSS can double-count shared memory. Idle sleep deadline accelerated from 180 s to 1.5 s for cleanup assertions. Concurrent development monitors share host; phases are indicative, not a controlled hardware benchmark.",
+    "phases": [
+      {
+        "name": "portrait-camera-ar-idle",
+        "seconds": 8.132,
+        "cpuPercent": 223.43826856861781,
+        "summedRssBytes": 1923899392,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 58,
+          "max": 88.70000004768372
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.699999999999818,
+          "p95": 50,
+          "max": 100
+        },
+        "sceneAvatarSubmissions": 192,
+        "submittedPerSec": 23.610427939006396,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 8,
+          "inferenceMs": 21.90000009536743
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 66,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 244,
+          "scene": {
+            "frames": 4,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "portrait-camera-ar-speech",
+        "seconds": 8.042,
+        "cpuPercent": 267.47077841333004,
+        "summedRssBytes": 1923530752,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 39.5,
+          "max": 73.09999990463257
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 99.89999999999782
+        },
+        "sceneAvatarSubmissions": 198,
+        "submittedPerSec": 24.620741109176823,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.4016848108536698,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.40756696914993157,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 76,
+          "inferenceMs": 155.29999995231628
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 132,
+          "inferenceMs": 21.899999856948853
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 479,
+          "scene": {
+            "frames": 5,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "portrait-camera-ar-stopped",
+        "seconds": 8.049,
+        "cpuPercent": 219.5303764442788,
+        "summedRssBytes": 1915199488,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 68.29999995231628,
+          "max": 106
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000000728,
+          "p95": 50,
+          "max": 100
+        },
+        "sceneAvatarSubmissions": 190,
+        "submittedPerSec": 23.605416821965463,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 141,
+          "inferenceMs": 21.59999990463257
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 196,
+          "inferenceMs": 157.09999990463257
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 703,
+          "scene": {
+            "frames": 7,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": null
+      },
+      {
+        "name": "rig-camera-ar-idle",
+        "seconds": 8.068,
+        "cpuPercent": 258.0565195835399,
+        "summedRssBytes": 1956438016,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 65.29999995231628,
+          "max": 77.29999995231628
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50,
+          "max": 83.40000000000146
+        },
+        "sceneAvatarSubmissions": 179,
+        "submittedPerSec": 22.186415468517602,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 207,
+          "inferenceMs": 22
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 263,
+          "inferenceMs": 22.40000009536743
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 921,
+          "scene": {
+            "frames": 8,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 77,
+          "reuses": 129,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        }
+      },
+      {
+        "name": "rig-camera-ar-speech",
+        "seconds": 8.255,
+        "cpuPercent": 416.11144760751057,
+        "summedRssBytes": 1951993856,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0.10000014305114746,
+          "p95": 63.799999952316284,
+          "max": 98.29999995231628
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 83.29999999999563,
+          "max": 150
+        },
+        "sceneAvatarSubmissions": 170,
+        "submittedPerSec": 20.59357964869776,
+        "beforeAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.4016848108536698,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "afterAudio": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.393857223655439,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running",
+          "streaming": true,
+          "headStreaming": true,
+          "hiddenAnimationRunning": true,
+          "workletConnected": true,
+          "headContext": "running"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 273,
+          "inferenceMs": 21.800000190734863
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 332,
+          "inferenceMs": 22.299999952316284
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1125,
+          "scene": {
+            "frames": 11,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 281,
+          "reuses": 129,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 29422,
+          "drawCalls": 18
+        }
+      },
+      {
+        "name": "rig-camera-ar-muted",
+        "seconds": 8.174,
+        "cpuPercent": 262.66209933936875,
+        "summedRssBytes": 1950781440,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 64,
+          "max": 90.89999985694885
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.700000000004366,
+          "p95": 50,
+          "max": 83.40000000000146
+        },
+        "sceneAvatarSubmissions": 177,
+        "submittedPerSec": 21.654024957181306,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": true,
+          "poseMessages": 342,
+          "inferenceMs": 29.899999856948853
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 398,
+          "inferenceMs": 22.200000047683716
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1336,
+          "scene": {
+            "frames": 13,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 346,
+          "reuses": 275,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        }
+      },
+      {
+        "name": "rig-camera-off-muted",
+        "seconds": 8.039,
+        "cpuPercent": 74.63614877472322,
+        "summedRssBytes": 1889558528,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 3,
+          "max": 12.299999952316284
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634,
+          "max": 33.30000000000291
+        },
+        "sceneAvatarSubmissions": 239,
+        "submittedPerSec": 29.730065928598087,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterBody": {
+          "enabled": true,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterPower": {
+          "targetFps": 30,
+          "frames": 1614,
+          "scene": {
+            "frames": 16,
+            "dynamic": false,
+            "dirty": false,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            202,
+            230
+          ],
+          "frames": 403,
+          "reuses": 496,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        }
+      },
+      {
+        "name": "sleep-muted",
+        "seconds": 8.039,
+        "cpuPercent": 12.314964547829332,
+        "summedRssBytes": 1863319552,
+        "processCount": 5,
+        "heartbeatLagMs": {
+          "median": 0,
+          "p95": 0.2999999523162842,
+          "max": 0.5999999046325684
+        },
+        "submittedRafIntervalMs": {
+          "median": 16.69999999999709,
+          "p95": 16.80000000000291,
+          "max": 33.39999999999418
+        },
+        "sceneAvatarSubmissions": 0,
+        "submittedPerSec": 0.0,
+        "beforeAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "afterAudio": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null,
+          "streaming": false,
+          "headStreaming": false,
+          "hiddenAnimationRunning": false,
+          "workletConnected": false,
+          "headContext": "suspended"
+        },
+        "beforeBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterBody": {
+          "enabled": false,
+          "worker": true,
+          "ready": true,
+          "busy": false,
+          "poseMessages": 400,
+          "inferenceMs": 156.20000004768372
+        },
+        "afterPower": {
+          "targetFps": 0,
+          "frames": 1691,
+          "scene": {
+            "frames": 18,
+            "dynamic": false,
+            "dirty": true,
+            "maxDynamicFps": 15
+          }
+        },
+        "afterRig": {
+          "ready": true,
+          "persona": "velora",
+          "quality": "auto",
+          "preparationMs": 843.7999999523163,
+          "preparationDraws": 2,
+          "lighting": "phong",
+          "graphics": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "samples": 0
+          },
+          "antialiasing": "fxaa",
+          "resolution": [
+            317,
+            589
+          ],
+          "frames": 446,
+          "reuses": 530,
+          "supported": [
+            "browDownLeft",
+            "browDownRight",
+            "browInnerUp",
+            "browOuterUpLeft",
+            "browOuterUpRight",
+            "cheekPuff",
+            "cheekSquintLeft",
+            "cheekSquintRight",
+            "eyeBlinkLeft",
+            "eyeBlinkRight",
+            "eyeSquintLeft",
+            "eyeSquintRight",
+            "eyeWideLeft",
+            "eyeWideRight",
+            "jawForward",
+            "jawLeft",
+            "jawOpen",
+            "jawRight",
+            "mouthClose",
+            "mouthFrownLeft",
+            "mouthFrownRight",
+            "mouthFunnel",
+            "mouthLeft",
+            "mouthLowerDownLeft",
+            "mouthLowerDownRight",
+            "mouthPressLeft",
+            "mouthPressRight",
+            "mouthPucker",
+            "mouthRight",
+            "mouthRollLower",
+            "mouthSmileLeft",
+            "mouthSmileRight",
+            "mouthStretchLeft",
+            "mouthStretchRight",
+            "mouthUpperUpLeft",
+            "mouthUpperUpRight",
+            "noseSneerLeft",
+            "noseSneerRight"
+          ],
+          "triangles": 28814,
+          "drawCalls": 17
+        }
+      }
+    ],
+    "limits": "Prior source/archive and shared-host phase observations, not a controlled before/after efficiency comparison."
+  },
+  "watchAudio": {
+    "passed": true,
+    "archiveSha256": "a2ef6ed3f2f856ac88d072ce092b4572b1699828c255da28bd411c5152573fcf",
+    "checks": [
+      {
+        "name": "baseline",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 0.448,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0.08481771120340721,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "speech-ducked",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 0.842667,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": true,
+            "active": true,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "speaking",
+          "connecting": false,
+          "listening": true,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.40772871580970677,
+          "viseme": "O",
+          "windowSamples": 512,
+          "contextState": "running"
+        },
+        "rms": 0.02111108572517297,
+        "volume": 0.2,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "stop-restored",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 1.28,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0.08515209381434072,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "hard-mute-restored",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 1.642667,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0.08465704849957202,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "real-native-soap-volume-override",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 2.047542,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": false
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0.021202950699043044,
+        "volume": 0.2,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "phone-media-mute-preserved",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 2.322342,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": true
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0,
+        "volume": 0.2,
+        "muted": true,
+        "paused": false
+      },
+      {
+        "name": "paused-media-stays-paused",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": false,
+          "paused": true,
+          "position": 2.323298,
+          "duration": 2.338,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": true
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "contextState": null
+        },
+        "rms": 0,
+        "volume": 0.2,
+        "muted": true,
+        "paused": true
+      }
+    ],
+    "youtubeCheck": {
+      "during": {
+        "source": "youtube",
+        "ready": true,
+        "state": 1,
+        "position": 0.06592011444091797,
+        "duration": 1343.661,
+        "error": "",
+        "playing": true,
+        "audioDucking": {
+          "supported": false
+        },
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "after": {
+        "source": "youtube",
+        "ready": true,
+        "state": 1,
+        "position": 0.06592011444091797,
+        "duration": 1343.661,
+        "error": "",
+        "playing": true,
+        "audioDucking": {
+          "supported": false
+        },
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "paused": {
+        "source": "youtube",
+        "ready": true,
+        "state": 2,
+        "position": 0.718383,
+        "duration": 1343.661,
+        "error": "",
+        "playing": false,
+        "audioDucking": {
+          "supported": false
+        },
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "scope": "Actual packaged public YouTube IFrame playback plus local synthetic assistant PCM. Ducking is explicitly unsupported; no physical sound/DRM/account proof."
+    },
+    "scope": "Actual immutable packaged Linux app; synthetic VP8/Opus encoded and decoded over local HTTP, measured media waveform before a muted test sink, real local assistant PCM, real native RenderingControl SOAP volume/mute IPC, transcript callbacks. No microphone/cloud/physical speakers, physical phone, native Spotify or YouTube ducking proof. No physical display or wattage proof."
+  },
+  "failedVerificationTrials": [
+    {
+      "failure": "First new packaged watch probe referenced __mirrorDebug before it existed at startup.",
+      "scope": "Probe predicate, not app startup failure.",
+      "resolution": "Guard through window.__mirrorDebug and wait for the real loader."
+    },
+    {
+      "failure": "Existing VM voice/state fixtures lacked the new ducking dependency.",
+      "scope": "Unit mock contract; full npm test initially failed.",
+      "resolution": "Supply the dependency in the voice fixture and assert active/ready state transitions. Derive ducking capability from the watch source and assert media versus embedded capability. Final full npm test passes."
+    }
+  ],
+  "limits": [
+    "Fixture PCM and decoded synthetic media; no acoustic mic/cloud/physical TV sound proof.",
+    "NVIDIA GB10 on Linux ARM64/Xvfb; no Windows stick, physical display FPS or wattage proof.",
+    "Injected camera producer, observer clocks and CDP sampling contribute to cost; prior monitors share host.",
+    "YouTube ducking, native Spotify volume ducking and physical phone remain open.",
+    "Watch avatar is partly hidden by media panel in inspected portrait screenshot."
+  ]
+}

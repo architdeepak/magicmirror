@@ -1,0 +1,130 @@
+{
+  "build": {
+    "archiveSha256": "0265262ff213ed6019d597959f5b95fadb0bb2b8fb61a892908dc60b2e5d8b24",
+    "gitRevision": "692b4538086ff4b3e41bdcf57b5229790a5034a3",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true
+  },
+  "launchSnapshot": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, no microphone/cloud/camera/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "pid": 2863497,
+    "startedAt": "2026-10-09T14-31-51-098Z",
+    "updatedAt": "2026-10-09T14:32:15.272Z",
+    "status": "monitoring",
+    "sampleCount": 7,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T14:32:15.224Z",
+      "elapsedSec": 21.593,
+      "cpuPercent": 8.1913499344692,
+      "summedRssBytes": 931467264,
+      "processCount": 5,
+      "rendererHeapBytes": 16607088,
+      "gpu": {
+        "deviceWide": "4.58, 0, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          253,
+          471
+        ],
+        "frames": 0,
+        "reuses": 0,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 972,
+        "drawCalls": 51
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 255,
+        "scene": {
+          "frames": 4,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.8000001907348633,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 6226.299999952316,
+        "idleMs": 16374.799999952316
+      },
+      "hardMuted": false
+    },
+    "appExit": null
+  },
+  "scope": "Fresh 30-minute NVIDIA rig/mode/sleep cohort with periodic local synthetic PCM. No microphone, camera, cloud or Internet media. This cannot qualify AR fitting, physical performance or the combined eight-hour release candidate."
+}

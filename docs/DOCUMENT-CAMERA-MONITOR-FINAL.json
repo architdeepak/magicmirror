@@ -1,0 +1,52 @@
+{
+  "artifact": "artifacts/monitor/2026-10-09T17-43-31-022Z",
+  "scope": "Prior document-identity build e3a2d38; clarity off. Recorded camera/local AR/optional rig/synthetic PCM; not current enhancement, natural speech, physical hardware or final qualification.",
+  "status": "finished",
+  "sampleCount": 579,
+  "errors": [],
+  "build": {
+    "archiveSha256": "2fb7111929331fe7b123bf1d24781551630e59d36899aea030450f59989abd6c",
+    "gitRevision": "e3a2d38c17538f9e4dc5f02c5882d5952518519a",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "fd58b095a9c0da39ac3058ea5a2bb9d3d703cbc903b6561d7a43e493ca277cd9",
+      "tools/monitor-camera.cjs": "1e608f589930174d3ea68e28a20e3a107d16f0a8364142eb3b9bf68fb8582f27"
+    }
+  },
+  "samplesSha256": "8b77e76b069eb53c124f1a3c60e437ebdb24bb10181c4b2942c46681d3cd3f88",
+  "phaseStats": {
+    "ar": {
+      "samples": 234,
+      "cpuMedianPercentOneCore": 146.39990903507163,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "camera-off": {
+      "samples": 115,
+      "cpuMedianPercentOneCore": 17.394158188382015,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "mirror": {
+      "samples": 114,
+      "cpuMedianPercentOneCore": 43.977687703679194,
+      "sleepingSamples": 0,
+      "gpuEnhancementActiveSamples": 0
+    },
+    "sleep": {
+      "samples": 116,
+      "cpuMedianPercentOneCore": 1.965602018340038,
+      "sleepingSamples": 116,
+      "gpuEnhancementActiveSamples": 0
+    }
+  }
+}

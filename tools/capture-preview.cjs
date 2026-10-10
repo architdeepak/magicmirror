@@ -24,10 +24,11 @@ app.whenReady().then(async () => {
   // usable from a headless SSH session too.
   await win.webContents.executeJavaScript(`
     // Converse is persona-led: selecting a host brings it forward.
-    document.querySelector('[data-persona="velora"]')?.click();
+    document.querySelector('#persona-list [data-persona="velora"]')?.click();
     if (${process.argv.includes('cube')}) document.querySelector('[data-depth="cube"]')?.click();
     window.__mirrorDebug?.avatar?.setSpeechLevel(.18);
   `);
+  if (await win.webContents.executeJavaScript('document.querySelector("#app-shell").dataset.mode') !== 'portal') throw new Error('Avatar preview did not enter Converse');
   console.log('avatar:', await win.webContents.executeJavaScript('JSON.stringify({ rig: window.__mirrorDebug?.avatar?.loadedRigUrl, error: window.__mirrorDebug?.avatar?.lastRigError })'));
   await new Promise((resolve) => setTimeout(resolve, 700));
   for (const [name, level] of [['idle', .08], ['talking', .82], ['emphasis', 1]]) {

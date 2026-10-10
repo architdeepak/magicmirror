@@ -20,6 +20,7 @@ app.whenReady().then(async () => {
       // Exercise the in-house renderer itself, not TalkingHead's debug view.
       // This capture is deliberately opt-in: it is a promotion gate, not the
       // normal customer-facing host.
+      await avatar?.ensureRigHost();
       await avatar?.rigHost?.setPersona(${JSON.stringify(persona)});
       if (avatar?.faceHost?.canvas) avatar.faceHost.canvas.style.display = 'none';
       if (avatar?.rigHost?.canvas) avatar.rigHost.canvas.style.display = 'block';

@@ -1,0 +1,61 @@
+{
+  "scope": "Two short shared-host recorded Natural runs; after is an intermediate prototype, not the final lifecycle archive. Excludes first two warm-up samples in each run. CPU is percent of one core, not watts. Original source is a resampled recorded clip.",
+  "before": {
+    "artifact": "artifacts/monitor/2026-10-09T18-00-58-175Z",
+    "build": {
+      "archiveSha256": "2fb7111929331fe7b123bf1d24781551630e59d36899aea030450f59989abd6c",
+      "gitRevision": "e28fb8626f37b7f8b22d0fe006e87a84eb514ece",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": true,
+      "clarityMode": "natural",
+      "phaseSeconds": 120,
+      "fixtureHashes": {
+        "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+        ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+      },
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+        "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+      }
+    },
+    "samplesSha256": "1b4b2b6f8f14666f1323654bd9ddf67aac70917189870525180ccff30320abd6",
+    "postWarmupSamples": 12,
+    "gpuSamples": 0,
+    "medianCostMs": 13.200000047683716,
+    "medianCpuPercentOneCore": 164.23293688317347,
+    "medianEventLoopLagMs": 22.600000143051147,
+    "gpuOnlyMedianCostMs": null
+  },
+  "prototype": {
+    "artifact": "artifacts/monitor/2026-10-09T18-03-26-928Z",
+    "build": {
+      "archiveSha256": "4c28a3ac48495c295e17b02face77d077788d6b8ea132302c009c04fd0edebdd",
+      "gitRevision": "e28fb8626f37b7f8b22d0fe006e87a84eb514ece",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": true,
+      "clarityMode": "natural",
+      "phaseSeconds": 120,
+      "fixtureHashes": {
+        "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+        ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+      },
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+        "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+      }
+    },
+    "samplesSha256": "2725055ca44a8038cb2343e0b898d9a4d72f44a3b44de10cb73add5c6d98be5a",
+    "postWarmupSamples": 12,
+    "gpuSamples": 11,
+    "medianCostMs": 2.350000023841858,
+    "medianCpuPercentOneCore": 144.66549630731447,
+    "medianEventLoopLagMs": 0.6000000238418579,
+    "gpuOnlyMedianCostMs": 2.4000000953674316
+  }
+}

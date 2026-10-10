@@ -1,0 +1,196 @@
+{
+  "passed": true,
+  "baselineRevision": "001ff6a",
+  "baselineSourceSha256": "cdac58ad8360bf67010f5d78ad60628b04a303807b344d35a471d1507488b703",
+  "cases": [
+    {
+      "name": "lab_06_white_bg.jpg",
+      "mode": "down",
+      "metrics": [
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        },
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        }
+      ]
+    },
+    {
+      "name": "lab_06_white_bg.jpg",
+      "mode": "raised",
+      "metrics": [
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        },
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        }
+      ]
+    },
+    {
+      "name": "lab_06_white_bg.jpg",
+      "mode": "crossed",
+      "metrics": [
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        },
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        }
+      ]
+    },
+    {
+      "name": "lab_06_white_bg.jpg",
+      "mode": "lean",
+      "metrics": [
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        },
+        {
+          "triangles": 240,
+          "missingSleeves": 0,
+          "coveredForearms": []
+        }
+      ]
+    },
+    {
+      "name": "lab_06_white_bg.jpg",
+      "mode": "partial",
+      "metrics": [
+        {
+          "triangles": 176,
+          "missingSleeves": 1,
+          "coveredForearms": []
+        },
+        {
+          "triangles": 176,
+          "missingSleeves": 1,
+          "coveredForearms": []
+        }
+      ]
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "mode": "down",
+      "metrics": [
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        },
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "mode": "raised",
+      "metrics": [
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        },
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "mode": "crossed",
+      "metrics": [
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        },
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "mode": "lean",
+      "metrics": [
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        },
+        {
+          "triangles": 448,
+          "missingSleeves": 0,
+          "coveredForearms": [
+            15,
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lab_08_white_bg.jpg",
+      "mode": "partial",
+      "metrics": [
+        {
+          "triangles": 280,
+          "missingSleeves": 1,
+          "coveredForearms": [
+            16
+          ]
+        },
+        {
+          "triangles": 280,
+          "missingSleeves": 1,
+          "coveredForearms": [
+            16
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Actual software Electron canvas, two public short/long garment photographs, five explicit synthetic landmark poses each. Finite vertices, shared UV/XYZ seams, unchanged triangle counts and limb ownership. No physical camera, acoustic command, anatomical sizing or drape accuracy."
+}

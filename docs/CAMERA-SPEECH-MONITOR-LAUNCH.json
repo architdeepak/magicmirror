@@ -1,0 +1,186 @@
+{
+  "build": {
+    "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+    "gitRevision": "1f649d40808eab4818680ccb0558e8f6f2eef274",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "65862e47c4307315416ab7753dec96616dd24178c322b05dbdd0410480d78a0b",
+      "tools/monitor-camera.cjs": "75d0659fce6b75df339353e45bb006ae6bc3398ddca77ce11aac82e2169a180b"
+    }
+  },
+  "launchSnapshot": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "pid": 2903118,
+    "startedAt": "2026-10-09T16-25-31-309Z",
+    "updatedAt": "2026-10-09T16:31:23.929Z",
+    "status": "monitoring",
+    "sampleCount": 112,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T16:31:23.878Z",
+      "elapsedSec": 349.559,
+      "cpuPercent": 127.24893686620871,
+      "summedRssBytes": 1966854144,
+      "processCount": 5,
+      "rendererHeapBytes": 15576392,
+      "gpu": {
+        "deviceWide": "10.34, 10, [N/A]"
+      },
+      "mode": "ar",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          202,
+          230
+        ],
+        "frames": 2102,
+        "reuses": 4671,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 22208,
+        "drawCalls": 14
+      },
+      "power": {
+        "targetFps": 30,
+        "frames": 8160,
+        "scene": {
+          "frames": 25,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.3000001907348633,
+      "cameraActive": true,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 12,
+        "finishedAt": 349907,
+        "idleMs": 1119
+      },
+      "hardMuted": false,
+      "cameraWorkload": {
+        "phase": "ar",
+        "phaseAgeMs": 109316.40000009537,
+        "captures": 2,
+        "pumping": true,
+        "sourcePaused": false,
+        "streamActive": true,
+        "activeStreams": 1,
+        "video": {
+          "width": 1280,
+          "height": 720
+        },
+        "fit": {
+          "sleeveStyle": "photo-long-sleeve",
+          "missingSleeves": 0,
+          "imageReady": true,
+          "visible": true,
+          "garmentView": "front",
+          "backImageReady": false,
+          "curvedTorso": true,
+          "cameraActive": true,
+          "trackingReady": true,
+          "cameraClarity": "off",
+          "clarityCostMs": 0,
+          "bodyDetected": true,
+          "frameAgeMs": 41,
+          "status": "The garment overlay is visible on the live camera."
+        },
+        "garmentName": "Monitor plaid shirt",
+        "selectedName": "Monitor plaid shirt",
+        "ui": {
+          "dashboardOpacity": 0,
+          "framingHidden": false,
+          "framingReady": "true",
+          "framingReason": "ready"
+        },
+        "body": {
+          "enabled": true,
+          "ready": true,
+          "busy": false,
+          "requests": 1924,
+          "lastPoseAt": 350983.59999990463,
+          "inferenceMs": 20.90000009536743,
+          "worker": true
+        }
+      }
+    },
+    "appExit": null
+  },
+  "scope": "30-minute immutable NVIDIA recorded-camera/AR/rig/local-PCM cohort; phases 120 s, dedicated idle-sleep deadline 1.5 s. Actual DOM/native wardrobe, real local tracking/AR/model, recorded input. No physical recognition, media/account, Windows, delivered FPS/wattage or eight-hour release proof."
+}

@@ -1,0 +1,200 @@
+{
+  "status": "running",
+  "launch": {
+    "status": "monitoring",
+    "pid": 2963062,
+    "directory": "/home/addeepak/AdvitResearch/magicmirror/artifacts/monitor/2026-10-09T18-18-12-517Z",
+    "durationSec": 1800,
+    "modeDurationSec": 120,
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+  },
+  "pidVerifiedAlive": true,
+  "build": {
+    "archiveSha256": "a847c41d68264eaa2f5ebd762ae08753e9a485d6c56927d1c616c82872042eed",
+    "gitRevision": "be0efb1a5efe3b21f6cfc0f04abb0e5fb511ec94",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "snapshotSamples": 4,
+  "latest": {
+    "at": "2026-10-09T18:18:30.082Z",
+    "elapsedSec": 14.499,
+    "cpuPercent": 158.4125942932109,
+    "summedRssBytes": 1987796992,
+    "processCount": 5,
+    "rendererHeapBytes": 16753276,
+    "gpu": {
+      "deviceWide": "11.46, 9, [N/A]"
+    },
+    "mode": "ar",
+    "sleeping": false,
+    "avatarAppearance": "rig",
+    "avatarRig": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "preparationMs": 0,
+      "preparationDraws": 0,
+      "lighting": "physical",
+      "graphics": {
+        "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+        "samples": 4
+      },
+      "antialiasing": "msaa",
+      "resolution": [
+        202,
+        230
+      ],
+      "frames": 148,
+      "reuses": 286,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthRollLower",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 22208,
+      "drawCalls": 14
+    },
+    "power": {
+      "targetFps": 30,
+      "frames": 436,
+      "scene": {
+        "frames": 8,
+        "dynamic": false,
+        "dirty": false,
+        "maxDynamicFps": 60
+      }
+    },
+    "eventLoopLagMs": 6.099999904632568,
+    "cameraActive": true,
+    "audio": {
+      "avatarClock": "suspended",
+      "hiddenAnimationRunning": false,
+      "workletConnected": false,
+      "playback": {
+        "source": "manual",
+        "enabled": false,
+        "level": 0,
+        "viseme": "rest",
+        "windowSamples": 0,
+        "visemeModel": "idle",
+        "predictedViseme": null,
+        "contextState": null
+      }
+    },
+    "speech": {
+      "active": false,
+      "bursts": 1,
+      "finishedAt": 8845.200000047684,
+      "idleMs": 7199.5
+    },
+    "hardMuted": false,
+    "cameraWorkload": {
+      "phase": "ar",
+      "phaseAgeMs": 11500.300000190735,
+      "captures": 2,
+      "drawnFrames": 143,
+      "lastDrawAt": 16028.099999904633,
+      "maxDrawGapMs": 582.9000000953674,
+      "pumping": true,
+      "sourcePaused": false,
+      "streamActive": true,
+      "activeStreams": 1,
+      "video": {
+        "width": 1280,
+        "height": 720
+      },
+      "fit": {
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "imageReady": true,
+        "visible": true,
+        "garmentView": "front",
+        "backImageReady": false,
+        "curvedTorso": true,
+        "cameraActive": true,
+        "trackingReady": true,
+        "cameraClarity": "natural",
+        "clarityBackend": "gpu",
+        "clarityCostMs": 2.4000000953674316,
+        "bodyDetected": true,
+        "frameAgeMs": 82.20000004768372,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      "garmentName": "Monitor plaid shirt",
+      "selectedName": "Monitor plaid shirt",
+      "ui": {
+        "dashboardOpacity": 0,
+        "framingHidden": false,
+        "framingReady": "true",
+        "framingReason": "ready"
+      },
+      "clarity": {
+        "mode": "natural",
+        "gpuActive": true,
+        "resolution": [
+          1280,
+          720
+        ]
+      },
+      "body": {
+        "enabled": true,
+        "ready": true,
+        "busy": true,
+        "requests": 152,
+        "lastPoseAt": 15961.5,
+        "inferenceMs": 45.700000047683716,
+        "worker": true
+      }
+    }
+  },
+  "scope": "Development recorded-camera/AR/rig/synthetic PCM with Natural enhancement enabled. Running, not completed or final qualification."
+}

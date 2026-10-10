@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {softwareRigMaterial,useSoftwareRigLighting} from '../src/softwareRigMaterial.js';
+const texture=new THREE.Texture(),unused=new THREE.Texture();
+const source=new THREE.MeshStandardMaterial({color:0x997755,map:texture,roughness:.7,side:THREE.DoubleSide});source.roughnessMap=unused;
+const originalColor=source.color.clone(),material=softwareRigMaterial(source);
+assert(material.isMeshPhongMaterial);assert.equal(material.map,texture);assert.equal(material.side,THREE.DoubleSide);assert.equal(material.depthWrite,source.depthWrite);assert.equal(material.toneMapped,source.toneMapped);assert(source.color.equals(originalColor));assert(material.color.equals(originalColor));assert(material.userData.sourceTextures.includes(unused));assert(material.shininess>=2&&material.shininess<=96);
+const root=new THREE.Group(),geometry=new THREE.BoxGeometry();const left=new THREE.Mesh(geometry,source),right=new THREE.Mesh(geometry,source);root.add(left,right);let disposals=0;source.addEventListener('dispose',()=>disposals++);useSoftwareRigLighting(root);assert.equal(left.material,right.material,'Shared hair became duplicate materials');assert.equal(disposals,1);assert.equal(left.geometry,geometry);assert.equal(right.geometry,geometry);
+const basic=new THREE.MeshBasicMaterial({color:0xffffff});assert.equal(softwareRigMaterial(basic),basic,'Eye glint changed');
+const gold=new THREE.MeshStandardMaterial({color:0xcc9933,metalness:.85,roughness:.25});const cheapGold=softwareRigMaterial(gold);assert(cheapGold.specular.r>cheapGold.specular.b);assert(cheapGold.color.r<gold.color.r);assert(cheapGold.shininess<=96);
+console.log('Software rig materials: texture/topology preservation, finite bounded shininess, metal tint, shared conversion/disposal and glint ownership passed');

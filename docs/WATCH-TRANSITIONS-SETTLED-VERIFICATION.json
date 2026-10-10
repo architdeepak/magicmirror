@@ -1,0 +1,3933 @@
+{
+  "passed": true,
+  "archiveSha256": "bd28b20644d9fb5c8a8266843ede3ceb16ae8f5aca4173c92dba39875c3d071b",
+  "reports": [
+    {
+      "width": 540,
+      "height": 960,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 493.78125,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 27,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 27,
+        "y": 493.78125,
+        "left": 27,
+        "right": 178.1875,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 361.79999999999995,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 361.796875,
+        "y": 493.78125,
+        "left": 361.796875,
+        "right": 512.984375,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 95,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 290.89703125,
+        "panelBottom": 676.1875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 95,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 95,
+        "bottom": 277.390625,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 290.890625,
+        "left": 22,
+        "right": 518,
+        "top": 290.890625,
+        "bottom": 676.1875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 341.890625,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 341.890625,
+        "bottom": 579.734375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 340.890625,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 340.890625,
+        "bottom": 580.734375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 493.78125,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 493.78125,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 27,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 27,
+        "y": 493.78125,
+        "left": 27,
+        "right": 178.1875,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 361.79999999999995,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 361.796875,
+        "y": 493.78125,
+        "left": 361.796875,
+        "right": 512.984375,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 95,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 290.89703125,
+        "panelBottom": 676.1875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 95,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 95,
+        "bottom": 277.390625,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 290.890625,
+        "left": 22,
+        "right": 518,
+        "top": 290.890625,
+        "bottom": 676.1875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 341.890625,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 341.890625,
+        "bottom": 579.734375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 340.890625,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 340.890625,
+        "bottom": 580.734375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 194.39999999999998,
+        "y": 493.79046875,
+        "width": 151.20000000000002,
+        "height": 182.39703125,
+        "panelTop": 95,
+        "panelBottom": 480.29046875,
+        "gap": 13.5,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 194.390625,
+        "y": 493.78125,
+        "left": 194.390625,
+        "right": 345.578125,
+        "top": 493.78125,
+        "bottom": 676.171875,
+        "width": 151.1875,
+        "height": 182.390625
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 518,
+        "top": 95,
+        "bottom": 480.296875,
+        "width": 496,
+        "height": 385.296875
+      },
+      "video": {
+        "x": 50.296875,
+        "y": 146,
+        "left": 50.296875,
+        "right": 474.6875,
+        "top": 146,
+        "bottom": 383.84375,
+        "width": 424.390625,
+        "height": 237.84375
+      },
+      "display": {
+        "x": 49.296875,
+        "y": 145,
+        "left": 49.296875,
+        "right": 475.6875,
+        "top": 145,
+        "bottom": 384.84375,
+        "width": 426.390625,
+        "height": 239.84375
+      },
+      "captions": {
+        "x": 48.6015625,
+        "y": 751.609375,
+        "left": 48.6015625,
+        "right": 491.3984375,
+        "top": 751.609375,
+        "bottom": 819.984375,
+        "width": 442.796875,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 2.8125,
+        "y": 689.6875,
+        "left": 2.8125,
+        "right": 424,
+        "top": 689.6875,
+        "bottom": 769.984375,
+        "width": 421.1875,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 540,
+        "top": 0,
+        "bottom": 959.984375,
+        "width": 540,
+        "height": 959.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 748.484375,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 36,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 36,
+        "y": 748.484375,
+        "left": 36,
+        "right": 237.59375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 482.4,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 482.390625,
+        "y": 748.484375,
+        "left": 482.390625,
+        "right": 683.984375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 95,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 356.19703125,
+        "panelBottom": 991.6875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 95,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 95,
+        "bottom": 338.1875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 356.1875,
+        "left": 22,
+        "right": 698,
+        "top": 356.1875,
+        "bottom": 991.6875,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 407.1875,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 407.1875,
+        "bottom": 732.09375,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 406.1875,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 406.1875,
+        "bottom": 733.09375,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 748.484375,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 748.484375,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 36,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 36,
+        "y": 748.484375,
+        "left": 36,
+        "right": 237.59375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 482.4,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 482.390625,
+        "y": 748.484375,
+        "left": 482.390625,
+        "right": 683.984375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 95,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 356.19703125,
+        "panelBottom": 991.6875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 95,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 95,
+        "bottom": 338.1875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 356.1875,
+        "left": 22,
+        "right": 698,
+        "top": 356.1875,
+        "bottom": 991.6875,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 407.1875,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 407.1875,
+        "bottom": 732.09375,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 406.1875,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 406.1875,
+        "bottom": 733.09375,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 720,
+      "height": 1280,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 259.2,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 259.1875,
+        "y": 748.484375,
+        "left": 259.1875,
+        "right": 460.78125,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 146,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 146,
+        "bottom": 470.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 145,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 145,
+        "bottom": 471.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 1257.40625,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 54,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 54,
+        "y": 1257.40625,
+        "left": 54,
+        "right": 356.390625,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 723.5999999999999,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 723.59375,
+        "y": 1257.40625,
+        "left": 723.59375,
+        "right": 1025.984375,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 97,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 488.79703125000003,
+        "panelBottom": 1622.203125,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 97,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 97,
+        "bottom": 461.796875,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 488.796875,
+        "left": 34,
+        "right": 1046,
+        "top": 488.796875,
+        "bottom": 1622.21875,
+        "width": 1012,
+        "height": 1133.421875
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 545.796875,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 545.796875,
+        "bottom": 1038.109375,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 544.796875,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 544.796875,
+        "bottom": 1039.109375,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 1257.40625,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 1257.40625,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 54,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 54,
+        "y": 1257.40625,
+        "left": 54,
+        "right": 356.390625,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 723.5999999999999,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 723.59375,
+        "y": 1257.40625,
+        "left": 723.59375,
+        "right": 1025.984375,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 97,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 488.79703125000003,
+        "panelBottom": 1622.203125,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 97,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 97,
+        "bottom": 461.796875,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 488.796875,
+        "left": 34,
+        "right": 1046,
+        "top": 488.796875,
+        "bottom": 1622.21875,
+        "width": 1012,
+        "height": 1133.421875
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 545.796875,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 545.796875,
+        "bottom": 1038.109375,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 544.796875,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 544.796875,
+        "bottom": 1039.109375,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 388.79999999999995,
+        "y": 1257.4060937499999,
+        "width": 302.40000000000003,
+        "height": 364.79703125000003,
+        "panelTop": 97,
+        "panelBottom": 1230.4060937499999,
+        "gap": 27,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 388.796875,
+        "y": 1257.40625,
+        "left": 388.796875,
+        "right": 691.1875,
+        "top": 1257.40625,
+        "bottom": 1622.203125,
+        "width": 302.390625,
+        "height": 364.796875
+      },
+      "stage": {
+        "x": 34,
+        "y": 97,
+        "left": 34,
+        "right": 1046,
+        "top": 97,
+        "bottom": 1230.40625,
+        "width": 1012,
+        "height": 1133.40625
+      },
+      "video": {
+        "x": 101.59375,
+        "y": 154,
+        "left": 101.59375,
+        "right": 978.390625,
+        "top": 154,
+        "bottom": 646.3125,
+        "width": 876.796875,
+        "height": 492.3125
+      },
+      "display": {
+        "x": 100.59375,
+        "y": 153,
+        "left": 100.59375,
+        "right": 979.390625,
+        "top": 153,
+        "bottom": 647.3125,
+        "width": 878.796875,
+        "height": 494.3125
+      },
+      "captions": {
+        "x": 97.203125,
+        "y": 1704.375,
+        "left": 97.203125,
+        "right": 982.796875,
+        "top": 1704.375,
+        "bottom": 1779.59375,
+        "width": 885.59375,
+        "height": 75.21875
+      },
+      "oracle": {
+        "x": 144,
+        "y": 1649.203125,
+        "left": 144,
+        "right": 964,
+        "top": 1649.203125,
+        "bottom": 1729.984375,
+        "width": 820,
+        "height": 80.78125
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 1080,
+        "top": 0,
+        "bottom": 1919.984375,
+        "width": 1080,
+        "height": 1919.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 311.515625,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 20.25,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 457.75,
+        "y": 311.515625,
+        "left": 457.75,
+        "right": 547.40625,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 295.0868,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 732.578125,
+        "y": 311.515625,
+        "left": 732.578125,
+        "right": 822.234375,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 95,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 208.89,
+        "panelBottom": 413.40625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 95,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 95,
+        "bottom": 196.875,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 208.875,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 208.875,
+        "bottom": 413.421875,
+        "width": 361,
+        "height": 204.546875
+      },
+      "video": {
+        "x": 479.5,
+        "y": 259.875,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 259.875,
+        "bottom": 431.125,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 258.875,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 258.875,
+        "bottom": 432.125,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 311.515625,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "portrait",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "center",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 311.515625,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "left",
+      "layout": {
+        "active": true,
+        "x": 20.25,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 457.75,
+        "y": 311.515625,
+        "left": 457.75,
+        "right": 547.40625,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "right",
+      "layout": {
+        "active": true,
+        "x": 295.0868,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 732.578125,
+        "y": 311.515625,
+        "left": 732.578125,
+        "right": 822.234375,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "upper",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 95,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 208.89,
+        "panelBottom": 413.40625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 95,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 95,
+        "bottom": 196.875,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 208.875,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 208.875,
+        "bottom": 413.421875,
+        "width": 361,
+        "height": 204.546875
+      },
+      "video": {
+        "x": 479.5,
+        "y": 259.875,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 259.875,
+        "bottom": 431.125,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 258.875,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 258.875,
+        "bottom": 432.125,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "position": "lower",
+      "layout": {
+        "active": true,
+        "x": 157.6684,
+        "y": 311.51625,
+        "width": 89.6632,
+        "height": 101.89,
+        "panelTop": 95,
+        "panelBottom": 299.51625,
+        "gap": 12,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 595.15625,
+        "y": 311.515625,
+        "left": 595.15625,
+        "right": 684.8125,
+        "top": 311.515625,
+        "bottom": 413.390625,
+        "width": 89.65625,
+        "height": 101.875
+      },
+      "stage": {
+        "x": 459.5,
+        "y": 95,
+        "left": 459.5,
+        "right": 820.5,
+        "top": 95,
+        "bottom": 299.53125,
+        "width": 361,
+        "height": 204.53125
+      },
+      "video": {
+        "x": 479.5,
+        "y": 146,
+        "left": 479.5,
+        "right": 785.5,
+        "top": 146,
+        "bottom": 317.25,
+        "width": 306,
+        "height": 171.25
+      },
+      "display": {
+        "x": 478.5,
+        "y": 145,
+        "left": 478.5,
+        "right": 786.5,
+        "top": 145,
+        "bottom": 318.25,
+        "width": 308,
+        "height": 173.25
+      },
+      "captions": {
+        "x": 473.953125,
+        "y": 511.625,
+        "left": 473.953125,
+        "right": 806.046875,
+        "top": 511.625,
+        "bottom": 580,
+        "width": 332.09375,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 410.609375,
+        "y": 425.40625,
+        "left": 410.609375,
+        "right": 726.5,
+        "top": 425.40625,
+        "bottom": 530,
+        "width": 315.890625,
+        "height": 104.59375
+      },
+      "shell": {
+        "x": 437.5,
+        "y": 0,
+        "left": 437.5,
+        "right": 842.5,
+        "top": 0,
+        "bottom": 720,
+        "width": 405,
+        "height": 720
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    }
+  ],
+  "mediaShapes": [
+    {
+      "mediaWidth": 180,
+      "mediaHeight": 320,
+      "layout": {
+        "active": true,
+        "x": 36,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 36,
+        "y": 748.484375,
+        "left": 36,
+        "right": 237.59375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 19,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 19,
+        "bottom": 343.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 18,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 18,
+        "bottom": 344.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    },
+    {
+      "mediaWidth": 320,
+      "mediaHeight": 240,
+      "layout": {
+        "active": true,
+        "x": 36,
+        "y": 748.49046875,
+        "width": 201.60000000000002,
+        "height": 243.19703125,
+        "panelTop": 95,
+        "panelBottom": 730.49046875,
+        "gap": 18,
+        "moving": false
+      },
+      "mode": "watch",
+      "host": {
+        "x": 36,
+        "y": 748.484375,
+        "left": 36,
+        "right": 237.59375,
+        "top": 748.484375,
+        "bottom": 991.671875,
+        "width": 201.59375,
+        "height": 243.1875
+      },
+      "stage": {
+        "x": 22,
+        "y": 95,
+        "left": 22,
+        "right": 698,
+        "top": 95,
+        "bottom": 730.5,
+        "width": 676,
+        "height": 635.5
+      },
+      "video": {
+        "x": 62.90625,
+        "y": 19,
+        "left": 62.90625,
+        "right": 642.09375,
+        "top": 19,
+        "bottom": 343.90625,
+        "width": 579.1875,
+        "height": 324.90625
+      },
+      "display": {
+        "x": 61.90625,
+        "y": 18,
+        "left": 61.90625,
+        "right": 643.09375,
+        "top": 18,
+        "bottom": 344.90625,
+        "width": 581.1875,
+        "height": 326.90625
+      },
+      "captions": {
+        "x": 64.8046875,
+        "y": 1071.609375,
+        "left": 64.8046875,
+        "right": 655.1953125,
+        "top": 1071.609375,
+        "bottom": 1139.984375,
+        "width": 590.390625,
+        "height": 68.375
+      },
+      "oracle": {
+        "x": 42.40625,
+        "y": 1009.6875,
+        "left": 42.40625,
+        "right": 604,
+        "top": 1009.6875,
+        "bottom": 1089.984375,
+        "width": 561.59375,
+        "height": 80.296875
+      },
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 1279.984375,
+        "width": 720,
+        "height": 1279.984375
+      },
+      "visible": true,
+      "style": "rig",
+      "rows": 2,
+      "companion": "true"
+    }
+  ],
+  "compact": {
+    "layout": {
+      "active": true,
+      "x": 36,
+      "y": 748.49046875,
+      "width": 201.60000000000002,
+      "height": 243.19703125,
+      "panelTop": 95,
+      "panelBottom": 730.49046875,
+      "gap": 18,
+      "moving": false
+    },
+    "mode": "watch",
+    "host": {
+      "x": 36,
+      "y": 748.484375,
+      "left": 36,
+      "right": 237.59375,
+      "top": 748.484375,
+      "bottom": 991.671875,
+      "width": 201.59375,
+      "height": 243.1875
+    },
+    "stage": {
+      "x": 22,
+      "y": 95,
+      "left": 22,
+      "right": 698,
+      "top": 95,
+      "bottom": 730.5,
+      "width": 676,
+      "height": 635.5
+    },
+    "video": {
+      "x": 70.40625,
+      "y": 146,
+      "left": 70.40625,
+      "right": 649.59375,
+      "top": 146,
+      "bottom": 470.90625,
+      "width": 579.1875,
+      "height": 324.90625
+    },
+    "display": {
+      "x": 69.40625,
+      "y": 145,
+      "left": 69.40625,
+      "right": 650.59375,
+      "top": 145,
+      "bottom": 471.90625,
+      "width": 581.1875,
+      "height": 326.90625
+    },
+    "captions": {
+      "x": 64.8046875,
+      "y": 1071.609375,
+      "left": 64.8046875,
+      "right": 655.1953125,
+      "top": 1071.609375,
+      "bottom": 1139.984375,
+      "width": 590.390625,
+      "height": 68.375
+    },
+    "oracle": {
+      "x": 42.40625,
+      "y": 1009.6875,
+      "left": 42.40625,
+      "right": 604,
+      "top": 1009.6875,
+      "bottom": 1089.984375,
+      "width": 561.59375,
+      "height": 80.296875
+    },
+    "shell": {
+      "x": 0,
+      "y": 0,
+      "left": 0,
+      "right": 720,
+      "top": 0,
+      "bottom": 1279.984375,
+      "width": 720,
+      "height": 1279.984375
+    },
+    "visible": true,
+    "style": "rig",
+    "rows": 2,
+    "companion": "true"
+  },
+  "reachable": {
+    "scrollTop": 374,
+    "scrollHeight": 759,
+    "clientHeight": 385,
+    "reachable": true
+  },
+  "checks": [
+    "40 portrait/rig/position/viewport settled bounds",
+    "two caption rows remain visible",
+    "native wide/portrait/4:3 media fits complete display",
+    "compact cast layout preserves companion band",
+    "actual native pairing QR and scroll control",
+    "pairing control reachable in scrolling content",
+    "Stop releases companion reserve and hides Watch avatar",
+    "Portal restores its own layout"
+  ],
+  "scope": "Actual immutable packaged Linux app, synthetic live video and transcript/voice/position callbacks, four window sizes including a wide-window portrait matte. Geometry checks compare the clipped visible Watch stage, not offscreen scroll content. No acoustic voice, physical TV/sensor, display FPS, facial realism or real phone pairing proof."
+}

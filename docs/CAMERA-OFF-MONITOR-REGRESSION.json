@@ -1,0 +1,148 @@
+{
+  "build": {
+    "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+    "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": false,
+    "phaseSeconds": 240,
+    "fixtureHashes": {},
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "727ee19c6383027995c3d324b152063d25462f05c98777eea9a2ef79d32870c1",
+      "tools/monitor-camera.cjs": "ceacc4e76b1d3f21b916c3543dae3e6b55c175314bb2c6395de800a4788044fd"
+    }
+  },
+  "summary": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, no microphone/cloud/camera/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "status": "finished",
+    "sampleCount": 4,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T15:27:11.402Z",
+      "elapsedSec": 12.389,
+      "cpuPercent": 8.878658336073661,
+      "summedRssBytes": 940879872,
+      "processCount": 5,
+      "rendererHeapBytes": 13942416,
+      "gpu": {
+        "deviceWide": "6.34, 5, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          253,
+          471
+        ],
+        "frames": 0,
+        "reuses": 0,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 972,
+        "drawCalls": 51
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 150,
+        "scene": {
+          "frames": 4,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.5999999046325684,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 1,
+        "finishedAt": 6310.100000143051,
+        "idleMs": 7174.5
+      },
+      "hardMuted": false
+    },
+    "appExit": null,
+    "build": {
+      "archiveSha256": "9857b9c6167895a9e51330910005a7765025a5489f242c8c6953a03fe8c5c87b",
+      "gitRevision": "f541e3979ae48f29d824ff4a01030e1c77359d62",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "vulkan",
+      "speechFixture": true,
+      "cameraFixture": false,
+      "phaseSeconds": 240,
+      "fixtureHashes": {},
+      "monitorHashes": {
+        "tools/monitor-mirror.cjs": "727ee19c6383027995c3d324b152063d25462f05c98777eea9a2ef79d32870c1",
+        "tools/monitor-camera.cjs": "ceacc4e76b1d3f21b916c3543dae3e6b55c175314bb2c6395de800a4788044fd"
+      }
+    }
+  }
+}

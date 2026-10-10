@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-10-08T01:19:08.883Z",
+  "passed": true,
+  "scope": "Packaged Linux app, synthetic Codex stdio server and delayed screenshot. Actual Stop/mute buttons and IPC; no real voice/physical sensors/Windows.",
+  "checks": [
+    "visible Stop while agent runs",
+    "Stop kills and resolves task",
+    "late screenshot discarded",
+    "hard mute kills task",
+    "hard mute rejects new task",
+    "no late input or renderer errors"
+  ]
+}

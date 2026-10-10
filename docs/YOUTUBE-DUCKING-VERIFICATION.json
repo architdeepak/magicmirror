@@ -1,0 +1,509 @@
+{
+  "archiveSha256": "ed9f3352ff13db9dd92f5c94e95015f132ae149bbfb07436e1baa05a6fad397a",
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/youtube-duck-confirmed-tests.log"
+  },
+  "watch": {
+    "passed": true,
+    "archiveSha256": "ed9f3352ff13db9dd92f5c94e95015f132ae149bbfb07436e1baa05a6fad397a",
+    "checks": [
+      {
+        "name": "baseline",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 0.490667,
+          "duration": 2.337,
+          "volumePercent": 80,
+          "muted": false,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0.08513135924082169,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "speech-ducked",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 0.915158,
+          "duration": 2.337,
+          "volumePercent": 20,
+          "muted": false,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": true,
+            "active": true,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "speaking",
+          "connecting": false,
+          "listening": true,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "output-waveform",
+          "enabled": true,
+          "level": 0.3966795932746192,
+          "viseme": "EE",
+          "windowSamples": 512,
+          "visemeModel": "ready",
+          "predictedViseme": 8,
+          "contextState": "running"
+        },
+        "rms": 0.021169640916113876,
+        "volume": 0.2,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "stop-restored",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 1.472,
+          "duration": 2.337,
+          "volumePercent": 80,
+          "muted": false,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0.08490260261613783,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "hard-mute-restored",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 1.845333,
+          "duration": 2.337,
+          "volumePercent": 80,
+          "muted": false,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.8,
+            "muted": false
+          },
+          "castingEnabled": false,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0.08479952922305646,
+        "volume": 0.8,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "real-native-soap-volume-override",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 2.261333,
+          "duration": 2.337,
+          "volumePercent": 20,
+          "muted": false,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": false
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0.021210239181039654,
+        "volume": 0.2,
+        "muted": false,
+        "paused": false
+      },
+      {
+        "name": "phone-media-mute-preserved",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": true,
+          "paused": false,
+          "position": 0.138413,
+          "duration": 2.337,
+          "volumePercent": 20,
+          "muted": true,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": true
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0,
+        "volume": 0.2,
+        "muted": true,
+        "paused": false
+      },
+      {
+        "name": "paused-media-stays-paused",
+        "watch": {
+          "source": "media",
+          "ready": true,
+          "playing": false,
+          "paused": true,
+          "position": 0.141415,
+          "duration": 2.337,
+          "volumePercent": 20,
+          "muted": true,
+          "error": "",
+          "audioDucking": {
+            "supported": true,
+            "requested": false,
+            "active": false,
+            "userOverride": false,
+            "volume": 0.2,
+            "muted": true
+          },
+          "castingEnabled": true,
+          "castActive": false
+        },
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        },
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        },
+        "rms": 0,
+        "volume": 0.2,
+        "muted": true,
+        "paused": true
+      }
+    ],
+    "youtubeCheck": {
+      "during": {
+        "source": "youtube",
+        "ready": true,
+        "state": 1,
+        "position": 1.4563331125335692,
+        "duration": 1343.661,
+        "error": "",
+        "audioDucking": {
+          "supported": true,
+          "requested": true,
+          "active": true,
+          "pending": false,
+          "userOverride": false,
+          "volume": 20,
+          "muted": false
+        },
+        "volumePercent": 20,
+        "muted": false,
+        "playing": true,
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "after": {
+        "source": "youtube",
+        "ready": true,
+        "state": 1,
+        "position": 2.4514939828338624,
+        "duration": 1343.661,
+        "error": "",
+        "audioDucking": {
+          "supported": true,
+          "requested": false,
+          "active": false,
+          "pending": false,
+          "userOverride": false,
+          "volume": 80,
+          "muted": false
+        },
+        "volumePercent": 80,
+        "muted": false,
+        "playing": true,
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "paused": {
+        "source": "youtube",
+        "ready": true,
+        "state": 2,
+        "position": 5.681543,
+        "duration": 1344,
+        "error": "",
+        "audioDucking": {
+          "supported": true,
+          "requested": false,
+          "active": false,
+          "pending": false,
+          "userOverride": false,
+          "volume": 45,
+          "muted": false
+        },
+        "volumePercent": 45,
+        "muted": false,
+        "playing": false,
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "equalOverride": {
+        "source": "youtube",
+        "ready": true,
+        "state": 2,
+        "position": 5.681543,
+        "duration": 1344,
+        "error": "",
+        "audioDucking": {
+          "supported": true,
+          "requested": false,
+          "active": false,
+          "pending": false,
+          "userOverride": false,
+          "volume": 11,
+          "muted": false
+        },
+        "volumePercent": 11,
+        "muted": false,
+        "playing": false,
+        "castingEnabled": true,
+        "castActive": false
+      },
+      "userVolumeAfterStop": 45,
+      "scope": "Actual public YouTube player volume 80\u219220\u219280, explicit 45 preserved, paused quick Stop restoration, equal-valued explicit 11 preserved; local synthetic assistant PCM. API-reported volume, not physical sound/DRM/account proof."
+    },
+    "scope": "Actual immutable packaged Linux app; synthetic VP8/Opus encoded and decoded over local HTTP, measured media waveform before a muted test sink, real local assistant PCM, native RenderingControl SOAP volume/mute IPC, transcript callbacks. Optional public YouTube checks measure official player volume/state. No physical microphone/speakers/phone, native Spotify, physical display or wattage proof."
+  },
+  "ui": {
+    "checkedAt": "2026-10-09T19:28:22.057Z",
+    "passed": true,
+    "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+    "checks": [
+      {
+        "width": 1280,
+        "height": 1024,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 400,
+        "height": 710,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 540,
+        "height": 960,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "width": 1080,
+        "height": 1920,
+        "checks": [
+          "all four mode buttons",
+          "mode/Stop/mute/settings bounds",
+          "clock/weather separation",
+          "wardrobe/watch/music bounds",
+          "invalid media URL",
+          "settings accessible in every mode"
+        ]
+      },
+      {
+        "checks": [
+          "typing does not invoke mode/camera/fullscreen shortcuts",
+          "two long colored caption rows and one caption container",
+          "editor Stop leaves review open",
+          "command center accessible",
+          "typed task draft retained while muted",
+          "friends request explains missing Apple People bridge"
+        ]
+      },
+      {
+        "checks": [
+          "camera clarity selectable by real keyboard input",
+          "typed voice navigation bright/off updates renderer and persistence"
+        ]
+      }
+    ],
+    "rendererErrors": []
+  },
+  "sourceHashes": {
+    "src/youtubePlayerFrame.js": "dafa3db5835513b593999d222a0ba15092f3d1effbb1dd91ae81cc7cf87f7e85",
+    "src/youtubeWatchPlayer.js": "22bf0566d3eb421946cd437db18686c5af61cf53d3faf6569ff16bd9669ee227",
+    "src/watchPlaybackController.js": "b62edd55c7c91e2c07d3af0ff870f1de88664742665830b183948b7e1b3e05e1",
+    "src/renderer.js": "bb601cba3928ba31b112c85b3c1154d4472968ce56f33421c0792999f6599077",
+    "src/geminiLiveAdapter.js": "bc6d6baf6aba7fb50664f7f15e26a2a73bcec8d65e7b9efd74a7263e50ebf444",
+    "tools/check-watch-audio.cjs": "9aefd2b66e803a3680e5880bf5839c34c6ee609da819a2f4dfc52ea14d8c8a95",
+    "tools/test-youtube-ducking.cjs": "c8fbb9cfe35f831e40489c8c52540b29b95d1b893e677c9ea782d6c4b0ca5262"
+  }
+}

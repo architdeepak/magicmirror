@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "baseline": {
+    "threw": true,
+    "message": "Illegal invocation"
+  },
+  "ordinaryMs": 20.200000047683716,
+  "acceleratedOwnedDeadlineMs": 1500.8999998569489,
+  "scope": "Actual isolated Chromium Window timers through the production monitor helper; DOM/phase controls are fixtures. No application sleep or camera proof."
+}

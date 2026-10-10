@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-10-09T19:00:59.747Z",
+  "passed": true,
+  "scope": "Actual packaged Linux app, Chromium input, synthetic viewport sizes and denied physical sensors. No account sign-in or physical input recognition.",
+  "checks": [
+    {
+      "width": 1280,
+      "height": 1024,
+      "checks": [
+        "all four mode buttons",
+        "mode/Stop/mute/settings bounds",
+        "clock/weather separation",
+        "wardrobe/watch/music bounds",
+        "invalid media URL",
+        "settings accessible in every mode"
+      ]
+    },
+    {
+      "width": 400,
+      "height": 710,
+      "checks": [
+        "all four mode buttons",
+        "mode/Stop/mute/settings bounds",
+        "clock/weather separation",
+        "wardrobe/watch/music bounds",
+        "invalid media URL",
+        "settings accessible in every mode"
+      ]
+    },
+    {
+      "width": 540,
+      "height": 960,
+      "checks": [
+        "all four mode buttons",
+        "mode/Stop/mute/settings bounds",
+        "clock/weather separation",
+        "wardrobe/watch/music bounds",
+        "invalid media URL",
+        "settings accessible in every mode"
+      ]
+    },
+    {
+      "width": 1080,
+      "height": 1920,
+      "checks": [
+        "all four mode buttons",
+        "mode/Stop/mute/settings bounds",
+        "clock/weather separation",
+        "wardrobe/watch/music bounds",
+        "invalid media URL",
+        "settings accessible in every mode"
+      ]
+    },
+    {
+      "checks": [
+        "typing does not invoke mode/camera/fullscreen shortcuts",
+        "two long colored caption rows and one caption container",
+        "editor Stop leaves review open",
+        "command center accessible",
+        "typed task draft retained while muted",
+        "friends request explains missing Apple People bridge"
+      ]
+    },
+    {
+      "checks": [
+        "camera clarity selectable by real keyboard input",
+        "typed voice navigation bright/off updates renderer and persistence"
+      ]
+    }
+  ],
+  "rendererErrors": []
+}

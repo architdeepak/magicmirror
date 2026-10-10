@@ -7,7 +7,9 @@ const VISEMES = Object.freeze({
   AA: { jawOpen: .78, mouthStretchLeft: .16, mouthStretchRight: .16, mouthLowerDownLeft: .22, mouthLowerDownRight: .22 },
   O: { jawOpen: .30, mouthFunnel: .74, mouthPucker: .20 },
   EE: { jawOpen: .18, mouthStretchLeft: .44, mouthStretchRight: .44, mouthSmileLeft: .10, mouthSmileRight: .10 },
-  OU: { jawOpen: .22, mouthPucker: .70, mouthFunnel: .38 }
+  OU: { jawOpen: .22, mouthPucker: .70, mouthFunnel: .38 },
+  MBP: { mouthClose: 1, mouthPressLeft: .30, mouthPressRight: .30 },
+  FV: { jawOpen: .24, mouthRollLower: .70, mouthUpperUpLeft: .12, mouthUpperUpRight: .12 }
 });
 
 const EMOTIONS = Object.freeze({
@@ -28,7 +30,7 @@ export class ExpressionMixer {
 
   setMood(mood) { this.mood = EMOTIONS[mood] ? mood : 'neutral'; }
 
-  update({ tracking = {}, manual = {}, speech = 0, viseme = 'rest', dt = 1 / 60 } = {}) {
+  update({ tracking = {}, manual = {}, speech = 0, speechActive = false, viseme = 'rest', dt = 1 / 60 } = {}) {
     const target = { ...tracking };
     // App-driven expressions can accent the tracked performer but do not get
     // to erase a real blink or gaze signal from the camera.
@@ -37,18 +39,28 @@ export class ExpressionMixer {
     }
     for (const [name, value] of Object.entries(EMOTIONS[this.mood])) target[name] = Math.max(target[name] || 0, value);
 
-    const voice = VISEMES[viseme] || VISEMES.rest;
+    const voice = VISEMES[viseme] || VISEMES.AA;
     const energy = clamp(speech, 0, 1);
-    for (const [name, value] of Object.entries(voice)) target[name] = Math.max(target[name] || 0, value * energy);
-    if (energy > .025) target.jawOpen = Math.max(target.jawOpen || 0, energy * .72);
+    if(speechActive || energy>.025){
+      // The queued utterance owns the jaw/lips even across quiet gaps.
+      // A tracked open mouth or smile
+      // must not reopen an authored consonant closure; eyes/brows stay tracked.
+      for(const name of Object.keys(target))if(name.startsWith('mouth')||name.startsWith('jaw'))delete target[name];
+      for(const [name,value]of Object.entries(voice))target[name]=value*energy;
+      // Bilabial contact is a shape, not loudness. A recognized quiet M/B/P
+      // still seals the lips; jaw/vowel amplitude remains energy-driven.
+      if(viseme==='MBP'&&energy>.025)target.mouthClose=1;
+    }
 
     // Fast enough for consonants, slow enough to avoid webcam jitter. Closing
     // a lid needs more speed than opening a jaw, so clamp a common envelope.
-    const alpha = clamp(1 - Math.exp(-Math.max(.001, dt) * 19), .12, .58);
+    const step=Number.isFinite(dt)?Math.max(0,dt):0;
+    const alpha = 1-Math.exp(-step*19);
     for (const name of new Set([...Object.keys(this.values), ...Object.keys(target)])) {
       const next = clamp(target[name] || 0, 0, 1);
       const previous = this.values[name] || 0;
-      this.values[name] = previous + (next - previous) * alpha;
+      const response = name.startsWith('eyeBlink') ? 1-Math.exp(-step*65) : ((name.startsWith('mouth')||name.startsWith('jaw'))&&next<previous?1-Math.exp(-step*35):alpha);
+      this.values[name] = previous + (next - previous) * response;
     }
     return { ...this.values };
   }

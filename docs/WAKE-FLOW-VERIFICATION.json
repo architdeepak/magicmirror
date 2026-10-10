@@ -1,0 +1,438 @@
+{
+  "cpu": {
+    "passed": true,
+    "archiveSha256": "c2629732a0308e8e3f4c3cdbc266e2b73a4ed64e7555d6f5ad974fa36a45eb9c",
+    "graphics": null,
+    "interruptionChecks": [
+      {
+        "name": "Stop",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 273,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      },
+      {
+        "name": "hard mute",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 279,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      }
+    ],
+    "nativePixelProbe": null,
+    "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+    "frames": 60,
+    "captureTimesMs": [
+      114,
+      222,
+      307,
+      407,
+      514,
+      577,
+      641,
+      735,
+      816,
+      899,
+      988,
+      1074,
+      1171,
+      1275,
+      1374,
+      1475,
+      1574,
+      1672,
+      1756,
+      1858,
+      1942,
+      2040,
+      2142,
+      2239,
+      2341,
+      2439,
+      2538,
+      2641,
+      2739,
+      2839,
+      2941,
+      3022,
+      3098,
+      3198,
+      3327,
+      3445,
+      3541,
+      3648,
+      3746,
+      3859,
+      3959,
+      4058,
+      4159,
+      4255,
+      4308,
+      4356,
+      4407,
+      4464,
+      4505,
+      4555,
+      4604,
+      4665,
+      4706,
+      4755,
+      4803,
+      4855,
+      4924,
+      4997,
+      5038,
+      5115
+    ],
+    "renderedFrames": 144,
+    "renderedFps": 30,
+    "hdGpuPreview": false,
+    "renderer": {
+      "quality": "auto",
+      "backend": "cpu",
+      "resolution": [
+        540,
+        959
+      ],
+      "field": [
+        240,
+        360
+      ],
+      "frames": 279,
+      "targetFps": 30,
+      "fallbackReason": null
+    },
+    "renderedScope": "Deterministic production fog at the recorded export cadence, posed host and equivalent fade; offline export is not a live FPS measurement. Original timed screen capture retained separately.",
+    "cancelledCleanly": true,
+    "reducedMotionNoParticleLoop": true
+  },
+  "native": {
+    "passed": true,
+    "archiveSha256": "c2629732a0308e8e3f4c3cdbc266e2b73a4ed64e7555d6f5ad974fa36a45eb9c",
+    "graphics": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+    "interruptionChecks": [
+      {
+        "name": "Stop",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 542,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": false,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      },
+      {
+        "name": "hard mute",
+        "frame": null,
+        "hidden": true,
+        "active": false,
+        "frames": 553,
+        "voice": {
+          "state": "ready",
+          "connecting": false,
+          "listening": false,
+          "hardMuted": true,
+          "wakeEnabled": false,
+          "persona": "velora"
+        }
+      }
+    ],
+    "nativePixelProbe": {
+      "samples": [
+        {
+          "x": 216,
+          "y": 383,
+          "rgba": [
+            123,
+            138,
+            154,
+            105
+          ]
+        },
+        {
+          "x": 216,
+          "y": 767,
+          "rgba": [
+            123,
+            133,
+            145,
+            112
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1151,
+          "rgba": [
+            110,
+            117,
+            126,
+            138
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1535,
+          "rgba": [
+            114,
+            126,
+            139,
+            190
+          ]
+        },
+        {
+          "x": 216,
+          "y": 1727,
+          "rgba": [
+            112,
+            126,
+            142,
+            109
+          ]
+        },
+        {
+          "x": 540,
+          "y": 383,
+          "rgba": [
+            102,
+            116,
+            131,
+            106
+          ]
+        },
+        {
+          "x": 540,
+          "y": 767,
+          "rgba": [
+            108,
+            117,
+            127,
+            97
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1151,
+          "rgba": [
+            118,
+            127,
+            138,
+            98
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1535,
+          "rgba": [
+            125,
+            139,
+            154,
+            116
+          ]
+        },
+        {
+          "x": 540,
+          "y": 1727,
+          "rgba": [
+            109,
+            123,
+            139,
+            120
+          ]
+        },
+        {
+          "x": 864,
+          "y": 383,
+          "rgba": [
+            106,
+            124,
+            143,
+            142
+          ]
+        },
+        {
+          "x": 864,
+          "y": 767,
+          "rgba": [
+            91,
+            108,
+            125,
+            98
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1151,
+          "rgba": [
+            82,
+            97,
+            113,
+            159
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1535,
+          "rgba": [
+            98,
+            115,
+            133,
+            161
+          ]
+        },
+        {
+          "x": 864,
+          "y": 1727,
+          "rgba": [
+            99,
+            117,
+            135,
+            127
+          ]
+        }
+      ],
+      "error": 0
+    },
+    "scope": "Actual packaged production animation explicitly triggered; silent, no acoustic wake or physical-TV test. Screenshot capture target 12 fps; capture timings recorded.",
+    "frames": 60,
+    "captureTimesMs": [
+      180,
+      315,
+      405,
+      488,
+      572,
+      690,
+      773,
+      850,
+      933,
+      1023,
+      1116,
+      1201,
+      1282,
+      1390,
+      1489,
+      1567,
+      1650,
+      1741,
+      1814,
+      1893,
+      1970,
+      2040,
+      2110,
+      2184,
+      2252,
+      2318,
+      2392,
+      2457,
+      2518,
+      2584,
+      2658,
+      2717,
+      2784,
+      2856,
+      2925,
+      2984,
+      3066,
+      3182,
+      3290,
+      3389,
+      3489,
+      3588,
+      3689,
+      3764,
+      3871,
+      3971,
+      4053,
+      4137,
+      4237,
+      4306,
+      4371,
+      4433,
+      4499,
+      4571,
+      4631,
+      4705,
+      4772,
+      4837,
+      4904,
+      4988
+    ],
+    "renderedFrames": 288,
+    "renderedFps": 60,
+    "hdGpuPreview": true,
+    "renderer": {
+      "quality": "hd",
+      "backend": "gpu",
+      "resolution": [
+        1080,
+        1919
+      ],
+      "field": null,
+      "frames": 553,
+      "targetFps": 60,
+      "fallbackReason": null
+    },
+    "renderedScope": "Deterministic production fog at the recorded export cadence, posed host and equivalent fade; offline export is not a live FPS measurement. Original timed screen capture retained separately.",
+    "cancelledCleanly": true,
+    "reducedMotionNoParticleLoop": true
+  },
+  "isolatedCpuCost": {
+    "scope": "Offline isolated Node CPU field generation, mocked canvas upload; shared host. Not browser/display FPS, whole-app CPU or power.",
+    "results": [
+      {
+        "name": "before",
+        "width": 240,
+        "height": 360,
+        "medianMs": 4.405735000000007,
+        "minMs": 4.386550999999997,
+        "maxMs": 4.435430999999994
+      },
+      {
+        "name": "after",
+        "width": 240,
+        "height": 360,
+        "medianMs": 5.556337000000013,
+        "minMs": 5.40457600000002,
+        "maxMs": 5.58811399999999
+      }
+    ]
+  },
+  "baseline": {
+    "archiveSha256": "9d6a0d1cd153ce8cde501021cc6c917e42af6c1a678938f3426957698e97bd15",
+    "visibleSamples": 15,
+    "blackSamples": 11,
+    "failed": true,
+    "log": "artifacts/wake-swirl-black-baseline.log"
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/wake-flow-final-tests.log"
+  },
+  "sourceHashes": {
+    "src/mirrorFog.js": "d9afecc146fae9d0861b0e6fc7c28d2dae26bd141e1dc2649e4bfff2c92c2c0f",
+    "src/gpuMirrorFog.js": "42211432e0c9e1277fbd776658ce50c0a67ea73e6e1e1929e82520eace44b16a",
+    "tools/check-magic-animation.cjs": "dd3c8c45e54d07a1d6feca4ec71215904804349f078b24204497a3c9c6487224",
+    "tools/test-magic-theatre.cjs": "897987a5776e155f4d23bd5f662ea55473a1191dbfed3d8fb5c0351f460319c0",
+    "tools/probe-fog-native.cjs": "a0b374a00487c132e2b60d73c952d271e03c4ccfa73843058e2c962766fc742c"
+  }
+}

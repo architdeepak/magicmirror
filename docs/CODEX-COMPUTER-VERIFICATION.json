@@ -1,0 +1,62 @@
+{
+  "checkedAt": "2026-10-08T01:19:28.992Z",
+  "scope": "Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.",
+  "labels": [
+    "QUILL",
+    "MOSS",
+    "STONE",
+    "FEATHER"
+  ],
+  "secret": "OPAL 438",
+  "clicks": [
+    "FEATHER"
+  ],
+  "result": {
+    "completed": true,
+    "summary": "REVEALED: OPAL 438"
+  },
+  "report": {
+    "calls": [
+      {
+        "name": "get_mirror_state",
+        "args": {}
+      },
+      {
+        "name": "open_webpage",
+        "args": {
+          "url": "http://127.0.0.1:36703/"
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "computer_action",
+        "args": {
+          "action": "click",
+          "snapshotId": "4c176b8f-8568-4039-994c-624966fd45b3",
+          "x": 587,
+          "y": 478
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      }
+    ],
+    "errors": [],
+    "result": {
+      "completed": true,
+      "summary": "REVEALED: OPAL 438"
+    }
+  }
+}

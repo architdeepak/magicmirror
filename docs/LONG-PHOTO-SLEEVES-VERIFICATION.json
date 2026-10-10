@@ -1,0 +1,1156 @@
+{
+  "archiveSha256": "a9813599fb9d3677abc401084c8cff15f4a8e7b6ea4300f02f5ef77f652a3607",
+  "packagedLongWardrobe": {
+    "passed": true,
+    "archiveSha256": "a9813599fb9d3677abc401084c8cff15f4a8e7b6ea4300f02f5ef77f652a3607",
+    "full": {
+      "sleeveStyle": "photo-long-sleeve",
+      "missingSleeves": 0,
+      "imageReady": true,
+      "visible": true,
+      "garmentView": "front",
+      "backImageReady": false,
+      "curvedTorso": false,
+      "cameraActive": true,
+      "trackingReady": true,
+      "cameraClarity": "off",
+      "clarityCostMs": 0,
+      "bodyDetected": true,
+      "frameAgeMs": 27,
+      "status": "The garment overlay is visible on the live camera."
+    },
+    "partial": {
+      "sleeveStyle": "photo-long-sleeve",
+      "missingSleeves": 1,
+      "imageReady": true,
+      "visible": true,
+      "garmentView": "front",
+      "backImageReady": false,
+      "curvedTorso": false,
+      "cameraActive": true,
+      "trackingReady": true,
+      "cameraClarity": "off",
+      "clarityCostMs": 0,
+      "bodyDetected": true,
+      "frameAgeMs": 22.200000047683716,
+      "status": "Torso fitted; keep elbows and wrists visible for full sleeves."
+    },
+    "checks": [
+      "DOM long photo upload/cutout and real native save",
+      "exact original retained",
+      "voice wardrobe selection reaches articulated long texture",
+      "real synthetic camera MediaStream transport",
+      "structured full/partial sleeve state and user guidance",
+      "one/both missing wrists retain correct torso; recovery restores sleeves",
+      "ended camera clears outfit"
+    ],
+    "scope": "Actual packaged Linux UI, native storage, voice command callback and real synthetic MediaStream. Pose/depth/segmentation are fixtures; no acoustic voice, physical camera/gesture or garment realism proof."
+  },
+  "matchedFrozenReplay": {
+    "passed": true,
+    "pattern": {
+      "kind": "photo-long-sleeve",
+      "long": true,
+      "sides": [
+        {
+          "outer": {
+            "u": 0.35517970401691334,
+            "v": 0.07537688442211055
+          },
+          "inner": {
+            "u": 0.3023255813953488,
+            "v": 0.4623115577889447
+          },
+          "cuffOuter": {
+            "u": 0,
+            "v": 0.8994974874371859
+          },
+          "cuffInner": {
+            "u": 0.07188160676532769,
+            "v": 0.8994974874371859
+          },
+          "samples": [
+            {
+              "t": 0,
+              "outer": {
+                "u": 0.35517970401691334,
+                "v": 0.07537688442211055
+              },
+              "inner": {
+                "u": 0.3023255813953488,
+                "v": 0.4623115577889447
+              }
+            },
+            {
+              "t": 0.30677290836653387,
+              "outer": {
+                "u": 0.1416490486257928,
+                "v": 0.4623115577889447
+              },
+              "inner": {
+                "u": 0.27906976744186046,
+                "v": 0.4623115577889447
+              }
+            },
+            {
+              "t": 0.36254980079681276,
+              "outer": {
+                "u": 0.12473572938689217,
+                "v": 0.49748743718592964
+              },
+              "inner": {
+                "u": 0.26004228329809725,
+                "v": 0.49748743718592964
+              }
+            },
+            {
+              "t": 0.41832669322709165,
+              "outer": {
+                "u": 0.10993657505285412,
+                "v": 0.5326633165829145
+              },
+              "inner": {
+                "u": 0.24101479915433405,
+                "v": 0.5326633165829145
+              }
+            },
+            {
+              "t": 0.47410358565737054,
+              "outer": {
+                "u": 0.09513742071881606,
+                "v": 0.5678391959798995
+              },
+              "inner": {
+                "u": 0.23255813953488372,
+                "v": 0.5678391959798995
+              }
+            },
+            {
+              "t": 0.5298804780876494,
+              "outer": {
+                "u": 0.07822410147991543,
+                "v": 0.6030150753768844
+              },
+              "inner": {
+                "u": 0.21775898520084566,
+                "v": 0.6030150753768844
+              }
+            },
+            {
+              "t": 0.5856573705179283,
+              "outer": {
+                "u": 0.06765327695560254,
+                "v": 0.6381909547738693
+              },
+              "inner": {
+                "u": 0.20507399577167018,
+                "v": 0.6381909547738693
+              }
+            },
+            {
+              "t": 0.6414342629482072,
+              "outer": {
+                "u": 0.05496828752642706,
+                "v": 0.6733668341708543
+              },
+              "inner": {
+                "u": 0.1839323467230444,
+                "v": 0.6733668341708543
+              }
+            },
+            {
+              "t": 0.6972111553784861,
+              "outer": {
+                "u": 0.04439746300211417,
+                "v": 0.7085427135678392
+              },
+              "inner": {
+                "u": 0.1649048625792812,
+                "v": 0.7085427135678392
+              }
+            },
+            {
+              "t": 0.7529880478087649,
+              "outer": {
+                "u": 0.03382663847780127,
+                "v": 0.7437185929648241
+              },
+              "inner": {
+                "u": 0.14799154334038056,
+                "v": 0.7437185929648241
+              }
+            },
+            {
+              "t": 0.8087649402390438,
+              "outer": {
+                "u": 0.021141649048625793,
+                "v": 0.7788944723618091
+              },
+              "inner": {
+                "u": 0.12473572938689217,
+                "v": 0.7788944723618091
+              }
+            },
+            {
+              "t": 0.8645418326693227,
+              "outer": {
+                "u": 0.014799154334038054,
+                "v": 0.8140703517587939
+              },
+              "inner": {
+                "u": 0.09936575052854123,
+                "v": 0.8140703517587939
+              }
+            },
+            {
+              "t": 0.9203187250996016,
+              "outer": {
+                "u": 0.004228329809725159,
+                "v": 0.8492462311557789
+              },
+              "inner": {
+                "u": 0.08456659619450317,
+                "v": 0.8492462311557789
+              }
+            },
+            {
+              "t": 0.9760956175298805,
+              "outer": {
+                "u": 0,
+                "v": 0.8844221105527639
+              },
+              "inner": {
+                "u": 0.07610993657505286,
+                "v": 0.8844221105527639
+              }
+            },
+            {
+              "t": 1,
+              "outer": {
+                "u": 0,
+                "v": 0.8994974874371859
+              },
+              "inner": {
+                "u": 0.07188160676532769,
+                "v": 0.8994974874371859
+              }
+            }
+          ]
+        },
+        {
+          "outer": {
+            "u": 0.6913319238900634,
+            "v": 0.09296482412060302
+          },
+          "inner": {
+            "u": 0.7441860465116279,
+            "v": 0.4623115577889447
+          },
+          "cuffOuter": {
+            "u": 0.9725158562367865,
+            "v": 0.8969849246231156
+          },
+          "cuffInner": {
+            "u": 0.9175475687103594,
+            "v": 0.8969849246231156
+          },
+          "samples": [
+            {
+              "t": 0,
+              "outer": {
+                "u": 0.6913319238900634,
+                "v": 0.09296482412060302
+              },
+              "inner": {
+                "u": 0.7441860465116279,
+                "v": 0.4623115577889447
+              }
+            },
+            {
+              "t": 0.29817444219066935,
+              "outer": {
+                "u": 0.8668076109936576,
+                "v": 0.4623115577889447
+              },
+              "inner": {
+                "u": 0.7209302325581395,
+                "v": 0.4623115577889447
+              }
+            },
+            {
+              "t": 0.35496957403651114,
+              "outer": {
+                "u": 0.8773784355179705,
+                "v": 0.49748743718592964
+              },
+              "inner": {
+                "u": 0.7293868921775899,
+                "v": 0.49748743718592964
+              }
+            },
+            {
+              "t": 0.4117647058823529,
+              "outer": {
+                "u": 0.8879492600422833,
+                "v": 0.5326633165829145
+              },
+              "inner": {
+                "u": 0.7441860465116279,
+                "v": 0.5326633165829145
+              }
+            },
+            {
+              "t": 0.4685598377281947,
+              "outer": {
+                "u": 0.9027484143763214,
+                "v": 0.5678391959798995
+              },
+              "inner": {
+                "u": 0.7653276955602537,
+                "v": 0.5678391959798995
+              }
+            },
+            {
+              "t": 0.5253549695740365,
+              "outer": {
+                "u": 0.9175475687103594,
+                "v": 0.6030150753768844
+              },
+              "inner": {
+                "u": 0.7801268498942917,
+                "v": 0.6030150753768844
+              }
+            },
+            {
+              "t": 0.5821501014198783,
+              "outer": {
+                "u": 0.9302325581395349,
+                "v": 0.6381909547738693
+              },
+              "inner": {
+                "u": 0.7970401691331924,
+                "v": 0.6381909547738693
+              }
+            },
+            {
+              "t": 0.6389452332657201,
+              "outer": {
+                "u": 0.945031712473573,
+                "v": 0.6733668341708543
+              },
+              "inner": {
+                "u": 0.8097251585623678,
+                "v": 0.6733668341708543
+              }
+            },
+            {
+              "t": 0.6957403651115619,
+              "outer": {
+                "u": 0.9556025369978859,
+                "v": 0.7085427135678392
+              },
+              "inner": {
+                "u": 0.8266384778012685,
+                "v": 0.7085427135678392
+              }
+            },
+            {
+              "t": 0.7525354969574036,
+              "outer": {
+                "u": 0.9661733615221987,
+                "v": 0.7437185929648241
+              },
+              "inner": {
+                "u": 0.8456659619450317,
+                "v": 0.7437185929648241
+              }
+            },
+            {
+              "t": 0.8093306288032455,
+              "outer": {
+                "u": 0.9704016913319239,
+                "v": 0.7788944723618091
+              },
+              "inner": {
+                "u": 0.864693446088795,
+                "v": 0.7788944723618091
+              }
+            },
+            {
+              "t": 0.8661257606490872,
+              "outer": {
+                "u": 0.9809725158562368,
+                "v": 0.8140703517587939
+              },
+              "inner": {
+                "u": 0.8858350951374208,
+                "v": 0.8140703517587939
+              }
+            },
+            {
+              "t": 0.922920892494929,
+              "outer": {
+                "u": 0.9936575052854123,
+                "v": 0.8492462311557789
+              },
+              "inner": {
+                "u": 0.9027484143763214,
+                "v": 0.8492462311557789
+              }
+            },
+            {
+              "t": 0.9797160243407708,
+              "outer": {
+                "u": 0.9978858350951374,
+                "v": 0.8844221105527639
+              },
+              "inner": {
+                "u": 0.9133192389006343,
+                "v": 0.8844221105527639
+              }
+            },
+            {
+              "t": 1,
+              "outer": {
+                "u": 0.9725158562367865,
+                "v": 0.8969849246231156
+              },
+              "inner": {
+                "u": 0.9175475687103594,
+                "v": 0.8969849246231156
+              }
+            }
+          ]
+        }
+      ],
+      "underarm": 0.4623115577889447,
+      "hem": 0.99
+    },
+    "reports": [
+      {
+        "second": 1,
+        "inputSha256": "f8e7a3ef0198d18c3b86c0366dfc4625b3f6bb15580a480f16a3fbf4b0f01994",
+        "metrics": [
+          {
+            "meshDrawCommandMs": 2.200000047683716,
+            "occlusionCommandMs": 0.2999999523162842,
+            "articulated": false,
+            "visible": true,
+            "triangles": 128,
+            "missingSleeves": null,
+            "coveredForearms": [],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 157.33323987530682
+              },
+              {
+                "wrist": 16,
+                "pixels": 123.16542043128173
+              }
+            ]
+          },
+          {
+            "meshDrawCommandMs": 5.299999952316284,
+            "occlusionCommandMs": 0.10000014305114746,
+            "articulated": true,
+            "visible": true,
+            "triangles": 448,
+            "missingSleeves": 0,
+            "coveredForearms": [
+              15,
+              16
+            ],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 5.684341886080802e-14
+              },
+              {
+                "wrist": 16,
+                "pixels": 5.684341886080802e-14
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "second": 6,
+        "inputSha256": "a2fb91701b0a5b8f4b27e98a2a2f589548b4010164ae7bda2e12960924e34db8",
+        "metrics": [
+          {
+            "meshDrawCommandMs": 1.6000001430511475,
+            "occlusionCommandMs": 0.09999990463256836,
+            "articulated": false,
+            "visible": true,
+            "triangles": 128,
+            "missingSleeves": null,
+            "coveredForearms": [],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 64.48602021260693
+              },
+              {
+                "wrist": 16,
+                "pixels": 2.8802602344965664
+              }
+            ]
+          },
+          {
+            "meshDrawCommandMs": 3.4000000953674316,
+            "occlusionCommandMs": 0,
+            "articulated": true,
+            "visible": true,
+            "triangles": 448,
+            "missingSleeves": 0,
+            "coveredForearms": [
+              15,
+              16
+            ],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 1.1368683772161603e-13
+              },
+              {
+                "wrist": 16,
+                "pixels": 1.1368683772161603e-13
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "second": 12,
+        "inputSha256": "78408cf7ca115cfd2271e08c9bbfc8b81962bc56db98bc63954c2343cf59348c",
+        "metrics": [
+          {
+            "meshDrawCommandMs": 1.2000000476837158,
+            "occlusionCommandMs": 7.5,
+            "articulated": false,
+            "visible": true,
+            "triangles": 128,
+            "missingSleeves": null,
+            "coveredForearms": [],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 91.48995843270416
+              },
+              {
+                "wrist": 16,
+                "pixels": 39.766501331763266
+              }
+            ]
+          },
+          {
+            "meshDrawCommandMs": 3.8999998569488525,
+            "occlusionCommandMs": 7.200000047683716,
+            "articulated": true,
+            "visible": true,
+            "triangles": 448,
+            "missingSleeves": 0,
+            "coveredForearms": [
+              15,
+              16
+            ],
+            "cuffErrors": [
+              {
+                "wrist": 15,
+                "pixels": 0
+              },
+              {
+                "wrist": 16,
+                "pixels": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "second": 18,
+        "inputSha256": "9d7382c301bc6ea64fca704c179a1ebbac0ab165ee9dd383c29e34e93876ae6e",
+        "metrics": [
+          {
+            "articulated": false,
+            "visible": false,
+            "triangles": 0,
+            "missingSleeves": null,
+            "coveredForearms": [],
+            "cuffErrors": []
+          },
+          {
+            "articulated": true,
+            "visible": false,
+            "triangles": 0,
+            "missingSleeves": null,
+            "coveredForearms": [],
+            "cuffErrors": []
+          }
+        ]
+      }
+    ],
+    "scope": "Actual Electron canvas and real public long garment, four frozen human-camera/pose/world/mask inputs from earlier offline worker replay. Before/after use identical inputs and existing occlusion logic. Cuff metrics establish projected landmark binding, not physical fit, drape, sizing or real camera accuracy."
+  },
+  "liveRecordedWorkerReplay": {
+    "scope": "Recorded public human motion through actual offline workers and camera stream, software graphics; no physical input or sizing accuracy validation.",
+    "inputWidth": 1920,
+    "inputHeight": 1080,
+    "seconds": 22.245700000047684,
+    "trackingTicks": 614,
+    "visibleTrackingTicks": 568,
+    "ticks": 668,
+    "visibleTicks": 573,
+    "beats": 836,
+    "maxBeatGapMs": 102.5,
+    "samples": [
+      {
+        "second": 0,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 42,
+        "shoulderX": 0.5329335526394785,
+        "elbowX": 0.5771296600888065,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.200000047683716,
+        "inferenceMs": 23,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 1,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 136.70000004768372,
+        "shoulderX": 0.5330883246487811,
+        "elbowX": 0.5545186181700218,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.299999952316284,
+        "inferenceMs": 22.799999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 2,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 250.09999990463257,
+        "shoulderX": 0.5167127284014149,
+        "elbowX": 0.5759373611750334,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7,
+        "inferenceMs": 154.09999990463257,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 3,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 166.29999995231628,
+        "shoulderX": 0.5109526769159999,
+        "elbowX": 0.5621828419667725,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.200000047683716,
+        "inferenceMs": 23.600000143051147,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 4,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 147.20000004768372,
+        "shoulderX": 0.5264663293204727,
+        "elbowX": 0.55426170236866,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.300000190734863,
+        "inferenceMs": 22.40000009536743,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 5,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 243.70000004768372,
+        "shoulderX": 0.5416275413505452,
+        "elbowX": 0.5983201481936828,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.200000047683716,
+        "inferenceMs": 153.89999985694885,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 6,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 164.69999980926514,
+        "shoulderX": 0.5331622427777073,
+        "elbowX": 0.5588555623925738,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "natural",
+        "clarityCostMs": 7.5,
+        "inferenceMs": 23.200000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 7,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 169.5,
+        "shoulderX": 0.5401776964631806,
+        "elbowX": 0.5505800151185386,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.5,
+        "inferenceMs": 22.59999990463257,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 8,
+        "sleeveStyle": null,
+        "missingSleeves": null,
+        "visible": false,
+        "poseAgeMs": 175.59999990463257,
+        "shoulderX": 0.5052345611621584,
+        "elbowX": 0.5134628382416951,
+        "worldLandmarks": 33,
+        "curvedTorso": false,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.400000095367432,
+        "inferenceMs": 155.40000009536743,
+        "status": "Step back so your shoulders and hips are visible."
+      },
+      {
+        "second": 9,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 98.39999985694885,
+        "shoulderX": 0.5327711849563385,
+        "elbowX": 0.5978782773017883,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7.199999809265137,
+        "inferenceMs": 22.600000143051147,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 10,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 90.30000019073486,
+        "shoulderX": 0.5330115098963789,
+        "elbowX": 0.5935011431889125,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 6.799999952316284,
+        "inferenceMs": 22.200000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 11,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 235.5,
+        "shoulderX": 0.5318416665117621,
+        "elbowX": 0.5660249601882594,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 7,
+        "inferenceMs": 23.40000009536743,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 12,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 244.70000004768372,
+        "shoulderX": 0.51606084286998,
+        "elbowX": 0.5720264456933437,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 6.8999998569488525,
+        "inferenceMs": 153,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 13,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 135,
+        "shoulderX": 0.5124647183795273,
+        "elbowX": 0.5210573856618824,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "bright",
+        "clarityCostMs": 6.799999952316284,
+        "inferenceMs": 22.700000047683716,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 14,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 241.09999990463257,
+        "shoulderX": 0.527676262674665,
+        "elbowX": 0.5462261201490098,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.299999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 15,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 296.7000000476837,
+        "shoulderX": 0.5417856098123865,
+        "elbowX": 0.5799372656564692,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.299999952316284,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 16,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 83.79999995231628,
+        "shoulderX": 0.5341557069762991,
+        "elbowX": 0.5393415163123512,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.40000009536743,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 17,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 82.5,
+        "shoulderX": 0.5428319302161003,
+        "elbowX": 0.5486466841326358,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.5,
+        "status": "The garment overlay is visible on the live camera."
+      },
+      {
+        "second": 18,
+        "sleeveStyle": null,
+        "missingSleeves": null,
+        "visible": false,
+        "poseAgeMs": 168.10000014305115,
+        "shoulderX": 0.5101042276173434,
+        "elbowX": 0.517724967155237,
+        "worldLandmarks": 33,
+        "curvedTorso": false,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22.40000009536743,
+        "status": "Step back so your shoulders and hips are visible."
+      },
+      {
+        "second": 19,
+        "sleeveStyle": "photo-long-sleeve",
+        "missingSleeves": 0,
+        "visible": true,
+        "poseAgeMs": 301.5,
+        "shoulderX": 0.5327669916423027,
+        "elbowX": 0.5945699214935303,
+        "worldLandmarks": 33,
+        "curvedTorso": true,
+        "cameraClarity": "off",
+        "clarityCostMs": 0,
+        "inferenceMs": 22,
+        "status": "The garment overlay is visible on the live camera."
+      }
+    ],
+    "lossCleared": true
+  },
+  "corpus": {
+    "results": [
+      {
+        "name": "jin_00_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_01_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_02_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "jin_03_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_04_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "jin_05_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "jin_06_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_07_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_08_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_09_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_10_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_11_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_12_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_13_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "jin_14_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_15_white_bg.jpg",
+        "kind": "needs cutout",
+        "error": "This image needs a garment cutout. Use a front-facing transparent PNG for live fit."
+      },
+      {
+        "name": "jin_16_white_bg.jpg",
+        "kind": "needs cutout",
+        "error": "This image needs a garment cutout. Use a front-facing transparent PNG for live fit."
+      },
+      {
+        "name": "jin_17_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_18_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_19_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_20_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_21_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_22_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_23_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_24_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "jin_25_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "jin_26_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "lab_00_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "lab_01_white_bg.jpg",
+        "kind": "needs cutout",
+        "error": "This image needs a garment cutout. Use a front-facing transparent PNG for live fit."
+      },
+      {
+        "name": "lab_02_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      },
+      {
+        "name": "lab_03_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "lab_04_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "lab_05_white_bg.jpg",
+        "kind": "torso only"
+      },
+      {
+        "name": "lab_06_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "lab_07_white_bg.jpg",
+        "kind": "photo-short-sleeve"
+      },
+      {
+        "name": "lab_08_white_bg.jpg",
+        "kind": "photo-long-sleeve"
+      }
+    ],
+    "scope": "Actual public garment image decoding and inference on 36 local author fixtures. Classification is inspected manually; no automatic ground-truth accuracy or all-style support claim."
+  },
+  "perArmOcclusionPixels": {
+    "passed": true,
+    "front": [
+      32,
+      64,
+      224,
+      255
+    ],
+    "rear": [
+      32,
+      64,
+      224,
+      255
+    ],
+    "original": [
+      224,
+      32,
+      32,
+      255
+    ],
+    "frontMirrored": true,
+    "backMirrored": true,
+    "clipped": {
+      "frontAlpha": 0,
+      "behindAlpha": 255
+    },
+    "coveredAlpha": 255,
+    "coveredHandAlpha": 0,
+    "uncoveredAlpha": 0,
+    "handAlpha": 0,
+    "fallbackHandAlpha": 0,
+    "missingShouldersSurvived": true,
+    "scope": "Actual Electron canvas pixels and real GarmentOverlay.select front/back path. Synthetic known colors, pose depth and segmentation; no physical detection, cloth realism or depth calibration proof."
+  },
+  "fullTests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "/tmp/mirror-long-photo-tests.log"
+  },
+  "sourceSha256": {
+    "photoSleeves.js": "b8b010581df9b15064bf25e2b0a5273464137b6a055e258412339620cc068248",
+    "longPhotoSleeves.js": "d950a44dce3f7de793e57fcf9013c21851c5bc8a64269c349e3c1afe33e6cafa",
+    "garmentOverlay.js": "315beb796ed8bce10cd0b53275fd8da4e03ad32cfc5b611b4150bba5b5c710ef",
+    "garmentLimbOcclusion.js": "f7f0c92b57fbbfae578b4ddde809ebd0d16c51068205e90595d1c56a901e78b6",
+    "wardrobePhoto.js": "e4dd28220f08cd64aa4019eb379385cb37bfa595be8e9e8924574f1c37de16bd",
+    "main.js": "0e242b216a1db40d61a218ce0cc9d6d7338b97005301235d05effbc1eef19713"
+  },
+  "completedPriorMonitor": {
+    "build": {
+      "archiveSha256": "2ee621673b7646f4071ee19c730d51a922c4a9adb983845e9df04f5f00092cf9",
+      "gitRevision": "1de8323ac8a5067306c79ad7fe0a247494aa1e39",
+      "isolatedCopy": true,
+      "avatarStyle": "rig",
+      "graphicsRequest": "software"
+    },
+    "status": "finished",
+    "sampleCount": 591,
+    "errors": [],
+    "scope": "Actual packaged Linux portrait app, graphics request software, temporary profile, no live voice/cloud/camera/media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app."
+  },
+  "sourceModulesMatchPackagedArchive": true,
+  "broadWardrobeRegression": {
+    "status": "passed",
+    "starterGarments": 30,
+    "savedGarments": 8,
+    "checks": [
+      "real garment upload/cutout",
+      "paired front/back cutout, persistence, original retention, voice view switching and different rear raster",
+      "invalid back PNG rejected before persistence",
+      "saved photo short sleeve inference",
+      "offline worn clothing extraction, voice/gesture crop and real persistence",
+      "real IPC persistence/reload",
+      "original retained",
+      "photo clarity voice controls and exact original restoration",
+      "independent front/back clarity drafts",
+      "invalid PNG rejected",
+      "concurrent saves",
+      "camera unavailable",
+      "synthetic camera capture",
+      "voice tool commands",
+      "interpreted swipe and pinch routing",
+      "cancel",
+      "gesture-only capture/type/save with automatic name",
+      "editor Stop/mute controls, two colored bottom captions and restoration",
+      "paired LAN phone photo upload",
+      "one-photo acceptance",
+      "unauthenticated/cross-origin/invalid phone requests rejected"
+    ],
+    "limits": [
+      "No physical camera/gesture recognition or garment drape accuracy measured. Rear selection uses synthetic poses and a synthetic back fixture.",
+      "Worn extraction includes all visible clothes; crop and review needed. Hidden fabric is not reconstructed."
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-10-08T16:18:13.987Z",
+  "scope": "Actual installed Codex, packaged Linux app, real display screenshots and Chromium input, local synthetic fixture. No physical sensors, Windows input or production account actions.",
+  "typedMode": true,
+  "labels": [
+    "STONE",
+    "QUILL",
+    "MOSS",
+    "FEATHER"
+  ],
+  "secret": "OPAL 668",
+  "clicks": [],
+  "place": "Opal Meadow 332",
+  "age": 13,
+  "result": {
+    "completed": true,
+    "summary": "Lena’s last-known location is Opal Meadow 332, updated 13 minutes ago with approximately 200 metres accuracy; her current location is unavailable."
+  },
+  "report": {
+    "calls": [
+      {
+        "name": "get_mirror_state",
+        "args": {}
+      },
+      {
+        "name": "open_webpage",
+        "args": {
+          "url": "http://127.0.0.1:39133/"
+        }
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      },
+      {
+        "name": "see_screen",
+        "args": {}
+      }
+    ],
+    "errors": []
+  }
+}

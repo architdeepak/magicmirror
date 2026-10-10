@@ -36,15 +36,18 @@ export class SpeechEngine {
   }
 
   speak(text) {
-    if (!this.synth || !text) return;
+    if (!this.synth || !text) return Promise.resolve();
     this.stop();
+    const completion = new Promise((resolve) => { this.resolveSpeech = resolve; });
     const utterance = new SpeechSynthesisUtterance(text);
+    this.utterance = utterance;
     utterance.voice = this.voice || null;
     const profile = VOICE_PROFILES[this.persona] || VOICE_PROFILES.velora;
     utterance.rate = profile.rate;
     utterance.pitch = profile.pitch;
     utterance.volume = 1;
     utterance.onstart = () => {
+      if (this.utterance !== utterance) return;
       this.isSpeaking = true;
       this.avatar.setMood('neutral');
       this.callbacks.onState?.('speaking');
@@ -75,17 +78,21 @@ export class SpeechEngine {
         });
       }, 86);
     };
-    utterance.onend = () => this._finish();
-    utterance.onerror = () => this._finish();
+    utterance.onend = () => { if (this.utterance === utterance) this._finish(); };
+    utterance.onerror = utterance.onend;
     this.synth.speak(utterance);
+    return completion;
   }
 
   stop() {
-    if (this.synth?.speaking) this.synth.cancel();
     this._finish();
+    this.synth?.cancel();
   }
 
   _finish() {
+    this.utterance = null;
+    this.resolveSpeech?.();
+    this.resolveSpeech = null;
     clearInterval(this.timer);
     this.timer = null;
     this.isSpeaking = false;
@@ -118,7 +125,7 @@ function blinkAt(milliseconds) {
 // Browser voices vary by operating system, so the named regexes are merely
 // preferences; every platform still has a graceful English-language fallback.
 const VOICE_PROFILES = Object.freeze({
-  velora: { rate: .84, pitch: .68, preferred: [/Microsoft Sonia/i, /Zira/i, /Google UK English Female/i, /Samantha/i] },
+  velora: { rate: .82, pitch: .62, preferred: [/Microsoft Sonia/i, /Zira/i, /Google UK English Female/i, /Samantha/i] },
   solenne: { rate: 1.03, pitch: 1.16, preferred: [/Microsoft Jenny/i, /Samantha/i, /Google US English/i, /Microsoft Aria/i] },
   rowan: { rate: .96, pitch: .92, preferred: [/Microsoft Ryan/i, /Microsoft Guy/i, /Daniel/i, /Google UK English Male/i] }
 });

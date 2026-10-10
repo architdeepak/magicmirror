@@ -1,0 +1,94 @@
+{
+  "checkedAt": "2026-10-10T17:57:19.125Z",
+  "archiveSha256": "d8e6a077892f7882b950d64e116b5d6599136c5e56e7d85246c951d1fd7051d9",
+  "packagedSourceMatches": true,
+  "baseline": {
+    "archiveSha256": "e34690b0375d387ab76b226c4a74ffe771a90a57e61b78ff8a84e071e5e66a35",
+    "source": "48888e5",
+    "failedAsExpected": true,
+    "log": "artifacts/body-source-change-packaged-baseline.log",
+    "observed": "Same-stream resize exposed old pose, world pose and retained camera image before update. Mask was already absent in this sample."
+  },
+  "runtime": {
+    "status": "passed",
+    "checkedAt": "2026-10-10T17:55:33.146Z",
+    "archiveSha256": "d8e6a077892f7882b950d64e116b5d6599136c5e56e7d85246c951d1fd7051d9",
+    "fixtureSha256": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+    "scope": "Packaged BodyTracking module and actual offline MediaPipe worker in Electron software graphics; recorded video through a real canvas MediaStream changing landscape to portrait without replacing the stream.",
+    "result": {
+      "before": {
+        "video": [
+          1280,
+          720
+        ],
+        "frame": [
+          1280,
+          720
+        ],
+        "pose": true,
+        "epoch": 2
+      },
+      "rejected": {
+        "pose": true,
+        "world": true,
+        "mask": true,
+        "frame": true
+      },
+      "after": {
+        "video": [
+          720,
+          1280
+        ],
+        "frame": [
+          720,
+          1280
+        ],
+        "pose": true,
+        "epoch": 3
+      },
+      "oldFrameClosed": true,
+      "stoppedFrameClosed": true,
+      "workerReady": true
+    },
+    "limits": [
+      "No physical camera format negotiation or garment fit quality measured. Portrait phase deliberately changes the recorded image aspect ratio to test source ownership."
+    ]
+  },
+  "motion": {
+    "scope": "Recorded public human motion through actual offline workers and camera stream, software graphics; no physical input or sizing accuracy validation.",
+    "seconds": 22.407299999952315,
+    "trackingTicks": 607,
+    "visibleTrackingTicks": 563,
+    "inferences": 194,
+    "lossCleared": true,
+    "cameraOffResourcesReleased": true,
+    "maxBeatGapMs": 103.79999995231628,
+    "log": "artifacts/body-source-change-final-motion.log"
+  },
+  "fullSuite": {
+    "passed": true,
+    "log": "artifacts/body-source-change-final-tests.log"
+  },
+  "unitRegression": {
+    "baselineFailed": true,
+    "baselineLog": "artifacts/body-source-invalidation-baseline.log",
+    "checks": [
+      "same-stream dimensions, inactive stream and lost readiness reject public snapshots before update",
+      "update closes retained bitmaps even while camera is unavailable",
+      "late bitmap and late worker replies cannot restore old format; next format recovers"
+    ]
+  },
+  "sourceHashes": {
+    "src/bodyTracking.js": "33a84a6a37885712583e94581debbd85e7adc7516dd572227ee9cf5f3f5bc3d7",
+    "src/garmentOverlay.js": "53355a0ad9dc8024611b370f894b0102130c92a915a03a92fbfcf0f5cff83b74",
+    "tools/test-body-tracking.cjs": "79a85de939ddbb9032b1d1ea01df7d53d267b678d30b3598bced003dcc489d68",
+    "tools/test-garment-cache.cjs": "12d5fee6c62da4c45667c3dc80e2f9f05b8df798fc7411d4c7e3181389457e59",
+    "tools/check-photo-fit-motion.cjs": "ef1a2e38169efdb2aad79e948fdbb1f203caab6715ac91095bad6191b4d9bf17",
+    "tools/check-body-source-change.cjs": "56266e9369dac91b4cb82903addf17362d7fa81761d1b8a351841bb1348f516a"
+  },
+  "limits": [
+    "Recorded input / software graphics, no physical camera renegotiation, Windows or watts proof. Motion visibility is not realistic garment fit qualification.",
+    "Initial format probe reached assertions but failed archive hashing; automatic window-close originally obscured that failure. The helper now prevents premature quit, has a deadline, reports renderer failure and hashes raw archive bytes. Those initial attempts are excluded.",
+    "Existing NVIDIA soak runs the previous immutable build and does not qualify this patch."
+  ]
+}

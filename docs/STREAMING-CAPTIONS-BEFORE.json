@@ -1,0 +1,48 @@
+{
+  "rows": [
+    {
+      "name": "word",
+      "expected": "Hello, world.",
+      "user": "",
+      "assistant": "Hel lo , world .",
+      "card": "Hel lo , world .",
+      "visibleRows": 1
+    },
+    {
+      "name": "repeat",
+      "expected": "no no no.",
+      "user": "",
+      "assistant": "no .",
+      "card": "Hel lo , world . no  no  no .",
+      "visibleRows": 1
+    },
+    {
+      "name": "chinese",
+      "expected": "你好，世界。",
+      "user": "",
+      "assistant": "你 好 ， 世界 。",
+      "card": "Hel lo , world . no  no  no . 你 好 ， 世界 。",
+      "visibleRows": 1
+    }
+  ],
+  "interleaved": {
+    "user": "the blue shirt.",
+    "assistant": "",
+    "card": "Listening…",
+    "visibleRows": 1
+  },
+  "bounded": {
+    "caption": 2000,
+    "card": 3000
+  },
+  "splitStop": {
+    "stopped": false,
+    "user": "mirror stop",
+    "assistant": "",
+    "card": "Listening…",
+    "visibleRows": 1
+  },
+  "passed": false,
+  "archiveSha256": "6bf506ffae5c1acfa51f79d6f33c7fd2a194537a9dc80684922a15745f3fee3d",
+  "scope": "Actual packaged Linux Gemini packet parser -> renderer -> caption/card DOM. Deterministic fragments, no cloud provider, physical speech, audio sync or TV-distance proof."
+}

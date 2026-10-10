@@ -1,0 +1,65 @@
+const assert=require('assert/strict');const fs=require('fs');const path=require('path');const vm=require('vm');
+const source=fs.readFileSync(path.join(__dirname,'../src/watchPlaybackController.js'),'utf8').replace('export class ','class ');
+const context=vm.createContext({Number,Error});vm.runInContext(source+'\nglobalThis.Subject=WatchPlaybackController;',context);
+(async()=>{
+  let loaded=true,opened=0;
+  const video={classList:{contains:()=>loaded},readyState:1,paused:true,ended:false,currentTime:10,duration:100,error:null,seekable:{length:1,start:()=>0,end:()=>100},async play(){this.paused=false;},pause(){this.paused=true;}};
+  const youtube={active:false,snapshot:()=>({source:'youtube',playing:false}),command:async action=>({result:'command sent',source:'youtube',playing:false,action})};
+  const controller=new context.Subject({video,frame:{classList:{contains:()=>true}},youtube,openWatch:()=>opened++});
+  assert.equal((await controller.command('play')).playing,true);assert.equal(opened,1);
+  assert.equal((await controller.command('pause')).paused,true);
+  await controller.command('volume',35);assert.equal(video.volume,.35);await assert.rejects(controller.command('volume',101),/volume/);await assert.rejects(controller.command('volume',null),/volume/);
+  assert.equal((await controller.command('seek',15)).position,25);
+  video.currentTime=90;assert.equal((await controller.command('seek',30)).position,100);
+  assert.equal((await controller.command('seek',-60)).position,40);
+  await assert.rejects(controller.command('seek',61),/between/);
+  await assert.rejects(controller.command('seek',NaN),/between/);
+  video.seekable.length=0;await assert.rejects(controller.command('seek',15),/ready to seek/);
+  loaded=false;await assert.rejects(controller.command('pause'),/own controls/);
+  youtube.active=true;assert.equal((await controller.command('play')).playing,false,'Acknowledgement was mistaken for actual playback');
+  assert.equal(controller.snapshot().source,'youtube');
+  context.URL=URL;context.performance=performance;
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchCastPlayer.js'),'utf8').replace('export class ','class ')+'\nglobalThis.Cast=WatchCastPlayer;',context);
+  const plays=[],notices=[],states=[];const castVideo={...video,volume:1,muted:false,src:'',classList:{add(){}},addEventListener(){},removeEventListener(){},load(){},play(){return new Promise((_resolve,reject)=>plays.push(reject))}};
+  const cast=new context.Cast({video:castVideo,frame:{removeAttribute(){},classList:{remove(){}}},placeholder:{classList:{add(){}}},urlInput:{},openWatch(){},onState:state=>states.push(state),onNotice:message=>notices.push(message)});
+  await cast.command({action:'load',uri:'https://example.org/first.webm'});await cast.command({action:'play'});
+  await cast.command({action:'load',uri:'https://example.org/second.webm'});await cast.command({action:'play'});
+  plays[0](new Error('Old cast failed'));await new Promise(resolve=>setImmediate(resolve));assert.equal(notices.length,0);assert.equal(states.at(-1).transport,'TRANSITIONING','Old cast changed current playback state');
+  plays[1](new Error('Current cast failed'));await new Promise(resolve=>setImmediate(resolve));assert.equal(notices.at(-1),'Current cast failed');assert(states.at(-1).error);
+  await cast.command({action:'play'});await cast.command({action:'pause'});plays[2](new Error('Paused request failed'));await new Promise(resolve=>setImmediate(resolve));assert.equal(notices.length,1);
+  await cast.command({action:'play'});await cast.command({action:'stop'});plays[3](new Error('Stopped request failed'));await new Promise(resolve=>setImmediate(resolve));assert.equal(notices.length,1);
+  await cast.command({action:'play'});cast.detach();plays[4](new Error('Detached request failed'));await new Promise(resolve=>setImmediate(resolve));assert.equal(notices.length,1);assert.equal(states.at(-1).transport,'NO_MEDIA_PRESENT');
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchAudioDucking.js'),'utf8').replace('export class ','class ')+'\nglobalThis.Duck=WatchAudioDucking;',context);
+  const listeners=new Map();let mediaLoaded=false;
+  const audible={volume:.8,muted:false,classList:{contains:()=>mediaLoaded},addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:(name,fn)=>{if(listeners.get(name)===fn)listeners.delete(name)}};
+  const duck=new context.Duck(audible);duck.setActive(true);assert.equal(audible.volume,.8,'Ducked absent media');mediaLoaded=true;listeners.get('loadedmetadata')();assert.equal(audible.volume,.2);listeners.get('volumechange')();duck.setActive(true);assert.equal(audible.volume,.2,'Repeated state compounded ducking');audible.muted=true;listeners.get('volumechange')();duck.setActive(false);assert.equal(audible.volume,.8);assert(audible.muted,'Conversation unmuted user media');
+  duck.setActive(true);audible.volume=.6;listeners.get('volumechange')();assert(duck.snapshot().userOverride);duck.setActive(true);assert.equal(audible.volume,.6);duck.setActive(false);assert.equal(audible.volume,.6,'Restoration overwrote user volume');audible.volume=0;duck.setActive(true);duck.setActive(false);assert.equal(audible.volume,0);
+  audible.volume=.4;duck.setActive(true);audible.volume=.7;duck.setActive(false);listeners.get('volumechange')();assert.equal(audible.volume,.7,'Stop before asynchronous volume event overwrote user choice');audible.volume=.8;duck.setActive(true);duck.setUserVolume(.2);duck.setActive(false);assert.equal(audible.volume,.2,'Equal-valued explicit volume intent was overwritten');assert.throws(()=>duck.setUserVolume(NaN),/volume/);duck.destroy();assert.equal(listeners.size,0);
+  console.log('Watch audio: late media load, stable attenuation, mute/zero volume, user override, late volume event and cleanup passed.');
+  console.log('Watch controls passed: shared play/pause/seek, range limits, unsupported embed handling, and actual playback state.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
+const layoutContext=vm.createContext({Number,Math});vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/watchAvatarLayout.js'),'utf8').replaceAll('export function','function').replaceAll('export class','class')+';globalThis.compute=computeWatchAvatarLayout;globalThis.Layout=WatchAvatarLayout;',layoutContext);
+for(const [width,height]of [[540,960],[720,1280],[1080,1920],[405,720]])for(const position of ['center','left','right','upper','lower']){
+ const top=95,bottom=height-280,box=layoutContext.compute({width,height,top,bottom,position});assert(box);assert(box.width>0&&box.height>0);assert(box.x>=0&&box.x+box.width<=width);assert(box.y>=top&&box.y+box.height<=bottom);assert(box.panelBottom>box.panelTop);if(position==='upper')assert(box.panelTop>=box.y+box.height+box.gap-1e-8);else assert(box.panelBottom<=box.y-box.gap+1e-8);
+}
+assert.equal(layoutContext.compute({width:0,height:100,top:0,bottom:100}),null);assert.equal(layoutContext.compute({width:500,height:900,top:600,bottom:650}),null);
+console.log('Watch avatar geometry: separate content/host bands for five positions across four portrait sizes, bounds and insufficient-space fallback passed.');
+
+// Deterministic transition ownership: no stale fade can restore a stopped host.
+{
+ let active=true,position='left',reduced=false,id=0;const timers=new Map(),frames=new Map(),styles=new Map();
+ const shell={dataset:{},style:{getPropertyValue:k=>styles.get(k)||'',setProperty:(k,v)=>styles.set(k,v)},getBoundingClientRect:()=>({top:0,left:0,right:540,bottom:960,width:540,height:960})};
+ const layout=Object.create(layoutContext.Layout.prototype);Object.assign(layout,{shell,document:{hidden:false,querySelector:selector=>selector==='.topbar'?{getBoundingClientRect:()=>({bottom:70})}:selector==='.wake-status'?{getBoundingClientRect:()=>({top:850,height:20})}:null},window:{matchMedia:()=>({matches:reduced}),setTimeout:fn=>{timers.set(++id,fn);return id},clearTimeout:key=>timers.delete(key),requestAnimationFrame:fn=>{frames.set(++id,fn);return id},cancelAnimationFrame:key=>frames.delete(key)},getState:()=>({active,position}),host:{getBoundingClientRect:()=>({left:layout.layout.x,right:layout.layout.x+layout.layout.width,top:layout.layout.y,bottom:layout.layout.y+layout.layout.height})},frame:null,disposed:false,layout:null});
+ layout.update();position='upper';layout.update();assert.equal(timers.size,1);assert.equal(shell.dataset.watchAvatarMoving,'fade');const stale=[...timers.values()][0];
+ position='right';layout.update();assert.equal(timers.size,0);assert(!layout.pending);stale();assert.equal(layout.layout.x,540-layout.layout.width-27,'Superseded fade moved current position');
+ position='upper';layout.update();const stopped=[...timers.values()][0];active=false;timers.clear();stopped();assert.equal(layout.snapshot().active,false);assert(!shell.dataset.watchCompanion);assert.equal(frames.size,0);
+ active=true;position='left';layout.update();position='upper';layout.update();layout.cancelMotion();assert(!shell.dataset.watchAvatarMoving);assert(!layout.pending);
+ reduced=true;layout.update();assert.equal(timers.size,0);assert.equal(layout.layout.y,95);
+ reduced=false;position='lower';layout.update();shell.dataset.sleeping='true';layout.update();assert.equal(timers.size,0);assert(!layout.snapshot().active);
+ delete shell.dataset.sleeping;layout.document.hidden=true;layout.update();assert(!layout.snapshot().active);
+ layout.document.hidden=false;position='left';layout.update();position='upper';layout.update();const moving=[...timers.values()][0];timers.clear();moving();assert.equal(frames.size,1);
+ active=false;const afterMove=[...frames.values()][0];frames.clear();afterMove();assert(!layout.snapshot().active);assert(!shell.dataset.watchAvatarMoving);
+ active=true;position='left';layout.update();position='upper';layout.update();const retired=[...timers.values()][0];
+ layout.resize={disconnect(){}};layout.mutations={disconnect(){}};layout.window.removeEventListener=()=>{};layout.document.removeEventListener=()=>{};layout.destroy();retired();layout.schedule();assert.equal(timers.size,0);assert.equal(frames.size,0);assert(layout.disposed);assert(!shell.dataset.watchCompanion);
+ console.log('Watch movement: reserved fade, superseding destination, Stop before timeout, exact cancellation, reduced motion, sleep and hidden document passed.');
+}

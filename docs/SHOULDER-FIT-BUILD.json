@@ -1,0 +1,9 @@
+{
+  "archiveSha256": "0265262ff213ed6019d597959f5b95fadb0bb2b8fb61a892908dc60b2e5d8b24",
+  "sourceSha256": "c06c3b3a1ebdbea1357aa307c6b6b78cdf0d93c25e1db4fd50465606eefd11e9",
+  "packagedSourceMatches": true,
+  "fullTestExitCode": 0,
+  "packExitCode": 0,
+  "baselineRevision": "001ff6a",
+  "scope": "Exact source/artifact hashes. Final npm test and Linux pack exited zero. Packaged source equality inspected with @electron/asar; separate linked audits retain their own scope."
+}

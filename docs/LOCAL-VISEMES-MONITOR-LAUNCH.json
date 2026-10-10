@@ -1,0 +1,239 @@
+{
+  "directory": "artifacts/monitor/2026-10-09T14-01-19-379Z",
+  "build": {
+    "archiveSha256": "236891f20f54132429bc9a402ba93578b96f33d675d75612ae012c2ee01fa12b",
+    "gitRevision": "a6f93dcb9cc030ddaa369cb10cc4752d3963bea7",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true
+  },
+  "launchSnapshot": {
+    "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, no microphone/cloud/camera/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+    "pid": 2846205,
+    "startedAt": "2026-10-09T14-01-19-379Z",
+    "updatedAt": "2026-10-09T14:02:11.308Z",
+    "status": "monitoring",
+    "sampleCount": 16,
+    "errors": [],
+    "latest": {
+      "at": "2026-10-09T14:02:11.255Z",
+      "elapsedSec": 49.318,
+      "cpuPercent": 7.853403141361256,
+      "summedRssBytes": 897441792,
+      "processCount": 5,
+      "rendererHeapBytes": 13397924,
+      "gpu": {
+        "deviceWide": "4.40, 0, [N/A]"
+      },
+      "mode": "mirror",
+      "sleeping": false,
+      "avatarAppearance": "rig",
+      "avatarRig": {
+        "ready": true,
+        "persona": "velora",
+        "quality": "auto",
+        "preparationMs": 0,
+        "preparationDraws": 0,
+        "lighting": "physical",
+        "graphics": {
+          "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+          "samples": 4
+        },
+        "antialiasing": "msaa",
+        "resolution": [
+          253,
+          471
+        ],
+        "frames": 0,
+        "reuses": 0,
+        "supported": [
+          "browDownLeft",
+          "browDownRight",
+          "browInnerUp",
+          "browOuterUpLeft",
+          "browOuterUpRight",
+          "cheekPuff",
+          "cheekSquintLeft",
+          "cheekSquintRight",
+          "eyeBlinkLeft",
+          "eyeBlinkRight",
+          "eyeSquintLeft",
+          "eyeSquintRight",
+          "eyeWideLeft",
+          "eyeWideRight",
+          "jawForward",
+          "jawLeft",
+          "jawOpen",
+          "jawRight",
+          "mouthClose",
+          "mouthFrownLeft",
+          "mouthFrownRight",
+          "mouthFunnel",
+          "mouthLeft",
+          "mouthLowerDownLeft",
+          "mouthLowerDownRight",
+          "mouthPressLeft",
+          "mouthPressRight",
+          "mouthPucker",
+          "mouthRight",
+          "mouthRollLower",
+          "mouthSmileLeft",
+          "mouthSmileRight",
+          "mouthStretchLeft",
+          "mouthStretchRight",
+          "mouthUpperUpLeft",
+          "mouthUpperUpRight",
+          "noseSneerLeft",
+          "noseSneerRight"
+        ],
+        "triangles": 972,
+        "drawCalls": 51
+      },
+      "power": {
+        "targetFps": 12,
+        "frames": 582,
+        "scene": {
+          "frames": 5,
+          "dynamic": false,
+          "dirty": false,
+          "maxDynamicFps": 60
+        }
+      },
+      "eventLoopLagMs": 0.09999990463256836,
+      "cameraActive": false,
+      "audio": {
+        "avatarClock": "suspended",
+        "hiddenAnimationRunning": false,
+        "workletConnected": false,
+        "playback": {
+          "source": "manual",
+          "enabled": false,
+          "level": 0,
+          "viseme": "rest",
+          "windowSamples": 0,
+          "visemeModel": "idle",
+          "predictedViseme": null,
+          "contextState": null
+        }
+      },
+      "speech": {
+        "active": false,
+        "bursts": 2,
+        "finishedAt": 37000.799999952316,
+        "idleMs": 13320.799999952316
+      },
+      "hardMuted": false
+    },
+    "appExit": null
+  },
+  "activeSample": {
+    "at": "2026-10-09T14:01:25.204Z",
+    "elapsedSec": 3.267,
+    "cpuPercent": 19.28374655647383,
+    "summedRssBytes": 919986176,
+    "processCount": 5,
+    "rendererHeapBytes": 15329240,
+    "gpu": {
+      "deviceWide": "5.01, 0, [N/A]"
+    },
+    "mode": "mirror",
+    "sleeping": false,
+    "avatarAppearance": "rig",
+    "avatarRig": {
+      "ready": true,
+      "persona": "velora",
+      "quality": "auto",
+      "preparationMs": 0,
+      "preparationDraws": 0,
+      "lighting": "physical",
+      "graphics": {
+        "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+        "samples": 4
+      },
+      "antialiasing": "msaa",
+      "resolution": [
+        253,
+        471
+      ],
+      "frames": 0,
+      "reuses": 0,
+      "supported": [
+        "browDownLeft",
+        "browDownRight",
+        "browInnerUp",
+        "browOuterUpLeft",
+        "browOuterUpRight",
+        "cheekPuff",
+        "cheekSquintLeft",
+        "cheekSquintRight",
+        "eyeBlinkLeft",
+        "eyeBlinkRight",
+        "eyeSquintLeft",
+        "eyeSquintRight",
+        "eyeWideLeft",
+        "eyeWideRight",
+        "jawForward",
+        "jawLeft",
+        "jawOpen",
+        "jawRight",
+        "mouthClose",
+        "mouthFrownLeft",
+        "mouthFrownRight",
+        "mouthFunnel",
+        "mouthLeft",
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "mouthPressLeft",
+        "mouthPressRight",
+        "mouthPucker",
+        "mouthRight",
+        "mouthRollLower",
+        "mouthSmileLeft",
+        "mouthSmileRight",
+        "mouthStretchLeft",
+        "mouthStretchRight",
+        "mouthUpperUpLeft",
+        "mouthUpperUpRight",
+        "noseSneerLeft",
+        "noseSneerRight"
+      ],
+      "triangles": 972,
+      "drawCalls": 51
+    },
+    "power": {
+      "targetFps": 12,
+      "frames": 40,
+      "scene": {
+        "frames": 3,
+        "dynamic": false,
+        "dirty": false,
+        "maxDynamicFps": 60
+      }
+    },
+    "eventLoopLagMs": 0.7000000476837158,
+    "cameraActive": false,
+    "audio": {
+      "avatarClock": "running",
+      "hiddenAnimationRunning": true,
+      "workletConnected": true,
+      "playback": {
+        "source": "output-waveform",
+        "enabled": true,
+        "level": 0,
+        "viseme": "rest",
+        "windowSamples": 512,
+        "visemeModel": "ready",
+        "predictedViseme": 8,
+        "contextState": "running"
+      }
+    },
+    "speech": {
+      "active": true,
+      "bursts": 1,
+      "finishedAt": -1000,
+      "idleMs": 5263.700000047684
+    },
+    "hardMuted": false
+  }
+}

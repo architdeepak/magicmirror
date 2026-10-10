@@ -1,0 +1,20 @@
+// Decode source before attributing blur/ghosting to the mirror renderer.
+const {app,BrowserWindow}=require('electron'),fs=require('fs/promises'),path=require('path'),{pathToFileURL}=require('url'),{createHash}=require('crypto'),assert=require('assert/strict');
+app.disableHardwareAcceleration();const root=path.resolve(__dirname,'..');
+app.whenReady().then(async()=>{
+ const out=path.join(root,'artifacts/camera-source');await fs.mkdir(out,{recursive:true});const fixture=path.join(out,'fixture.html');await fs.writeFile(fixture,'<body style="margin:0;background:#111"><video muted playsinline></video></body>');const win=new BrowserWindow({show:false,webPreferences:{offscreen:true,contextIsolation:true,nodeIntegration:false}});
+ try{await win.loadFile(fixture);const source=path.join(root,'artifacts/rtv/sample_video2.mp4');const report=await win.webContents.executeJavaScript(`(async()=>{
+  const video=document.querySelector('video');video.src=${JSON.stringify(pathToFileURL(source).href)};await new Promise((resolve,reject)=>{video.onloadedmetadata=resolve;video.onerror=reject});const reports=[];
+  const {GarmentOverlay}=await import(${JSON.stringify(pathToFileURL(path.join(root,'src/garmentOverlay.js')).href)});
+  for(const second of [1,6,12]){
+   await new Promise(resolve=>{video.onseeked=resolve;video.currentTime=second;});const raw=document.createElement('canvas');raw.width=video.videoWidth;raw.height=video.videoHeight;raw.getContext('2d').drawImage(video,0,0);
+   const frame=await createImageBitmap(video,{resizeWidth:1280,resizeHeight:720,resizeQuality:'high'}),gold=document.createElement('canvas');gold.width=540;gold.height=960;const g=gold.getContext('2d'),scale=Math.max(540/frame.width,960/frame.height),w=frame.width*scale,h=frame.height*scale;g.translate(540,0);g.scale(-1,1);g.imageSmoothingQuality='high';g.drawImage(frame,(540-w)/2,(960-h)/2,w,h);
+   const synced=document.createElement('canvas');synced.width=540;synced.height=960;GarmentOverlay.prototype.drawCameraFrame.call({cameraCanvas:synced,tracker:{getCameraFrame:()=>frame},viewport:{width:540,height:960},cameraClarity:{process:f=>f},lastCameraFrame:null},performance.now());
+   const a=gold.getContext('2d').getImageData(0,0,540,960).data,b=synced.getContext('2d').getImageData(0,0,540,960).data;let maxDifference=0,total=0,nonOpaque=0;for(let i=0;i<a.length;i++){const delta=Math.abs(a[i]-b[i]);maxDifference=Math.max(maxDifference,delta);total+=delta;if(i%4===3&&b[i]!==255)nonOpaque++;}
+   const pair=document.createElement('canvas');pair.width=1080;pair.height=960;const c=pair.getContext('2d');c.drawImage(gold,0,0);c.drawImage(synced,540,0);c.fillStyle='#10202b';c.fillRect(0,0,1080,32);c.font='16px sans-serif';c.fillStyle='white';c.fillText('Decoded source, resized/mirrored',12,22);c.fillText('Production synchronized camera draw',552,22);
+   reports.push({second,decodedTime:video.currentTime,maxDifference,meanDifference:total/a.length,nonOpaque,png:pair.toDataURL(),raw:raw.toDataURL()});frame.close();
+  }return{width:video.videoWidth,height:video.videoHeight,duration:video.duration,reports};
+ })()`);for(const row of report.reports){await fs.writeFile(path.join(out,`comparison-${row.second}.png`),Buffer.from(row.png.split(',')[1],'base64'));await fs.writeFile(path.join(out,`source-${row.second}.png`),Buffer.from(row.raw.split(',')[1],'base64'));delete row.png;delete row.raw;assert.equal(row.maxDifference,0);assert.equal(row.nonOpaque,0);}
+ const result={passed:true,sourceSha256:createHash('sha256').update(await fs.readFile(source)).digest('hex'),...report,scope:'Actual Electron software decode of the saved author video at fixed times, directly resized/mirrored versus production drawCameraFrame with clarity off and the exact same immutable bitmap. No model inference, full layered app compositor, physical camera or automatic ghosting classifier proof.'};await fs.writeFile(path.join(out,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+ }finally{win.destroy();}
+}).then(()=>app.quit()).catch(e=>{console.error(e);app.exit(1)});

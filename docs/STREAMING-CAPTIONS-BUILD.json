@@ -1,0 +1,16 @@
+{
+  "archiveSha256": "f21b2896a40b2a9e4d6150435b51c80545b65c25a79b22f85c3a92dd845c186e",
+  "baseRevision": "c334637671166a1cfe90861ad0bd8d425523227b",
+  "sourceState": "Streaming-caption changes over base revision; exact hashes below.",
+  "npmTestExit": 0,
+  "sha256": {
+    "src/geminiLiveAdapter.js": "d8afb72d4f7a7267a7a175b45ef3490a16f66c995de8b20c53e9a82f99939402",
+    "src/renderer.js": "1288eb1bb67bf31ffd82f2bcc0a76276bccd26e99a7e784d85564155d4a44b70",
+    "package.json": "8f973a7810933935fec57ccf7093e86f1666138c68bcdd60652c646dc16b565f",
+    "tools/test-caption-stream.cjs": "51ed13e2c6a1bd53c79bf01f54bc8ae1f825915fbecd1c0d36ee46c1eec51b12",
+    "tools/test-voice-lifecycle.cjs": "1747bb881efa1d365966f0a9eadfd75aed156a02a055868d0cb6ae7188541bb5",
+    "tools/check-caption-stream.cjs": "c48d8a9b4fad3fc15de3b67cafd26b5f3c523d8679d22543f29e1200504324c1",
+    "artifacts/caption-stream-tests.log": "f235328b5351bbdbde84ad04f92badb37af1a4baace63374bd26c29963e3972a"
+  },
+  "uiArchiveProvenance": "Same unchanged final archive verified before native caption/UI/playback runs; UI report does not independently hash the archive."
+}

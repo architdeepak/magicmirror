@@ -1,0 +1,156 @@
+{
+  "archiveSha256": "8df1e89f8925a3d0dfbf3bbaa2d481836e98f770b4abde2049d5a3647bbc8de5",
+  "cameraSource": {
+    "passed": true,
+    "sourceSha256": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+    "width": 1920,
+    "height": 1080,
+    "duration": 10.01,
+    "reports": [
+      {
+        "second": 1,
+        "decodedTime": 1,
+        "maxDifference": 0,
+        "meanDifference": 0,
+        "nonOpaque": 0
+      },
+      {
+        "second": 6,
+        "decodedTime": 6,
+        "maxDifference": 0,
+        "meanDifference": 0,
+        "nonOpaque": 0
+      },
+      {
+        "second": 12,
+        "decodedTime": 10.01,
+        "maxDifference": 0,
+        "meanDifference": 0,
+        "nonOpaque": 0
+      }
+    ],
+    "scope": "Actual Electron software decode of the saved author video at fixed times, directly resized/mirrored versus production drawCameraFrame with clarity off and the exact same immutable bitmap. No model inference, full layered app compositor, physical camera or automatic ghosting classifier proof."
+  },
+  "cameraRoundtrip": {
+    "passed": true,
+    "reports": [
+      {
+        "request": 3,
+        "sourceTime": 0.806088,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 9,
+        "sourceTime": 1.744456,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 16,
+        "sourceTime": 2.773169,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 22,
+        "sourceTime": 3.728197,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 28,
+        "sourceTime": 4.652417,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 34,
+        "sourceTime": 5.609236,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 41,
+        "sourceTime": 6.69893,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 48,
+        "sourceTime": 7.722018,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 55,
+        "sourceTime": 8.745846,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 61,
+        "sourceTime": 9.668743,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 67,
+        "sourceTime": 0.549876,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      },
+      {
+        "request": 74,
+        "sourceTime": 1.638415,
+        "workerMax": 0,
+        "drawMax": 0,
+        "nonOpaque": 0
+      }
+    ],
+    "scope": "Actual software Electron recorded-video canvas captureStream to HTML video to immutable bitmap, real local pose/segmentation worker, then production synchronized drawing with clarity off. Pixel observer readbacks perturb timing. Not a full app compositor or physical camera test."
+  },
+  "cameraLayers": {
+    "archiveSha256": "8df1e89f8925a3d0dfbf3bbaa2d481836e98f770b4abde2049d5a3647bbc8de5",
+    "diagnostic": {
+      "maxDifference": 1,
+      "nonOpaque": 0,
+      "sourceTime": 0.767246,
+      "width": 720,
+      "height": 1280,
+      "viewport": {
+        "width": 720,
+        "height": 1279.984375
+      },
+      "transform": {
+        "a": 1,
+        "d": 1
+      },
+      "style": {
+        "opacity": "1",
+        "filter": "none",
+        "transform": "none",
+        "zIndex": "0",
+        "display": "block"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 720,
+        "height": 1279.984375
+      }
+    },
+    "scope": "Frozen actual packaged camera/AR composition; clarity off, observer readback perturbs timing. Layer-removal captures are cumulative. Synthetic recorded source, no physical camera."
+  }
+}

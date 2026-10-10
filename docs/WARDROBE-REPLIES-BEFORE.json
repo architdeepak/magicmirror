@@ -1,0 +1,31 @@
+{
+  "passed": false,
+  "archiveSha256": "236891f20f54132429bc9a402ba93578b96f33d675d75612ae012c2ee01fa12b",
+  "message": "Late wardrobe speech after stop\n\n1 !== 0\n",
+  "cases": [
+    {
+      "action": "stop",
+      "outcome": "success",
+      "before": {
+        "oracle": "",
+        "caption": "MIRROR"
+      },
+      "after": {
+        "oracle": "Selected Black t-shirt for a local live camera fit. Turn on the camera to see your live fit. Body tracking estimates placement; it does not simulate fabric or measure size. No frame was saved or uploaded.",
+        "caption": "MIRRORSelected Black t-shirt for a local live camera fit. Turn on the camera to see your live fit. Body tracking estimates placement; it does not simulate fabric or measure size. No frame was saved or uploaded."
+      },
+      "spoken": [
+        "Selected Black t-shirt for a local live camera fit. Turn on the camera to see your live fit. Body tracking estimates placement; it does not simulate fabric or measure size. No frame was saved or uploaded."
+      ],
+      "state": {
+        "state": "ready",
+        "connecting": false,
+        "listening": false,
+        "hardMuted": false,
+        "wakeEnabled": false,
+        "persona": "velora"
+      }
+    }
+  ],
+  "errors": []
+}
