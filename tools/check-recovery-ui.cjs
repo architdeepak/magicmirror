@@ -28,6 +28,8 @@ const root = path.resolve(__dirname, '..'), delay = ms => new Promise(resolve =>
     await client.call('Page.reload'); await until(() => client.evaluate('!!window.__recoveryFixture&&!!window.__mirrorDebug&&document.querySelector("#loader").classList.contains("done")'), 'startup');
     await client.evaluate('document.querySelector("#settings-toggle").click()');
     assert(await client.evaluate('!document.querySelector("#save-diagnostics").disabled'));
+    await client.evaluate('document.querySelector("#save-diagnostics").scrollIntoView({block:"center"})');
+    await delay(100);
     const report = await client.evaluate(`window.mirrorBridge.diagnosticsReport({...__mirrorDebug.getMirrorState(),apiKey:'PRIVATE_RECOVERY_KEY',transcript:'PRIVATE_RECOVERY_TRANSCRIPT'})`);
     assert(!JSON.stringify(report).includes('PRIVATE_RECOVERY')); assert(!Object.hasOwn(report.state.tryOn, 'closet')); assert(report.sourceHashes['main.js']);
     assert(report.lifecycle.events.some(event => event.event === 'renderer-ready'));
@@ -72,6 +74,7 @@ const root = path.resolve(__dirname, '..'), delay = ms => new Promise(resolve =>
     const journal = (await fs.readFile(journalPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
     const reloads = journal.filter(event => event.event === 'renderer-reload').length;
     assert.equal(reloads, 3, 'Packaged watchdog kept reloading after repeated crashes'); assert(!exited);
+    assert(!logs.includes('Error sending from webFrameMain'), 'Cleanup tried to send IPC to a disposed renderer frame');
     await fs.writeFile(path.join(out, 'result.json'), JSON.stringify({ passed: true, checkedAt: new Date().toISOString(), archiveSha256, checks: ['diagnostics Settings control', 'report privacy/build fingerprints', 'Debug launcher opens DevTools on existing instance', 'actual Page.crash and renderer reload', 'pending managed navigation and phone pairing retired', 'hard mute retained after crash', 'repeated actual renderer crashes permit only three automatic reloads; main process stays alive'], report: after, crashLoop: { forcedCrashes, automaticReloads: reloads, recoveryLimitRecorded: true }, lifecycle: journal, scope: 'Packaged Linux software graphics, synthetic denied sensors, local pending HTTP fixture; no Windows execution or physical hardware.' }, null, 2)+'\n');
     console.log(JSON.stringify({ passed: true, archiveSha256, rendererRecovered: true, navigationRetired: true, phoneRetired: true, automaticReloads: reloads }));
   } finally {
