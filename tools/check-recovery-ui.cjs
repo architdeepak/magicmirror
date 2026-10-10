@@ -50,22 +50,29 @@ const root = path.resolve(__dirname, '..'), delay = ms => new Promise(resolve =>
     assert(after.lifecycle.events.some(event => event.event === 'renderer-gone'));
     assert(after.lifecycle.events.some(event => event.event === 'renderer-reload'));
     assert(!after.state.display.desktopActive && !after.state.agent.active && after.state.voice.hardMuted);
-    for (let attempt = 0; attempt < 2; attempt++) {
+    const journalPath = path.join(profile, 'diagnostics/lifecycle.jsonl');
+    let forcedCrashes = 1, limited = false;
+    for (let attempt = 0; attempt < 3 && !limited; attempt++) {
       // New-document scripts belong to the CDP session; reinstall after reconnect.
       await client.call('Page.addScriptToEvaluateOnNewDocument', { source: `if(location.protocol==='file:'&&location.pathname.endsWith('/src/index.html')){localStorage.setItem('mirror.hard-muted','true');localStorage.setItem('mirror.wake','false');localStorage.setItem('mirror.gestures','false');navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Synthetic denial','NotAllowedError')};window.__recoveryFixture=true;}` });
       await client.call('Page.crash', {}, 500).catch(() => {}); client.close(); client = null;
+      forcedCrashes++;
       const target = await until(async () => (await targets()).find(target => target.url.includes('app.asar/src/index.html')), 'next recovered target');
       client = await connect(target.webSocketDebuggerUrl);
-      await until(() => client.evaluate('!!window.__mirrorDebug&&__mirrorDebug.getMirrorState().voice.hardMuted&&document.querySelector("#loader").classList.contains("done")').catch(() => false), 'next renderer recovered');
+      const outcome = await until(async () => {
+        const log = await fs.readFile(journalPath, 'utf8');
+        if (log.includes('recovery-limit')) return 'limited';
+        return await client.evaluate('!!window.__mirrorDebug&&__mirrorDebug.getMirrorState().voice.hardMuted&&document.querySelector("#loader").classList.contains("done")').catch(() => false) ? 'recovered' : false;
+      }, 'renderer recovered or crash-loop limit');
+      limited = outcome === 'limited';
     }
-    await client.call('Page.crash', {}, 500).catch(() => {}); client.close(); client = null;
-    const journalPath = path.join(profile, 'diagnostics/lifecycle.jsonl');
+    client?.close(); client = null;
     await until(async () => (await fs.readFile(journalPath, 'utf8')).includes('recovery-limit'), 'crash-loop limit');
     await delay(1000);
     const journal = (await fs.readFile(journalPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
     const reloads = journal.filter(event => event.event === 'renderer-reload').length;
     assert.equal(reloads, 3, 'Packaged watchdog kept reloading after repeated crashes'); assert(!exited);
-    await fs.writeFile(path.join(out, 'result.json'), JSON.stringify({ passed: true, checkedAt: new Date().toISOString(), archiveSha256, checks: ['diagnostics Settings control', 'report privacy/build fingerprints', 'Debug launcher opens DevTools on existing instance', 'actual Page.crash and renderer reload', 'pending managed navigation and phone pairing retired', 'hard mute retained after crash', 'four actual renderer crashes permit only three automatic reloads; main process stays alive'], report: after, crashLoop: { forcedCrashes: 4, automaticReloads: reloads, recoveryLimitRecorded: true }, lifecycle: journal, scope: 'Packaged Linux software graphics, synthetic denied sensors, local pending HTTP fixture; no Windows execution or physical hardware.' }, null, 2)+'\n');
+    await fs.writeFile(path.join(out, 'result.json'), JSON.stringify({ passed: true, checkedAt: new Date().toISOString(), archiveSha256, checks: ['diagnostics Settings control', 'report privacy/build fingerprints', 'Debug launcher opens DevTools on existing instance', 'actual Page.crash and renderer reload', 'pending managed navigation and phone pairing retired', 'hard mute retained after crash', 'repeated actual renderer crashes permit only three automatic reloads; main process stays alive'], report: after, crashLoop: { forcedCrashes, automaticReloads: reloads, recoveryLimitRecorded: true }, lifecycle: journal, scope: 'Packaged Linux software graphics, synthetic denied sensors, local pending HTTP fixture; no Windows execution or physical hardware.' }, null, 2)+'\n');
     console.log(JSON.stringify({ passed: true, archiveSha256, rendererRecovered: true, navigationRetired: true, phoneRetired: true, automaticReloads: reloads }));
   } finally {
     client?.close(); app.kill('SIGTERM'); await delay(300); if (!exited) app.kill('SIGKILL');

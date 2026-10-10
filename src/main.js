@@ -1336,10 +1336,10 @@ function registerBridge() {
       clearTimeout(waiter.timer); toolWaiters.delete(input.id); waiter.resolve(input.result);
     }
   });
-  app.on('before-quit', cancelCodex);
+  app.on('before-quit', () => cancelCodex(false));
   app.on('web-contents-created', (_event, contents) => {
-    contents.on('did-start-navigation', (_event, _url, _inPlace, isMainFrame) => { if (isMainFrame && contents === mainWindow?.webContents) cancelCodex(); });
-    contents.on('destroyed', () => { if (contents === mainWindow?.webContents) cancelCodex(); });
+    contents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && contents === mainWindow?.webContents) cancelCodex(inPlace); });
+    contents.on('destroyed', () => { if (contents === mainWindow?.webContents) cancelCodex(false); });
   });
 
   ipcMain.handle('mirror:youtube-player-url', async () => {
