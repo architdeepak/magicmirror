@@ -161,6 +161,7 @@ export class GarmentOverlay {
     if (!this.enabled || !this.item) { this.clear(); return; }
     if (!this.texture) { this.clear(); if (this.imageMessage) this._status(this.imageMessage); return; }
     if (!this.video.srcObject || this.video.srcObject.active === false || !this.video.videoWidth || this.video.readyState < 2) {
+      this.tracker.update(now);
       this.clear();
       this._status('Turn on the camera to see your live fit.');
       return;

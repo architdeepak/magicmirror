@@ -45,6 +45,39 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
     feed.currentTime=1;subject.update(1300);assert.equal(bitmaps.length,count+1,quality+' duplicated an unchanged video frame');
     subject.destroy();
   }
+  // A camera can renegotiate dimensions without replacing its MediaStream.
+  // Public snapshots must reject its old pose/frame before the next render tick.
+  for(const change of ['dimensions','inactive','unready']) {
+    const feed={srcObject:{active:true},readyState:2,videoWidth:640,videoHeight:480,currentTime:1};
+    const subject=new context.Subject(feed);subject.setEnabled(true);const worker=workers.at(-1);worker.send({type:'ready'});subject.update(2000);
+    const bitmap=frame();bitmaps.at(-1).resolve(bitmap);await tick();
+    const request=subject.pending.id,epoch=subject.epoch;
+    worker.send({type:'pose',requestId:request,epoch,timestamp:2000,frame:bitmap,landmarks:Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1})),worldLandmarks:Array.from({length:33},()=>({x:0,y:0,z:0})),segmentation:{width:1,height:1,classes:new Uint8Array([2])}});
+    assert(subject.getPose(2001)&&subject.getCameraFrame(2001));
+    if(change==='dimensions')feed.videoWidth=480;
+    if(change==='inactive')feed.srcObject.active=false;
+    if(change==='unready')feed.readyState=1;
+    assert.equal(subject.getPose(2002),null,change+' exposed old pose before update');
+    assert.equal(subject.getWorldPose(2002),null,change+' exposed old world pose');
+    assert.equal(subject.getSegmentation(2002),null,change+' exposed old mask');
+    assert.equal(subject.getCameraFrame(2002),null,change+' exposed old camera frame');
+    subject.update(2002);assert(bitmap.closed,change+' retained its display bitmap');
+    subject.destroy();
+  }
+  for(const phase of ['bitmap','worker']) {
+    const feed={srcObject:{active:true},readyState:2,videoWidth:640,videoHeight:480,currentTime:1};
+    const subject=new context.Subject(feed);subject.setEnabled(true);const worker=workers.at(-1);worker.send({type:'ready'});subject.update(3000);
+    const bitmap=frame(),pendingBitmap=bitmaps.at(-1),request=subject.pending.id,epoch=subject.epoch;
+    if(phase==='worker'){pendingBitmap.resolve(bitmap);await tick();}
+    feed.videoHeight=640;
+    if(phase==='bitmap'){pendingBitmap.resolve(bitmap);await tick();assert.equal(worker.messages.filter(m=>m.type==='frame').length,0,'Old dimensions reached inference');}
+    else worker.send({type:'pose',requestId:request,epoch,timestamp:3000,frame:bitmap,landmarks:Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1}))});
+    assert(bitmap.closed&&!subject.busy,phase+' retained an obsolete bitmap or inference slot');
+    assert.equal(subject.pose,null,phase+' accepted old dimensions');
+    feed.currentTime=2;subject.update(3100);assert(subject.pending,'Renegotiated source did not recover');
+    const fresh=frame();bitmaps.at(-1).resolve(fresh);await tick();worker.send({type:'pose',requestId:subject.pending.id,epoch:subject.epoch,timestamp:3100,frame:fresh,landmarks:Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1}))});
+    assert(subject.getPose(3101)&&subject.getCameraFrame(3101),'New dimensions failed to recover');subject.destroy();assert(fresh.closed);
+  }
   const filter=new context.Filter();const pose=x=>[{x,y:.5,z:.1,visibility:1}];
   filter.update(pose(.5),0);const jitter=filter.update(pose(.51),100);assert(jitter[0].x>.5&&jitter[0].x<.51,'Jitter was not smoothed');
   assert.equal(filter.update(pose(.9),200)[0].x,.9,'Large movement left a garment trail');

@@ -15,6 +15,7 @@ const canvas={getContext:()=>ctx,parentElement:{getBoundingClientRect:()=>({widt
 const overlay=new context.Subject(canvas,video);
 overlay.enabled=true;overlay.item={id:'shirt',category:'top',name:'Shirt'};overlay.texture={};
 const tracker=overlay.tracker;tracker.enabled=true;tracker.stream=video.srcObject;tracker.lastPoseAt=1000;tracker.pose=Array.from({length:33},()=>({x:.5,y:.5,z:0,visibility:1}));tracker.update=()=>trackingTicks++;
+tracker.sourceAvailable=true;tracker.sourceWidth=video.videoWidth;tracker.sourceHeight=video.videoHeight;
 overlay.render(1000);assert.equal(drawCalls,1);assert.equal(occlusionCalls,1);
 assert(overlay.getLiveState(1000).visible);assert.equal(overlay.getLiveState(1000).frameAgeMs,0);
 for(let now=1001;now<1061;now++)overlay.render(now);
@@ -24,7 +25,8 @@ overlay.setFit({width:1.2});overlay.render(1062);assert.equal(drawCalls,3,'Fit c
 tracker.segmentation={classes:new Uint8Array([1]),width:1,height:1};overlay.render(1063);assert.equal(drawCalls,4,'New mask did not redraw');
 tracker.segmentation=null;overlay.render(1064);assert.equal(drawCalls,5,'Mask disappearance did not redraw');
 tracker.segmentationNotice='fallback';overlay.render(1065);assert.equal(drawCalls,6,'Tracking fallback notice remained stale');
-video.videoWidth=1280;overlay.render(1066);assert.equal(drawCalls,7,'Camera dimension change reused the old crop');
+video.videoWidth=1280;overlay.render(1066);assert.equal(drawCalls,6,'Camera dimension change drew an old pose');assert(!overlay.hasPixels,'Camera dimension change retained old clothing');
+tracker.sourceWidth=video.videoWidth;overlay.render(1066.5);assert.equal(drawCalls,7,'Fresh camera dimensions failed to redraw');
 overlay.texture={};overlay.render(1067);assert.equal(drawCalls,8,'New texture reused the old drawing');
 overlay.resize();overlay.render(1068);assert.equal(drawCalls,9,'Resized canvas stayed empty');
 overlay.render(1400);assert(!overlay.hasPixels&&overlay.lastDraw===null,'Expired pose left cached clothing visible');

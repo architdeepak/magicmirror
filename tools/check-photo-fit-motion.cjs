@@ -41,7 +41,9 @@ app.whenReady().then(async()=>{
     const trackingTicks=ticks,visibleTrackingTicks=visible;
     blank=true;await new Promise(r=>setTimeout(r,1800));overlay.render();const lost=overlay.getLiveState();
     if(lost.visible)throw new Error('Blank camera left the garment visible');
+    const retainedFrame=overlay.tracker.cameraFrame;
     stream.getTracks().forEach(t=>t.stop());camera.srcObject=null;overlay.render();if(overlay.getLiveState().visible)throw new Error('Camera-off left garment visible');
+    if(overlay.tracker.cameraFrame||overlay.tracker.pose||overlay.tracker.segmentation||retainedFrame?.width)throw new Error('Camera-off retained analyzed image or body state');
     return{scope:'Recorded public human motion through actual offline workers and camera stream, software graphics; no physical input or sizing accuracy validation.',inputWidth:canvas.width,inputHeight:canvas.height,seconds:(performance.now()-warm)/1000,trackingTicks,visibleTrackingTicks,ticks,visibleTicks:visible,beats,maxBeatGapMs:maxBeatGap,samples,inferences,shots,lossCleared:!lost.visible};
    }finally{clearInterval(pump);clearInterval(heartbeat);clearInterval(draw);source.pause();overlay.destroy();stream.getTracks().forEach(t=>t.stop())}
   })()`);

@@ -18,6 +18,7 @@ export class BodyTracking {
     this.cameraFrame = null; this.cameraFrameAt = 0;
     this.segmentation = null;
     this.stream = null;
+    this.sourceWidth = 0; this.sourceHeight = 0; this.sourceAvailable = false;
     this.disposed = false;
     this.filter = new BodyPoseFilter();
     this.pending = null;
@@ -66,7 +67,7 @@ export class BodyTracking {
         clearTimeout(this.pending.timeout); this.pending = null;
         this.busy = false;
         this.warmedUp = true;
-        if (!this.enabled || data.epoch !== this.epoch) { data.frame?.close(); return; }
+        if (!this.enabled || data.epoch !== this.epoch || !this._sourceMatches()) { data.frame?.close(); return; }
         this.clearCameraFrame(); this.cameraFrame = data.frame || null; this.cameraFrameAt = data.timestamp;
         this.pose = this.filter.update(data.landmarks || null, data.timestamp);
         this.worldPose = this.pose?.length === 33 && Array.isArray(data.worldLandmarks) && data.worldLandmarks.length === 33 && data.worldLandmarks.every(p => p && [p.x,p.y,p.z].every(Number.isFinite)) ? data.worldLandmarks : null;
@@ -107,8 +108,10 @@ export class BodyTracking {
 
   update(now = performance.now()) {
     if (this.disposed) return;
-    if (this.stream !== this.video.srcObject) {
+    const available = Boolean(this.video.srcObject && this.video.srcObject.active !== false && this.video.readyState >= 2 && this.video.videoWidth > 0 && this.video.videoHeight > 0);
+    if (this.stream !== this.video.srcObject || this.sourceWidth !== this.video.videoWidth || this.sourceHeight !== this.video.videoHeight || this.sourceAvailable !== available) {
       this.stream = this.video.srcObject;
+      this.sourceWidth = this.video.videoWidth; this.sourceHeight = this.video.videoHeight; this.sourceAvailable = available;
       this.epoch += 1;
       this.pose = null; this.worldPose = null;
       this.clearCameraFrame();
@@ -116,8 +119,7 @@ export class BodyTracking {
       this.filter.reset();
       this.lastVideoTime = -1;
     }
-    if (!this.enabled || !this.ready || this.busy) return;
-    if (!this.video.srcObject || this.video.srcObject.active === false || this.video.readyState < 2 || !this.video.videoWidth) { this.pose = null; this.worldPose = null; this.clearCameraFrame(); this.segmentation = null; return; }
+    if (!available || !this.enabled || !this.ready || this.busy) return;
     // Submission ceilings only: busy inference and unchanged video still gate
     // capture. Eco retains its lower cost; faster profiles keep aligned frames.
     const interval = this.quality === 'hd' ? 1000 / 30 : this.quality === 'eco' ? 100 : 1000 / 15;
@@ -139,7 +141,7 @@ export class BodyTracking {
       resizeWidth: Math.round(this.video.videoWidth * scale),
       resizeHeight: Math.round(this.video.videoHeight * scale), resizeQuality: 'high'
     }).then((frame) => {
-      if (!this.enabled || this.worker !== worker || this.epoch !== epoch) {
+      if (!this.enabled || this.worker !== worker || this.epoch !== epoch || !this._sourceMatches()) {
         frame.close();
         if (this.pending === request) { clearTimeout(request.timeout); this.pending = null; this.busy = false; }
         return;
@@ -151,14 +153,19 @@ export class BodyTracking {
     });
   }
 
+  _sourceMatches() {
+    return this.sourceAvailable && this.stream === this.video.srcObject && this.video.srcObject?.active !== false
+      && this.video.readyState >= 2 && this.sourceWidth === this.video.videoWidth && this.sourceHeight === this.video.videoHeight;
+  }
+
   getPose(now = performance.now()) {
-    return this.enabled && this.stream === this.video.srcObject && now - this.lastPoseAt < 400 ? this.pose : null;
+    return this.enabled && this._sourceMatches() && now - this.lastPoseAt < 400 ? this.pose : null;
   }
 
   clearCameraFrame() { this.cameraFrame?.close(); this.cameraFrame = null; this.cameraFrameAt = 0; }
 
   getCameraFrame(now = performance.now()) {
-    return this.enabled && this.video.srcObject?.active !== false && this.video.readyState >= 2 && this.stream === this.video.srcObject && now - this.cameraFrameAt < 400 ? this.cameraFrame : null;
+    return this.enabled && this._sourceMatches() && now - this.cameraFrameAt < 400 ? this.cameraFrame : null;
   }
 
   getWorldPose(now = performance.now()) { return this.getPose(now) ? this.worldPose : null; }
