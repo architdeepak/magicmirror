@@ -1,0 +1,39 @@
+{
+  "status": "running",
+  "checkedAt": "2026-10-10T17:48:08.650Z",
+  "pidVerifiedAlive": true,
+  "pid": 3226192,
+  "directory": "artifacts/monitor/2026-10-10T17-47-37-251Z/",
+  "plannedDurationSec": 1800,
+  "snapshotSamples": 7,
+  "errors": [],
+  "latestAt": "2026-10-10T17:48:05.982Z",
+  "graphics": {
+    "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA Tegra NVIDIA GB10 (0x00002E12)), NVIDIA)",
+    "samples": 4
+  },
+  "build": {
+    "archiveSha256": "e34690b0375d387ab76b226c4a74ffe771a90a57e61b78ff8a84e071e5e66a35",
+    "gitRevision": "48888e5ecad59b5298cdc3261d787efa40b3d3a4",
+    "isolatedCopy": true,
+    "avatarStyle": "rig",
+    "graphicsRequest": "vulkan",
+    "speechFixture": true,
+    "cameraFixture": true,
+    "clarityMode": "natural",
+    "phaseSeconds": 120,
+    "fixtureHashes": {
+      "artifacts/rtv/sample_video2.mp4": "11224b000335ad1e1d698a1a3cf957db555d15d23a7b27cb9a9133fc485ccfe5",
+      ".tools/rtv/assets/garment_images/lab_08_white_bg.jpg": "07fcd992560af38bfe81a7c96982c139979601aa4f483900af547c84f928f742"
+    },
+    "monitorHashes": {
+      "tools/monitor-mirror.cjs": "9cdaa045a2f95cdf7567618c0395a3b3682ad2ad9d99bb539706cb9544f1abfa",
+      "tools/monitor-camera.cjs": "63f5c4794f8ee10bf6cb9849d1525336944c0cc45c82787d3f0c3d35cfbbeb15"
+    }
+  },
+  "scope": "Actual packaged Linux portrait app, graphics request vulkan, temporary profile, periodic local synthetic PCM through real playback/model, recorded source resampled into 1280x720 canvas at requested 30 Hz with actual local tracking/AR and DOM/native wardrobe ingestion; sleep deadline accelerated to 1.5 seconds during its dedicated phase; no physical camera/microphone/cloud/Internet media; CPU is live process-tree work, RSS is summed and may double-count shared pages; GPU metrics cover the whole device, not only this app.",
+  "limits": [
+    "Running snapshot is not a completed soak.",
+    "No Codex tasks, Internet media, explicit wake fog, physical sensors, accounts, Windows or app-specific watt measurements."
+  ]
+}
