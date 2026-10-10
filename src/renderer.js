@@ -1939,6 +1939,20 @@ async function restoreCameraAfterIdle() {
   cameraIdlePaused = false;
   if (!hardMuted || true) { await toggleCamera(true).catch(() => {}); updateTrackingUi(); updatePrivacyChip(); }
 }
+// Always-on installation care: drift the static furniture by a few pixels so
+// no element sits on the same pixels for hours (panel burn-in), and dim the
+// whole picture late at night so a lit mirror does not glare in a dark room.
+function applyPanelCare() {
+  const minute = Math.floor(Date.now() / 60000), hour = new Date().getHours();
+  const wander = (seed, range) => Math.round(Math.sin(minute * .37 + seed) * range);
+  elements.shell.style.setProperty('--shift-x', `${wander(0, 6)}px`);
+  elements.shell.style.setProperty('--shift-y', `${wander(2.1, 6)}px`);
+  const night = (hour >= 22 || hour < 6) && localStorage.getItem('mirror.auto-dim') !== 'false';
+  if (night) elements.shell.dataset.dim = 'night'; else delete elements.shell.dataset.dim;
+}
+applyPanelCare();
+const panelCareTimer = setInterval(applyPanelCare, 60000);
+window.addEventListener('beforeunload', () => clearInterval(panelCareTimer));
 const privacyTimer = setInterval(() => {
   const quiet = Date.now() - lastVoiceActivity;
   if (gemini.listening && state === 'listening' && quiet > 45000 && !agentRunId) { void stopAssistant(); showGesture('Listening paused · say “mirror mirror”'); }

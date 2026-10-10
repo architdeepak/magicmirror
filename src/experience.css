@@ -207,3 +207,8 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 .setting input[type="number"]:focus { border-color: var(--gold); }
 .setting > small { display: block; margin-top: 6px; color: var(--muted); font-size: .85em; line-height: 1.4; }
 #app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) .setting select { background: #000; border-color: rgba(255, 236, 190, .35); }
+
+/* Burn-in care: static furniture drifts a few pixels over the hour. */
+.topbar, .mirror-clock, .mirror-weather, .wake-status, .bottom-dock, .privacy-chip { translate: var(--shift-x, 0px) var(--shift-y, 0px); }
+/* Late-night dimming keeps a lit mirror from glaring in a dark room. */
+#app-shell[data-dim="night"] { filter: brightness(.6); }
