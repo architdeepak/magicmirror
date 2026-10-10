@@ -18,7 +18,13 @@ export class SpeechEngine {
   _loadVoices() {
     this.voices = this.synth?.getVoices() || [];
     const profile = VOICE_PROFILES[this.persona] || VOICE_PROFILES.velora;
-    this.voice = profile.preferred.map((pattern) => this.voices.find((voice) => pattern.test(voice.name))).find(Boolean)
+    // Prefer the persona's named voices, and within a name prefer the neural
+    // ("Natural"/"Online") build when the system offers one: far less robotic.
+    const natural = (voice) => /natural|neural|online/i.test(voice.name) ? 0 : 1;
+    const ranked = profile.preferred.flatMap((pattern, order) => this.voices.filter((voice) => pattern.test(voice.name)).map((voice) => ({ voice, order, natural: natural(voice) })))
+      .sort((a, b) => a.natural - b.natural || a.order - b.order);
+    this.voice = ranked[0]?.voice
+      || this.voices.find((voice) => /natural|neural/i.test(voice.name) && voice.lang.startsWith('en'))
       || this.voices.find((voice) => voice.lang.startsWith('en-GB'))
       || this.voices.find((voice) => voice.lang.startsWith('en'))
       || this.voices[0];
