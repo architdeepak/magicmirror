@@ -17,7 +17,7 @@ const dotenv = require('dotenv');
 const QRCode = require('qrcode');
 const { GoogleAuth } = require('google-auth-library');
 const { IdleGallery } = require('./idleGallery.cjs');
-const { groundedSearch } = require('./groundedSearch.cjs');
+const { groundedSearch, isTimeSensitive } = require('./groundedSearch.cjs');
 const { CodexMirrorAgent } = require('./codexMirrorAgent');
 const { TryOnRequests } = require('./tryOnRequests.cjs');
 const tryOnRequests = new TryOnRequests();
@@ -1475,8 +1475,18 @@ function registerBridge() {
     if (!terms) throw new Error('Give me something to search for.');
     const apiKey = integrationSettings.value('geminiApiKey', process.env.GEMINI_API_KEY || '');
     if (apiKey) {
-      try { return { grounded: true, ...await groundedSearch({ apiKey, query: terms, model: process.env.GEMINI_SEARCH_MODEL || undefined }) }; }
-      catch (error) { diagnosticLog.record('search-fallback'); }
+      const model = process.env.GEMINI_SEARCH_MODEL || undefined;
+      try { return { grounded: true, ...await groundedSearch({ apiKey, query: terms, model }) }; }
+      catch (error) {
+        diagnosticLog.record('search-fallback');
+        // Search grounding has its own quota and may be unavailable on a key.
+        // Timeless questions can still be answered from the model, labelled as
+        // such; anything time-sensitive goes to real results in the frame.
+        if (!isTimeSensitive(terms)) {
+          try { return { grounded: false, fromMemory: true, ...await groundedSearch({ apiKey, query: terms, model, grounding: false }) }; }
+          catch { diagnosticLog.record('search-memory-failed'); }
+        }
+      }
     }
     // No key (or the call failed): show ordinary results inside the mirror frame.
     return { grounded: false, query: terms, url: `https://www.google.com/search?q=${encodeURIComponent(terms)}` };

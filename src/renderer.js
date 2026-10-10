@@ -2219,11 +2219,11 @@ function hideSearchResult() {
 }
 function showSearchResult(result) {
   if (!result) return result;
-  if (!result.grounded || !result.answer) {
+  if (!result.answer) {
     // No grounded answer: show ordinary results inside the mirror frame.
     return showUrlInFrame({ url: result.url }).then(() => ({ result: `Showing search results for ${result.query}.`, query: result.query }));
   }
-  document.querySelector('#search-pool-eyebrow').textContent = result.eyebrow || 'The mirror found';
+  document.querySelector('#search-pool-eyebrow').textContent = result.eyebrow || (result.fromMemory ? 'From memory · may be out of date' : 'The mirror found');
   document.querySelector('#search-pool-query').textContent = result.query;
   document.querySelector('#search-pool-answer').textContent = result.answer;
   const holder = document.querySelector('#search-pool-sources');

@@ -749,7 +749,7 @@ export class GeminiLiveAdapter {
           const found = await this.onSearch(query);
           this.lastDeliveredClick = null;
           functionResponses.push({ name: call.name, id: call.id, response: found?.answer
-            ? { result: found.answer, sources: (found.sources || []).map(source => source.host), note: 'The answer and its sources are already shown on the mirror. Say it briefly in your own voice.' }
+            ? { result: found.answer, fromMemory: Boolean(found.fromMemory), sources: (found.sources || []).map(source => source.host), note: 'The answer and its sources are already shown on the mirror. Say it briefly in your own voice.' }
             : { result: `showing search results for: ${query}` } });
         } else if (call.name === 'open_service') {
           const services = ['youtube', 'netflix', 'spotify', 'calendar', 'photos', 'maps', 'findmy'];

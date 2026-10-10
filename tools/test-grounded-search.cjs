@@ -1,5 +1,5 @@
 const assert = require('assert/strict');
-const { groundedSearch, cleanSources } = require('../src/groundedSearch.cjs');
+const { groundedSearch, cleanSources, isTimeSensitive } = require('../src/groundedSearch.cjs');
 (async () => {
   let seen;
   const ok = body => async (url, init) => { seen = { url, init }; return { ok: true, json: async () => body }; };
@@ -10,7 +10,7 @@ const { groundedSearch, cleanSources } = require('../src/groundedSearch.cjs');
   assert.equal(result.answer, 'It is 70 degrees and clear. Enjoy the sun.');
   assert.deepEqual(result.sources.map(s => s.url), ['https://www.example.com/a']);
   assert.equal(result.query, 'weather in Mountain View');
-  assert.match(seen.url, /gemini-2\.5-flash:generateContent$/);
+  assert.match(seen.url, /gemini-flash-latest:generateContent$/);
   assert.equal(JSON.parse(seen.init.body).tools[0].google_search !== undefined, true);
   assert.equal(seen.init.headers['x-goog-api-key'], 'k');
   assert.equal(cleanSources(Array.from({ length: 12 }, (_, i) => ({ web: { uri: `https://s${i}.test/` } }))).length, 5);
@@ -20,5 +20,11 @@ const { groundedSearch, cleanSources } = require('../src/groundedSearch.cjs');
   await assert.rejects(groundedSearch({ apiKey: 'k', query: 'x', fetchImpl: ok({ candidates: [] }) }), /nothing to say/);
   // Timeout aborts a hung request.
   await assert.rejects(groundedSearch({ apiKey: 'k', query: 'x', timeoutMs: 30, fetchImpl: (_u, init) => new Promise((_, reject) => init.signal.addEventListener('abort', () => reject(new Error('aborted')))) }), /aborted/);
+  // Ungrounded mode sends no search tool and reports no sources.
+  const plain = await groundedSearch({ apiKey: 'k', query: 'height of everest', grounding: false, fetchImpl: ok(body) });
+  assert.equal(JSON.parse(seen.init.body).tools, undefined);
+  assert.deepEqual(plain.sources, []);
+  for (const yes of ['latest news', 'weather in paris', 'who won the game tonight', 'bitcoin price']) assert(isTimeSensitive(yes), yes);
+  for (const no of ['how tall is mount everest', 'capital of france', 'who wrote hamlet']) assert(!isTimeSensitive(no), no);
   console.log('Grounded search: source sanitising, https-only, dedupe/limit, key header, errors and timeout passed.');
 })().catch(error => { console.error(error); process.exit(1); });
