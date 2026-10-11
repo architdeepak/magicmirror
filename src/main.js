@@ -750,7 +750,40 @@ async function controlSpotify(action) {
   finally { spotifyControlBusy = false; }
 }
 
+const SPOTIFY_KINDS = new Set(['track', 'artist', 'album', 'playlist']);
+// Search and start playback straight away on this PC's Spotify app, launching
+// it if needed. Nothing opens in a browser.
+async function playSpotifyQuery(action) {
+  const query = String(action.query || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  const kind = SPOTIFY_KINDS.has(action.kind) ? action.kind : 'track';
+  if (!query) throw new Error('Tell me what to play.');
+  const found = await spotifyApi(`search?type=${kind}&limit=1&q=${encodeURIComponent(query)}`);
+  const item = found?.[`${kind}s`]?.items?.[0];
+  if (!item?.uri) throw new Error(`I could not find ${query} on Spotify.`);
+  const pickDevice = async () => {
+    const list = (await spotifyApi('me/player/devices'))?.devices?.filter(device => device.id && !device.is_restricted) || [];
+    return list.find(device => device.is_active) || list.find(device => /computer/i.test(device.type)) || list[0] || null;
+  };
+  let device = await pickDevice();
+  if (!device) {
+    try { await openNativeApplication('spotify:', 'Spotify'); } catch { /* fall through to the clear error */ }
+    for (let attempt = 0; attempt < 12 && !device; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      device = await pickDevice();
+    }
+  }
+  if (!device) throw new Error('Spotify is not running on this PC. Start the Spotify app once and sign in, then ask again.');
+  const body = kind === 'track' ? { uris: [item.uri] } : { context_uri: item.uri };
+  await spotifyApi(`me/player/play?device_id=${encodeURIComponent(device.id)}`, { method: 'PUT', body });
+  const artist = item.artists?.[0]?.name;
+  return { ok: true, name: [item.name, artist].filter(Boolean).join(' by ') };
+}
+
 async function performSpotifyControl(action) {
+  if (action?.action === 'play-query') {
+    if (!spotifyTokens?.refreshToken) throw new Error('Connect Spotify in Settings once so I can start songs for you.');
+    return playSpotifyQuery(action);
+  }
   if (!spotifyTokens?.refreshToken && typeof windowsSpotify !== 'undefined' && windowsSpotify.supported && typeof action === 'string') {
     const generation=spotifyGeneration;
     return windowsSpotify.control(action,()=>{if(generation!==spotifyGeneration || spotifyTokens?.refreshToken) throw new Error('Spotify connection changed. Refresh playback.');});

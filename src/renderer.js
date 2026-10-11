@@ -574,7 +574,13 @@ const gemini = new GeminiLiveAdapter({
   onToolActivity: tool => { if (tool) showAgentProgress(tool); else if (!agentRunId) document.querySelector('#agent-progress').hidden = true; },
   onWatchControl: handleWatchControl,
   onComputerAction: async (action) => window.mirrorBridge.desktopAction(action),
-  onSpotify: async (action) => {
+  onSpotify: async (action, args = {}) => {
+    if (action === 'play' && args.query) {
+      const played = await window.mirrorBridge.spotifyControl({ action: 'play-query', query: args.query, kind: args.kind });
+      setAssistantMode('spotify');
+      void refreshSpotify();
+      return { result: `Started playing ${played?.name || args.query}. It is playing now on the mirror.` };
+    }
     if (action === 'status') {
       setAssistantMode('spotify');
       await refreshSpotify();
