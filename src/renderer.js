@@ -257,7 +257,20 @@ const viewportSize = () => ({ width: elements.shell.clientWidth || window.innerW
 const RENDER_PIXEL_BUDGET = 12_000_000;
 // A first run on a small, fanless PC (<=4 cores and <=4 GB) starts Efficient
 // so the 4K panel never begins at a quality the hardware cannot hold.
-const smallPc = (navigator.hardwareConcurrency || 8) <= 4 && (navigator.deviceMemory || 8) <= 4;
+// Integrated Atom/Celeron-class graphics (HD Graphics 4xx/5xx, UHD 6xx) are an
+// order of magnitude slower than a laptop iGPU and share slow LPDDR memory, so
+// they start Efficient regardless of core count or reported memory.
+const weakGpuName = (() => {
+  try {
+    const probe = document.createElement('canvas').getContext('webgl');
+    const info = probe?.getExtension('WEBGL_debug_renderer_info');
+    const name = String(info ? probe.getParameter(info.UNMASKED_RENDERER_WEBGL) : '');
+    probe?.getExtension('WEBGL_lose_context')?.loseContext();
+    return name;
+  } catch { return ''; }
+})();
+const weakGpu = /Intel.*(?:HD Graphics\s*(?:4\d\d|5\d\d)\b|UHD Graphics\s*60[05]\b)/i.test(weakGpuName);
+const smallPc = weakGpu || ((navigator.hardwareConcurrency || 8) <= 4 && (navigator.deviceMemory || 8) <= 4);
 let displayQualityId=['eco','auto','hd'].includes(localStorage.getItem('mirror.display-quality'))?localStorage.getItem('mirror.display-quality'):smallPc?'eco':'auto';
 const preferredPixelRatio = () => {
   const { width, height } = viewportSize();
@@ -407,6 +420,15 @@ let desktopKind = '';
 let desktopLabel = '';
 let mode = 'mirror';
 setTrackingAmbient(true); // the app starts in the ambient mirror
+// A stick compositing a 4K desktop spends most of its GPU time just presenting
+// the window. A one-time, plain-language nudge to use 1080p output instead.
+try {
+  const physicalWidth = Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1);
+  if (smallPc && physicalWidth >= 3000 && localStorage.getItem('mirror.hint-1080p') !== 'shown') {
+    localStorage.setItem('mirror.hint-1080p', 'shown');
+    setTimeout(() => showGesture('Tip: set Windows display to 1920×1080 for smoother motion on this PC'), 8000);
+  }
+} catch {}
 setFaceDetail(localStorage.getItem('mirror.face-puppet') === 'true');
 let requestedMode = 'mirror';
 let state = 'starting';
