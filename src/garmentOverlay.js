@@ -206,7 +206,7 @@ export class GarmentOverlay {
     if (glass) { this.ctx.save(); this.ctx.translate(glass.tx, glass.ty); this.ctx.scale(glass.g, glass.g); }
     this.hasPixels = true;this.missingSleeves=mesh.missingSleeves||0;this.renderedSleeveStyle=mesh.sleeveStyle||'torso-only'; this.curvedTorso = Boolean(mesh.curvedTorso);
     for (const triangle of mesh) drawTexturedTriangle(this.ctx, texture, triangle);
-    this._relight(vertices);
+    this._finishGarment(vertices, pose, mesh);
     const coverage = { coverForearms: mesh.coverForearms?.length?mesh.coverForearms:mesh.sleeveStyle === 'long sleeve' };
     const detailedOcclusion = this.occlusion.erase(this.ctx, segmentation, pose,
       { width: this.video.videoWidth, height: this.video.videoHeight }, this.viewport, coverage);
@@ -214,6 +214,150 @@ export class GarmentOverlay {
     if (glass) this.ctx.restore();
     this._rememberDraw(pose, segmentation, worldPose);
     this._status(`Live fit · ${this.item.name}${mesh.missingSleeves?' · Keep elbows'+(texture.photoPattern?.long?' and wrists':'')+' visible for full sleeves':!this.item.starter&&!texture.photoPattern&&['top','outerwear'].includes(this.item.category)?' · Torso photo fit':''} · ${detailedOcclusion ? 'local contour occlusion' : this.tracker.segmentationNotice || 'on-device tracking'}`);
+  }
+
+  // Finishing passes that make the cutout read as cloth rather than a sticker.
+  // Every pass is procedural and works through the garment's own alpha, so none
+  // of it can leak the wearer's clothing, and everything is drawn in garment
+  // space so the mirror's reflection transform applies to it unchanged.
+  _finishGarment(vertices, pose, mesh) {
+    if (!vertices.length || this.item?.noShading) return;
+    const context = this.ctx;
+    if (typeof context.createLinearGradient !== 'function') return;
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    for (const point of vertices) { if (point.x < left) left = point.x; if (point.x > right) right = point.x; if (point.y < top) top = point.y; if (point.y > bottom) bottom = point.y; }
+    const bounds = { left, top, right, bottom, width: right - left, height: bottom - top };
+    if (!(bounds.width > 24 && bounds.height > 24)) return;
+    try {
+      if (this.quality !== 'eco') this._softenEdges(bounds);
+      this._relight(vertices);
+      this._fabricCues(bounds, pose);
+      if (this.item?.starter && mesh?.sleeveStyle) this._sleeveHems(pose, mesh.sleeveStyle);
+    } catch { /* decoration must never break the live fit */ }
+  }
+
+  // Feather the silhouette and add a soft rim shadow just inside it, using a
+  // small blurred copy of the garment's alpha (cheap: ~280 px wide).
+  _softenEdges(bounds) {
+    const context = this.ctx;
+    if (typeof context.getTransform !== 'function' || typeof document === 'undefined') return;
+    const t = context.getTransform();
+    if (!t.a || !t.d || Math.abs(t.b) > 1e-6 || Math.abs(t.c) > 1e-6) return;
+    const x0 = Math.max(0, Math.floor(t.a * bounds.left + t.e - 2)), y0 = Math.max(0, Math.floor(t.d * bounds.top + t.f - 2));
+    const x1 = Math.min(this.canvas.width, Math.ceil(t.a * bounds.right + t.e + 2)), y1 = Math.min(this.canvas.height, Math.ceil(t.d * bounds.bottom + t.f + 2));
+    const sw = x1 - x0, sh = y1 - y0;
+    if (sw < 24 || sh < 24) return;
+    const smallWidth = Math.min(280, sw), smallHeight = Math.max(8, Math.min(480, Math.round(sh * smallWidth / sw)));
+    const make = key => {
+      const canvas = this[key] ||= document.createElement('canvas');
+      if (canvas.width !== smallWidth || canvas.height !== smallHeight) { canvas.width = smallWidth; canvas.height = smallHeight; }
+      const c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.filter = 'none'; c.clearRect(0, 0, smallWidth, smallHeight);
+      return { canvas, c };
+    };
+    const base = make('_edgeBase'), tight = make('_edgeTight'), wide = make('_edgeWide');
+    base.c.drawImage(this.canvas, x0, y0, sw, sh, 0, 0, smallWidth, smallHeight);
+    tight.c.filter = 'blur(0.9px)'; tight.c.drawImage(base.canvas, 0, 0); tight.c.filter = 'none';
+    wide.c.filter = 'blur(2.6px)'; wide.c.drawImage(base.canvas, 0, 0); wide.c.filter = 'none';
+    // The region in garment space that the small canvases represent.
+    const gx = (x0 - t.e) / t.a, gy = (y0 - t.f) / t.d, gw = sw / t.a, gh = sh / t.d;
+    context.save();
+    context.imageSmoothingEnabled = true; context.imageSmoothingQuality = 'high';
+    // 1) Feather: alpha follows the lightly blurred silhouette, so the cut edge
+    //    fades over ~1-2 px instead of stair-stepping.
+    context.globalCompositeOperation = 'destination-in';
+    context.drawImage(tight.canvas, gx, gy, gw, gh);
+    // 2) Rim shadow: darkness proportional to how close the pixel is to an edge.
+    wide.c.globalCompositeOperation = 'source-out';
+    wide.c.fillStyle = 'rgb(14,10,22)'; wide.c.fillRect(0, 0, smallWidth, smallHeight);
+    wide.c.globalCompositeOperation = 'source-over';
+    context.globalCompositeOperation = 'source-atop';
+    context.globalAlpha = .42;
+    context.drawImage(wide.canvas, gx, gy, gw, gh);
+    context.restore();
+  }
+
+  // Cheap fabric cues from the pose: soft vertical folds that shift as the torso
+  // leans or turns, and shadow in the armpits where cloth gathers.
+  _fabricCues(bounds, pose) {
+    const context = this.ctx;
+    if (!pose || typeof context.createRadialGradient !== 'function') return;
+    const video = { width: this.video.videoWidth, height: this.video.videoHeight };
+    const need = [11, 12, 23, 24];
+    if (!need.every(index => pose[index] && (pose[index].visibility ?? 1) >= .5)) return;
+    const [ls, rs, lh, rh] = need.map(index => projectCameraPoint(pose[index], video, this.viewport));
+    const shoulderWidth = Math.hypot(ls.x - rs.x, ls.y - rs.y), hipWidth = Math.hypot(lh.x - rh.x, lh.y - rh.y);
+    if (shoulderWidth < 20) return;
+    const shoulderMid = { x: (ls.x + rs.x) / 2, y: (ls.y + rs.y) / 2 }, hipMid = { x: (lh.x + rh.x) / 2, y: (lh.y + rh.y) / 2 };
+    const lean = Math.atan2(hipMid.x - shoulderMid.x, Math.max(1, hipMid.y - shoulderMid.y));          // radians, + = leaning toward the viewer's right on screen
+    const turn = Math.max(-1, Math.min(1, (shoulderWidth / Math.max(1, hipWidth) - 1.15) * 2));        // narrower shoulders vs hips = turned away
+    context.save();
+    context.globalCompositeOperation = 'source-atop';
+    // Folds: a few soft vertical bands, offset by lean and turn so they travel
+    // with the body rather than sitting still on the screen.
+    const phase = (lean * 2.4 + turn * .35) * bounds.width * .18;
+    const folds = context.createLinearGradient(bounds.left + phase, 0, bounds.right + phase, 0);
+    const count = 5;
+    for (let i = 0; i <= count * 2; i += 1) {
+      // Alternating soft bands, weaker toward the garment edges so they never
+      // fight the rim shadow.
+      const edge = Math.sin(Math.PI * i / (count * 2));
+      folds.addColorStop(i / (count * 2), i % 2 ? `rgba(10,8,16,${(.05 * edge).toFixed(3)})` : `rgba(255,255,255,${(.03 * edge).toFixed(3)})`);
+    }
+    context.fillStyle = folds;
+    context.fillRect(bounds.left, bounds.top, bounds.width, bounds.height);
+    // Armpit gathers: tall, soft ellipses where the sleeve meets the body.
+    for (const [shoulder, hip] of [[ls, lh], [rs, rh]]) {
+      const x = shoulder.x + (shoulderMid.x - shoulder.x) * .1 + (hip.x - shoulder.x) * .18, y = shoulder.y + (hip.y - shoulder.y) * .3;
+      const radiusX = shoulderWidth * .07, radiusY = shoulderWidth * .16;
+      context.save();
+      context.translate(x, y); context.scale(radiusX / radiusY, 1);
+      const gather = context.createRadialGradient(0, 0, 0, 0, 0, radiusY);
+      gather.addColorStop(0, 'rgba(10,8,16,.17)'); gather.addColorStop(1, 'rgba(10,8,16,0)');
+      context.fillStyle = gather; context.fillRect(-radiusY, -radiusY, radiusY * 2, radiusY * 2);
+      context.restore();
+    }
+    context.restore();
+  }
+
+  // Hem lines at the sleeve ends and along the bottom hem of bundled garments,
+  // placed from the same pose points the starter sleeve mesh is built on.
+  _sleeveHems(pose, style) {
+    const context = this.ctx;
+    const reach = { 't-shirt': .65, blouse: .9, 'long sleeve': 1 }[style];
+    if (!reach || !pose) return;
+    const video = { width: this.video.videoWidth, height: this.video.videoHeight };
+    const project = index => (pose[index] && (pose[index].visibility ?? 1) >= .5) ? projectCameraPoint(pose[index], video, this.viewport) : null;
+    const longSleeve = style === 'long sleeve';
+    const ls = project(11), rs = project(12);
+    if (!ls || !rs) return;
+    const shoulderWidth = Math.hypot(ls.x - rs.x, ls.y - rs.y);
+    if (shoulderWidth < 20) return;
+    const radius = shoulderWidth * (this.fit.width || 1) * .095 * 1.05;
+    context.save();
+    context.globalCompositeOperation = 'source-atop';
+    context.lineCap = 'butt';
+    for (const [shoulderId, elbowId, wristId] of [[11, 13, 15], [12, 14, 16]]) {
+      const shoulder = project(shoulderId), elbow = project(elbowId), wrist = longSleeve ? project(wristId) : null;
+      if (!shoulder || !elbow || (longSleeve && !wrist)) continue;
+      const length = this.fit.length || 1;
+      const from = longSleeve ? elbow : shoulder, to = longSleeve ? wrist : elbow;
+      const fraction = longSleeve ? length : reach * length;
+      const end = longSleeve ? { x: elbow.x + (wrist.x - elbow.x) * Math.min(1, length), y: elbow.y + (wrist.y - elbow.y) * Math.min(1, length) }
+        : { x: shoulder.x + (elbow.x - shoulder.x) * fraction, y: shoulder.y + (elbow.y - shoulder.y) * fraction };
+      const dx = to.x - from.x, dy = to.y - from.y, norm = Math.hypot(dx, dy) || 1;
+      const ux = dx / norm, uy = dy / norm, nx = -uy, ny = ux;
+      const band = Math.max(1.5, radius * .22);
+      // A darker turned-hem band just inside the cuff, then a thin lighter
+      // stitch line inside that.
+      for (const [offset, width, color] of [[band * .55, band, 'rgba(14,10,22,.30)'], [band * 1.5, Math.max(1, band * .22), 'rgba(255,255,255,.22)']]) {
+        const cx = end.x - ux * offset, cy = end.y - uy * offset;
+        context.beginPath();
+        context.moveTo(cx - nx * radius * 1.15, cy - ny * radius * 1.15);
+        context.lineTo(cx + nx * radius * 1.15, cy + ny * radius * 1.15);
+        context.lineWidth = width; context.strokeStyle = color; context.stroke();
+      }
+    }
+    context.restore();
   }
 
   // Volume shading: soft darkening toward the sides and hem plus a faint
