@@ -4,7 +4,10 @@ const fs = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
-const { listPackage, extractFile } = require('@electron/asar');
+const asar = require('@electron/asar');
+const { listPackage } = asar;
+// asar resolves entries with the host separator, so Windows needs backslashes.
+const extractFile = (archive, file) => asar.extractFile(archive, file.split('/').join(path.sep));
 const root = path.resolve(__dirname, '..');
 (async () => {
   const directory = path.join(root, 'dist/win-unpacked');
@@ -14,7 +17,7 @@ const root = path.resolve(__dirname, '..');
   assert.equal(executable.readUInt32LE(pe), 0x00004550);
   assert.equal(executable.readUInt16LE(pe + 4), 0x8664, 'Package is not Windows x64');
   const archive = path.join(directory, 'resources/app.asar');
-  const files = listPackage(archive);
+  const files = listPackage(archive).map(file => file.replaceAll('\\', '/'));
   const sourceHashes = {};
   for (const file of files.filter(file => /^\/src\/.*\.(?:js|mjs|cjs|html|css|ps1)$/.test(file))) {
     const relative = file.slice(1), packaged = extractFile(archive, relative);
