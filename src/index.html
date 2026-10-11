@@ -24,7 +24,9 @@
 
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
-    body { display: grid; place-items: center; }
+    /* The top of the physical glass is covered; keep that band pure black and fit the mirror below it. */
+    :root { --mirror-top-inset: 8vh; --mirror-vh: calc(100vh - var(--mirror-top-inset)); }
+    body { display: grid; place-items: end center; }
     body { color: #f8f2df; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
     button, input, select { font: inherit; }
     button { color: inherit; }
@@ -32,7 +34,7 @@
 
     /* The browser preview represents the actual 43-inch portrait installation,
        never a stretched desktop canvas. Wide viewports receive a black matte. */
-    #app-shell { --viewer-x: 0px; --viewer-y: 0px; position: relative; width: min(100vw, 56.25vh); height: min(100vh, 177.777vw); isolation: isolate; container-type: inline-size; background: radial-gradient(circle at 50% 34%, #120d1b 0, #030306 42%, #000 76%); }
+    #app-shell { --viewer-x: 0px; --viewer-y: 0px; position: relative; width: min(100vw, calc(var(--mirror-vh) * .5625)); height: min(var(--mirror-vh), 177.777vw); isolation: isolate; container-type: inline-size; background: radial-gradient(circle at 50% 34%, #120d1b 0, #030306 42%, #000 76%); }
     /* Install profile: daylight needs firm whites and black voids through
        two-way glass; night mode reduces the reflected light in the room. */
     #app-shell[data-glass-profile="glass"] { --signal: #c8ffe4; --ice: #fbffff; --muted: rgba(237,255,247,.80); }
@@ -333,7 +335,7 @@
     .watch-card { width: min(740px, 100%); padding: 22px; border: 1px solid var(--panel-line); border-radius: 20px; background: rgba(5,10,14,.8); box-shadow: 0 28px 100px rgba(0,0,0,.5); backdrop-filter: blur(26px); }
     .watch-display { position: relative; display: grid; place-items: center; min-height: 260px; overflow: hidden; border: 1px solid rgba(213,234,244,.1); border-radius: 12px; background: radial-gradient(circle at 50% 35%, #233b46, #070c11 66%); }
     #watch-video { width: 100%; max-height: 52vh; object-fit: contain; display: none; background: #000; }
-    #watch-panel[data-casting="true"] #watch-video { max-height: min(75vh, calc(100vh - 420px)); }
+    #watch-panel[data-casting="true"] #watch-video { max-height: min(75vh, calc(var(--mirror-vh) - 420px)); }
     #watch-panel[data-casting="true"] .watch-controls,
     #watch-panel[data-casting="true"] .service-launcher,
     #watch-panel[data-casting="true"] .phone-link-panel,
@@ -518,7 +520,7 @@
     .connections { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
     .connections input:not([type="checkbox"]) { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.35); color: var(--ice); font-size: 12px; }
 
-    #wardrobe-photo { width: min(620px, 90cqw); max-height: min(82vh, calc(100dvh - 180px)); overflow-y: auto; box-sizing: border-box; scroll-padding-block: 95px 90px; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
+    #wardrobe-photo { width: min(620px, 90cqw); max-height: min(82vh, calc(var(--mirror-vh) - 180px)); overflow-y: auto; box-sizing: border-box; scroll-padding-block: 95px 90px; padding: 24px; border: 1px solid #567067; border-radius: 20px; background: #111d23; color: #e4f1ed; font: 16px/1.5 Manrope, sans-serif; }
     #wardrobe-photo::backdrop { background: rgba(0,0,0,.78); backdrop-filter: blur(8px); }
     #wardrobe-photo header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     #wardrobe-photo h2 { margin: 0; font-size: 26px; }
