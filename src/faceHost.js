@@ -171,7 +171,7 @@ export class FaceHost {
     ctx.clearRect(0, 0, w, h);
     this.canvas._mirrorRevision = ++this.drawCount;
     const aspect=(this.image.naturalHeight||1)/(this.image.naturalWidth||1);
-    const base = Math.min(w, h/aspect) * 1.02,headHeight=base*aspect;
+    const base = Math.min(w, h/aspect) * 1.12,headHeight=base*aspect;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.
     for (const key of ['turn', 'nod', 'lean']) this.performanceSmooth[key] += (this.performance[key] - this.performanceSmooth[key]) * (1-Math.exp(-dt*4.2));
@@ -185,7 +185,7 @@ export class FaceHost {
     // without exposing a body or turning it into a flat sliding sticker.
     ctx.rotate((this.viewer.x || 0) * -.026 + this.performanceSmooth.lean * .13);
     const jaw = Math.max(this.blendshapes.jawOpen || 0, this.speech);
-    const mouthStrength = Math.max(0, Math.min(1, jaw * 1.5));
+    const mouthStrength = Math.max(0, Math.min(1, jaw * 1.75));
     const targetAA = this.viseme === 'AA' || this.viseme === 'EE' || (this.viseme === 'rest' && jaw > .12) ? mouthStrength : 0;
     const targetO = ['O','OU'].includes(this.viseme) ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
@@ -193,7 +193,7 @@ export class FaceHost {
     // Asymmetric: open quickly so a syllable's onset lands with the sound
     // (a 6.7/s ease measured ~150 ms of lag and blurred 4-5 Hz syllables into
     // one slow wobble), close a little more gently so the lips do not flutter.
-    const ease = (current, target) => current + (target - current) * (1 - Math.exp(-dt * (target > current ? 26 : 15)));
+    const ease = (current, target) => current + (target - current) * (1 - Math.exp(-dt * (target > current ? 34 : 20)));
     this.poseBlend.AA = ease(this.poseBlend.AA, targetAA);
     this.poseBlend.O = ease(this.poseBlend.O, targetO);
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));
