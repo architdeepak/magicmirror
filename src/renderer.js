@@ -2057,7 +2057,12 @@ function animate() {
     animationTimer = setTimeout(animate, 500);
     return;
   }
-  animationFrame = requestAnimationFrame(animate);
+  // The ambient mirror has nothing to animate (the clock is DOM text): wake the
+  // frame loop ~15 times a second instead of 60. Every wake costs main-thread
+  // and compositor time, which a fanless stick would rather not spend.
+  const ambientIdle = mode === 'mirror' && !desktopActive && !elements.shell.dataset.magicCue && !elements.awakening.classList.contains('active');
+  if (ambientIdle) animationTimer = setTimeout(() => { animationTimer = null; animationFrame = requestAnimationFrame(animate); }, 64);
+  else animationFrame = requestAnimationFrame(animate);
   if (!renderBudget.shouldRender(performance.now(), { hidden: false, sleeping: false, mode, depthEnabled:depthEnabled&&mode!=='mirror', avatarVisible: avatar.visible,motionFps:softwareGraphics?30:displayProfile(displayQualityId).motionFps })) return;
   const frameDelta = clock.getDelta();
   const dt = Math.min(frameDelta, 0.05);

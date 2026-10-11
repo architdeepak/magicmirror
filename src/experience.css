@@ -245,3 +245,8 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 @media (prefers-reduced-motion: reduce) { .settings-section > summary::after { transition: none; } }
 /* The wake hint sits under the panel's bottom edge; hide it while Settings is open. */
 #app-shell:has(.settings-panel.open) .wake-status { opacity: 0; }
+
+/* Perf: a finished loader kept spinning invisibly, forcing a compositor frame
+   sixty times a second for as long as the mirror was on. Stop it and hide it. */
+.loader.done { visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
+.loader.done .loader-ring { animation: none; }
