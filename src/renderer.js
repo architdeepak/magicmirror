@@ -238,7 +238,15 @@ elements.visionNotice.textContent = visionEnabled
 updateMemoryStatus(config.memory);
 
 
-const renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+// Multisampling a 4K-class surface costs hundreds of ms at startup and tens of
+// MB of GPU memory; the Efficient tier (chosen, or implied on a small PC)
+// renders near 720p and is scaled by the compositor, so it skips MSAA.
+const antialiasScene = (() => {
+  const saved = localStorage.getItem('mirror.display-quality');
+  const smallDevice = (navigator.hardwareConcurrency || 8) <= 4 && (navigator.deviceMemory || 8) <= 4;
+  return !(saved === 'eco' || (!saved && smallDevice));
+})();
+const renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, antialias: antialiasScene, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 const viewportSize = () => ({ width: elements.shell.clientWidth || window.innerWidth, height: elements.shell.clientHeight || window.innerHeight });
 // A native 4K portrait television is already 8.3MP at DPR 1.  Preserve that
 // native detail, but cap Retina/browser scaling by a pixel budget rather than
@@ -423,6 +431,7 @@ let idleTimer = null;
 let sleepTimer = null;
 let sleeping = false;
 let lastVoiceActivity = Date.now(), cameraIdlePaused = false;
+let gesturesDeferred = true; // hand tracking waits for the wake word (see initialize)
 let followX = 0, followMe = localStorage.getItem('mirror.follow') !== 'false';
 const searchPool = { root: null, timer: 0 }; // filled in once the card exists
 let cameraWasActiveBeforeSleep = false;
@@ -672,7 +681,10 @@ async function initialize() {
   initHeadTracking(elements.video)
     .then(populateCameras)
     .catch((error) => console.warn('[startup] tracking', error));
-  gestures.setEnabled(elements.gestureToggle.checked);
+  // Heavy loads are staggered so the first thing the person needs (face lock,
+  // then the wake word) is not slowed by a hand model nobody has used yet.
+  // Hand tracking starts once the wake word has armed, or after a short grace.
+  setTimeout(releaseGestures, 9000);
   try { await avatar.init('assets/avatar.glb'); }
   catch (error) { console.warn('[startup] avatar', error); }
   avatar.onSurfaceChange=canvas=>depthScene.setAvatarCanvas(canvas);
@@ -952,8 +964,15 @@ async function handleWakeWord(command) {
   await toggleVoice();
 }
 
+function releaseGestures() {
+  if (!gesturesDeferred) return;
+  gesturesDeferred = false;
+  gestures.setEnabled(elements.gestureToggle.checked);
+}
+
 function updateWakeStatus(status) {
   queueMicrotask(updatePrivacyChip);
+  if (status === 'armed' || status === 'paused' || status === 'unavailable') releaseGestures();
   const labels = {
     armed: 'Say “mirror mirror”', heard: 'Wake word heard', paused: 'Wake word paused',
     training: 'Loading local speech model…', unavailable: 'Wake word unavailable', disconnected: 'Microphone disconnected · reconnect and toggle wake'

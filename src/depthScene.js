@@ -129,6 +129,7 @@ export function createDepthScene(scene) {
       cube.visible = depthEnabled;
       corridor.visible = false;
       chamber.group.visible = depthEnabled;
+      if (depthEnabled) chamber.ensureBackdrop?.();
       halo.visible = false;
       innerHalo.visible = false;
     },
@@ -260,12 +261,14 @@ function createChamber() {
     const gem=new THREE.Mesh(new THREE.IcosahedronGeometry(size,0),crystalMaterial);gem.scale.y=1.7;gem.position.set(x,y,z);group.add(gem);crystals.push({gem,y});
   }
   // A painted castle-hall backdrop: one static texture, so it costs one quad.
-  const backdropMaterial=new THREE.MeshBasicMaterial({map:paintCastleHall(),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,color:0xffffff});
+  const backdropMaterial=new THREE.MeshBasicMaterial({map:null,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,color:0xffffff});
+  // Painted on first use: the 2D flat mirror never needs this 768x1366 canvas or its GPU upload.
+  const ensureBackdrop=()=>{if(backdropMaterial.map)return;backdropMaterial.map=paintCastleHall();backdropMaterial.needsUpdate=true;};
   const backdrop=new THREE.Mesh(new THREE.PlaneGeometry(7.6,13.5),backdropMaterial);
   backdrop.position.set(0,-.2,-5.95);backdrop.renderOrder=-10;group.add(backdrop);
   const moon=new THREE.Mesh(new THREE.SphereGeometry(.15,16,12),new THREE.MeshBasicMaterial({color:0xb4bdab}));
   moon.position.set(.91,2.15,-5.1);group.add(moon);
-  return {group,update(elapsed){
+  return {group,ensureBackdrop,update(elapsed){
     for(const [index,{gem,y}] of crystals.entries()){gem.position.y=y+Math.sin(elapsed*.45+index)*.028;gem.rotation.y=elapsed*.10+index;}
     // Torchlight breathes: a tiny, slow tint change on the shared backdrop.
     const flicker=.92+Math.sin(elapsed*3.1)*.03+Math.sin(elapsed*7.3+1.2)*.02;

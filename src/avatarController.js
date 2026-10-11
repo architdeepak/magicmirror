@@ -55,7 +55,9 @@ export class AvatarController {
         cameraRotateEnable: false,
         cameraPanEnable: false,
         cameraZoomEnable: false,
-        modelPixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
+        // The mounted player is never presented (its render() is a no-op), so
+        // keep its drawing buffer tiny instead of a multi-megapixel surface.
+        modelPixelRatio: 0.1,
         modelFPS: 30,
         modelMovementFactor: 0.42,
         pcmSampleRate: 24000,
