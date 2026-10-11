@@ -198,7 +198,7 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 }
 #app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]):is([data-mode="ar"], [data-mode="portal"], [data-mode="mirror"]) :is(#camera-feed, .garment-sync-camera) { visibility: hidden; }
 #app-shell:is([data-glass-profile="glass"], [data-glass-profile="night"]) .mirror-frame { box-shadow: none; }
-#app-shell[data-glass-profile="night"] { filter: brightness(.7); }
+#app-shell[data-glass-profile="night"] { filter: brightness(.82); }
 
 /* The host re-centres on the viewer (value set from head tracking). */
 #avatar-engine { translate: var(--follow-x, 0px) 0; }
@@ -213,7 +213,7 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 /* Burn-in care: static furniture drifts a few pixels over the hour. */
 .topbar, .mirror-clock, .mirror-weather, .wake-status, .bottom-dock, .privacy-chip { translate: var(--shift-x, 0px) var(--shift-y, 0px); }
 /* Late-night dimming keeps a lit mirror from glaring in a dark room. */
-#app-shell[data-dim="night"] { filter: brightness(.6); }
+#app-shell[data-dim="night"] { filter: brightness(.75); }
 
 /* Captions: a two-line subtitle window that always shows the newest words.
    (They were single-line tickers scrolled to the end, which clipped the first

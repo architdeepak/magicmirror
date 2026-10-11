@@ -6,7 +6,7 @@ const PAD = [110, 164.81, 220, 261.63, 329.63];        // A2 E3 A3 C4 E4  (A min
 const BELLS = [440, 523.25, 587.33, 659.25, 783.99];   // A4 C5 D5 E5 G5   (minor pentatonic)
 
 export class MirrorAmbience {
-  constructor() { this.enabled = false; this.volume = .05; this.epoch = 0; this.nodes = []; this.timers = []; this.context = { muted: false, duck: false }; }
+  constructor() { this.enabled = false; this.volume = .09; this.epoch = 0; this.nodes = []; this.timers = []; this.context = { muted: false, duck: false }; }
 
   async setEnabled(enabled) {
     this.enabled = Boolean(enabled);

@@ -40,12 +40,12 @@ async function groundedSearch({ apiKey, query, model = DEFAULT_MODEL, fetchImpl 
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       signal: controller.signal,
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: 'You are the voice of a magic mirror. Answer in at most three short sentences suited to being spoken aloud. State concrete facts and figures as digits. No markdown, no lists, no preamble.' }] },
+        systemInstruction: { parts: [{ text: 'You are the voice of a magic mirror. Answer the question directly and accurately in at most four short sentences suited to being spoken aloud. Lead with the answer, then the one or two most useful details. Resolve ambiguity sensibly instead of asking back, and say plainly when sources disagree or you are unsure. State concrete facts and figures as digits. No markdown, no lists, no preamble.' }] },
         contents: [{ role: 'user', parts: [{ text: terms }] }],
         ...(grounding ? { tools: [{ google_search: {} }] } : {}),
         // Reasoning tokens count against the output limit and truncate answers;
         // a quick factual reply does not need them.
-        generationConfig: { temperature: 0.3, maxOutputTokens: 500, ...(withoutThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}) }
+        generationConfig: { temperature: 0.3, maxOutputTokens: 1000, ...(withoutThinking ? { thinkingConfig: { thinkingBudget: 192 } } : {}) }
       })
     }); };
     let response = await send(true);

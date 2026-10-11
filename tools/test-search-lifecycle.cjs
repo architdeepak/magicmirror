@@ -25,7 +25,7 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve
  const direct=context.searchMirror('old card',options);context.showSearchResult(answer('weather'));pending.at(-1).resolve(answer('old card'));await direct;assert.equal(node('#search-pool-query').textContent,'weather');
  for(const epoch of ['voiceStartGeneration','manualControlGeneration']){const run=context.searchMirror(epoch,options);context[epoch]++;pending.at(-1).reject(Error('Retired'));assert.equal((await run).cancelled,true)}
  const error=context.searchMirror('current error',options);pending.at(-1).reject(Error('Current failure'));await error;assert.equal(notifications.at(-1),'error');
- const fallback=context.searchMirror('fallback',options);pending.at(-1).resolve({query:'fallback',url:'https://example.test'});await fallback;assert.deepEqual(opened,['https://example.test']);
+ const fallback=context.searchMirror('fallback',options);pending.at(-1).resolve({query:'fallback',url:'https://example.test'});const fallbackResult=await fallback;assert.deepEqual(opened,[],'A results page was opened');assert.match(fallbackResult.result,/could not find/);
  let focusMoves=0;
  node('#search-pool-close').focus=options=>{assert.equal(options.preventScroll,true);focusMoves++};
  node('#search-pool-sources').contains=()=>false;

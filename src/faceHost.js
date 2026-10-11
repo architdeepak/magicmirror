@@ -193,7 +193,7 @@ export class FaceHost {
     // Asymmetric: open quickly so a syllable's onset lands with the sound
     // (a 6.7/s ease measured ~150 ms of lag and blurred 4-5 Hz syllables into
     // one slow wobble), close a little more gently so the lips do not flutter.
-    const ease = (current, target) => current + (target - current) * (1 - Math.exp(-dt * (target > current ? 34 : 20)));
+    const ease = (current, target) => current + (target - current) * (1 - Math.exp(-dt * (target > current ? 28 : 16)));
     this.poseBlend.AA = ease(this.poseBlend.AA, targetAA);
     this.poseBlend.O = ease(this.poseBlend.O, targetO);
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));

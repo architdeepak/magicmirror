@@ -72,7 +72,7 @@ export class MagicTheatre {
       if (epoch !== this.epoch || !this.shell.dataset.magicCue) return;
       const now = this.audio.currentTime;
       const master = this.audio.createGain(), filter = this.audio.createBiquadFilter();
-      master.gain.value = kind === 'wake' ? .5 : .28;
+      master.gain.value = kind === 'wake' ? .85 : .5;
       filter.type = 'lowpass'; filter.frequency.value = 3200;
       filter.connect(master); master.connect(this.audio.destination);
       const delay = this.audio.createDelay(.5), feedback = this.audio.createGain();

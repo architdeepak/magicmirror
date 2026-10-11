@@ -1492,15 +1492,15 @@ function registerBridge() {
         diagnosticLog.record('search-fallback');
         // Search grounding has its own quota and may be unavailable on a key.
         // Timeless questions can still be answered from the model, labelled as
-        // such; anything time-sensitive goes to real results in the frame.
-        if (!isTimeSensitive(terms)) {
+        // such. A results page is never opened in the mirror.
+        {
           try { return { grounded: false, fromMemory: true, ...await groundedSearch({ apiKey, query: terms, model, grounding: false, signal }) }; }
           catch { signal.throwIfAborted();diagnosticLog.record('search-memory-failed'); }
         }
       }
     }
-    // No key (or the call failed): show ordinary results inside the mirror frame.
-    return { grounded: false, query: terms, url: `https://www.google.com/search?q=${encodeURIComponent(terms)}` };
+    // Never open a results page in the mirror: the model answers, or says it cannot.
+    throw new Error(apiKey ? 'I could not reach search just now. Ask me again in a moment.' : 'Add a Gemini key in Settings so I can search for you.');
     });
   });
   ipcMain.handle('mirror:wardrobe-phone', async (event, enabled) => {

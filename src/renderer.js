@@ -2544,7 +2544,7 @@ async function ringBell() {
       };
       osc.type = 'sine'; osc.frequency.value = frequency;
       gain.gain.setValueAtTime(0, now + index * .18);
-      gain.gain.linearRampToValueAtTime(.18, now + index * .18 + .02);
+      gain.gain.linearRampToValueAtTime(.34, now + index * .18 + .02);
       gain.gain.exponentialRampToValueAtTime(.0001, now + index * .18 + 1.2);
       osc.connect(gain).connect(bellContext.destination); osc.start(now + index * .18); osc.stop(now + index * .18 + 1.3);
     });
@@ -2608,8 +2608,8 @@ function showSearchResult(result,{retainRequest=false}={}) {
   if(!retainRequest)cancelPendingSearch();
   if (!result) return result;
   if (!result.answer) {
-    // No grounded answer: show ordinary results inside the mirror frame.
-    return showUrlInFrame({ url: result.url }).then(() => ({ result: `Showing search results for ${result.query}.`, query: result.query }));
+    // No answer: never open a results page in the mirror.
+    return { result: `I could not find an answer for ${result.query}.`, query: result.query };
   }
   document.querySelector('#search-pool-eyebrow').textContent = result.eyebrow || (result.fromMemory ? 'From memory · may be out of date' : 'The mirror found');
   document.querySelector('#search-pool-query').textContent = result.query;
