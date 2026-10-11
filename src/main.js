@@ -525,6 +525,7 @@ async function scrollDesktopFromGesture(direction) {
 
 function spotifyClientId() { return String(integrationSettings.value('spotifyClientId', process.env.MIRROR_SPOTIFY_CLIENT_ID || '')).trim(); }
 function spotifyConfigured() { return Boolean(spotifyClientId()); }
+const SPOTIFY_REDIRECT_PORT = 43819;
 
 async function openNativeApplication(target, label) {
   if (desktopWindow && !desktopWindow.isDestroyed()) desktopWindow.hide();
@@ -643,9 +644,15 @@ async function startSpotifyAuthorization() {
     }
   });
   const authServer = spotifyAuthServer;
+  // A fixed loopback port can be registered once as the Spotify redirect URI;
+  // fall back to any free port if it is taken.
   await new Promise((resolve, reject) => {
-    authServer.once('error', reject);
-    authServer.listen(0, '127.0.0.1', resolve);
+    authServer.once('error', error => {
+      if (error.code !== 'EADDRINUSE') { reject(error); return; }
+      authServer.once('error', reject);
+      authServer.listen(0, '127.0.0.1', resolve);
+    });
+    authServer.listen(SPOTIFY_REDIRECT_PORT, '127.0.0.1', resolve);
   });
   if (generation !== spotifyGeneration) { if (authServer.listening) authServer.close(); throw new Error('Spotify connection changed. Try connecting again.'); }
   const port = authServer.address().port;
