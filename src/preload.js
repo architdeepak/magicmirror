@@ -22,6 +22,11 @@ contextBridge.exposeInMainWorld('mirrorBridge', {
   youtubePlayerUrl: () => ipcRenderer.invoke('mirror:youtube-player-url'),
   saveConnections: (input) => ipcRenderer.invoke('mirror:save-connections', input),
   getConfig: () => ipcRenderer.invoke('mirror:get-config'),
+  getDisplayCadence: () => ipcRenderer.invoke('mirror:display-cadence'),
+  onDisplayCadence: callback => {
+    const listener=(_event,frequency)=>callback(frequency);ipcRenderer.on('mirror:display-cadence',listener);
+    return ()=>ipcRenderer.removeListener('mirror:display-cadence',listener);
+  },
   createGeminiToken: () => ipcRenderer.invoke('mirror:create-gemini-token'),
   getWakeWordAccessKey: () => ipcRenderer.invoke('mirror:get-wake-word-key'),
   readMemory: () => ipcRenderer.invoke('mirror:read-memory'),
@@ -64,7 +69,8 @@ contextBridge.exposeInMainWorld('mirrorBridge', {
   spotifyControl: (action) => ipcRenderer.invoke('mirror:spotify-control', action),
   spotifyDevices: () => ipcRenderer.invoke('mirror:spotify-devices'),
   openSpotifyItem: (item) => ipcRenderer.invoke('mirror:open-spotify-item', item),
-  searchWeb: (query) => ipcRenderer.invoke('mirror:search-web', query),
+  searchWeb: (query,requestId) => ipcRenderer.invoke('mirror:search-web',requestId?{query,requestId}:query),
+  cancelSearch: requestId => ipcRenderer.invoke('mirror:cancel-search',requestId),
   readClosetOriginal: (id,side) => ipcRenderer.invoke('mirror:read-closet-original',id,side),
   wardrobePhone: enabled => ipcRenderer.invoke('mirror:wardrobe-phone', enabled),
   onWardrobePhoto: callback => { const listener = (_event, value) => callback(value); ipcRenderer.on('mirror:phone-wardrobe', listener); return () => ipcRenderer.removeListener('mirror:phone-wardrobe', listener); },

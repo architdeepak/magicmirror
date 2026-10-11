@@ -12,6 +12,8 @@ export class MagicTheatre {
     this.applyPreferences();
   }
   setQuality(id) { this.cancel();this.quality=['eco','auto','hd'].includes(id)?id:'auto';this.fog=null; }
+  setMotionFps(fps) { this.motionFps=Math.max(15,Math.min(60,Number(fps)||60)); }
+  targetFps() { return Math.min(this.motionFps??60,displayProfile(this.quality).fogFps,this.backend==='gpu'?60:30); }
   selectSurface(allowGpu = true) {
     const profile=displayProfile(this.quality),previous=this.canvas;previous.hidden=true;
     // The shader field is the default on any real GPU (measured 60 fps at 4K once
@@ -27,7 +29,7 @@ export class MagicTheatre {
     this.canvas.width=surface.width;this.canvas.height=surface.height;
     if(this.backend==='cpu'&&!this.fog){const width=this.quality==='eco'?112:this.quality==='hd'?256:216;this.fog=new MirrorFog(width,width*1.5,{lowDetail:this.quality==='eco'});}
   }
-  snapshot() { return { quality:this.quality,backend:this.backend,resolution:[this.canvas.width,this.canvas.height],field:this.backend==='cpu'?[this.fog?.canvas.width||0,this.fog?.canvas.height||0]:null,frames:this.backend==='gpu'?this.gpu?.frames||0:this.fog?.frames||0,targetFps:this.backend==='gpu'?displayProfile(this.quality).fogFps:30,fallbackReason:this.fallbackReason||null }; }
+  snapshot() { return { quality:this.quality,backend:this.backend,resolution:[this.canvas.width,this.canvas.height],field:this.backend==='cpu'?[this.fog?.canvas.width||0,this.fog?.canvas.height||0]:null,frames:this.backend==='gpu'?this.gpu?.frames||0:this.fog?.frames||0,targetFps:this.targetFps(),fallbackReason:this.fallbackReason||null }; }
   applyPreferences() { this.shell.dataset.reducedMotion = String(this.reduced); }
   play(kind = 'wake', { muted = false } = {}) {
     this.cancel(); this.shell.dataset.magicCue = kind;
@@ -41,7 +43,7 @@ export class MagicTheatre {
       const t = (now - start) / duration;
       if (t >= 1 || document.hidden) { this.cancel(); return; }
       this.frame = requestAnimationFrame(draw);
-      const fps=this.backend==='gpu'?displayProfile(this.quality).fogFps:30;
+      const fps=this.targetFps();
       if (now - last < 1000 / fps - .5) return; last = now;
       this.renderCue(kind,t);
     };

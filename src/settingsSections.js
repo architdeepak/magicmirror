@@ -18,9 +18,9 @@ export function matchesQuery(text, query) {
 
 // rows: [[rowText, ...] per section]. Returns, per section, which rows match
 // and whether the section has any match (so it can be shown and opened).
-export function filterSections(sections, query) {
-  return sections.map(rows => {
-    const matches = rows.map(text => matchesQuery(text, query));
+export function filterSections(sections, query, headings = []) {
+  return sections.map((rows,index) => {
+    const matches = rows.map(text => matchesQuery(`${headings[index] || ''} ${text}`, query));
     return { matches, any: matches.some(Boolean) };
   });
 }
@@ -55,18 +55,21 @@ export function initSettingsSections(root, { storage = globalThis.localStorage }
     Object.assign(saved, loadState(storage));          // pick up changes made by toggling
     const query = normalizeQuery(search?.value);
     searching = Boolean(query);
-    const results = filterSections(sections.map(section => rowsOf(section).map(row => row.textContent)), query);
+    const rows = sections.map(rowsOf);
+    const headings = sections.map(section => section.querySelector(':scope > summary')?.textContent || '');
+    const results = filterSections(rows.map(group => group.map(row => row.textContent)), query, headings);
     sections.forEach((section, index) => {
       const { matches, any } = results[index];
       // A class, not [hidden]: several rows are shown/hidden by the app itself.
-      rowsOf(section).forEach((row, rowIndex) => row.classList.toggle('settings-filtered', Boolean(query) && !matches[rowIndex]));
+      rows[index].forEach((row, rowIndex) => row.classList.toggle('settings-filtered', Boolean(query) && !matches[rowIndex]));
       section.hidden = Boolean(query) && !any;
       if (query) section.open = any;
       else section.open = saved[section.dataset.section] ?? index === 0;
     });
     if (!query) searching = false;
   };
-  search?.addEventListener('input', apply);
-  search?.addEventListener('keydown', event => { if (event.key === 'Escape' && search.value) { search.value = ''; apply(); event.stopPropagation(); } });
+  search?.addEventListener('input', event => { if(!event.isComposing)apply(); });
+  search?.addEventListener('compositionend', apply);
+  search?.addEventListener('keydown', event => { if (event.key === 'Escape' && !event.isComposing && event.keyCode !== 229 && search.value) { search.value = ''; apply(); event.stopPropagation(); } });
   return { apply, sections };
 }

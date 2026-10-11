@@ -1,0 +1,16 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/renderer.js','utf8'),intervals=new Map();let created=0,writes=0,replacements=0,serial=0,list=[];
+const markup=fs.readFileSync('src/index.html','utf8').match(/<div[^>]*id="timer-chip"[^>]*>/)?.[0];
+assert(markup?.includes('role="timer"'));assert(markup.includes('aria-live="off"'),'Countdown must not announce every second');assert(markup.includes('aria-label="Active countdowns"'));
+const chip={hidden:true,childNodes:[],replaceChildren(...nodes){replacements++;this.childNodes=nodes}};
+const scope=vm.createContext({timerChip:chip,document:{hidden:false,createElement(){created++;let text='';return{get textContent(){return text},set textContent(value){writes++;text=value}}}},mirrorTimers:{list:()=>list},formatRemaining:ms=>String(ms/1000),setInterval:fn=>{const id=serial++;intervals.set(id,fn);return id},clearInterval:id=>intervals.delete(id)});
+vm.runInContext(source.slice(source.indexOf('let timerTick ='),source.indexOf('let bellContext =')),scope);
+list=[{id:1,label:'tea',remainingMs:10000}];scope.renderTimers(list);const first=chip.childNodes[0];assert.equal(intervals.size,1);
+for(let tick=0;tick<100;tick++)scope.renderTimers(list);
+assert.equal(created,1);assert.equal(writes,1);assert.equal(replacements,1);assert.equal(serial,1,'Repeated renders must retain interval, including handle zero');
+list=[{id:1,label:'tea',remainingMs:9000},{id:2,label:'<img>',remainingMs:5000}];scope.renderTimers(list);assert.equal(chip.childNodes[0],first);assert.equal(created,2);assert.equal(chip.childNodes[1].textContent,'<img> · 5');
+const before=writes;scope.document.hidden=true;intervals.values().next().value();assert.equal(writes,before);scope.document.hidden=false;
+list=[{id:2,label:'<img>',remainingMs:4000}];intervals.values().next().value();assert.equal(chip.childNodes.length,1);assert.equal(created,2);
+list=[];scope.renderTimers(list);assert(chip.hidden);assert.equal(intervals.size,0);assert.equal(chip.childNodes.length,0);
+vm.runInContext('if(timerNodes.size!==0)throw Error("Retained expired chip")',scope);
+console.log('Timer display: retained nodes, duplicate text suppression, one interval including ID zero, hidden suppression, removal and empty cleanup passed.');

@@ -1,0 +1,23 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/renderer.js','utf8');let now=1000,hidden=true,hiddenWrites=0,styleWrites=0,labelWrites=0,text='';
+const element={get hidden(){return hidden},set hidden(value){hiddenWrites++;hidden=value},style:{setProperty(){styleWrites++}}};
+const label={get textContent(){return text},set textContent(value){labelWrites++;text=value}};
+const scope=vm.createContext({elements:{gestureHold:element,gestureHoldLabel:label},gestureHoldValue:null,performance:{now:()=>now},gestures:{enabled:false,latched:false,lastSampleAt:1000,pinchSince:900,openSince:0},sleeping:false,mode:'portal',experience:{dialog:{open:false}},agentRunId:null,gemini:{listening:false},speech:{isSpeaking:false},voiceStarting:false,desktopActive:false});
+vm.runInContext(source.slice(source.indexOf('function updateGestureHold()'),source.indexOf('function setPersona(')),scope);
+Object.assign(scope,{closet:{photo:{open:false}},browserRecognition:null,state:'ready',desktopKind:'',desktopLabel:''});
+for(let frame=0;frame<10000;frame++)scope.updateGestureHold();assert.equal(hiddenWrites,0);assert.equal(styleWrites,0);
+scope.gestures.enabled=true;scope.updateGestureHold();assert.equal(hiddenWrites,1);assert.equal(styleWrites,1);assert.equal(labelWrites,1);
+for(let frame=0;frame<10000;frame++)scope.updateGestureHold();assert.equal(styleWrites,1);assert.equal(labelWrites,1);assert.equal(hiddenWrites,1);
+now+=30;scope.updateGestureHold();assert.equal(styleWrites,2);
+scope.mode='watch';scope.updateGestureHold();assert.equal(labelWrites,2);assert.match(text,/play/);
+scope.gestures.latched=true;scope.updateGestureHold();assert.equal(hiddenWrites,2);assert(hidden);
+scope.gestures.latched=false;
+for(const [mode,expected]of [['portal','use Watch'],['ar','next effect'],['watch','play / pause'],['spotify','play / pause']]){scope.mode=mode;scope.updateGestureHold();assert(text.includes(expected),mode)}
+scope.closet.photo.open=true;scope.updateGestureHold();assert.match(text,/take photo/);
+scope.closet.photo.output={};scope.updateGestureHold();assert.match(text,/save photo/);
+scope.closet.photo.saving=true;scope.updateGestureHold();assert.match(text,/busy/);scope.closet.photo.open=false;
+scope.desktopActive=true;scope.updateGestureHold();assert.match(text,/on-screen/);scope.desktopKind='native';scope.desktopLabel='Spotify';scope.updateGestureHold();assert.match(text,/play \/ pause/);
+scope.desktopActive=false;scope.gestures.pinchSince=0;scope.gestures.openSince=900;scope.state='thinking';scope.updateGestureHold();assert.match(text,/Stop/);
+scope.state='ready';scope.browserRecognition={};scope.updateGestureHold();assert.match(text,/Stop/);
+scope.browserRecognition=null;scope.updateGestureHold();assert.match(text,/Converse/);
+console.log('Gesture hold: disabled/stationary frames avoid DOM writes; progress, contextual hint and latch visibility still update.');

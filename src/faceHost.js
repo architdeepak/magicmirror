@@ -11,6 +11,13 @@ const HEADS = Object.freeze({
   solenne: { image: 'assets/personas/snow-head-v3.png', speaking: 'assets/personas/snow-head-v2-speaking.png', rounded: 'assets/personas/snow-head-v2-o.png', mouth: '#4a1820', lip: '#b84e58', lid: '#f0c0aa', mouthY: .22, eyeY: .015, eyeX: .132, proceduralMouth: false },
   rowan: { image: 'assets/personas/advit-head-reference.png', mouth: '#31140e', lip: '#7b3d37', lid: '#4a281e', mouthY: .247 }
 });
+// Only channels painted by this portrait can invalidate its resting pixels.
+// Trackers also emit nose, tongue and cheek channels which this host ignores.
+const PAINTED_CHANNELS = Object.freeze([
+  'jawOpen', 'eyeBlinkLeft', 'eyeBlinkRight', 'cheekSquintLeft', 'cheekSquintRight',
+  'eyeWideLeft', 'eyeWideRight', 'browInnerUp', 'browOuterUpLeft', 'browOuterUpRight',
+  'browDownLeft', 'browDownRight', 'mouthSmileLeft', 'mouthSmileRight', 'mouthFunnel', 'mouthPucker'
+]);
 
 // The host is deliberately a face cutout, not a conventional character avatar.
 // It uses high-resolution head art and a small, deterministic expression layer
@@ -50,8 +57,13 @@ export class FaceHost {
   }
 
   setPersona(persona) {
+    const selected = HEADS[persona] ? persona : 'velora';
+    if(this.personaLoad===selected)return;
+    this.personaLoad=selected;
+    if(this.mouthBlendCanvas){this.mouthBlendCanvas.width=0;this.mouthBlendCanvas.height=0;}
+    this.mouthBlendCanvas=null;this.mouthBlendAA=null;this.mouthBlendO=null;this.mouthBlendKey=null;
     this.lastIdleSignature = null;
-    this.persona = HEADS[persona] ? persona : 'velora';
+    this.persona = selected;
     this.ready = false;
     this.image = new Image();
     this.speakingImage = new Image();
@@ -63,10 +75,11 @@ export class FaceHost {
     this.fallbackMouthPatch = null; this.features = null;
     this.poseBlend = { AA: 0, O: 0 };
     const neutral = this.image;
+    neutral.onerror=()=>{if(this.image===neutral)this.personaLoad=null;};
     this.image.onload = () => {
       if (this.image !== neutral) return;
       if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
-      this.features = new FaceFeatures(neutral, HEADS[this.persona]);this.features.detail=displayProfile(this.quality).featureDetail;
+      this.features = new FaceFeatures(neutral, HEADS[this.persona]);this.features.detail=this.featureDetail();
       this.ready = true;
       this.draw(0);
     };
@@ -100,17 +113,28 @@ export class FaceHost {
     };
   }
 
-  setQuality(id) { this.quality=id;if(this.features)this.features.detail=displayProfile(id).featureDetail;this.resize(); }
+  featureDetail() { return Math.max(1,displayProfile(this.quality).featureDetail*(this.renderScale??1)); }
+  setQuality(id) { if(this.quality===id)return;this.quality=id;this.lastIdleSignature=null;if(this.features)this.features.detail=this.featureDetail();this.resize(); }
+
+  setRenderScale(scale) {
+    const next = Math.max(.6, Math.min(1, Number(scale) || 1));
+    if ((this.renderScale ?? 1) === next) return;
+    this.renderScale = next;this.lastIdleSignature=null;if(this.features)this.features.detail=this.featureDetail();this.resize();
+  }
 
   resize() {
-    this.lastIdleSignature = null;
     // The source art is ~1.2K; retain it for close viewing on the TV while
     // keeping the host canvas bounded on high-density desktop previews.
     const profile=displayProfile(this.quality);
     const width = Math.max(1, this.host.clientWidth);
     const height = Math.max(1, this.host.clientHeight);
+    const scale = this.renderScale ?? 1;
     const surface=boundedSurface(width,height,window.devicePixelRatio||1,profile.avatarPixels,profile.avatarDpr);
-    this.canvas.width=surface.width;this.canvas.height=surface.height;
+    const pixelWidth=Math.max(1,Math.floor(surface.width*scale)),pixelHeight=Math.max(1,Math.floor(surface.height*scale));
+    if(this.width===width&&this.height===height&&this.canvas.width===pixelWidth&&this.canvas.height===pixelHeight)return false;
+    this.lastIdleSignature=null;
+    if(this.canvas.width!==pixelWidth)this.canvas.width=pixelWidth;
+    if(this.canvas.height!==pixelHeight)this.canvas.height=pixelHeight;
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     this.ctx.setTransform(this.canvas.width/width, 0, 0, this.canvas.height/height, 0, 0);
@@ -119,6 +143,7 @@ export class FaceHost {
     this.ctx.imageSmoothingQuality = 'high';
     this.width = width;
     this.height = height;
+    return true;
   }
 
   update(elapsed) { this.draw(elapsed); }
@@ -139,7 +164,7 @@ export class FaceHost {
       && ['turn','nod','lean'].every(key => Math.abs(this.performanceSmooth[key] - this.performance[key]) < .0005);
     const stable = value => Number.isFinite(value) ? Number(value.toFixed(4)) : 0;
     const signature = settled ? [this.persona, w, h, this.speakingReady, this.roundedReady, this.viseme,
-      ...Object.entries(this.blendshapes).flatMap(([key,value]) => [key, typeof value === 'number' ? Math.abs(value) < .001 ? 0 : stable(value) : value]), stable(this.gaze.x), stable(this.gaze.y), stable(this.gaze.confidence), stable(this.viewer.x), stable(this.viewer.y),stable(this.gazeSmooth.x),stable(this.gazeSmooth.y),
+      ...PAINTED_CHANNELS.map(key => stable(this.blendshapes[key] || 0)), stable(this.viewer.x),stable(this.gazeSmooth.x),stable(this.gazeSmooth.y),
       ...Object.values(this.performanceSmooth).map(value => value.toFixed(4))].join(':') : null;
     if (settled && signature === this.lastIdleSignature) return;
     this.lastIdleSignature = signature;
@@ -180,13 +205,18 @@ export class FaceHost {
     // cheeks, eyes and hair simultaneously, which reads as a melting face.
     const spec = HEADS[this.persona];
     const mouthY = headHeight * (spec.mouthY ?? .323);
-    if ((this.speakingReady && aa > .015) || (this.roundedReady && rounded > .015)) {
+    const paintAA = this.speakingReady && this.speakingPatch && aa > .015;
+    const paintO = this.roundedReady && this.roundedPatch && rounded > .015;
+    if (paintAA || paintO) {
       ctx.save();
-      if (this.speakingPatch && aa > .015) {
+      if (paintAA && paintO) {
+        // Add premultiplied pose weights in a small crop before compositing.
+        // This preserves both the opaque lips and their feathered borders.
+        ctx.drawImage(this.blendMouth(aa,rounded), -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
+      } else if (paintAA) {
         ctx.globalAlpha = aa;
         ctx.drawImage(this.speakingPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
-      }
-      if (this.roundedPatch && rounded > .015) {
+      } else {
         ctx.globalAlpha = rounded;
         ctx.drawImage(this.roundedPatch, -base * .11, mouthY - headHeight * .05, base * .22, headHeight * .10);
       }
@@ -217,9 +247,35 @@ export class FaceHost {
     const anchorX = w / 2 + gazeX + turn * base * .038 - Math.sin(angle) * headHeight * faceCenter;
     const anchorY = h / 2 + bob + gazeY + Math.cos(angle) * headHeight * faceCenter;
     this.faceAnchor = { x: anchorX, y: anchorY, size: base };
-    this.host?.style?.setProperty('--face-center-x', anchorX + 'px');
-    this.host?.style?.setProperty('--face-center-y', anchorY + 'px');
-    this.host?.style?.setProperty('--face-glow-size', base * 1.45 + 'px');
+    this.updateAuraProperty('--face-center-x', anchorX);
+    this.updateAuraProperty('--face-center-y', anchorY);
+    this.updateAuraProperty('--face-glow-size', base * 1.45);
+  }
+
+  updateAuraProperty(property, value) {
+    if (!this.host?.style) return;
+    // A soft glow needs quarter-pixel precision; lips still paint every frame.
+    // Avoid invalidating CSS/layout merely because the mouth is speaking.
+    const rounded = Math.round(value * 4) / 4;
+    this.auraValues ||= {};
+    if (this.auraValues[property] === rounded) return;
+    this.auraValues[property] = rounded;
+    this.host.style.setProperty(property, rounded + 'px');
+  }
+
+  blendMouth(aa, rounded) {
+    const width=Math.max(this.speakingPatch.width,this.roundedPatch.width),height=Math.max(this.speakingPatch.height,this.roundedPatch.height);
+    const key=`${aa.toFixed(3)}:${rounded.toFixed(3)}`;
+    this.mouthBlendCanvas ||= document.createElement('canvas');
+    const canvas=this.mouthBlendCanvas;
+    if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;this.mouthBlendKey=null;}
+    if(this.mouthBlendKey===key&&this.mouthBlendAA===this.speakingPatch&&this.mouthBlendO===this.roundedPatch)return canvas;
+    const mix=canvas.getContext('2d');mix.clearRect(0,0,width,height);mix.globalCompositeOperation='lighter';
+    mix.globalAlpha=aa;mix.drawImage(this.speakingPatch,0,0,width,height);
+    mix.globalAlpha=rounded;mix.drawImage(this.roundedPatch,0,0,width,height);
+    mix.globalAlpha=1;mix.globalCompositeOperation='source-over';
+    this.mouthBlendKey=key;this.mouthBlendAA=this.speakingPatch;this.mouthBlendO=this.roundedPatch;
+    return canvas;
   }
 
   drawLids(ctx, cx, cy, size, amount) {

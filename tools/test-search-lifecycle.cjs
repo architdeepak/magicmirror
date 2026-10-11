@@ -1,0 +1,53 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const {SearchRequests}=require('../src/searchRequests.cjs');
+const source=fs.readFileSync('src/renderer.js','utf8');
+const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}};
+(async()=>{
+ const pending=[],cancelled=[],opened=[],notifications=[],nodes=new Map();let serial=0;
+ const node=id=>{if(!nodes.has(id))nodes.set(id,{hidden:true,textContent:'',replaceChildren(...children){this.children=children},addEventListener(){}});return nodes.get(id)};
+ const context=vm.createContext({searchPool:{root:node('#search-pool'),generation:0,requestId:null,timer:0},voiceStartGeneration:0,manualControlGeneration:0,crypto:{randomUUID:()=>`search-${++serial}`},window:{mirrorBridge:{searchWeb:(query,id)=>{const job=deferred();pending.push({...job,query,id});return job.promise},cancelSearch:async id=>cancelled.push(id)}},document:{querySelector:node,createElement:()=>({addEventListener(){}})},performance:{now:()=>0},setTimeout:()=>1,clearTimeout(){},avatar:{react(){}},showOracle:()=>{throw Error('Unexpected notice')},showUrlInFrame:async({url})=>opened.push(url)});
+ vm.runInContext(source.slice(source.indexOf('function hideSearchResult()'),source.indexOf("document.querySelector('#search-pool-close').addEventListener")),context);
+ const options={onSuccess:()=>notifications.push('success'),onError:()=>notifications.push('error')};
+ const answer=query=>({query,answer:'Answer '+query,sources:[]});
+ for(const failure of [false,true]){
+  const run=context.searchMirror('dismissed',options),job=pending.at(-1);context.hideSearchResult();assert.equal(cancelled.at(-1),job.id);
+  if(failure)job.reject(Error('Late failure'));else job.resolve(answer('dismissed'));
+  assert.equal((await run).cancelled,true);assert(context.searchPool.root.hidden);assert.equal(notifications.length,0);
+ }
+ const older=context.searchMirror('old',options),old=pending.at(-1);
+ const newer=context.searchMirror('new',options),fresh=pending.at(-1);
+ old.resolve(answer('old'));await older;assert.equal(context.searchPool.requestId,fresh.id);
+ fresh.resolve(answer('new'));await newer;assert.equal(node('#search-pool-query').textContent,'new');assert.equal(notifications.length,1);
+ context.searchPool.root.scrollTop=250;context.searchPool.root.scrollLeft=40;context.showSearchResult(answer('replacement'));
+ assert.equal(context.searchPool.root.scrollTop,0);assert.equal(context.searchPool.root.scrollLeft,0);
+ context.hideSearchResult();
+ const staleFrame=context.searchMirror('frame',options);context.hideSearchResult();pending.at(-1).resolve({query:'frame',url:'https://example.test'});await staleFrame;assert.equal(opened.length,0);
+ const direct=context.searchMirror('old card',options);context.showSearchResult(answer('weather'));pending.at(-1).resolve(answer('old card'));await direct;assert.equal(node('#search-pool-query').textContent,'weather');
+ for(const epoch of ['voiceStartGeneration','manualControlGeneration']){const run=context.searchMirror(epoch,options);context[epoch]++;pending.at(-1).reject(Error('Retired'));assert.equal((await run).cancelled,true)}
+ const error=context.searchMirror('current error',options);pending.at(-1).reject(Error('Current failure'));await error;assert.equal(notifications.at(-1),'error');
+ const fallback=context.searchMirror('fallback',options);pending.at(-1).resolve({query:'fallback',url:'https://example.test'});await fallback;assert.deepEqual(opened,['https://example.test']);
+ let focusMoves=0;
+ node('#search-pool-close').focus=options=>{assert.equal(options.preventScroll,true);focusMoves++};
+ node('#search-pool-sources').contains=()=>false;
+ context.showSearchResult(answer('external focus'));assert.equal(focusMoves,0,'Answer stole external focus');
+ node('#search-pool-sources').contains=()=>true;
+ context.showSearchResult(answer('focused source replaced'));assert.equal(focusMoves,1,'Removed source focus was not preserved');
+ node('#search-pool-sources').contains=()=>false;
+ context.showSearchResult(answer('close retained'));assert.equal(focusMoves,1,'Existing close focus moved unnecessarily');
+ const requests=new SearchRequests(),a=deferred(),b=deferred();let firstSignal;
+ const first=requests.run('first',signal=>{firstSignal=signal;return a.promise});
+ const second=requests.run('second',()=>b.promise);assert(firstSignal.aborted);assert.equal(requests.cancel('first'),false);
+ a.resolve('ignored-provider');await assert.rejects(first,/cancelled/);assert(requests.active.has('second'));
+ await assert.rejects(requests.run('second',()=>Promise.resolve()),/already running/);
+ requests.cancelAll();b.resolve('late');await assert.rejects(second,/cancelled/);assert.equal(requests.active.size,0);
+ await assert.rejects(requests.run('bad id',()=>{}),/Invalid/);
+ const main=fs.readFileSync('src/main.js','utf8'),handlers=new Map(),native=new SearchRequests();let providerCalls=0,signalSeen,providerJob;
+ const ipc=vm.createContext({ipcMain:{handle:(name,handler)=>handlers.set(name,handler)},assertAgentFrame:event=>{if(event!=='trusted')throw Error('Untrusted frame')},searchRequests:native,crypto:{randomUUID:()=>`native-${++serial}`},integrationSettings:{value:()=> 'fixture-key'},process:{env:{}},isTimeSensitive:()=>false,diagnosticLog:{record(){}},groundedSearch:async({signal})=>{providerCalls++;signalSeen=signal;providerJob=deferred();return providerJob.promise}});
+ vm.runInContext(main.slice(main.indexOf("  ipcMain.handle('mirror:cancel-search'"),main.indexOf("  ipcMain.handle('mirror:wardrobe-phone'")),ipc);
+ await assert.rejects(handlers.get('mirror:search-web')('foreign',{query:'x',requestId:'x'}),/Untrusted/);
+ assert.throws(()=>handlers.get('mirror:cancel-search')('foreign','x'),/Untrusted/);
+ const nativeRun=handlers.get('mirror:search-web')('trusted',{query:'slow',requestId:'native-slow'});
+ handlers.get('mirror:cancel-search')('trusted','native-slow');assert(signalSeen.aborted);
+ providerJob.reject(Error('Aborted transport'));await assert.rejects(nativeRun,/cancelled/);assert.equal(providerCalls,1,'Cancellation must not launch the memory fallback');
+ console.log('Search lifecycle: dismissed successes/errors, latest request, direct cards, voice/manual ownership, fallback isolation and native abort passed.');
+})().catch(error=>{console.error(error);process.exitCode=1});

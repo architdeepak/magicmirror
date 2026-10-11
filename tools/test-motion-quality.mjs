@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import { MotionQuality } from '../src/motionQuality.js';
+const sample = (governor, fps, requestedFps = 60, workMs = 2, seconds = 2.1) => {
+  for (let frame = 0; frame < Math.ceil(fps * seconds); frame++) governor.observe({ dt: 1/fps, workMs, requestedFps, active: true });
+};
+const g = new MotionQuality();
+sample(g,60);assert.equal(g.motionFps,60);assert.equal(g.avatarScale,1);
+sample(g,25,60,30);assert.equal(g.motionFps,30);assert.equal(g.avatarScale,1,'Sharpness dropped before motion cadence');
+sample(g,30,60,10);assert.equal(g.motionFps,30);assert.equal(g.avatarScale,1);
+sample(g,15,60,50);assert.equal(g.avatarScale,.9);
+for(let index=0;index<10;index++)sample(g,15,60,50);
+assert.equal(g.avatarScale,.6,'Portrait resolution floor violated');
+g.resetWindow();
+for(let index=0;index<5;index++)sample(g,30);assert.equal(g.avatarScale,.6,'Recovery too eager');
+sample(g,30);assert.equal(g.avatarScale,.7);
+for(let index=0;index<24;index++)sample(g,g.motionFps);
+assert.equal(g.avatarScale,1);assert.equal(g.motionFps,60,'Motion did not recover after detail');
+g.reset();sample(g,10,30,60);assert.equal(g.avatarScale,.9);
+g.observe({dt:10,workMs:1,requestedFps:30,active:true});assert.equal(g.avatarScale,.9,'Resume pause degraded quality');
+g.observe({dt:.3,workMs:1,requestedFps:30,active:false});assert.equal(g.frames,0);
+g.reset();assert.equal(g.motionFps,60);assert.equal(g.avatarScale,1);assert.equal(g.changes,0);
+sample(g,60,60,2,1);sample(g,30,30,2,1);assert.equal(g.changes,0,'Mixed target window adapted quality');
+g.reset();sample(g,1.5,60,500,3);assert.equal(g.motionFps,30,'Severe rendering overload was mistaken for a resume pause');
+g.reset();sample(g,30,30,2,20);assert.equal(g.changes,0,'Healthy Efficient mode was treated as an adaptation');
+console.log('Motion quality: cadence before detail, bounded resolution, sustained recovery, manual reset, hidden/idle/target isolation passed.');

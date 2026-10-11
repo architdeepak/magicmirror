@@ -1,0 +1,11 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');let writes=0,stops=0;
+const node=()=>{let text='',hidden=false;const attrs={};return{get textContent(){return text},set textContent(v){writes++;text=v},get hidden(){return hidden},set hidden(v){writes++;hidden=v},getAttribute:k=>attrs[k],setAttribute(k,v){writes++;attrs[k]=v}}};
+const elements={};for(const key of ['trackingBadge','cameraToggle','cameraNotice','cameraFormat'])elements[key]=node();elements.video={videoWidth:1920,videoHeight:1080};const quick=node(),tracking={cameraActive:true,faceDetected:false,error:''},liveTryOn={session:null,stop(){stops++;this.session=null}};
+const scope=vm.createContext({elements,liveTryOn,updatePrivacyChip(){},getTrackingStatus:()=>tracking,document:{querySelector:()=>quick}});
+const source=fs.readFileSync('src/renderer.js','utf8'),start=source.indexOf('function updateTrackingUi()');vm.runInContext(source.slice(start,source.indexOf('function refreshConnectionSettings()',start)),scope);
+scope.updateTrackingUi();const first=writes;for(let i=0;i<10000;i++)scope.updateTrackingUi();assert.equal(writes,first,'Stable tracking wrote DOM');
+tracking.faceDetected=true;scope.updateTrackingUi();assert.equal(writes,first+1);assert.equal(elements.trackingBadge.textContent,'FACE LOCK');
+tracking.cameraActive=false;tracking.faceDetected=false;tracking.error='Disconnected';liveTryOn.session={};scope.updateTrackingUi();assert.equal(stops,1);assert.equal(quick.getAttribute('aria-pressed'),'false');assert.equal(elements.cameraNotice.hidden,false);assert.equal(elements.cameraFormat.hidden,true);
+const ended=writes;scope.updateTrackingUi();assert.equal(stops,1);assert.equal(writes,ended);
+tracking.error='';scope.updateTrackingUi();assert.equal(elements.cameraNotice.hidden,true);assert.equal(elements.cameraNotice.textContent,'');
+console.log('Tracking UI: 10,000 stable refreshes avoid writes; face lock, disconnection, error recovery, pressed metadata and try-on stop passed.');

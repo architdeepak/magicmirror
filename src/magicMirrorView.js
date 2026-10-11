@@ -32,10 +32,10 @@ export class MagicMirrorView {
     this.refreshNow();
     this.weatherTimer = setInterval(() => { void this.fetchWeather(); }, 15 * 60 * 1000);
     this.ageTimer = setInterval(() => this.updateWeatherAge(), 60000);
-    this.onResume = () => { if (!document.hidden && Date.now() - this.weatherAt > 5 * 60 * 1000) void this.fetchWeather(); };
+    this.onResume = () => { if(document.hidden)return;this.refreshClock();this.refreshQuote();this.updateWeatherAge();if (Date.now() - this.weatherAt > 5 * 60 * 1000) void this.fetchWeather(); };
     document.addEventListener('visibilitychange', this.onResume);
     window.mirrorBridge?.onSystemResume?.(this.onResume);
-    window.addEventListener('beforeunload', () => { this.weatherController?.abort(); clearInterval(this.weatherTimer); clearInterval(this.ageTimer); clearInterval(this.clockTimer); clearInterval(this.quoteTimer); });
+    window.addEventListener('beforeunload', () => { this.weatherStopped=true;this.weatherEpoch++;this.weatherController?.abort(); clearInterval(this.weatherTimer); clearInterval(this.ageTimer); clearInterval(this.clockTimer); clearInterval(this.quoteTimer); });
   }
 
   _render() {
@@ -62,17 +62,32 @@ export class MagicMirrorView {
   refreshNow() {
     const card = this.container.querySelector('#now-card');
     if (!card) return;
-    const note = localStorage.getItem('mirror.quick-note')?.trim();
+    let note;
+    try { note = localStorage.getItem('mirror.quick-note')?.trim(); }
+    catch { return; }
+    const render = markup => {
+      if(card.__noteMarkup===markup && card.__noteRendered===card.innerHTML)return;
+      card.innerHTML=markup;
+      card.__noteMarkup=markup;card.__noteRendered=card.innerHTML;
+    };
     if (note) {
-      card.innerHTML = `<span class="now-kicker">YOUR NOTE</span><p>${escapeHtml(note)}</p><small>Saved on this mirror</small>`;
+      const markup = `<span class="now-kicker">YOUR NOTE</span><p>${escapeHtml(note)}</p><small>Saved on this mirror</small>`;
+      render(markup);
       return;
     }
-    card.innerHTML = '<span class="now-kicker">YOUR DAY</span><p>Your private services are one touch away.</p><small>Open Command Center for Calendar, Maps, and Find My.</small>';
+    const markup = '<span class="now-kicker">YOUR DAY</span><p>Your private services are one touch away.</p><small>Open Command Center for Calendar, Maps, and Find My.</small>';
+    render(markup);
   }
 
   _startClock() {
+    let lastMinute = null;
     const update = () => {
+      if(document.hidden)return;
       const now = new Date();
+      const minute = Math.floor(now.getTime()/60000);
+      if(minute===lastMinute)return;
+      lastMinute=minute;
+      // Refresh locale/time-zone defaults when the displayed minute changes.
       const parts = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit' }).formatToParts(now);
       this.container.querySelector('.clock-value').textContent = parts.filter(part => part.type !== 'dayPeriod').map(part => part.value).join('').trim();
       this.container.querySelector('.clock-period').textContent = parts.find(part => part.type === 'dayPeriod')?.value || '';
@@ -82,29 +97,46 @@ export class MagicMirrorView {
       this.container.querySelector('#mirror-greeting').textContent = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
     };
     update();
+    this.refreshClock=()=>{lastMinute=null;update();};
     this.clockTimer = setInterval(update, 1000);
-    this.quoteTimer = setInterval(() => {
+    this.refreshQuote=()=>{
+      if(document.hidden)return;
       const index = Math.floor(Date.now() / 20000) % this.quotes.length;
       this.container.querySelector('#mirror-quote').textContent = `“${this.quotes[index]}”`;
-    }, 20000);
+    };
+    this.quoteTimer = setInterval(this.refreshQuote, 20000);
   }
 
   async setCity(city) {
     if (!CITIES[city]) return;
     this.city = city;
-    localStorage.setItem('mirror.weather-city', city);
+    try { localStorage.setItem('mirror.weather-city', city); this.citySessionOnly = false; }
+    catch { this.citySessionOnly = true; }
     return this.fetchWeather();
   }
 
   updateWeatherAge() {
+    if(document.hidden)return;
     const node = this.container.querySelector('#weather-age');
     if (!node) return;
-    node.textContent = this.weatherAt && this.weatherFor === this.city
-      ? `${this.weatherFailed || Date.now() - this.weatherAt > 30 * 60000 ? 'Forecast may be stale · ' : ''}Updated ${Math.max(0, Math.floor((Date.now() - this.weatherAt) / 60000))} min ago · ${this.city}`
+    const age = Date.now() - this.weatherAt;
+    const text = this.weatherAt && this.weatherFor === this.city
+      ? `${this.weatherFailed || age > 30 * 60000 ? 'Forecast may be stale · ' : ''}Updated ${Math.max(0, Math.floor(age / 60000))} min ago · ${this.city}`
       : 'Forecast unavailable';
+    if(node.textContent !== text)node.textContent = text;
   }
 
-  async fetchWeather() {
+  fetchWeather() {
+    if(this.weatherStopped)return Promise.resolve();
+    const key=`${this.city}:${this.units}`;
+    if(this.weatherRequest&&this.weatherRequestKey===key)return this.weatherRequest;
+    this.weatherRequestKey=key;
+    const request=this.readWeather();this.weatherRequest=request;
+    const retire=()=>{if(this.weatherRequest===request)this.weatherRequest=null;};
+    request.then(retire,retire);
+    return request;
+  }
+  async readWeather() {
     const epoch = ++this.weatherEpoch, city = this.city;
     this.weatherController?.abort(); const controller = new AbortController(); this.weatherController = controller;
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -119,6 +151,7 @@ export class MagicMirrorView {
       if (!response.ok) throw new Error(`Weather ${response.status}`);
       const data = await response.json();
       if (epoch !== this.weatherEpoch) return;
+      controller.signal.throwIfAborted();
       if (!Number.isFinite(data.current?.temperature_2m) || !Number.isFinite(data.current?.weather_code)) throw new Error('Weather data is unavailable');
       const info = WEATHER[data.current?.weather_code] || ['UNSETTLED', '◔'];
       this.container.querySelector('#weather-temp').textContent = `${Math.round(data.current?.temperature_2m)}°`;

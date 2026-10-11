@@ -1,0 +1,15 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/faceHost.js','utf8').replace(/^import .*;\r?\n/gm,'').replace('export class FaceHost','class FaceHost');
+const images=[];let paints=0;
+const scope=vm.createContext({Image:class{constructor(){images.push(this)}},FaceFeatures:class{},createMouthPatch:()=>({})});
+vm.runInContext(source+';this.FaceHost=FaceHost;',scope);
+const host=Object.create(scope.FaceHost.prototype);host.draw=()=>paints++;host.featureDetail=()=>1;
+host.setPersona('velora');const neutral=host.image;assert.equal(images.length,3);
+host.setPersona('velora');assert.equal(host.image,neutral);assert.equal(images.length,3,'Pending persona was reloaded');
+neutral.onload();assert(host.ready);const features=host.features;
+host.setPersona('velora');assert.equal(host.features,features);assert(host.ready);assert.equal(images.length,3,'Loaded persona was reloaded');
+host.setPersona('solenne');const snow=host.image;neutral.onload();assert.equal(host.features,null,'Old image callback replaced newer persona');assert(!host.ready);
+neutral.onerror();host.setPersona('solenne');assert.equal(host.image,snow,'Old failure invalidated new pending persona');
+snow.onerror();host.setPersona('solenne');assert.notEqual(host.image,snow,'Failed neutral load must allow retry');
+host.image.onload();assert(host.ready);assert.equal(host.persona,'solenne');assert.equal(paints,2);
+console.log('Persona loading: pending/loaded reuse, preserved face cache, stale success/failure isolation and failed-image retry passed.');

@@ -1,7 +1,9 @@
 import { MirrorAgentTools } from './mirrorAgentTools.js';
 import * as THREE from 'three';
 import { displayProfile } from './displayQuality.js';
-import { RenderBudget, SceneRenderBudget } from './renderBudget.js';
+import { RenderBudget, SceneRenderBudget, displayMotionRate } from './renderBudget.js';
+import { MotionQuality } from './motionQuality.js';
+import { PopupPanels } from './popupPanels.js';
 import { AvatarController } from './avatarController.js';
 import { ClosetStore } from './closetStore.js';
 import { matchGarment } from './garmentMatch.js';
@@ -191,6 +193,8 @@ const elements = {
   garmentOffset: document.querySelector('#garment-offset'),
   garmentFitReset: document.querySelector('#garment-fit-reset'),
   gestureToast: document.querySelector('#gesture-toast'),
+  gestureHold: document.querySelector('#gesture-hold'),
+  gestureHoldLabel: document.querySelector('#gesture-hold span'),
   awakening: document.querySelector('#awakening'),
   personaToggle: document.querySelector('#persona-toggle'),
   personaToggleImage: document.querySelector('#persona-toggle-image'),
@@ -205,6 +209,14 @@ const elements = {
   dimensionSwitch: document.querySelector('#dimension-switch')
 };
 
+const popupPanels = new PopupPanels([
+  {panel:elements.settings,button:elements.settingsToggle},
+  {panel:elements.personaPanel,button:elements.personaToggle},
+  {panel:elements.launcherPanel,button:elements.launcherToggle}
+],document);
+window.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&!event.defaultPrevented&&!event.isComposing&&event.keyCode!==229&&popupPanels.closeAll())event.preventDefault();
+});
 const config = await loadConfig();
 config.memory = await loadMemory();
 const savedVoice = localStorage.getItem('mirror.voice') || config.geminiVoice;
@@ -251,7 +263,26 @@ const antialiasScene = (() => {
   return !(saved === 'eco' || (!saved && smallDevice));
 })();
 const renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, antialias: antialiasScene, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-const viewportSize = () => ({ width: elements.shell.clientWidth || window.innerWidth, height: elements.shell.clientHeight || window.innerHeight });
+// Geometry changes independently of animation. Keep layout reads off the hot
+// path, including when caption and portrait writes have dirtied layout.
+let cachedViewport = null;
+function refreshViewportSize() {
+  const width = elements.shell.clientWidth || window.innerWidth;
+  const height = elements.shell.clientHeight || window.innerHeight;
+  if (cachedViewport?.width === width && cachedViewport?.height === height) return false;
+  cachedViewport = { width, height };
+  return true;
+}
+const viewportSize = () => cachedViewport;
+refreshViewportSize();
+// Registered before the consumers below, so a native resize uses fresh geometry.
+window.addEventListener('resize', refreshViewportSize);
+const viewportObserver = new ResizeObserver(() => {
+  // Shell-only layout changes also need to resize the projection and overlays.
+  if (refreshViewportSize()) window.dispatchEvent(new Event('resize'));
+});
+viewportObserver.observe(elements.shell);
+window.addEventListener('beforeunload', () => viewportObserver.disconnect());
 // A native 4K portrait television is already 8.3MP at DPR 1.  Preserve that
 // native detail, but cap Retina/browser scaling by a pixel budget rather than
 // a blunt DPR value that can turn a 4K panel into a 33MP render target.
@@ -273,6 +304,8 @@ const weakGpuName = (() => {
 const weakGpu = /Intel.*(?:HD Graphics\s*(?:4\d\d|5\d\d)\b|UHD Graphics\s*60[05]\b)/i.test(weakGpuName);
 const smallPc = weakGpu || ((navigator.hardwareConcurrency || 8) <= 4 && (navigator.deviceMemory || 8) <= 4);
 let displayQualityId=['eco','auto','hd'].includes(localStorage.getItem('mirror.display-quality'))?localStorage.getItem('mirror.display-quality'):smallPc?'eco':'auto';
+let displayMotionFps=displayMotionRate(await window.mirrorBridge?.getDisplayCadence?.().catch(()=>60));
+const requestedMotionFps = () => Math.min(displayMotionFps,softwareGraphics?30:displayProfile(displayQualityId).motionFps);
 const preferredPixelRatio = () => {
   const { width, height } = viewportSize();
   const budgetRatio = Math.sqrt((softwareGraphics?2_000_000:displayQualityId==='eco'?1_200_000:displayQualityId==='auto'?4_500_000:RENDER_PIXEL_BUDGET) / Math.max(1, width * height));
@@ -297,6 +330,7 @@ const renderQuality = {
   elapsed: 0,
   fps: 60
 };
+const motionQuality = new MotionQuality();
 renderer.setPixelRatio(renderQuality.pixelRatio);
 { const viewport = viewportSize(); renderer.setSize(viewport.width, viewport.height); }
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -433,6 +467,7 @@ try {
 setFaceDetail(localStorage.getItem('mirror.face-puppet') === 'true');
 function syncFaceRate() { setFaceRate((depthEnabled && mode === 'portal') || Boolean(elements.facePuppetToggle?.checked)); }
 let requestedMode = 'mirror';
+let modeRestoreTimer=null,modeRestoreGeneration=0;
 let state = 'starting';
 const watchAvatarLayout = new WatchAvatarLayout({shell:elements.shell,panel:elements.watchPanel,host:elements.avatarHost,getState:()=>({active:mode==='watch'&&!desktopActive&&avatar.visible,position:elements.shell.dataset.avatarPosition||'center'})});
 const watchAudioDucking = new WatchAudioDucking(elements.watchVideo);
@@ -464,10 +499,11 @@ let userCaptionFromLocal = false;
 let idleTimer = null;
 let sleepTimer = null;
 let sleeping = false;
+let cameraListGeneration = 0;
 let lastVoiceActivity = Date.now(), cameraIdlePaused = false;
 let gesturesDeferred = true; // hand tracking waits for the wake word (see initialize)
 let followX = 0, followMe = localStorage.getItem('mirror.follow') !== 'false';
-const searchPool = { root: null, timer: 0 }; // filled in once the card exists
+const searchPool = { root: null, timer: 0, generation: 0, requestId: null }; // filled in once the card exists
 let cameraWasActiveBeforeSleep = false;
 let diagnosticsTimer = 0;
 
@@ -493,7 +529,7 @@ const gemini = new GeminiLiveAdapter({
   },
   onModeChange: async (nextMode) => setAssistantMode(nextMode),
   onArEffect: async (effect) => setArEffect(effect),
-  onSearch: async (query) => showSearchResult(await window.mirrorBridge.searchWeb(query)),
+  onSearch: query => searchMirror(query),
   onAvatarPosition: async (position) => setAvatarPosition(position),
   onWardrobe: async ({ command = '' } = {}) => {
     setAssistantMode('ar');
@@ -592,11 +628,17 @@ async function takeOverAgentTask() {
 let manualControlGeneration=0;
 let manualDesktopRequest=null;
 function beginUserControl(){
+  cancelPendingSearch();
   const generation=++manualControlGeneration;
   const pending=manualDesktopRequest;manualDesktopRequest=null;
   const agent=agentRunId?takeOverAgentTask():null;
   const desktop=pending?window.mirrorBridge?.closeDesktop?.()?.catch(()=>{}):null;
   return {current:()=>generation===manualControlGeneration,wait:agent||desktop?Promise.all([agent,desktop]):null};
+}
+async function requestUserMode(nextMode) {
+  cancelModeRestore();
+  const control=beginUserControl();if(control.wait)await control.wait;
+  if(control.current())setAssistantMode(nextMode);
 }
 
 const wake = new WakeWordListener({
@@ -614,6 +656,7 @@ elements.mute.setAttribute('aria-label', hardMuted ? 'Unmute and arm wake word' 
 if (hardMuted) elements.mic.disabled = true;
 
 let gestureToastTimer = null;
+let gestureHoldValue = null;
 let queenCueTimer = null;
 let avatarExpressionTimer;
 const ambience = new MirrorAmbience();
@@ -628,7 +671,7 @@ const experience = new MirrorExperience({
   notice: showGesture, help: text => showOracle(text, '', 'A little guidance'), stop: stopAssistant,
   mode: setAssistantMode, clarity: setCameraClarity,
   ensureCamera: () => getTrackingStatus().cameraActive ? Promise.resolve(true) : toggleCamera(true),
-  note: text => { localStorage.setItem('mirror.quick-note', text); elements.quickNoteInput.value = text; dashboard.refreshNow(); showGesture(text ? 'Note saved to this mirror' : 'Note cleared'); },
+  note: text => saveQuickNote(text),
   prepareCapture: async (signal) => {
     if (desktopActive) await window.mirrorBridge.closeDesktop();
     if (signal?.aborted) return;
@@ -665,29 +708,61 @@ for (const [selector, key, object, property] of [['#framing-toggle','mirror.fram
 const followToggle=document.querySelector('#follow-toggle');followToggle.checked=followMe;followToggle.addEventListener('change',()=>{followMe=followToggle.checked;localStorage.setItem('mirror.follow',String(followMe));});
 const atmosphereToggle=document.querySelector('#atmosphere-toggle');
 atmosphereToggle.checked=localStorage.getItem('mirror.atmosphere')==='true';
-atmosphereToggle.addEventListener('change',()=>{localStorage.setItem('mirror.atmosphere',String(atmosphereToggle.checked));ambience.setContext({muted:hardMuted||sleeping,duck:desktopActive||['watch','spotify'].includes(mode)||['listening','thinking','speaking'].includes(state)});void ambience.setEnabled(atmosphereToggle.checked);});
+atmosphereToggle.addEventListener('change',()=>{localStorage.setItem('mirror.atmosphere',String(atmosphereToggle.checked));syncAmbienceContext();void ambience.setEnabled(atmosphereToggle.checked);});
 window.addEventListener('pointerdown',()=>{if(atmosphereToggle.checked&&!ambience.master)void ambience.setEnabled(true);},{once:true});
 const idleBackgroundSelect=document.querySelector('#idle-background');
 elements.shell.dataset.idleBackground=localStorage.getItem('mirror.idle-background')||'weather';idleBackgroundSelect.value=elements.shell.dataset.idleBackground;
-idleBackgroundSelect.addEventListener('change',()=>{elements.shell.dataset.idleBackground=idleBackgroundSelect.value;localStorage.setItem('mirror.idle-background',idleBackgroundSelect.value);});
+idleBackgroundSelect.addEventListener('change',()=>{galleryEpoch++;elements.shell.dataset.idleBackground=idleBackgroundSelect.value;localStorage.setItem('mirror.idle-background',idleBackgroundSelect.value);void displayGallery();});
 let galleryImages=[],galleryIndex=0,galleryLayer=0,galleryEpoch=0;
+let galleryRevision=0,galleryImportBusy=false;
+function galleryVisible(){return mode==='mirror'&&!sleeping&&!document.hidden&&!desktopActive&&elements.shell.dataset.idleBackground==='gallery';}
 async function displayGallery(){
-  if(!galleryImages.length)return;
+  if(!galleryImages.length||!galleryVisible())return;
   const epoch=++galleryEpoch,next=1-galleryLayer,image=document.querySelectorAll('#idle-gallery img')[next];image.src=galleryImages[galleryIndex++%galleryImages.length];
-  try{await image.decode();}catch{return;}if(epoch!==galleryEpoch)return;
+  try{await image.decode();}catch{return;}if(epoch!==galleryEpoch||!galleryVisible())return;
   document.querySelectorAll('#idle-gallery img').forEach((item,i)=>item.classList.toggle('active',i===next));galleryLayer=next;
 }
-window.mirrorBridge?.idleGallery?.().then(result=>{galleryImages=result.images||[];void displayGallery();}).catch(()=>{});
-const galleryTimer=setInterval(()=>{if(mode==='mirror'&&elements.shell.dataset.idleBackground==='gallery')void displayGallery();},45000);
-window.addEventListener('beforeunload',()=>{galleryEpoch++;clearInterval(galleryTimer);});
-document.querySelector('#idle-gallery-import').addEventListener('click',async()=>{try{const result=await window.mirrorBridge.importIdleGallery();if(result.cancelled)return;galleryImages=result.images||[];galleryIndex=0;await displayGallery();idleBackgroundSelect.value='gallery';idleBackgroundSelect.dispatchEvent(new Event('change'));showGesture('Idle photos saved on this device');}catch(error){showOracle(error.message,'','Photo gallery');}});
+async function loadGallery(){
+  const revision=galleryRevision;
+  try{
+    const result=await window.mirrorBridge?.idleGallery?.();
+    if(!result||revision!==galleryRevision)return;
+    galleryEpoch++;galleryImages=result.images||[];galleryIndex=0;void displayGallery();
+  }catch{}
+}
+void loadGallery();
+const galleryTimer=setInterval(()=>{void displayGallery();},45000);
+document.addEventListener('visibilitychange',()=>{galleryEpoch++;if(!document.hidden)void displayGallery();});
+window.addEventListener('beforeunload',()=>{galleryRevision++;galleryEpoch++;clearInterval(galleryTimer);});
+async function importGallery(){
+  if(galleryImportBusy)return;
+  const button=document.querySelector('#idle-gallery-import'),revision=galleryRevision;
+  galleryImportBusy=true;button.disabled=true;
+  try{
+    const result=await window.mirrorBridge.importIdleGallery();
+    if(result.cancelled||revision!==galleryRevision)return;
+    galleryRevision++;galleryEpoch++;galleryImages=result.images||[];galleryIndex=0;
+    idleBackgroundSelect.value='gallery';idleBackgroundSelect.dispatchEvent(new Event('change'));
+    showGesture('Idle photos saved on this device');
+  }catch(error){if(revision===galleryRevision)showOracle(error.message,'','Photo gallery');}
+  finally{galleryImportBusy=false;button.disabled=false;}
+}
+document.querySelector('#idle-gallery-import').addEventListener('click',()=>{void importGallery();});
 const displayQualitySelect=document.querySelector('#display-quality');displayQualitySelect.value=displayQualityId;
 function applyDisplayQuality(id) {
+  motionQuality.reset();avatar.faceHost?.setRenderScale(1);
   displayQualityId=['eco','auto','hd'].includes(id)?id:'auto';localStorage.setItem('mirror.display-quality',displayQualityId);
   elements.shell.dataset.quality=displayQualityId;window.dispatchEvent(new Event('resize'));
   displayQualitySelect.value=displayQualityId;avatar.setQuality(displayQualityId);garmentOverlay.setQuality(displayQualityId);void setCameraQuality(displayQualityId).then(()=>updateTrackingUi()).catch(()=>{});magic.setQuality(displayQualityId);depthScene.setQuality(displayQualityId);sceneBudget.maxDynamicFps=softwareGraphics?15:displayProfile(displayQualityId).motionFps;sceneBudget.invalidate();
+  syncAdaptiveQuality();
+}
+function syncAdaptiveQuality() {
+  const adjusted = motionQuality.motionFps < requestedMotionFps() || motionQuality.avatarScale < 1;
+  elements.shell.dataset.adaptiveMotion=adjusted?'calm':'full';
+  magic.setMotionFps(Math.min(motionQuality.motionFps,requestedMotionFps()));
   document.querySelector('#display-quality-status').textContent=displayQualityId==='hd'?'More texture detail and smooth motion when available':displayQualityId==='eco'?'Lower graphics work for a small PC':'Detail and smoothness balanced for this display';
   if(softwareGraphics)document.querySelector('#display-quality-status').textContent+=' · Software graphics use simpler 3D lighting';
+  if(adjusted)document.querySelector('#display-quality-status').textContent+=' · Motion and rendering adjusted for responsiveness';
 }
 displayQualitySelect.addEventListener('change',event=>applyDisplayQuality(event.target.value));applyDisplayQuality(displayQualityId);
 document.querySelector('#routine-movie').value = localStorage.getItem('mirror.routine.movie') || 'youtube';
@@ -739,7 +814,8 @@ async function initialize() {
 
 window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic, sceneBudget, showAssistant, setAssistantMode, handleWakeWord, runVoiceNavigation, showSearchResult,
   getWakeState: () => ({ enabled: wake.enabled, assistantActive: wake.assistantActive, microphoneReady: Boolean(wake.processor && wake.stream?.active), generation: wake.generation }),
-  getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
+  getAmbienceState: () => ({...ambience.context,enabled:ambience.enabled,active:Boolean(ambience.master)}),
+  getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot(), adaptive: motionQuality.snapshot() }) };
 
 function setDepthMode(enabled, announce = true) {
   depthEnabled = Boolean(enabled);
@@ -756,10 +832,13 @@ setDepthMode(depthEnabled, false);
 
 function setMode(nextMode) {
   if (!['portal', 'mirror', 'ar', 'watch', 'spotify'].includes(nextMode)) return;
+  cancelModeRestore();
   const changed = mode !== nextMode;
   if (mode === 'ar' && nextMode !== 'ar') { setWardrobePanelOpen(false); cancelTryOnRender(); liveTryOn.stop(); }
   if (mode === 'watch' && nextMode !== 'watch') { elements.watchVideo.pause(); youtubePlayer.pause(); }
   mode = nextMode;
+  if(changed){galleryEpoch++;if(nextMode==='mirror')void displayGallery();}
+  syncAmbienceContext();
   setTrackingAmbient(nextMode === 'mirror');
   if (nextMode !== 'mirror') void restoreCameraAfterIdle();
   if (experience.capturing && nextMode !== 'ar') experience.cancel();
@@ -771,7 +850,7 @@ function setMode(nextMode) {
   elements.watchPanel.classList.toggle('active', nextMode === 'watch');
   elements.spotifyPanel.classList.toggle('active', nextMode === 'spotify');
   garmentOverlay.setEnabled(nextMode === 'ar' && tryOnView === 'live' && !desktopActive && !liveTryOn.session);
-  if (nextMode === 'spotify') { spotifyLastFetchedAt = 0; void refreshSpotify(); }
+  if (nextMode === 'spotify') { void refreshSpotify(); }
   depthScene.setMode(desktopActive ? 'mirror' : nextMode);
   avatar.setVisible(desktopActive || nextMode === 'portal' || nextMode === 'ar' || nextMode === 'watch' && Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(state)));
   avatar.setDisplayMode(nextMode);
@@ -800,6 +879,7 @@ function setAvatarPosition(position) {
 }
 
 function applyDesktopPresentation(presentation) {
+  galleryEpoch++;
   desktopActive = Boolean(presentation?.active);
   if (desktopActive) liveTryOn.stop();
   elements.shell.dataset.desktop = String(desktopActive);
@@ -810,10 +890,9 @@ function applyDesktopPresentation(presentation) {
   depthScene.setMode(desktopActive ? 'mirror' : mode);
   avatar.setDepthEnabled(depthEnabled && mode === 'portal' && !desktopActive);
   setMode(mode);
+  if(!desktopActive)void displayGallery();
   if (desktopActive) {
-    elements.settings.classList.remove('open');
-    elements.personaPanel.classList.remove('open');
-    elements.launcherPanel.classList.remove('open');
+    popupPanels.closeAll({restoreFocus:false});
   }
 }
 const removeDesktopListener = window.mirrorBridge?.onDesktopPresentation?.(applyDesktopPresentation);
@@ -864,13 +943,20 @@ function getMirrorState() {
   };
 }
 
+function cancelModeRestore() {
+  modeRestoreGeneration++;clearTimeout(modeRestoreTimer);modeRestoreTimer=null;
+}
 function showAssistant() {
   setMode(['ar', 'watch'].includes(requestedMode) ? requestedMode : 'portal');
 }
 
 function returnToRequestedMode() {
-  setTimeout(() => {
-    if (!gemini.listening && state !== 'speaking' && state !== 'thinking') setMode(requestedMode);
+  cancelModeRestore();const generation=modeRestoreGeneration;
+  modeRestoreTimer=setTimeout(() => {
+    if(generation!==modeRestoreGeneration)return;
+    modeRestoreTimer=null;
+    if (!sleeping && !desktopActive && !voiceStarting && !agentRunId && !browserRecognition && !speech.isSpeaking
+      && !gemini.listening && ['ready','offline'].includes(state)) setMode(requestedMode);
   }, 850);
 }
 
@@ -889,10 +975,14 @@ function setArEffect(effect, { openStudio = false } = {}) {
   showOracle(`${names[selected]} applied.`, '', 'AR enchantment');
 }
 
+function syncAmbienceContext() {
+  ambience.setContext({muted:hardMuted||sleeping,duck:desktopActive||['watch','spotify'].includes(mode)||['connecting','listening','thinking','speaking'].includes(state)});
+}
 function setState(next) {
   state = next;
+  queueMicrotask(updatePrivacyChip);
   if (next !== 'ready' && next !== 'listening') lastVoiceActivity = Date.now();
-  ambience.setContext({muted:hardMuted||sleeping,duck:desktopActive||['watch','spotify'].includes(mode)||['connecting','listening','thinking','speaking'].includes(next)});
+  syncAmbienceContext();
   elements.shell.dataset.voiceActive = String(Boolean(gemini?.listening || browserRecognition || ['connecting','listening','thinking','speaking'].includes(next)));
   watchAvatarLayout.schedule();
   watchAudioDucking.setActive(Boolean(gemini?.listening || browserRecognition || ['listening', 'thinking', 'speaking'].includes(next)));
@@ -925,6 +1015,7 @@ function showOracle(text, user = '', eyebrow = 'The mirror answers') {
 async function askMirror(text) {
   const prompt = text.trim();
   if (!prompt) return;
+  cancelPendingSearch();
   if (hardMuted) { showOracle('Unmute the mirror before starting an assistant task.', '', 'Hard muted'); return; }
   captionUserTurnActive = false; captionAssistantTurnActive = false;
   appendCaption('user', prompt, { replace: true });
@@ -1122,19 +1213,62 @@ function appendCaption(role, text, { replace = false, delta = false } = {}) {
   const previous = captionState[role];
   const merged = replace ? text : delta ? previous + text : text === previous || previous.startsWith(text) ? previous
     : text.startsWith(previous) ? text : `${previous} ${text}`.trim();
-  // Keep a bounded transcript and scroll each single-line row to the newest words.
+  // Keep a bounded transcript and scroll wrapped rows to the newest words.
   const next = Array.from(merged).slice(-2000).join('');
+  // Cumulative transcripts commonly repeat. Preserve the DOM and avoid scroll
+  // geometry reads when neither the transcript nor its rendered text changed.
+  if (next === previous && valueNode.textContent === next) return;
   captionState[role] = next;
-  valueNode.textContent = next;
+  if (!decorateCaptionWords(valueNode, next)) valueNode.textContent = next;
   row.classList.toggle('visible', Boolean(next));
   elements.captions.classList.toggle('visible', Boolean(captionState.user || captionState.assistant));
   valueNode.scrollLeft = valueNode.scrollWidth;
+  valueNode.scrollTop = valueNode.scrollHeight;
+}
+
+// Words arrive a few at a time; render each as its own element so only the new
+// ones animate in (opacity/transform). span.textContent still equals the text,
+// and nodes without DOM methods (tests) fall back to plain text.
+function decorateCaptionWords(node, text) {
+  if (typeof node.replaceChildren !== 'function' || !node.ownerDocument) return false;
+  const tokens = text.match(/\S+|\s+/g) || [];
+  let cache = node.__captionTokens;
+  const intact = cache && node.childNodes.length === cache.length;
+  if (intact && node.textContent === text) return true;
+  let keep = 0;
+  if (intact) {
+    while (keep < cache.length && keep < tokens.length && cache[keep] === tokens[keep]) keep++;
+    // Extend the same element while a word streams in, preserving its animation.
+    if (keep < cache.length && keep < tokens.length && !/\s/.test(cache[keep])
+      && tokens[keep].startsWith(cache[keep]) && node.childNodes[keep]?.nodeType === 1) {
+      node.childNodes[keep].textContent = tokens[keep];
+      keep++;
+    }
+  }
+  while (node.childNodes.length > keep) node.removeChild(node.lastChild);
+  for (let i = keep; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (/^\s+$/.test(token)) { node.appendChild(node.ownerDocument.createTextNode(token)); continue; }
+    const word = node.ownerDocument.createElement('i');
+    word.textContent = token;
+    if (!intact && keep === 0 && tokens.length > 8 && i < tokens.length - 3) word.className = 'settled';
+    node.appendChild(word);
+  }
+  const latest = node.lastElementChild;
+  if (node.__captionLatest !== latest) {
+    node.__captionLatest?.classList.remove('latest');
+    latest?.classList.add('latest');
+    node.__captionLatest = latest;
+  }
+  node.__captionTokens = tokens;
+  return true;
 }
 
 window.addEventListener('resize', () => {
   for (const row of [elements.captionUser, elements.captionAssistant]) {
     const value = row.querySelector('span');
     value.scrollLeft = value.scrollWidth;
+    value.scrollTop = value.scrollHeight;
   }
 });
 
@@ -1175,6 +1309,8 @@ function stopAssistant() {
 }
 
 async function setHardMute(muted) {
+  if(muted)stopBell();
+  if(muted)hideSearchResult();
   if (muted) { experience.cancel(); magic.cancel();closet.photo.cancelWork(); clearTimeout(queenCueTimer); clearTimeout(avatarExpressionTimer); avatar.setExpression({}); avatar.setGazeOverride?.(null); avatar.setEyeGaze({x:0,y:0,confidence:0}); avatar.setPerformance({ turn: 0, nod: 0, lean: 0 }); document.querySelector('#agent-progress').hidden = true; }
   if (muted) liveTryOn.stop();
   if (muted) cancelTryOnRender();
@@ -1186,7 +1322,8 @@ async function setHardMute(muted) {
   captionUserTurnActive = false;
   captionAssistantTurnActive = false;
   hardMuted = Boolean(muted);
-  ambience.setContext({muted:hardMuted||sleeping});
+  queueMicrotask(updatePrivacyChip);
+  syncAmbienceContext();
   if(hardMuted){void watchPlayback.command('pause').catch(()=>{});void window.mirrorBridge.spotifyControl('pause').catch(()=>{});}
   elements.mic.disabled = hardMuted;
   localStorage.setItem('mirror.hard-muted', String(hardMuted));
@@ -1224,7 +1361,9 @@ function startBrowserRecognition() {
     showOracle('Open Command Center to type a question. Live voice can be connected in Settings.', '', 'Microphone conversation unavailable');
     return;
   }
-  const recognition = new Recognition();
+  let recognition;
+  try{recognition=new Recognition();}
+  catch(error){setState('ready');showOracle(error.message||'Browser speech recognition is unavailable. Use Command Center to type a question.','','Voice input');return;}
   browserRecognition = recognition;
   recognition.lang = 'en-US';
   recognition.interimResults = true;
@@ -1238,7 +1377,7 @@ function startBrowserRecognition() {
   };
   let submitted = '';
   recognition.onresult = (event) => {
-    if (hardMuted || browserRecognition !== recognition) return;
+    if (hardMuted || browserRecognition !== recognition || submitted) return;
     let finalText = '';
     let heardText = '';
     for (let i = 0; i < event.results.length; i += 1) {
@@ -1250,43 +1389,65 @@ function startBrowserRecognition() {
     if (finalText.trim()) {
       const finalPrompt = finalText.trim();
       if (/\bmirror\s+(?:stop|mute|quiet|cancel)\b/i.test(finalPrompt)) stopAssistant();
-      else if (submitted !== finalPrompt) { submitted = finalPrompt; void askMirror(finalPrompt); }
+      else {
+        submitted = finalPrompt;
+        try{recognition.stop();}catch{try{recognition.abort();}catch{}}
+        void askMirror(finalPrompt);
+      }
     }
   };
-  recognition.onerror = () => { if (browserRecognition === recognition) setState('ready'); };
+  recognition.onerror = event => {
+    if(browserRecognition!==recognition)return;
+    if(submitted){browserRecognition=null;if(state==='listening'){wake.setAssistantActive(false);setState('ready');}return;}
+    browserRecognition=null;wake.setAssistantActive(false);setState('ready');
+    if(event.error==='aborted')return;
+    const messages={'not-allowed':'Microphone permission was denied. Allow it, then use Listen to retry.','service-not-allowed':'Browser speech recognition is unavailable. Use Command Center to type a question.','audio-capture':'No microphone is available. Connect one, then use Listen to retry.','no-speech':'No speech was heard. Use Listen to try again.',network:'Browser speech recognition could not connect. Use Listen to retry or type in Command Center.'};
+    showOracle(messages[event.error]||event.message||'Speech recognition failed. Use Listen to retry or type in Command Center.','','Voice input');
+    if(!hardMuted&&elements.wakeToggle.checked&&['no-speech','network'].includes(event.error))wake.resume();
+  };
   recognition.onend = () => {
     if (browserRecognition !== recognition) return;
     browserRecognition = null;
-    if (state === 'listening') setState('ready');
+    if (state === 'listening') { wake.setAssistantActive(false);setState('ready'); }
     if (!hardMuted && elements.wakeToggle.checked) wake.resume();
   };
-  recognition.start();
+  try{recognition.start();}catch(error){recognition.onerror({error:'startup',message:error.message});try{recognition.abort();}catch{}}
 }
 
 async function populateCameras() {
-  const cameras = await getCameraDevices();
+  const generation=++cameraListGeneration;
+  let cameras;
+  try{cameras=await getCameraDevices();}
+  catch{if(generation===cameraListGeneration){elements.cameraNotice.textContent='Camera list unavailable. Reopen Settings to retry.';elements.cameraNotice.hidden=false;}return;}
+  if(generation!==cameraListGeneration)return;
   const tracking = getTrackingStatus();
+  const previous=elements.cameraSelect.value;
   elements.cameraSelect.innerHTML = cameras.length
     ? cameras.map((device, i) => `<option value="${escapeHtml(device.deviceId)}">${escapeHtml(device.label || `Camera ${i + 1}`)}</option>`).join('')
     : '<option value="">No camera detected</option>';
-  const active = cameras.find((device) => device.label === tracking.activeCameraLabel);
+  const active = tracking.activeCameraId
+    ? cameras.find(device=>device.deviceId===tracking.activeCameraId)
+    : cameras.find(device=>device.deviceId===previous) || cameras.find(device=>device.label===tracking.activeCameraLabel);
   if (active) elements.cameraSelect.value = active.deviceId;
   updateTrackingUi();
 }
 
 function updateTrackingUi() {
+  const write = (element, text) => { if (element.textContent !== text) element.textContent = text; };
+  updatePrivacyChip();
   const tracking = getTrackingStatus();
   if (liveTryOn.session && !tracking.cameraActive) liveTryOn.stop('Camera disconnected. Live AI try-on stopped.');
-  elements.trackingBadge.textContent = tracking.faceDetected ? 'FACE LOCK' : tracking.cameraActive ? 'SEARCHING' : 'MOUSE';
-  elements.cameraToggle.textContent = tracking.cameraActive ? 'Camera off' : 'Camera on';
+  write(elements.trackingBadge, tracking.faceDetected ? 'FACE LOCK' : tracking.cameraActive ? 'SEARCHING' : 'MOUSE');
+  write(elements.cameraToggle, tracking.cameraActive ? 'Camera off' : 'Camera on');
   const quickCamera=document.querySelector('#studio-camera-toggle');
-  if(quickCamera){quickCamera.textContent=elements.cameraToggle.textContent;quickCamera.setAttribute('aria-pressed',String(tracking.cameraActive));}
-  elements.cameraNotice.textContent = tracking.error || '';
-  elements.cameraNotice.hidden = !tracking.error;
+  if(quickCamera){write(quickCamera,elements.cameraToggle.textContent);const pressed=String(tracking.cameraActive);if(quickCamera.getAttribute?.('aria-pressed')!==pressed)quickCamera.setAttribute('aria-pressed',pressed);}
+  write(elements.cameraNotice, tracking.error || '');
+  if(elements.cameraNotice.hidden !== !tracking.error) elements.cameraNotice.hidden = !tracking.error;
   if (elements.cameraFormat) {
     const settings = elements.video.srcObject?.getVideoTracks?.()[0]?.getSettings?.() || {};
     const width = settings.width || elements.video.videoWidth, height = settings.height || elements.video.videoHeight;
-    elements.cameraFormat.hidden = !tracking.cameraActive || !width || !height;
+    const hidden = !tracking.cameraActive || !width || !height;
+    if(elements.cameraFormat.hidden !== hidden) elements.cameraFormat.hidden = hidden;
     const format = width && height ? `Camera capture · ${width} × ${height}${Number.isFinite(settings.frameRate) ? ` · ${Math.round(settings.frameRate)} fps negotiated` : ''}. Portrait view crops the sides.` : '';
     if (elements.cameraFormat.textContent !== format) elements.cameraFormat.textContent = format;
   }
@@ -1390,14 +1551,14 @@ elements.dimensionSwitch?.addEventListener('click', (event) => {
 });
 elements.oracleCard.addEventListener('click', () => elements.oracleCard.classList.add('empty'));
 elements.oracleClose.addEventListener('click', () => elements.oracleCard.classList.add('empty'));
-document.querySelectorAll('.mode-btn').forEach((button) => button.addEventListener('click', async () => {const mode=button.dataset.mode,control=beginUserControl();if(control.wait)await control.wait;if(control.current())setAssistantMode(mode);}));
-elements.settingsToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.settings.classList.toggle('open'); populateCameras(); });
-elements.personaToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.personaPanel.classList.toggle('open'); });
-elements.launcherToggle.addEventListener('click', (event) => { event.stopPropagation(); elements.launcherPanel.classList.toggle('open'); });
+document.querySelectorAll('.mode-btn').forEach((button) => button.addEventListener('click', () => requestUserMode(button.dataset.mode)));
+elements.settingsToggle.addEventListener('click', (event) => { event.stopPropagation(); if(popupPanels.toggle(elements.settings))populateCameras(); });
+elements.personaToggle.addEventListener('click', (event) => { event.stopPropagation(); popupPanels.toggle(elements.personaPanel); });
+elements.launcherToggle.addEventListener('click', (event) => { event.stopPropagation(); popupPanels.toggle(elements.launcherPanel); });
 elements.settings.addEventListener('click', (event) => event.stopPropagation());
 elements.personaPanel.addEventListener('click', (event) => event.stopPropagation());
 elements.launcherPanel.addEventListener('click', (event) => event.stopPropagation());
-document.addEventListener('click', () => { elements.settings.classList.remove('open'); elements.personaPanel.classList.remove('open'); elements.launcherPanel.classList.remove('open'); });
+document.addEventListener('click', () => popupPanels.closeAll());
 elements.personaList.addEventListener('click', (event) => {
   const card = event.target.closest('[data-persona]');
   if (card) {
@@ -1431,7 +1592,11 @@ elements.cameraMount.addEventListener('change', () => {
   setTrackingOptions({ mount });
   showGesture(mount === 'top' ? 'Top-mounted camera profile selected' : 'Centered camera profile selected');
 });
-elements.citySelect.addEventListener('change', () => dashboard.setCity(elements.citySelect.value));
+elements.citySelect.addEventListener('change', () => {
+  const request = dashboard.setCity(elements.citySelect.value);
+  if (dashboard.citySessionOnly) showGesture('Weather city changed for this session. The preference could not be saved.');
+  void request;
+});
 initSettingsSections(elements.settings);
 // Behind one-way glass, black is the mirror and any lit pixel is light leaking
 // through; clothes are placed on the reflection instead of the camera picture.
@@ -1461,25 +1626,40 @@ elements.effectGrid.addEventListener('click', (event) => {
   if (chip) setArEffect(chip.dataset.effect);
 });
 elements.watchLoad.addEventListener('click', loadWatchVideo);
-elements.watchUrl.addEventListener('keydown', (event) => { if (event.key === 'Enter') loadWatchVideo(); });
+elements.watchUrl.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.isComposing && event.keyCode !== 229 && !event.repeat && !event.defaultPrevented) void loadWatchVideo(); });
 const spotifyDevicePicker = new SpotifyDevices({ select: elements.spotifyDeviceSelect, use: elements.spotifyDeviceUse,
   refresh: elements.spotifyDeviceRefresh, status: elements.spotifyDeviceStatus, bridge: window.mirrorBridge,
   onTransfer: () => refreshSpotify() });
 window.__mirrorDebug.spotifyDevicePicker = spotifyDevicePicker;
 let spotifySnapshot = null;
 let spotifyLastFetchedAt = 0;
+let spotifyLastRefreshAttemptAt = 0;
 let spotifyRefreshBusy = false;
 function renderSpotifyStatus(message) { elements.spotifyStatus.textContent = message; }
 function clearSpotifyControls() {
+  const focused = document.activeElement;
+  const restoreFocus = focused === elements.spotifyTrackLink || focused === elements.spotifyPlay || focused?.matches?.('[data-spotify-action]');
   spotifyDevicePicker.clear();
   spotifySnapshot = null;
   elements.spotifyPlay.disabled = true;
+  elements.spotifyCover.hidden = true;
+  elements.spotifyCover.removeAttribute('src');
+  elements.spotifyTrackLink.hidden = true;
+  elements.spotifyTrackLink.dataset.url = '';
+  elements.spotifyTrackLink.dataset.uri = '';
+  elements.spotifyTitle.textContent = 'Nothing playing';
+  elements.spotifyArtist.textContent = 'Playback unavailable';
+  elements.spotifyAlbum.textContent = 'Spotify ambient player';
+  elements.spotifyDevice.textContent = '';
+  elements.spotifyProgress.value = '0';
   document.querySelectorAll('[data-spotify-action]').forEach(button => { button.disabled = true; });
+  if (restoreFocus) document.querySelector('#spotify-open-app')?.focus({preventScroll:true});
 }
 
 async function refreshSpotify() {
   if (spotifyRefreshBusy || !window.mirrorBridge?.spotifyStatus) return;
   spotifyRefreshBusy = true;
+  spotifyLastRefreshAttemptAt = performance.now();
   try {
     const auth = await window.mirrorBridge.spotifyStatus();
     elements.spotifyConnect.hidden = auth.local ? !auth.accountConfigured : auth.connected;
@@ -1500,7 +1680,7 @@ async function refreshSpotify() {
       renderSpotifyStatus(snapshot.error || 'Connect Spotify to refresh playback.'); return;
     }
     spotifySnapshot = snapshot;
-    spotifyLastFetchedAt = Date.now();
+    spotifyLastFetchedAt = performance.now();
     const item = snapshot.item;
     elements.spotifyTitle.textContent = item?.name || 'Nothing playing';
     elements.spotifyArtist.textContent = item?.artists?.join(' · ') || (snapshot.source === 'windows-native' ? 'Open Spotify app on this PC and start a song' : 'Start playback in Spotify on a connected device');
@@ -1508,9 +1688,10 @@ async function refreshSpotify() {
     elements.spotifyDevice.textContent = snapshot.device ? `${snapshot.isPlaying ? 'Playing on' : 'Device:'} ${snapshot.device}` : '';
     const art = item?.imageUrl;
     const safeArt = Boolean(art && (/^https:\/\//i.test(art) || (snapshot.source === 'windows-native' && /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(art) && art.length < 1500000)));
-    if (safeArt) elements.spotifyCover.src = art;
-    else elements.spotifyCover.removeAttribute('src');
-    elements.spotifyCover.hidden = !safeArt;
+    if (safeArt) {
+      if (elements.spotifyCover.getAttribute('src') !== art) elements.spotifyCover.src = art;
+    } else if (elements.spotifyCover.hasAttribute('src')) elements.spotifyCover.removeAttribute('src');
+    elements.spotifyCover.hidden = !safeArt || Boolean(elements.spotifyCover.complete && elements.spotifyCover.naturalWidth === 0);
     elements.spotifyTrackLink.hidden = !item?.externalUrl || !item?.uri;
     elements.spotifyTrackLink.dataset.url = item?.externalUrl || '';
     elements.spotifyTrackLink.dataset.uri = item?.uri || '';
@@ -1526,6 +1707,9 @@ async function refreshSpotify() {
   } catch (error) { clearSpotifyControls(); renderSpotifyStatus(error.message); }
   finally { spotifyRefreshBusy = false; }
 }
+elements.spotifyCover.addEventListener('error', () => {
+  if (elements.spotifyCover.complete && elements.spotifyCover.naturalWidth === 0) elements.spotifyCover.hidden = true;
+});
 document.querySelector('#spotify-open-app').addEventListener('click', async () => {
   try { await openServiceFrame('spotify'); } catch (error) { renderSpotifyStatus(error.message); }
 });
@@ -1568,14 +1752,16 @@ window.mirrorBridge?.onSpotifyAuthStatus?.((status) => {
   elements.spotifyConnect.disabled = false;
   void refreshSpotify();
 });
-setInterval(() => {
+function tickSpotify() {
   if (document.hidden || sleeping) return;
-  if (mode === 'spotify' && Date.now() - spotifyLastFetchedAt > 8000) void refreshSpotify();
+  if (mode === 'spotify' && performance.now() - spotifyLastRefreshAttemptAt >= 8000) void refreshSpotify();
   if (mode === 'spotify' && spotifySnapshot?.isPlaying && spotifySnapshot.durationMs) {
-    const progress = Math.min(spotifySnapshot.durationMs, (spotifySnapshot.progressMs || 0) + Date.now() - spotifyLastFetchedAt);
+    const progress = Math.min(spotifySnapshot.durationMs, (spotifySnapshot.progressMs || 0) + Math.max(0, performance.now() - spotifyLastFetchedAt));
     elements.spotifyProgress.value = String(progress);
   }
-}, 1000);
+}
+const spotifyTimer = setInterval(tickSpotify, 1000);
+window.addEventListener('beforeunload', () => clearInterval(spotifyTimer));
 elements.windowsCastSettings.hidden = !config.isWindows;
 elements.windowsCastSettings.addEventListener('click', async () => {
   try {
@@ -1662,17 +1848,14 @@ elements.assistantTaskForm.addEventListener('submit', event => {
   if (hardMuted) { showOracle('Unmute the mirror before starting an assistant task.', '', 'Hard muted'); return; }
   if (agentRunId) { showOracle('The current task is still running. Use Stop before starting another.', '', 'Task in progress'); return; }
   elements.assistantTaskInput.value = '';
-  elements.launcherPanel.classList.remove('open');
+  popupPanels.closePanel(elements.launcherPanel);
   void askMirror(prompt);
 });
 
 elements.quickNoteInput.value = localStorage.getItem('mirror.quick-note') || '';
 elements.quickNoteForm.addEventListener('submit', (event) => {
   event.preventDefault();
-  const note = elements.quickNoteInput.value.trim();
-  localStorage.setItem('mirror.quick-note', note);
-  dashboard.refreshNow();
-  showGesture(note ? 'Note saved to this mirror' : 'Note cleared');
+  saveQuickNote(elements.quickNoteInput.value.trim());
 });
 elements.voiceSelect.addEventListener('change', () => {
   localStorage.setItem('mirror.voice', elements.voiceSelect.value);
@@ -1966,7 +2149,8 @@ function resetIdle() {
         elements.settings.classList.contains('open') || elements.personaPanel.classList.contains('open') ||
         elements.launcherPanel.classList.contains('open')) return;
     sleeping = true;
-    ambience.setContext({muted:true});
+    galleryEpoch++;
+    syncAmbienceContext();
     resumeRendering();
     cameraWasActiveBeforeSleep = getTrackingStatus().cameraActive;
     elements.shell.dataset.sleeping = 'true';
@@ -1980,16 +2164,21 @@ function resetIdle() {
 // on its own after a quiet stretch. The wake-word microphone is on-device only
 // (switch it off in Settings to disable all listening).
 function updatePrivacyChip() {
-  const live = Boolean(gemini?.listening || browserRecognition || voiceStarting);
-  const wakeOn = !hardMuted && elements.wakeToggle.checked && !live;
+  const live = Boolean(gemini?.listening || browserRecognition);
+  const wakeOn = !hardMuted && elements.wakeToggle.checked && !live && Boolean(wake.enabled && wake.processor && wake.stream?.active && !wake.assistantActive);
   const mic = document.querySelector('#privacy-mic'), cam = document.querySelector('#privacy-cam');
   if (!mic || !cam) return;
-  const level = hardMuted ? 'off' : live ? 'cloud' : wakeOn ? 'device' : 'off';
-  mic.dataset.level = level;
-  mic.querySelector('b').textContent = { off: 'Mic off', device: 'Mic · wake word, on this device', cloud: 'Mic · live, sent to Gemini' }[level];
+  const level = hardMuted ? 'off' : live ? 'cloud' : wakeOn ? 'device' : voiceStarting ? 'pending' : 'off';
+  if(mic.dataset.level!==level)mic.dataset.level = level;
+  const micLabel=mic.querySelector('b'),micText={off:'Mic off',device:'Mic · wake word, on this device',pending:'Microphone requested',cloud:gemini?.listening?'Mic · live, sent to Gemini':'Mic · browser speech recognition'}[level];
+  const compactMic={off:'Mic off',device:'Mic · wake',pending:'Mic requested',cloud:gemini?.listening?'Mic · Gemini':'Mic · browser'}[level];
+  if(micLabel.textContent!==compactMic){micLabel.textContent=compactMic;mic.setAttribute('aria-label',micText);}
   const cameraOn = Boolean(getTrackingStatus().cameraActive);
-  cam.dataset.level = cameraOn ? 'on' : 'off';
-  cam.querySelector('b').textContent = cameraOn ? 'Camera on · stays on device' : 'Camera off';
+  const cameraLevel=cameraOn?'on':'off';
+  if(cam.dataset.level!==cameraLevel)cam.dataset.level=cameraLevel;
+  const camLabel=cam.querySelector('b'),camText=cameraOn?'Camera on · stays on device':'Camera off';
+  const compactCam=cameraOn?'Camera on':'Camera off';
+  if(camLabel.textContent!==compactCam){camLabel.textContent=compactCam;cam.setAttribute('aria-label',camText);}
 }
 async function restoreCameraAfterIdle() {
   if (!cameraIdlePaused) return;
@@ -2024,7 +2213,9 @@ async function wakeFromSleep() {
   void restoreCameraAfterIdle();
   if (!sleeping) return;
   sleeping = false;
+  void displayGallery();
   delete elements.shell.dataset.sleeping;
+  syncAmbienceContext();
   resumeRendering();
   if (cameraWasActiveBeforeSleep) {
     const restored = await toggleCamera(true);
@@ -2037,11 +2228,12 @@ window.addEventListener('pointermove', resetIdle);
 window.addEventListener('pointerdown', resetIdle);
 window.addEventListener('keydown', (event) => {
   resetIdle();
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229 || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
   if (/input|select|textarea/i.test(event.target.tagName) || event.target.isContentEditable) return;
-  if (event.key === '1') setMode('portal');
-  if (event.key === '2') setMode('mirror');
-  if (event.key === '3') setMode('ar');
-  if (event.key === '4') setMode('watch');
+  if (event.key === '1') void requestUserMode('portal');
+  if (event.key === '2') void requestUserMode('mirror');
+  if (event.key === '3') void requestUserMode('ar');
+  if (event.key === '4') void requestUserMode('watch');
   if (event.key.toLowerCase() === 'f') window.mirrorBridge?.toggleFullscreen();
   if (event.key.toLowerCase() === 'c') elements.cameraToggle.click();
   if (event.key.toLowerCase() === 'd' && !/input|select|textarea/i.test(event.target.tagName)) elements.diagnostics.classList.toggle('open');
@@ -2054,6 +2246,12 @@ let animationFrame = null;
 let animationTimer = null;
 let statusTick = 0;
 let cubeContentTick = 0;
+const motionStyleValues = new Map();
+function setMotionStyle(name,value) {
+  if(motionStyleValues.get(name)===value)return;
+  elements.shell.style.setProperty(name,value);
+  motionStyleValues.set(name,value);
+}
 function animate() {
   animationFrame = null;
   animationTimer = null;
@@ -2068,10 +2266,15 @@ function animate() {
   const ambientIdle = mode === 'mirror' && !desktopActive && !elements.shell.dataset.magicCue && !elements.awakening.classList.contains('active');
   if (ambientIdle) animationTimer = setTimeout(() => { animationTimer = null; animationFrame = requestAnimationFrame(animate); }, 64);
   else animationFrame = requestAnimationFrame(animate);
-  if (!renderBudget.shouldRender(performance.now(), { hidden: false, sleeping: false, mode, depthEnabled:depthEnabled&&mode!=='mirror', avatarVisible: avatar.visible,motionFps:softwareGraphics?30:displayProfile(displayQualityId).motionFps })) return;
+  if (!renderBudget.shouldRender(performance.now(), { hidden: false, sleeping: false, mode, depthEnabled:depthEnabled&&mode!=='mirror', avatarVisible: avatar.visible,motionFps:Math.min(motionQuality.motionFps,requestedMotionFps()) })) return;
+  const frameStartedAt = performance.now();
+  // Resize before the visible portrait paints, avoiding an empty compositor frame.
+  if (avatar.visible) avatar.faceHost?.setRenderScale(motionQuality.avatarScale);
   const frameDelta = clock.getDelta();
   const dt = Math.min(frameDelta, 0.05);
   const elapsed = clock.elapsedTime;
+  // Shell geometry is maintained by resize events rather than per-frame reads.
+  const viewport = viewportSize();
   const viewer = updateHeadTracking(performance.now());
   // Re-centre on the person: the host eases toward where the viewer stands,
   // ignoring small sways (dead zone) and moving slowly enough to feel calm.
@@ -2079,20 +2282,19 @@ function animate() {
     const raw = viewer.x, dead = .12, outside = Math.abs(raw) < dead ? 0 : (raw - Math.sign(raw) * dead);
     const wants = followMe && mode === 'portal' && elements.shell.dataset.avatarPosition === 'center' && getTrackingStatus().faceDetected;
     followX += ((wants ? Math.max(-1, Math.min(1, outside)) : 0) - followX) * (1 - Math.exp(-dt / .9));
-    elements.shell.style.setProperty('--follow-x', `${Math.round(followX * viewportSize().width * .22)}px`);
+    setMotionStyle('--follow-x', `${Math.round(followX * viewport.width * .22)}px`);
     depthScene.setAvatarFollow(followX * .5);
   }
   if (depthEnabled) {
-    elements.shell.style.setProperty('--viewer-x', `${Math.round(viewer.x * 42)}px`);
-    elements.shell.style.setProperty('--viewer-y', `${Math.round(viewer.y * 30)}px`);
+    setMotionStyle('--viewer-x', `${Math.round(viewer.x * 42)}px`);
+    setMotionStyle('--viewer-y', `${Math.round(viewer.y * 30)}px`);
   } else {
-    elements.shell.style.setProperty('--viewer-x', '0px');
-    elements.shell.style.setProperty('--viewer-y', '0px');
+    setMotionStyle('--viewer-x', '0px');
+    setMotionStyle('--viewer-y', '0px');
   }
   gestures.update(performance.now());
   if (depthEnabled) applyOffAxisProjection(camera, viewer);
   else {
-    const viewport = viewportSize();
     applyFlatProjection(camera, viewport.width / Math.max(viewport.height, 1));
   }
   if ((depthEnabled&&mode!=='mirror') || sceneBudget.dirty || elements.awakening.classList.contains('active')) depthScene.update(dt, elapsed, depthEnabled ? viewer : { x: 0, y: 0, z: 1 });
@@ -2115,8 +2317,9 @@ function animate() {
   updateGestureHold();
   // Canvas resizing clears its backing store. Adapt before drawing so the
   // compositor never sees the empty surface between animation frames.
-  updateRenderQuality(frameDelta);
+  updateRenderQuality(frameDelta, viewport);
   if (sceneBudget.shouldRender({ hidden: document.hidden, sleeping, depthEnabled:depthEnabled&&mode!=='mirror', awakening: elements.awakening.classList.contains('active'), mode, now: performance.now() })) renderer.render(scene, camera);
+  if (motionQuality.observe({ dt: frameDelta, workMs: performance.now()-frameStartedAt, requestedFps: requestedMotionFps(), active: avatar.visible && mode !== 'mirror' && mode !== 'ar' })) syncAdaptiveQuality();
   diagnosticsTimer += dt;
   if (diagnosticsTimer > .25 && elements.diagnostics.classList.contains('open')) {
     diagnosticsTimer = 0;
@@ -2129,6 +2332,7 @@ animate();
 
 // Avoid waiting for the standby heartbeat before the first restored frame.
 function resumeRendering() {
+  motionQuality.resetWindow();
   sceneBudget.invalidate();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   if (animationTimer !== null) clearTimeout(animationTimer);
@@ -2137,26 +2341,39 @@ function resumeRendering() {
   animate();
 }
 document.addEventListener('visibilitychange', resumeRendering);
+let displayCadenceVersion=0;
+function acceptDisplayCadence(frequency) {
+  const next=displayMotionRate(frequency);if(next===displayMotionFps)return;
+  displayMotionFps=next;syncAdaptiveQuality();resumeRendering();
+}
+const removeDisplayCadenceListener=window.mirrorBridge?.onDisplayCadence?.(frequency=>{displayCadenceVersion++;acceptDisplayCadence(frequency)});
+const initialCadenceVersion=displayCadenceVersion;
+void window.mirrorBridge?.getDisplayCadence?.().then(frequency=>{if(displayCadenceVersion===initialCadenceVersion)acceptDisplayCadence(frequency)}).catch(()=>{});
 window.addEventListener('pointerdown', resumeRendering);
 window.addEventListener('keydown', resumeRendering);
 window.addEventListener('beforeunload', () => {
+  removeDisplayCadenceListener?.();
+  cancelModeRestore();
+  displayCadenceVersion++;
+  hideSearchResult();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   if (animationTimer !== null) clearTimeout(animationTimer);
 });
 
 function updateDiagnostics() {
+  const write = (element, text) => { if (element.textContent !== text) element.textContent = text; };
   const tracking = getTrackingStatus();
   const blends = getFaceBlendshapes() || {};
   const gaze = getEyeGaze() || {};
-  elements.diagRender.textContent = `${Math.round(renderQuality.fps)} fps · ${renderQuality.pixelRatio.toFixed(2)}× DPR`;
-  elements.diagTracking.textContent = tracking.faceDetected ? 'Face lock' : tracking.cameraActive ? 'Searching' : 'Mouse fallback';
+  write(elements.diagRender, `${Math.round(renderQuality.fps)} fps · ${renderQuality.pixelRatio.toFixed(2)}× DPR`);
+  write(elements.diagTracking, tracking.faceDetected ? 'Face lock' : tracking.cameraActive ? 'Searching' : 'Mouse fallback');
   const avatarVideo = avatar.getAvatarVideoStatus();
   const hostSource = avatarVideo.active
     ? `video · ${avatarVideo.state}${avatarVideo.width ? ` · ${avatarVideo.width}×${avatarVideo.height}` : ''}`
     : `${avatar.persona || 'velora'} · ${avatar.renderStyle==='rig'?'3D face':avatar.faceHost?'portrait':'loading'}`;
-  elements.diagRig.textContent = hostSource;
-  elements.diagBlendshapes.textContent = `${Object.keys(blends).length} channels`;
-  elements.diagGaze.textContent = gaze.confidence ? `${Math.round(gaze.confidence * 100)}% confidence` : 'No gaze lock';
+  write(elements.diagRig, hostSource);
+  write(elements.diagBlendshapes, `${Object.keys(blends).length} channels`);
+  write(elements.diagGaze, gaze.confidence ? `${Math.round(gaze.confidence * 100)}% confidence` : 'No gaze lock');
 }
 
 window.addEventListener('resize', () => {
@@ -2239,28 +2456,61 @@ async function showUrlInFrame(info) {
 
 // ---- Timers: spoken countdowns shown as chips; the bell respects hard mute.
 const timerChip = document.querySelector('#timer-chip');
-let timerTick = 0;
+let timerTick = null;
+const timerNodes = new Map();
 function renderTimers(list) {
   timerChip.hidden = list.length === 0;
-  timerChip.replaceChildren(...list.map(item => { const chip = document.createElement('span'); chip.textContent = `${item.label ? item.label + ' · ' : ''}${formatRemaining(item.remainingMs)}`; return chip; }));
-  clearInterval(timerTick);
-  if (list.length) timerTick = setInterval(() => renderTimers(mirrorTimers.list()), 1000);
+  const active = new Set(list.map(item => item.id));
+  for (const id of timerNodes.keys()) if (!active.has(id)) timerNodes.delete(id);
+  const nodes = list.map(item => {
+    let chip = timerNodes.get(item.id);
+    if (!chip) { chip = document.createElement('span'); timerNodes.set(item.id, chip); }
+    const text = `${item.label ? item.label + ' · ' : ''}${formatRemaining(item.remainingMs)}`;
+    if (chip.textContent !== text) chip.textContent = text;
+    return chip;
+  });
+  if (nodes.length !== timerChip.childNodes.length || nodes.some((node,index) => node !== timerChip.childNodes[index])) timerChip.replaceChildren(...nodes);
+  if (list.length && timerTick === null) timerTick = setInterval(() => { if (!document.hidden) renderTimers(mirrorTimers.list()); }, 1000);
+  else if (!list.length && timerTick !== null) { clearInterval(timerTick); timerTick = null; }
 }
 let bellContext = null;
-function ringBell() {
+let bellGeneration = 0;
+let bellWanted = false;
+const bellNodes = new Set();
+function stopBell() {
+  bellGeneration++;
+  bellWanted=false;
+  for(const {osc,gain} of bellNodes){try{osc.stop();}catch{}try{osc.disconnect();}catch{}try{gain.disconnect();}catch{}}
+  bellNodes.clear();
+  if(bellContext?.state==='running')void bellContext.suspend().catch(()=>{});
+}
+async function ringBell() {
+  stopBell();
   if (hardMuted) return;
+  bellWanted=true;
+  const generation = bellGeneration;
   try {
-    bellContext ||= new AudioContext(); void bellContext.resume();
+    bellContext ||= new AudioContext(); await bellContext.resume();
+    if(generation!==bellGeneration||hardMuted){
+      if(!bellWanted||hardMuted)void bellContext.suspend().catch(()=>{});
+      return;
+    }
     const now = bellContext.currentTime;
     [660, 880, 1100].forEach((frequency, index) => {
       const osc = bellContext.createOscillator(), gain = bellContext.createGain();
+      const nodes={osc,gain};bellNodes.add(nodes);
+      osc.onended=()=>{
+        if(!bellNodes.delete(nodes))return;
+        osc.disconnect();gain.disconnect();
+        if(!bellNodes.size&&generation===bellGeneration){bellWanted=false;void bellContext.suspend().catch(()=>{});}
+      };
       osc.type = 'sine'; osc.frequency.value = frequency;
       gain.gain.setValueAtTime(0, now + index * .18);
       gain.gain.linearRampToValueAtTime(.18, now + index * .18 + .02);
       gain.gain.exponentialRampToValueAtTime(.0001, now + index * .18 + 1.2);
       osc.connect(gain).connect(bellContext.destination); osc.start(now + index * .18); osc.stop(now + index * .18 + 1.3);
     });
-  } catch {}
+  } catch {if(generation===bellGeneration)stopBell();}
 }
 const mirrorTimers = new MirrorTimers({
   onChange: renderTimers,
@@ -2270,17 +2520,54 @@ const mirrorTimers = new MirrorTimers({
     showOracle(message, '', 'Timer'); showGesture(message);
   }
 });
-window.addEventListener('beforeunload', () => { mirrorTimers.destroy(); clearInterval(timerTick); });
+window.addEventListener('beforeunload', () => { mirrorTimers.destroy(); clearInterval(timerTick); stopBell();void bellContext?.close().catch(()=>{}); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) renderTimers(mirrorTimers.list()); });
 window.__mirrorDebug.mirrorTimers = mirrorTimers;
 window.__mirrorDebug.wake = wake;
+window.__mirrorDebug.appendCaption = appendCaption;
 
 // ---- Search pool: grounded answers and their sources as a dismissible card.
 searchPool.root = document.querySelector('#search-pool');
 function hideSearchResult() {
+  cancelPendingSearch();
   clearTimeout(searchPool.timer);
+  searchPool.timer = 0;
   if (searchPool.root) searchPool.root.hidden = true;
 }
-function showSearchResult(result) {
+function scheduleSearchDismissal(renew = true) {
+  if(searchPool.root.hidden)return;
+  if(renew)searchPool.dismissAt=performance.now()+60000;
+  if(searchPool.timer)return;
+  const timer=setTimeout(()=>{
+    if(searchPool.timer!==timer||searchPool.root.hidden)return;
+    searchPool.timer=0;
+    if(performance.now()<searchPool.dismissAt)scheduleSearchDismissal(false);
+    else if(searchPool.root.contains?.(document.activeElement)||searchPool.root.matches?.(':hover'))scheduleSearchDismissal();
+    else hideSearchResult();
+  },Math.max(0,searchPool.dismissAt-performance.now()));
+  searchPool.timer=timer;
+}
+function cancelPendingSearch() {
+  searchPool.generation++;const id=searchPool.requestId;searchPool.requestId=null;
+  if(id)void window.mirrorBridge?.cancelSearch?.(id).catch(()=>{});
+}
+async function searchMirror(query,{decorate=result=>result,onSuccess,onError}={}) {
+  cancelPendingSearch();const generation=searchPool.generation,voice=voiceStartGeneration,control=manualControlGeneration;
+  const id=crypto.randomUUID();searchPool.requestId=id;
+  const current=()=>generation===searchPool.generation&&voice===voiceStartGeneration&&control===manualControlGeneration;
+  try {
+    const found=await window.mirrorBridge.searchWeb(query,id);
+    if(!current())return {cancelled:true};
+    const result=await showSearchResult(decorate(found),{retainRequest:true});
+    if(!current())return {cancelled:true};
+    onSuccess?.(result);return result;
+  } catch(error) {
+    if(!current())return {cancelled:true};
+    if(onError){onError(error);return {error:error.message}}throw error;
+  } finally {if(searchPool.requestId===id)searchPool.requestId=null;}
+}
+function showSearchResult(result,{retainRequest=false}={}) {
+  if(!retainRequest)cancelPendingSearch();
   if (!result) return result;
   if (!result.answer) {
     // No grounded answer: show ordinary results inside the mirror frame.
@@ -2290,6 +2577,7 @@ function showSearchResult(result) {
   document.querySelector('#search-pool-query').textContent = result.query;
   document.querySelector('#search-pool-answer').textContent = result.answer;
   const holder = document.querySelector('#search-pool-sources');
+  const replacingFocusedSource = holder.contains?.(document.activeElement);
   holder.replaceChildren(...(result.sources || []).map(source => {
     const button = document.createElement('button');
     button.type = 'button'; button.textContent = source.host; button.title = source.title;
@@ -2297,13 +2585,16 @@ function showSearchResult(result) {
     return button;
   }));
   searchPool.root.hidden = false;
-  clearTimeout(searchPool.timer);
-  searchPool.timer = setTimeout(hideSearchResult, 60000);
+  if (replacingFocusedSource) document.querySelector('#search-pool-close').focus({preventScroll:true});
+  searchPool.root.scrollTop = 0;
+  searchPool.root.scrollLeft = 0;
+  scheduleSearchDismissal();
   avatar.react?.('ponder');
   return result;
 }
 document.querySelector('#search-pool-close').addEventListener('click', hideSearchResult);
-window.addEventListener('keydown', event => { if (event.key === 'Escape') hideSearchResult(); });
+for(const event of ['pointerdown','pointerleave','scroll','focusin','focusout'])searchPool.root.addEventListener(event,scheduleSearchDismissal);
+window.addEventListener('keydown', event => { if (event.key === 'Escape' && !event.defaultPrevented && !event.isComposing && event.keyCode !== 229) hideSearchResult(); });
 
 async function loadWatchVideo() {
   let generation = null;
@@ -2364,7 +2655,7 @@ function runVoiceNavigation(prompt) {
   const wardrobeCommand=prompt.toLowerCase().replace(/[.,!?]/g,'').trim().match(/^(open|show|close|hide) (?:the )?(?:wardrobe|closet|fitting controls)$/);
   if(wardrobeCommand){const open=['open','show'].includes(wardrobeCommand[1]);if(open)setAssistantMode('ar');setWardrobePanelOpen(open);showGesture(open?'Wardrobe opened':'Wardrobe closed');return true;}
   const spoken = prompt.toLowerCase().replace(/[.,!?']/g, '').replace(/\s+/g, ' ').trim();
-  if (/^(?:close|dismiss|hide|clear|go away|never ?mind)(?: (?:that|this|it|the (?:result|answer|card|search)))?$/.test(spoken) && !searchPool.root.hidden) { hideSearchResult(); avatar.react?.('dismiss'); return true; }
+  if (/^(?:close|dismiss|hide|clear|go away|never ?mind)(?: (?:that|this|it|the (?:result|answer|card|search)))?$/.test(spoken) && (searchPool.requestId || !searchPool.root.hidden)) { hideSearchResult(); avatar.react?.('dismiss'); return true; }
   // Glanceable pop-ups. Weather reads what the dashboard already fetched;
   // news goes through grounded search; the calendar opens inside the frame.
   if (/^(?:whats|what is|hows|how is|show me|tell me)?(?: the)? ?(?:weather|forecast|temperature)(?: like)?(?: today| now| outside| right now| tomorrow)?$|^(?:do i need|should i (?:bring|take)) (?:an |a |my )?(?:umbrella|jacket|coat)$|^is it (?:cold|hot|warm|raining|going to rain)(?: outside| today)?$/.test(spoken)) {
@@ -2376,9 +2667,7 @@ function runVoiceNavigation(prompt) {
   }
   if (/^(?:whats|what is|show me|tell me|read me)? ?(?:the )?(?:news|headlines|top stories|latest news)(?: today| for today)?$|^whats happening (?:in the world|today)$/.test(spoken)) {
     showOracle('Consulting the glass…', '', 'Headlines');
-    window.mirrorBridge?.searchWeb('top news headlines today, three bullet-free sentences')
-      .then(result => showSearchResult(result.grounded ? { ...result, eyebrow: 'Headlines', query: 'Today in the world' } : result))
-      .catch(error => showOracle(error.message, '', 'Headlines'));
+    void searchMirror('top news headlines today, three bullet-free sentences',{decorate:result=>result.grounded?{...result,eyebrow:'Headlines',query:'Today in the world'}:result,onError:error=>showOracle(error.message,'','Headlines')});
     return true;
   }
   if (/^(?:whats|what is|show me|open|check)? ?(?:on )?(?:my |the )?(?:calendar|schedule|agenda|plans)(?: today| tomorrow)?$|^what do i have (?:on |today|tomorrow|planned)/.test(spoken)) {
@@ -2491,10 +2780,7 @@ function runVoiceNavigation(prompt) {
   const searchMatch = text.match(/\b(?:search(?: the web)? for|look up)\s+(.+)/);
   if (searchMatch) {
     showOracle('Consulting the glass…', searchMatch[1].trim(), 'Searching');
-    window.mirrorBridge?.searchWeb(searchMatch[1].trim())
-      .then(showSearchResult)
-      .then(() => showGesture('The mirror has found something'))
-      .catch((error) => showOracle(error.message, '', 'Web search'));
+    void searchMirror(searchMatch[1].trim(),{onSuccess:()=>showGesture('The mirror has found something'),onError:error=>showOracle(error.message,'','Web search')});
     return true;
   }
   const positionMatch = text.match(/\bmove (?:yourself|your face|the face) (?:to )?(center|left|right|upper|lower)\b/);
@@ -2562,26 +2848,35 @@ function requestTryOnFromNavigation(args, prompt) {
 }
 
 function handleGesture(type) {
-  void dispatchGesture(type).catch((error) => showGesture(error.message));
+  const task=dispatchGesture(type),voice=voiceStartGeneration,control=manualControlGeneration;
+  void task.catch(error=>{if(voice===voiceStartGeneration&&control===manualControlGeneration)showGesture(error.message);});
 }
 
-async function dispatchSpotifyGesture(type) {
+async function dispatchSpotifyGesture(type,currentRequest=()=>true) {
+  try{
+  if(!currentRequest())return {cancelled:true};
   let playing = false;
   if (type === 'pinch') {
     const current = await window.mirrorBridge.spotifyCurrent();
+    if(!currentRequest())return {cancelled:true};
     if (current.error) throw new Error(current.error);
     if (!current.connected || typeof current.isPlaying !== 'boolean') throw new Error('Connect Spotify in Music before using playback gestures.');
     playing = current.isPlaying;
   }
   const action = type === 'pinch' ? playing ? 'pause' : 'play' : type === 'swipe-left' ? 'next' : 'previous';
   await window.mirrorBridge.spotifyControl(action);
+  if(!currentRequest())return {cancelled:true};
   await refreshSpotify();
+  if(!currentRequest())return {cancelled:true};
   showGesture({ play: 'Play requested', pause: 'Pause requested', next: 'Next track requested', previous: 'Previous track requested' }[action]);
+  }catch(error){if(!currentRequest())return {cancelled:true};throw error;}
 }
 
 async function dispatchGesture(type) {
+  const initialVoice=voiceStartGeneration,initialControl=manualControlGeneration;
+  let gestureCurrent=()=>initialVoice===voiceStartGeneration&&initialControl===manualControlGeneration;
   if (type === 'palm' && (agentRunId || experience.capturing || experience.routineActive)) { stopAssistant(); return; }
-  if(['swipe-left','swipe-right','swipe-up','swipe-down'].includes(type)||type==='pinch'&&(desktopActive||['ar','watch','spotify'].includes(mode)||experience.dialog?.open||experience.capturing||closet.photo.open)){const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;}
+  if(['swipe-left','swipe-right','swipe-up','swipe-down'].includes(type)||type==='pinch'&&(desktopActive||['ar','watch','spotify'].includes(mode)||experience.dialog?.open||experience.capturing||closet.photo.open)){const control=beginUserControl();if(control.wait)await control.wait;if(!control.current())return;const voice=voiceStartGeneration;gestureCurrent=()=>control.current()&&voice===voiceStartGeneration;}
   if (experience.gesture(type)) return;
   if (type !== 'palm' && closet.photo.gesture(type)) return;
   if (type === 'palm') {
@@ -2591,6 +2886,7 @@ async function dispatchGesture(type) {
     }
     if (desktopActive) {
       await window.mirrorBridge.closeDesktop();
+      if(!gestureCurrent())return;
       showGesture('Open palm · return to mirror');
     } else {
       setAssistantMode('portal');
@@ -2600,21 +2896,23 @@ async function dispatchGesture(type) {
   }
   if (desktopActive) {
     if (desktopKind === 'native' && desktopLabel === 'Spotify' && ['pinch', 'swipe-left', 'swipe-right'].includes(type)) {
-      await dispatchSpotifyGesture(type); return;
+      await dispatchSpotifyGesture(type,gestureCurrent); return;
     }
     if (['swipe-up', 'swipe-down'].includes(type)) {
       // Dragging content upward reveals the next portion of the page.
       const result = await window.mirrorBridge.scrollDesktopGesture(type === 'swipe-up' ? 'down' : 'up');
+      if(!gestureCurrent())return;
       showGesture(result?.result || 'Scroll requested');
     } else showGesture('Swipe up/down to scroll · hold palm to return');
     return;
   }
   if (mode === 'spotify' && ['pinch', 'swipe-left', 'swipe-right'].includes(type)) {
-    await dispatchSpotifyGesture(type); return;
+    await dispatchSpotifyGesture(type,gestureCurrent); return;
   }
   if (mode === 'watch' && ['pinch', 'swipe-left', 'swipe-right'].includes(type)) {
     const action = type === 'pinch' ? watchPlayback.snapshot().playing ? 'pause' : 'play' : 'seek';
     const result = await watchPlayback.command(action, type === 'swipe-left' ? 15 : -15);
+    if(!gestureCurrent())return;
     showGesture(result.result || 'Playback command sent');
     return;
   }
@@ -2646,11 +2944,26 @@ async function dispatchGesture(type) {
   showGesture(`Swipe · ${labels[next]}`);
 }
 
+function saveQuickNote(text) {
+  try { localStorage.setItem('mirror.quick-note', text); }
+  catch { showGesture('The note could not be saved. Keep your text and try again.'); return false; }
+  elements.quickNoteInput.value = text;
+  dashboard.refreshNow();
+  showGesture(text ? 'Note saved to this mirror' : 'Note cleared');
+  return true;
+}
+
 function showGesture(text) {
   elements.gestureToast.textContent = text;
   elements.gestureToast.classList.add('show');
   clearTimeout(gestureToastTimer);
-  gestureToastTimer = setTimeout(() => elements.gestureToast.classList.remove('show'), 1400);
+  const duration = Math.min(7000, Math.max(1800, 900 + Array.from(String(text)).length * 45));
+  const timer = setTimeout(() => {
+    if (gestureToastTimer !== timer) return;
+    gestureToastTimer = null;
+    elements.gestureToast.classList.remove('show');
+  }, duration);
+  gestureToastTimer = timer;
 }
 
 function showAgentProgress(tool) {
@@ -2667,15 +2980,27 @@ function cueQueen() {
 }
 
 function updateGestureHold() {
-  const element = document.querySelector('#gesture-hold'), now = performance.now();
+  const element = elements.gestureHold, now = performance.now();
   const active = gestures.enabled && !gestures.latched && now - gestures.lastSampleAt < 250 && !sleeping;
   const start = gestures.pinchSince || gestures.openSince;
-  element.hidden = !active || !start || now - start < 70;
+  const hidden = !active || !start || now - start < 70;
+  if(element.hidden!==hidden)element.hidden=hidden;
   if (element.hidden) return;
   const pinch = Boolean(gestures.pinchSince), progress = Math.min(1, (now - start) / (pinch ? 250 : 700));
-  element.style.setProperty('--hold', String(Math.round(progress * 20) / 20));
-  element.querySelector('span').textContent = pinch ? experience.dialog.open ? experience.draft ? 'Hold pinch · save look' : 'Hold pinch · take photo' : ['watch', 'spotify'].includes(mode) ? 'Hold pinch · play / pause' : 'Hold pinch · next effect'
-    : experience.capturing || experience.routineActive || agentRunId || gemini.listening || speech.isSpeaking || voiceStarting ? 'Hold palm · Stop' : experience.dialog.open ? 'Hold palm · Stop' : desktopActive ? 'Hold palm · return to mirror' : 'Hold palm · Converse';
+  const value=String(Math.round(progress*20)/20);
+  if(gestureHoldValue!==value){element.style.setProperty('--hold',value);gestureHoldValue=value;}
+  let label;
+  if(pinch){
+    if(experience.dialog.open)label=experience.draft?'Hold pinch · save look':'Hold pinch · take photo';
+    else if(closet.photo.open)label=closet.photo.saving||closet.photo.capturePending||closet.photo.extracting?'Photo busy · wait':closet.photo.output?'Hold pinch · save photo':'Hold pinch · take photo';
+    else if(desktopActive)label=desktopKind==='native'&&desktopLabel==='Spotify'?'Hold pinch · play / pause':'Pinch · use on-screen controls';
+    else if(['watch','spotify'].includes(mode))label='Hold pinch · play / pause';
+    else label=mode==='ar'?'Hold pinch · next effect':'Pinch · use Watch, Music or Try on';
+  }else{
+    const stopping=experience.capturing||experience.routineActive||agentRunId||gemini.listening||browserRecognition||speech.isSpeaking||voiceStarting||['thinking','speaking'].includes(state)||elements.awakening?.classList.contains('active')||experience.dialog.open;
+    label=stopping?'Hold palm · Stop':desktopActive?'Hold palm · return to mirror':'Hold palm · Converse';
+  }
+  if(elements.gestureHoldLabel.textContent!==label)elements.gestureHoldLabel.textContent=label;
 }
 
 function setPersona(persona, announce = true) {
@@ -2695,15 +3020,20 @@ function setPersona(persona, announce = true) {
   }
   elements.personaToggleImage.src = hosts[selected].image;
   elements.personaList.querySelectorAll('[data-persona]').forEach((card) => card.classList.toggle('active', card.dataset.persona === selected));
-  elements.personaPanel.classList.remove('open');
+  popupPanels.closePanel(elements.personaPanel);
   if (announce) showOracle(`${hosts[selected].name} is now your mirror host. The voice updates for the next live conversation.`, '', 'Host changed');
 }
 
-function updateRenderQuality(dt) {
+function updateRenderQuality(dt, viewport) {
   renderQuality.frames += 1;
   renderQuality.elapsed += dt;
   if (renderQuality.elapsed < 2) return;
   renderQuality.fps = renderQuality.frames / renderQuality.elapsed;
+  if (!(depthEnabled && !['mirror','ar'].includes(mode)) && !elements.awakening.classList.contains('active')) {
+    // A cached background cannot fix missed portrait frames. In standby the
+    // slower heartbeat is intentional and must not degrade its resolution.
+    renderQuality.frames = 0; renderQuality.elapsed = 0; return;
+  }
   const previous = renderQuality.pixelRatio;
   if (renderQuality.fps < renderBudget.targetFps * .7 && renderQuality.pixelRatio > (softwareGraphics?.3:.8)) renderQuality.pixelRatio = Math.max(softwareGraphics?.3:.8, renderQuality.pixelRatio - .1);
   else if (renderQuality.fps > renderBudget.targetFps * .95 && renderQuality.pixelRatio < renderQuality.maxPixelRatio) renderQuality.pixelRatio = Math.min(renderQuality.maxPixelRatio, renderQuality.pixelRatio + .05);
@@ -2711,7 +3041,6 @@ function updateRenderQuality(dt) {
     renderer.setPixelRatio(renderQuality.pixelRatio);
     // Never let the adaptive DPR pass resize the canvas to the surrounding
     // desktop browser. The render surface is the portrait mirror shell.
-    const viewport = viewportSize();
     renderer.setSize(viewport.width, viewport.height);
     sceneBudget.invalidate();
   }

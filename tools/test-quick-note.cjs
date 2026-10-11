@@ -1,0 +1,18 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/renderer.js','utf8');let fail=false,saved='Old note',refreshes=0;const messages=[];
+const scope=vm.createContext({localStorage:{setItem(key,value){assert.equal(key,'mirror.quick-note');if(fail)throw Error('Quota exceeded');saved=value}},elements:{quickNoteInput:{value:'New note'}},dashboard:{refreshNow(){refreshes++}},showGesture:text=>messages.push(text)});
+vm.runInContext(source.slice(source.indexOf('function saveQuickNote('),source.indexOf('function showGesture(')),scope);
+fail=true;assert.equal(scope.saveQuickNote('New note'),false);assert.equal(saved,'Old note');assert.equal(scope.elements.quickNoteInput.value,'New note');assert.equal(refreshes,0);assert.match(messages.at(-1),/could not be saved/);
+fail=false;assert.equal(scope.saveQuickNote('New note'),true);assert.equal(saved,'New note');assert.equal(refreshes,1);assert.equal(messages.at(-1),'Note saved to this mirror');
+assert.equal(scope.saveQuickNote(''),true);assert.equal(saved,'');assert.equal(scope.elements.quickNoteInput.value,'');assert.equal(messages.at(-1),'Note cleared');
+console.log('Quick note: failed persistence preserves text/state, visible retry guidance, successful retry and clear passed.');
+const sourceView=fs.readFileSync('src/magicMirrorView.js','utf8');let markup='',renders=0,readFails=false;
+const card={get innerHTML(){return markup},set innerHTML(value){renders++;markup=value.replace(/&#39;/g,"'")}};
+const dashboardScope=vm.createContext({localStorage:{getItem(){if(readFails)throw Error('Unavailable');return saved}},card});
+const start=sourceView.indexOf('  refreshNow()');vm.runInContext('const view={container:{querySelector:()=>card},'+sourceView.slice(start,sourceView.indexOf('  _startClock()',start))+'};this.view=view;'+sourceView.slice(sourceView.indexOf('function escapeHtml(')),dashboardScope);
+saved="Don't <script>";dashboardScope.view.refreshNow();assert(markup.includes('&lt;script&gt;'));
+for(let i=0;i<10000;i++)dashboardScope.view.refreshNow();assert.equal(renders,1,'Repeated note replaced DOM despite normalized entities');
+readFails=true;dashboardScope.view.refreshNow();assert.equal(renders,1);readFails=false;
+markup='';dashboardScope.view.refreshNow();assert.equal(renders,2,'Externally cleared card was not repaired');
+saved='';dashboardScope.view.refreshNow();assert(markup.includes('YOUR DAY'));assert.equal(renders,3);
+console.log('Note dashboard: stable DOM across 10,000 reads, entity normalization, safe text, unavailable storage and external repair passed.');

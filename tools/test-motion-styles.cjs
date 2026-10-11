@@ -1,0 +1,10 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const source=fs.readFileSync('src/renderer.js','utf8'),writes=[];
+const scope=vm.createContext({elements:{shell:{style:{setProperty:(...args)=>writes.push(args)}}}});
+vm.runInContext(source.slice(source.indexOf('const motionStyleValues ='),source.indexOf('function animate()')),scope);
+for(let frame=0;frame<10000;frame++)for(const name of ['--follow-x','--viewer-x','--viewer-y'])scope.setMotionStyle(name,'0px');
+assert.equal(writes.length,3);
+scope.setMotionStyle('--viewer-x','12px');scope.setMotionStyle('--viewer-y','-4px');assert.equal(writes.length,5);
+scope.setMotionStyle('--viewer-x','0px');scope.setMotionStyle('--viewer-y','0px');assert.equal(writes.length,7,'Returning to flat mode must reset offsets');
+scope.setMotionStyle('--follow-x','24px');assert.deepEqual(writes.at(-1),['--follow-x','24px']);
+console.log('Motion styles: 10,000 stationary frames write each property once; changed offsets, flat reset and resized follow values still write.');

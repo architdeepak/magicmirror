@@ -1,9 +1,13 @@
 // Rendering cadence follows visible work. Audio and wake recognition own their
 // independent clocks; a sleeping or hidden page needs no scene frames.
+export function displayMotionRate(frequency) {
+  return Number.isFinite(frequency) && frequency >= 15 ? Math.min(60,Math.round(frequency)) : 60;
+}
 export function renderFrameRate({ hidden, sleeping, mode, depthEnabled, avatarVisible, motionFps = 30 }) {
   if (hidden || sleeping) return 0;
-  if (mode==='ar')return 30;
-  if (depthEnabled || avatarVisible)return motionFps>=60?60:30;
+  const motion = Number.isFinite(motionFps) ? Math.min(60,Math.max(15,motionFps)) : 30;
+  if (mode==='ar')return Math.min(30,motion);
+  if (depthEnabled || avatarVisible)return motion;
   return 12;
 }
 

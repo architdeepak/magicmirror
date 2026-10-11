@@ -10,4 +10,16 @@ host.setViseme('rest');host.setFace({},host.gaze,0,host.viewer);for(let i=0;i<16
 host.setPerformance({turn:.4,nod:.2,lean:.1});host.draw(16);assert(images>settled,'Performance did not invalidate');
 host.ready=false;host.draw(17);const blank=clears;host.draw(18);assert.equal(clears,blank,'Unloaded head repeatedly cleared');assert.equal(host.canvas._mirrorRevision,host.drawCount);
 host.ready=true;host.lastIdleSignature=null;host.draw(19);assert(images>settled);
+host.setPerformance({});host.setFace({}, {x:0,y:0,confidence:1},0,{});
+for(let i=0;i<200;i++)host.draw(20+i/30);
+const unchanged=images;
+for(let i=0;i<100;i++){host.setFace({noseSneerLeft:i/100,tongueOut:i/100},host.gaze,0,{y:i/100});host.draw(27+i/30)}
+assert.equal(images,unchanged,'Unused tracker channels repainted the portrait');
+host.setFace({browOuterUpRight:.5},host.gaze,0,{});host.draw(31);assert(images>unchanged,'Painted brow channel did not invalidate');
+let styleWrites=0;host.host={style:{setProperty(){styleWrites++}}};host.auraValues={};
+host.setFace({},host.gaze,.7,{});host.setViseme('AA');
+const beforeTalking=images;for(let i=0;i<60;i++)host.draw(32+i/30);
+assert(images>beforeTalking+50,'Aura caching stopped lip animation');
+assert.equal(styleWrites,3,'Speaking mouth repeatedly invalidated glow layout');
+host.setPerformance({turn:.5});host.draw(35);assert(styleWrites>3,'Moving head failed to update glow');
 console.log('Face raster cache: idle reuse, blink/speech/performance invalidation, settling, loading clear-once and revision tracking passed.');

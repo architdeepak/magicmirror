@@ -1,0 +1,17 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/renderer.js','utf8'),listeners=new Map();let width=540,height=960,reads=0,observe,disconnected=false;
+const shell={get clientWidth(){reads++;return width},get clientHeight(){reads++;return height}};
+const dispatch=event=>{for(const fn of listeners.get(event.type)||[])fn(event)};
+const context=vm.createContext({elements:{shell},window:{innerWidth:720,innerHeight:1280,addEventListener:(type,fn)=>{if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(fn)},dispatchEvent:dispatch},Event:class{constructor(type){this.type=type}},ResizeObserver:class{constructor(callback){observe=callback}observe(target){assert.equal(target,shell)}disconnect(){disconnected=true}}});
+vm.runInContext(source.slice(source.indexOf('let cachedViewport ='),source.indexOf('// A native 4K portrait')),context);
+const viewport=()=>vm.runInContext('viewportSize()',context);
+assert.equal(viewport().width,540);assert.equal(reads,2);
+const initial=viewport();for(let frame=0;frame<10000;frame++)assert.equal(viewport(),initial);
+assert.equal(reads,2,'Animation must not trigger layout reads');
+let updates=0;context.window.addEventListener('resize',()=>{updates++;assert.equal(viewport().width,width||context.window.innerWidth)});
+width=1080;height=1920;dispatch({type:'resize'});assert.equal(viewport().height,1920);assert.equal(updates,1);
+width=800;height=1200;observe();assert.equal(viewport().height,1200);assert.equal(updates,2,'Shell-only resize must update consumers');
+observe();assert.equal(updates,2,'Unchanged observer notification must not create resize loop');
+width=height=0;dispatch({type:'resize'});assert.equal(viewport().width,720);assert.equal(viewport().height,1280);
+dispatch({type:'beforeunload'});assert(disconnected);
+console.log('Viewport cache: zero per-frame layout reads, immediate native resize, shell-only resize, observer dedupe, fallback and cleanup passed.');

@@ -10,14 +10,14 @@ export class MirrorAmbience {
 
   async setEnabled(enabled) {
     this.enabled = Boolean(enabled);
-    if (!this.enabled) { this.stop(); return; }
+    if (!this.enabled || this.context.muted) { this.stop(); return; }
     const epoch = ++this.epoch;
     try {
       this.audio ||= new AudioContext(); await this.audio.resume();
       if (epoch !== this.epoch || !this.enabled || this.context.muted) return;
       if (!this.master) this._build();
       this.sync();
-    } catch { this.stop(); }
+    } catch { if (epoch === this.epoch) this.stop(); }
   }
 
   _build() {
@@ -57,8 +57,14 @@ export class MirrorAmbience {
   }
 
   _ringLater() {
+    const master = this.master;
     const wait = 7000 + Math.random() * 13000;
-    this.timers.push(setTimeout(() => { this._ring(); this._ringLater(); }, wait));
+    const timer = setTimeout(() => {
+      this.timers = this.timers.filter(pending => pending !== timer);
+      if (master !== this.master || !this.master || !this.enabled || this.context.muted) return;
+      this._ring(); this._ringLater();
+    }, wait);
+    this.timers.push(timer);
   }
 
   _ring() {

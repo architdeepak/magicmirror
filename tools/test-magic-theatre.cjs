@@ -7,9 +7,11 @@ const scope = vm.createContext({ performance: { now: () => 0 }, document: { hidd
 vm.runInContext(fs.readFileSync('src/displayQuality.js','utf8').replace(/export /g,'')+'\n'+fs.readFileSync('src/mirrorFog.js','utf8').replace('export class','class')+'\n'+fs.readFileSync('src/magicTheatre.js','utf8').replace(/^import .*;$/mg,'').replace('export class','class') + ';globalThis.Theatre=MagicTheatre;globalThis.Fog=MirrorFog', scope);
 (async () => {
   const theatre = new scope.Theatre(shell); theatre.play('wake', { muted: true });
+  theatre.backend='gpu';theatre.setMotionFps(30);assert.equal(theatre.snapshot().targetFps,30);theatre.setMotionFps(60);assert.equal(theatre.snapshot().targetFps,60);theatre.backend='cpu';assert.equal(theatre.snapshot().targetFps,30);
   assert(canvas.width*canvas.height<=1_500_000);
   for (let now = 0; now < 3100; now += 1000 / 60) { const entry = frames.entries().next().value; if (entry) { frames.delete(entry[0]); entry[1](now); } }
   assert.equal(frames.size, 0); assert(canvas.hidden); assert(draws <= 92, 'Fog frame budget exceeded');assert.equal(theatre.fog.noise.length,16384);
+  theatre.setQuality('eco');assert.equal(theatre.targetFps(),20,'Efficient CPU fog ignored its cadence limit');theatre.setQuality('auto');
   const fog=new scope.Fog(24,36);
   fog.render(1);const end=Array.from(fog.image.data);
   fog.render(0,true);assert.deepEqual(Array.from(fog.image.data),end,'Wake and arrival fields jumped at their shared boundary');

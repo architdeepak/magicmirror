@@ -7,8 +7,9 @@
   <title>Obsidian Mirror</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Manrope:wght@300;400;500;600&family=Unbounded:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@300;400;500;600&family=Unbounded:wght@300;400&display=swap" rel="stylesheet">
   <style>
+    [hidden] { display: none !important; }
     :root {
       color-scheme: dark;
       --gold: #e7c774;
@@ -367,8 +368,9 @@
     .spotify-card { width: min(740px, 100%); padding: clamp(22px,3cqw,52px); border: 1px solid rgba(242,213,138,.28); border-radius: 28px; background: linear-gradient(155deg,rgba(14,30,24,.88),rgba(3,9,9,.84)); box-shadow: 0 32px 110px #0009; text-align: center; backdrop-filter: blur(26px); }
     .spotify-kicker { color: var(--signal); font: 700 clamp(10px,.85cqw,16px) Manrope,sans-serif; letter-spacing: .24em; text-transform: uppercase; }
     .spotify-cover { display: block; width: min(38cqw,390px); aspect-ratio: 1; margin: clamp(18px,2cqw,36px) auto; object-fit: contain; border-radius: 8px; }
+    .spotify-cover[hidden] { display: none; }
     .spotify-title { margin: 0; color: #f2fff8; font: 500 clamp(22px,2.3cqw,44px)/1.16 Manrope,sans-serif; overflow-wrap: anywhere; }
-    .spotify-artist { margin: 10px 0 0; color: rgba(242,255,248,.78); font-size: clamp(13px,1cqw,20px); }
+    .spotify-artist { margin: 10px 0 0; color: rgba(242,255,248,.78); font-size: clamp(13px,1cqw,20px); overflow-wrap: anywhere; }
     .spotify-meta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: rgba(221,245,232,.55); font-size: 10px; }
     .spotify-progress { display: block; width: 100%; height: 4px; margin: 26px 0 8px; appearance: none; border: 0; border-radius: 4px; background: rgba(255,255,255,.18); }
     .spotify-progress::-webkit-progress-bar { border-radius: 4px; background: rgba(255,255,255,.18); }
@@ -377,10 +379,12 @@
     .spotify-controls button, .spotify-tools button { min-width: 50px; min-height: 50px; border: 1px solid rgba(242,213,138,.28); border-radius: 50%; background: rgba(255,255,255,.06); color: var(--ice); font-size: 17px; cursor: pointer; }
     .spotify-controls button:disabled { opacity: .4; cursor: not-allowed; }
     .spotify-controls #spotify-play { width: 64px; height: 64px; background: var(--signal); color: #06110c; font-size: 22px; }
-    .spotify-tools { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .spotify-tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .spotify-meta > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
     .spotify-tools button { min-width: 0; min-height: 34px; padding: 0 12px; border-radius: 999px; font-size: 9px; }
     .spotify-tools select { min-width: 0; flex: 1; max-width: 100%; border: 1px solid rgba(242,213,138,.28); border-radius: 10px; padding: 6px; background: #102019; color: var(--ice); font-size: 11px; }
     #spotify-device-status { display: block; margin-top: 8px; color: var(--muted); font-size: 10px; }
+    #spotify-status, #spotify-device-status { overflow-wrap: anywhere; }
     .spotify-link { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 9px; margin-top: 20px; color: var(--ice); font-size: 9px; text-decoration: none; }
     .spotify-logo { display: block; width: 92px; height: 28px; object-fit: contain; }
     .spotify-logo-black { display: none; }
@@ -696,7 +700,7 @@
       <section class="spotify-panel" id="spotify-panel" aria-label="Spotify ambient player">
         <div class="spotify-card" id="spotify-card" data-view="classic">
           <div class="spotify-kicker">Current track</div>
-          <img class="spotify-cover" id="spotify-cover" alt="Album artwork" src="">
+          <img class="spotify-cover" id="spotify-cover" alt="Album artwork" hidden>
           <h1 class="spotify-title" id="spotify-title">Your soundtrack awaits</h1>
           <p class="spotify-artist" id="spotify-artist">Connect Spotify to begin</p>
           <div class="spotify-meta"><span id="spotify-album">Ambient Spotify player</span><span id="spotify-device"></span></div>
@@ -736,9 +740,10 @@
         <button class="round-btn" id="mic-btn" type="button" title="Start listening" aria-label="Start listening"><span>◉</span><small id="mic-label">LISTEN</small></button>
         <button class="mute-btn" id="mute-btn" type="button" aria-pressed="false" title="Hard mute microphone and wake word" aria-label="Hard mute microphone"><span>◉</span><small id="mute-label">MUTE</small></button>
       </div>
+      <div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="live-captions" id="live-captions" aria-live="polite" aria-label="Live captions"><div class="caption-line" id="caption-user"><b>YOU</b><span></span></div><div class="caption-line" id="caption-assistant"><b>MIRROR</b><span></span></div></div>
       <section class="search-pool" id="search-pool" role="dialog" aria-label="Search result" hidden><button class="search-pool-close" id="search-pool-close" type="button" aria-label="Close result">×</button><div class="search-pool-eyebrow" id="search-pool-eyebrow">The mirror found</div><h2 id="search-pool-query"></h2><p id="search-pool-answer"></p><div class="search-pool-sources" id="search-pool-sources"></div></section>
-      <div class="timer-chip" id="timer-chip" role="timer" aria-live="polite" hidden></div>
+      <div class="timer-chip" id="timer-chip" role="timer" aria-label="Active countdowns" aria-live="off" hidden></div>
       <div class="wake-status" id="wake-status">Say “mirror mirror”</div>
 
       <button class="settings-toggle" id="settings-toggle" aria-label="Open settings">⚙</button>

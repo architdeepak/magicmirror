@@ -2,7 +2,9 @@ const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
 const source=fs.readFileSync('src/renderer.js','utf8');
 (async()=>{
  const captions=[],spoken=[],notices=[];let calls=0,resolveTask;
+ const cancelPendingSearch=()=>{};
  const context=vm.createContext({hardMuted:false,voiceStartGeneration:0,config:{hasGeminiKey:false},assistantTranscript:'',elements:{wakeToggle:{checked:false}},wake:{resume(){}},appendCaption:(role,text)=>captions.push({role,text}),runVoiceNavigation:()=>false,showAssistant(){},showOracle:(...args)=>notices.push(args),speech:{speak:text=>spoken.push(text),respond:()=>{throw new Error('Demo answer used')}},runAgentTask:async()=>{calls++;return{completed:true,summary:'Verified answer'}}});
+ context.cancelPendingSearch=cancelPendingSearch;
  vm.runInContext(source.slice(source.indexOf('async function askMirror('),source.indexOf('async function handleWakeWord(')),context);
  await context.askMirror('Read the map');assert.equal(calls,1);assert.equal(spoken[0],'Verified answer');assert.equal(captions.at(-1).text,'Verified answer');
  context.runAgentTask=async()=>({error:'Sign in to Codex'});await context.askMirror('Another task');assert.equal(spoken.length,1);assert.equal(notices.at(-1)[0],'Sign in to Codex');
@@ -10,6 +12,8 @@ const source=fs.readFileSync('src/renderer.js','utf8');
  context.runAgentTask=()=>new Promise(resolve=>resolveTask=resolve);const pending=context.askMirror('Slow answer');context.voiceStartGeneration++;resolveTask({completed:true,summary:'Late answer'});await pending;assert.equal(spoken.length,1);assert(!captions.some(row=>row.text==='Late answer'));
  const order=[],progress={hidden:false};let resolveCancel,modeClick,serviceClick,returnClick;
  const manual=vm.createContext({agentRunId:'old',voiceStartGeneration:4,state:'thinking',gemini:{listening:false},agentTools:{cancel:()=>order.push('retire')},window:{mirrorBridge:{cancelCodex:()=>{order.push('cancel');return new Promise(r=>resolveCancel=r)},openService:async service=>order.push('service:'+service),closeDesktop:async()=>order.push('return')}},document:{querySelector:()=>progress,querySelectorAll:selector=>[{dataset:{mode:'watch',service:'maps'},textContent:'Maps',addEventListener:(_name,fn)=>{if(selector==='.mode-btn')modeClick=fn;else serviceClick=fn}}]},elements:{desktopReturn:{addEventListener:(_name,fn)=>returnClick=fn}},setState:value=>{manual.state=value;order.push(value)},setAssistantMode:value=>order.push('mode:'+value),openServiceFrame:service=>manual.window.mirrorBridge.openService(service),showGesture(){},showOracle(){}});
+ manual.cancelModeRestore=()=>{};
+ manual.cancelPendingSearch=()=>{};
  vm.runInContext(source.slice(source.indexOf('function cancelAgentTask()'),source.indexOf('const wake =')),manual);
  vm.runInContext(source.slice(source.indexOf("document.querySelectorAll('.mode-btn').forEach((button) => button.addEventListener"),source.indexOf('elements.settingsToggle.addEventListener')),manual);
  vm.runInContext(source.slice(source.indexOf("document.querySelectorAll('[data-service]').forEach"),source.indexOf('elements.assistantTaskForm.addEventListener')),manual);

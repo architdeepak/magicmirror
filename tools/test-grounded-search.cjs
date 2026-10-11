@@ -21,6 +21,11 @@ const { groundedSearch, cleanSources, isTimeSensitive } = require('../src/ground
   // Timeout aborts a hung request.
   await assert.rejects(groundedSearch({ apiKey: 'k', query: 'x', timeoutMs: 30, fetchImpl: (_u, init) => new Promise((_, reject) => init.signal.addEventListener('abort', () => reject(new Error('aborted')))) }), /aborted/);
   // Ungrounded mode sends no search tool and reports no sources.
+  const retired=new AbortController();retired.abort(Error('Retired search'));let retiredCalls=0;
+  await assert.rejects(groundedSearch({apiKey:'k',query:'x',signal:retired.signal,fetchImpl:async()=>{retiredCalls++}}),/Retired search/);
+  assert.equal(retiredCalls,0);
+  const reading=new AbortController();
+  await assert.rejects(groundedSearch({apiKey:'k',query:'x',signal:reading.signal,fetchImpl:async()=>({ok:true,json:async()=>{reading.abort(Error('Retired response'));return body}})}),/Retired response/);
   const plain = await groundedSearch({ apiKey: 'k', query: 'height of everest', grounding: false, fetchImpl: ok(body) });
   assert.equal(JSON.parse(seen.init.body).tools, undefined);
   assert.deepEqual(plain.sources, []);

@@ -18,6 +18,8 @@ const QRCode = require('qrcode');
 const { GoogleAuth } = require('google-auth-library');
 const { IdleGallery } = require('./idleGallery.cjs');
 const { groundedSearch, isTimeSensitive } = require('./groundedSearch.cjs');
+const { SearchRequests } = require('./searchRequests.cjs');
+const searchRequests=new SearchRequests();
 const { CodexMirrorAgent } = require('./codexMirrorAgent');
 const { TryOnRequests } = require('./tryOnRequests.cjs');
 const tryOnRequests = new TryOnRequests();
@@ -30,6 +32,7 @@ const windowsSpotify = createWindowsSpotify();
 const { IntegrationSettings, tryOnConnection } = require('./integrationSettings.cjs');
 const { DiagnosticLog, diagnosticSummary } = require('./diagnostics.cjs');
 const { RendererRecovery } = require('./rendererRecovery.cjs');
+const { displayFrequency } = require('./displayCadence.cjs');
 const { createYouTubePlayerServer } = require('./youtubePlayerServer.cjs');
 let youtubePlayerServer = null;
 
@@ -50,7 +53,8 @@ if (process.platform === 'win32' && process.env.MIRROR_FORCE_DIRECTSHOW === 'tru
 
 const isDev = process.argv.includes('--dev');
 let useKiosk = process.argv.includes('--kiosk') || process.env.MIRROR_KIOSK === 'true';
-const writableDataDirectory = app.isPackaged ? path.join(app.getPath('userData'), 'data') : path.join(__dirname, '..', 'data');
+// An explicitly selected profile also isolates writable development data.
+const writableDataDirectory = app.isPackaged || profileDirectory ? path.join(app.getPath('userData'), 'data') : path.join(__dirname, '..', 'data');
 const memoryPath = path.join(writableDataDirectory, 'memory.json');
 const closetPath = path.join(writableDataDirectory, 'closet.json');
 const closetAssetDirectory = path.join(writableDataDirectory, 'closet');
@@ -1372,6 +1376,7 @@ function registerBridge() {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use mirror Settings to inspect connections.');
     return safePublicConfig();
   });
+  ipcMain.handle('mirror:display-cadence', event => { assertAgentFrame(event);return displayFrequency(screen,mainWindow); });
   ipcMain.handle('mirror:save-connections', async (event, input) => {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Connections can only be changed from mirror Settings.');
     const previousClient = spotifyClientId();
@@ -1470,26 +1475,33 @@ function registerBridge() {
     catch { await openNativeApplication(webUrl, 'Spotify'); }
     return true;
   });
-  ipcMain.handle('mirror:search-web', async (_event, query) => {
+  ipcMain.handle('mirror:cancel-search', (event,id)=>{assertAgentFrame(event);return searchRequests.cancel(id)});
+  ipcMain.handle('mirror:search-web', async (event, input) => {
+    assertAgentFrame(event);
+    const query=typeof input==='object'?input?.query:input;
+    const id=typeof input==='object'?input?.requestId:crypto.randomUUID();
     const terms = String(query || '').replace(/\s+/g, ' ').trim().slice(0, 240);
     if (!terms) throw new Error('Give me something to search for.');
+    return searchRequests.run(id,async signal=>{
     const apiKey = integrationSettings.value('geminiApiKey', process.env.GEMINI_API_KEY || '');
     if (apiKey) {
       const model = process.env.GEMINI_SEARCH_MODEL || undefined;
-      try { return { grounded: true, ...await groundedSearch({ apiKey, query: terms, model }) }; }
+      try { return { grounded: true, ...await groundedSearch({ apiKey, query: terms, model, signal }) }; }
       catch (error) {
+        signal.throwIfAborted();
         diagnosticLog.record('search-fallback');
         // Search grounding has its own quota and may be unavailable on a key.
         // Timeless questions can still be answered from the model, labelled as
         // such; anything time-sensitive goes to real results in the frame.
         if (!isTimeSensitive(terms)) {
-          try { return { grounded: false, fromMemory: true, ...await groundedSearch({ apiKey, query: terms, model, grounding: false }) }; }
-          catch { diagnosticLog.record('search-memory-failed'); }
+          try { return { grounded: false, fromMemory: true, ...await groundedSearch({ apiKey, query: terms, model, grounding: false, signal }) }; }
+          catch { signal.throwIfAborted();diagnosticLog.record('search-memory-failed'); }
         }
       }
     }
     // No key (or the call failed): show ordinary results inside the mirror frame.
     return { grounded: false, query: terms, url: `https://www.google.com/search?q=${encodeURIComponent(terms)}` };
+    });
   });
   ipcMain.handle('mirror:wardrobe-phone', async (event, enabled) => {
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('Use the wardrobe photo editor.');
@@ -1516,6 +1528,7 @@ function registerBridge() {
 }
 
 function retireRendererWork() {
+  searchRequests.cancelAll();
   cancelRendererAgent();
   cancelClosetPhoto(); tryOnRequests.cancelAll(); lookCaptures.cancelAll(); liveTryOnTokens.cancel();
   void closeDesktopWindow().catch(() => diagnosticLog.record('cleanup-failed'));
@@ -1574,6 +1587,17 @@ function createWindow() {
   });
 
   mainWindow = win;
+  let lastDisplayFrequency;
+  const publishDisplayCadence = () => {
+    if(win.isDestroyed()||win.webContents.isDestroyed())return;
+    const next=displayFrequency(screen,win);
+    if(next===lastDisplayFrequency)return;
+    lastDisplayFrequency=next;win.webContents.send('mirror:display-cadence',next);
+  };
+  win.on('move',publishDisplayCadence);win.on('resize',publishDisplayCadence);
+  win.webContents.on('did-finish-load',()=>{lastDisplayFrequency=null;publishDisplayCadence()});
+  for(const event of ['display-added','display-removed','display-metrics-changed'])screen.on(event,publishDisplayCadence);
+  win.once('closed',()=>{for(const event of ['display-added','display-removed','display-metrics-changed'])screen.removeListener(event,publishDisplayCadence)});
   for (const event of ['resize', 'move', 'enter-full-screen', 'leave-full-screen']) win.on(event, layoutDesktopWindow);
   win.webContents.on('did-finish-load', () => { diagnosticLog.record('renderer-ready'); notifyDesktopPresentation(); });
   win.webContents.on('did-fail-load', (_event, errorCode, _description, _url, isMainFrame) => { if (isMainFrame && errorCode !== -3) diagnosticLog.record('load-failed', { errorCode }); });
@@ -1610,6 +1634,7 @@ function createWindow() {
   win.on('closed', () => {
     recovery.close();
     if (mainWindow === win) {
+      searchRequests.cancelAll();
       tryOnRequests.cancelAll();
       liveTryOnTokens.cancel();
       if (desktopWindow && !desktopWindow.isDestroyed()) desktopWindow.close();
@@ -1700,7 +1725,7 @@ app.on('before-quit', event => {
   let deadline;
   void Promise.race([diagnosticLog.queue, new Promise(resolve => { deadline = setTimeout(resolve, 1000); })]).finally(() => { clearTimeout(deadline); app.quit(); });
 });
-app.on('before-quit', () => { cancelClosetPhoto();tryOnRequests.cancelAll();lookCaptures.cancelAll(); });
+app.on('before-quit', () => { searchRequests.cancelAll();cancelClosetPhoto();tryOnRequests.cancelAll();lookCaptures.cancelAll(); });
 app.on('before-quit', () => liveTryOnTokens.cancel());
 app.on('before-quit', () => { spotifyPlacementAbort?.abort(); windowsSpotify.close(); });
 app.on('before-quit',()=>{void wakeModelServer?.then(server=>server.close()).catch(()=>{});});

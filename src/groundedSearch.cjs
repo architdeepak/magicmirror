@@ -29,12 +29,13 @@ async function groundedSearch({ apiKey, query, model = DEFAULT_MODEL, fetchImpl 
   const terms = String(query || '').replace(/\s+/g, ' ').trim().slice(0, 240);
   if (!terms) throw new Error('Give me something to search for.');
   if (!apiKey) throw new Error('Add a Gemini key in Settings to search inside the mirror.');
+  signal?.throwIfAborted();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const onAbort = () => controller.abort();
+  const onAbort = () => controller.abort(signal.reason);
   signal?.addEventListener('abort', onAbort, { once: true });
   try {
-    const send = withoutThinking => fetchImpl(`${ENDPOINT}/${encodeURIComponent(model)}:generateContent`, {
+    const send = withoutThinking => { controller.signal.throwIfAborted();return fetchImpl(`${ENDPOINT}/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       signal: controller.signal,
@@ -46,11 +47,12 @@ async function groundedSearch({ apiKey, query, model = DEFAULT_MODEL, fetchImpl 
         // a quick factual reply does not need them.
         generationConfig: { temperature: 0.3, maxOutputTokens: 500, ...(withoutThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}) }
       })
-    });
+    }); };
     let response = await send(true);
     if (response.status === 400) response = await send(false);   // some models reject a zero budget
     if (!response.ok) throw new Error(`Search failed (${response.status}).`);
     const data = await response.json();
+    controller.signal.throwIfAborted();
     const candidate = data?.candidates?.[0];
     const answer = (candidate?.content?.parts || []).map(part => part?.text || '').join(' ').replace(/\s+/g, ' ').trim().slice(0, 700);
     if (!answer) throw new Error('The mirror found nothing to say about that.');

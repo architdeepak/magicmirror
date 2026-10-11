@@ -11,6 +11,7 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve
   const startup=context.initHeadTracking(video);await context.toggleCamera(false);model.resolve({});await startup;assert.equal(requests.length,0,'Late model load reopened a stopped camera');
   const old=context.startCamera('old');await tick();const newer=context.startCamera('new');await tick();const newStream=stream('new');requests[1].resolve(newStream);assert(await newer);
   const oldStream=stream('old');requests[0].resolve(oldStream);assert.equal(await old,false);assert(oldStream.track.stopped&&!newStream.track.stopped);assert.equal(video.srcObject,newStream);
+  assert.equal(context.getTrackingStatus().activeCameraId,'new');
   const stamp=performance.now();const landmarks=Array.from({length:478},()=>({x:.5,y:.5,z:0}));landmarks[33].x=.43;landmarks[263].x=.57;
   faceTrackers[0].onFace(landmarks,stamp,{matrix:new Float32Array(16),blendshapes:[{categoryName:'eyeBlinkLeft',score:.8}]});assert(context.getTrackingStatus().faceDetected);assert.equal(context.getFaceMatrix().length,16);assert.equal(context.getFaceBlendshapes().eyeBlinkLeft,.8);context.updateHeadTracking(stamp+301);assert.equal(context.getFaceLandmarks(),null,'Expired face landmarks remained visible');
   const pending=context.startCamera('pending');await tick();context.stopCamera();const stopped=stream('stopped');requests[2].resolve(stopped);assert.equal(await pending,false);assert(stopped.track.stopped&&video.srcObject===null);

@@ -1,0 +1,15 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/faceHost.js','utf8');let allocations=0,transforms=0;
+const canvas={_width:0,_height:0,style:{},get width(){return this._width},set width(value){allocations++;this._width=value},get height(){return this._height},set height(value){allocations++;this._height=value}};
+const scope=vm.createContext({window:{devicePixelRatio:1},displayProfile:()=>({avatarPixels:1000000,avatarDpr:2}),boundedSurface:(width,height,dpr)=>({width:width*dpr,height:height*dpr})});
+vm.runInContext('this.Host=class{'+source.slice(source.indexOf('  setQuality('),source.indexOf('  update(elapsed)'))+'};',scope);
+const host=Object.create(scope.Host.prototype);Object.assign(host,{host:{clientWidth:540,clientHeight:960},canvas,ctx:{setTransform(){transforms++}},quality:'auto'});
+assert(host.resize());host.lastIdleSignature='cached';
+for(let resize=0;resize<10000;resize++)assert.equal(host.resize(),false);
+assert.equal(allocations,2);assert.equal(transforms,1);assert.equal(host.lastIdleSignature,'cached');
+host.host.clientWidth=600;assert(host.resize());assert.equal(allocations,3,'Width-only change reallocated height');assert.equal(host.lastIdleSignature,null);
+scope.window.devicePixelRatio=2;assert(host.resize());assert.equal(allocations,5);assert.equal(canvas.width,1200);
+host.setRenderScale(.6);assert.equal(canvas.width,720);assert.equal(canvas.height,1152);
+host.lastIdleSignature='cached';host.setRenderScale(.6);assert.equal(host.lastIdleSignature,'cached');
+host.setQuality('hd');assert.equal(host.lastIdleSignature,null,'Quality change must invalidate paint even without size change');
+console.log('Face resize: 10,000 unchanged notifications preserve canvas/cache, width-only allocation, DPR, scale and quality invalidation passed.');

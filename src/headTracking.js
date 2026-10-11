@@ -427,7 +427,7 @@ export function getFaceLatency(now = performance.now()) {
 }
 export function getTrackingStatus() {
   const calibration = calibrationSample(performance.now());
-  return { ...status, lastInferenceMs: faceTracking?.inferenceMs || 0, delegate: faceTracking?.delegate || '',
+  return { ...status, activeCameraId: status.cameraActive ? currentDeviceId : '', lastInferenceMs: faceTracking?.inferenceMs || 0, delegate: faceTracking?.delegate || '',
     frameAgeMs: status.faceDetected ? Math.max(0, performance.now() - lastFaceAt) : null, calibrated: Boolean(depthCalibration), canCalibrate: calibration.ready, calibrationReason: calibration.reason };
 }
 export function getFaceLandmarks() { return latestLandmarks; }

@@ -12,6 +12,8 @@ const results = filterSections([['Assistant voice', 'Speaking pace'], ['Tracking
 assert.deepEqual(results.map(r => r.any), [false, true, false]);
 assert.deepEqual(results[1].matches, [true, true]);
 assert.equal(filterSections([], 'x').length, 0);
+assert.deepEqual(filterSections([['Depth'],['Clear memory']], 'privacy', ['Motion','Privacy']).map(result=>result.any),[false,true]);
+assert.deepEqual(filterSections([['Depth','Clarity']], 'motion clarity', ['Motion'])[0].matches,[false,true]);
 
 // DOM glue against a tiny fake: remembered state, first section open on first
 // run, search hides rows without touching [hidden], clearing restores state.
@@ -28,6 +30,7 @@ function build() {
     const section = fakeElement(); section.dataset.section = 's' + index;
     section.rows = rows.map(text => fakeElement(text));
     section.querySelectorAll = () => section.rows;
+    section.querySelector = () => ({textContent:['Assistant','Devices','Privacy'][index]});
     return section;
   });
   const search = fakeElement();
@@ -53,11 +56,25 @@ const storage = { getItem: key => store.get(key) ?? null, setItem: (key, value) 
   // Opening during a search must not overwrite the remembered state.
   sections[2].open = true; sections[2].listeners.toggle.forEach(fn => fn());
   assert.equal(JSON.parse(store.get('mirror.settings-sections')).s2, undefined);
+  for(const extra of [{isComposing:true},{keyCode:229}]){
+    search.listeners.keydown.forEach(fn=>fn({key:'Escape',...extra,stopPropagation(){throw Error('Composition was consumed')}}));
+    assert.equal(search.value,'clarity','IME Escape must preserve the search');
+  }
+  let stopped=false;
+  search.listeners.keydown.forEach(fn=>fn({key:'Escape',stopPropagation(){stopped=true}}));
+  assert(stopped);assert.equal(search.value,'','Ordinary Escape must clear search');
   search.value = ''; api.apply();
   assert.deepEqual(sections.map(s => s.hidden), [false, false, false]);
   assert.deepEqual(sections.map(s => s.open), [false, true, false].map((v, i) => (i === 0 ? true : v)), 'remembered state restored');
 }
 // A second launch restores the saved choices.
+{
+  const {root,sections,search}=build();const api=initSettingsSections(root,{storage});
+  search.value='privacy';api.apply();assert.deepEqual(sections.map(section=>section.hidden),[true,true,false]);
+  search.value='camera';search.listeners.input.forEach(fn=>fn({isComposing:true}));
+  assert.deepEqual(sections.map(section=>section.hidden),[true,true,false],'Composition changed settings filtering');
+  search.listeners.compositionend.forEach(fn=>fn());assert.deepEqual(sections.map(section=>section.hidden),[true,false,true]);
+}
 {
   const { root, sections } = build();
   initSettingsSections(root, { storage });

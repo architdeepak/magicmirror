@@ -1,0 +1,13 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('src/renderer.js','utf8'),timers=new Map();let serial=0;const classes=new Set();
+const scope=vm.createContext({gestureToastTimer:null,elements:{gestureToast:{textContent:'',classList:{add:name=>classes.add(name),remove:name=>classes.delete(name)}}},setTimeout:(fn,ms)=>{const id=++serial;timers.set(id,{fn,ms});return id},clearTimeout:id=>timers.delete(id)});
+vm.runInContext(source.slice(source.indexOf('function showGesture('),source.indexOf('function showAgentProgress(')),scope);
+scope.showGesture('Saved');assert.equal(timers.size,1);assert.equal([...timers.values()][0].ms,1800);
+const retired=[...timers.values()][0].fn;
+scope.showGesture('Camera unavailable. Open Settings and choose another camera, then try again.');assert.equal(timers.size,1);assert([...timers.values()][0].ms>3500);assert(classes.has('show'));
+retired();assert(classes.has('show'),'Retired callback hid newer guidance');assert.equal(timers.size,1);
+scope.showGesture('Long '.repeat(100));assert.equal([...timers.values()][0].ms,7000);
+scope.showGesture('👑'.repeat(30));assert.equal([...timers.values()][0].ms,2250,'Unicode reading time must count characters, not UTF-16 units');
+const job=[...timers.values()][0];job.fn();assert(!classes.has('show'));
+assert.equal(scope.gestureToastTimer,null,'Completed toast retained timer ownership');
+console.log('Toast display: minimum reading time, longer guidance, bounded duration, Unicode and replacement timer cleanup passed.');

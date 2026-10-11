@@ -106,6 +106,20 @@ export class CaptionPacer {
   _wordBoundary(target) {
     const text = this.pending;
     const limit = Math.min(target, text.length);
+    // Chinese, Japanese and Thai do not need spaces between words. Waiting
+    // for whitespace held an entire spoken sentence until the turn finished.
+    if (/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}]/u.test(text)) {
+      this.wordSegmenter ||= new Intl.Segmenter(undefined, { granularity: 'word' });
+      let take = 0;
+      for (const part of this.wordSegmenter.segment(text)) {
+        const end = part.index + part.segment.length;
+        if (end > limit) break;
+        // The last word can still be growing, just like an English delta.
+        if (end === text.length && part.isWordLike && !this.turnEnded) break;
+        take = end;
+      }
+      return take;
+    }
     for (let end = limit; end > 0; end -= 1) {
       const atEnd = end === text.length;
       const wordEnds = atEnd ? (this.turnEnded || /\s$/.test(text)) : /\s/.test(text[end]);

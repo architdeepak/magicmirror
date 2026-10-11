@@ -49,6 +49,8 @@ const renderer = fs.readFileSync(path.join(__dirname,'../src/renderer.js'),'utf8
     elements:{awakening:{classList:{contains:()=>false}}},window:{mirrorBridge:{spotifyCurrent:async()=>{reads++;return{connected:true,isPlaying:true}},spotifyControl:async action=>actions.push(action),scrollDesktopGesture:async direction=>{actions.push(direction);return{result:'Scroll requested'}},closeDesktop:async()=>returns++}},
     refreshSpotify:async()=>{refreshes++;routing.spotifySnapshot={isPlaying:true}},showGesture:message=>notices.push(message),stopAssistant:()=>stops++});
   vm.runInContext(renderer.slice(renderer.indexOf('async function dispatchSpotifyGesture('),renderer.indexOf("  if (mode === 'watch'",renderer.indexOf('async function dispatchGesture(')))+'}',routing);
+  routing.voiceStartGeneration=0;
+  routing.manualControlGeneration=0;
   await routing.dispatchGesture('pinch');assert.equal(actions.at(-1),'pause');assert.equal(refreshes,1);assert.equal(reads,1,'Native Spotify pinch skipped the fresh playback read');
   await routing.dispatchGesture('swipe-left');assert.equal(actions.at(-1),'next');
   await routing.dispatchGesture('swipe-right');assert.equal(actions.at(-1),'previous');
@@ -62,5 +64,19 @@ const renderer = fs.readFileSync(path.join(__dirname,'../src/renderer.js'),'utf8
   routing.window.mirrorBridge.spotifyCurrent=readCurrent;
   routing.desktopLabel='Spotify sign-in';const previous=actions.length;await routing.dispatchGesture('pinch');assert.equal(actions.length,previous,'Sign-in browser received playback commands');
   routing.desktopActive=false;routing.mode='spotify';await routing.dispatchGesture('pinch');assert.equal(actions.at(-1),'pause');
+  let resolveLate,rejectLate;
+  routing.window.mirrorBridge.spotifyCurrent=()=>new Promise((resolve,reject)=>{resolveLate=resolve;rejectLate=reject});
+  const beforeLate=actions.length,beforeNotices=notices.length;
+  const late=routing.dispatchGesture('pinch');routing.voiceStartGeneration++;resolveLate({connected:true,isPlaying:true});await late;
+  assert.equal(actions.length,beforeLate,'Stopped pending pinch sent playback command');assert.equal(notices.length,beforeNotices);
+  const lateFailure=routing.dispatchGesture('pinch');routing.voiceStartGeneration++;rejectLate(Error('Retired read failed'));await lateFailure;
+  let owned=true;const replaced=routing.dispatchSpotifyGesture('pinch',()=>owned);owned=false;resolveLate({connected:true,isPlaying:false});await replaced;assert.equal(actions.length,beforeLate,'Newer request did not retire pinch');
+  let finishCommand;routing.window.mirrorBridge.spotifyControl=()=>new Promise(resolve=>finishCommand=resolve);
+  owned=true;const beforeRefresh=refreshes;const pendingCommand=routing.dispatchSpotifyGesture('swipe-left',()=>owned);owned=false;finishCommand();await pendingCommand;
+  assert.equal(refreshes,beforeRefresh,'Retired command completion refreshed UI');assert.equal(notices.length,beforeNotices,'Retired command displayed success');
+  let finishScroll;routing.desktopActive=true;routing.desktopLabel='Browser';routing.window.mirrorBridge.scrollDesktopGesture=()=>new Promise(resolve=>finishScroll=resolve);
+  const pendingScroll=routing.dispatchGesture('swipe-up');routing.voiceStartGeneration++;finishScroll({result:'Late scroll'});await pendingScroll;assert.equal(notices.length,beforeNotices,'Retired desktop scroll displayed success');
+  let finishReturn;routing.window.mirrorBridge.closeDesktop=()=>new Promise(resolve=>finishReturn=resolve);
+  const pendingReturn=routing.dispatchGesture('palm');routing.manualControlGeneration++;finishReturn();await pendingReturn;assert.equal(notices.length,beforeNotices,'Retired desktop return displayed success');
   console.log('Desktop gesture routing passed: native TV/DPI mapping, cancellation, trusted frame, forced scroll operation, managed-browser signs, Spotify fresh-state pinch and track swipes, and palm stop/return. Windows wheel delivery remains a separate hardware check.');
 })().catch(error=>{console.error(error);process.exitCode=1});

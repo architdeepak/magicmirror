@@ -9,6 +9,7 @@ function moduleClass(name, className, globals) {
   const context = vm.createContext({ console, setTimeout, clearTimeout, setInterval, clearInterval, performance, ...globals });
   if(name==='geminiLiveAdapter.js')vm.runInContext(read('audioTurnDetector.js').replace(/export class /g,'class '),context);
   if(name==='geminiLiveAdapter.js')vm.runInContext(read('captionPacer.js').replace(/export class /g,'class '),context);
+  if(name==='wakeWord.js')vm.runInContext(read('voiceGate.js').replace(/export (class|function) /g,'$1 '),context);
   vm.runInContext(read(name).replace(/^import .*;\r?\n/gm,'').replace(/export class /g,'class ') + `\nglobalThis.Subject=${className};`,context);
   return { Subject: context.Subject, context };
 }
@@ -36,7 +37,7 @@ async function wakeLifecycle() {
     createGain() { return {gain:{value:1},connect(){},disconnect(){}}; }
   }
   const recognizers=[];let acceptedFrames=0;
-  const model={KaldiRecognizer:class {constructor(rate,grammar){assert.equal(rate,16000);if(grammar)assert(JSON.parse(grammar).includes('[unk]'));this.events={};recognizers.push(this);}on(event,handler){this.events[event]=handler;}acceptWaveform(){acceptedFrames++;}remove(){}},terminate(){this.terminated=true;}};
+  const model={KaldiRecognizer:class {constructor(rate,grammar){assert.equal(rate,16000);if(grammar)assert(JSON.parse(grammar).includes('[unk]'));this.events={};recognizers.push(this);}on(event,handler){this.events[event]=handler;}acceptWaveform(){acceptedFrames++;}acceptWaveformFloat(){acceptedFrames++;}remove(){}},terminate(){this.terminated=true;}};
   const {Subject:Wake}=moduleClass('wakeWord.js','WakeWordListener',{
     window:{Vosk:{createModel:async()=>model}},AudioContext:Audio,
     navigator:{mediaDevices:{getUserMedia:()=>{const request=deferred();requests.push(request);return request.promise;}}}
@@ -49,6 +50,10 @@ async function wakeLifecycle() {
   const current=stream();requests[1].resolve(current);await second;
   const late=stream();requests[0].resolve(late);await first;
   assert(late.stopped && !current.stopped && wake.processor,'Late permission result replaced the live microphone');
+  const block = level => ({inputBuffer:{sampleRate:16000,getChannelData:()=>new Float32Array(4096).fill(level)}});
+  wake.processor.onaudioprocess(block(0));assert.equal(acceptedFrames,0,'Standby decoded silence');
+  wake.processor.onaudioprocess(block(.1));assert.equal(acceptedFrames,2,'Speech onset lost preroll or current audio');
+  const beforeRestart=acceptedFrames;
   const oldProcessor=wake.processor;
   wake.setAssistantActive(true);wake._check('mirror stop');
   assert.equal(stopped,1,'Stop waited for AudioContext.close');
@@ -56,7 +61,7 @@ async function wakeLifecycle() {
   const restart=wake.start();await tick();const newer=stream();requests[2].resolve(newer);await restart;
   contexts[0].closing.resolve();await tick();
   assert.equal(wake.audioContext,contexts[1],'Old pause cleared the new AudioContext');
-  oldProcessor.onaudioprocess({inputBuffer:{}});assert.equal(acceptedFrames,0,'Old audio frames reached the restarted decoder');
+  oldProcessor.onaudioprocess({inputBuffer:{}});assert.equal(acceptedFrames,beforeRestart,'Old audio frames reached the restarted decoder');
   wake.setAssistantActive(false);
   recognizers[0].events.partialresult({result:{partial:'mirror mirror'}});assert.equal(woken,0,'Old recognizer woke the restarted session');
   wake._check('miracle miracle');wake._check('near mirror');assert.equal(woken,0);
@@ -296,12 +301,14 @@ async function awakeningCancellation() {
   await context.toggleVoice();assert.equal(stops,1,'Listen button started a session during reveal instead of stopping');
   context.speech.isSpeaking=true;await context.toggleVoice();assert.equal(stops,2,'Button did not stop the fallback greeting');
   context.watchAvatarLayout={schedule(){}};
+  const privacyUpdates=[];context.queueMicrotask=fn=>privacyUpdates.push(fn);let privacyRefreshes=0;context.updatePrivacyChip=()=>privacyRefreshes++;
   context.watchAudioDucking={setActive(value){this.active=value}};
   context.youtubePlayer={setDucking(value){this.active=value}};
   context.mode='mirror';context.elements.stateLabel={};context.elements.stateDot={};context.elements.micLabel={};
   context.elements.mic={classList:{toggle(){}},setAttribute(){}};context.returnToRequestedMode=()=>{};
-  vm.runInContext(source.slice(source.indexOf('function setState('),source.indexOf('function showOracle(')),context);
+  vm.runInContext(source.slice(source.indexOf('function syncAmbienceContext()'),source.indexOf('function showOracle(')),context);
   context.speech.isSpeaking=false;active.add('active');context.setState('starting');
+  assert.equal(privacyUpdates.length,1,'Voice transition did not schedule immediate privacy refresh');privacyUpdates.shift()();assert.equal(privacyRefreshes,1);
   assert.equal(context.elements.micLabel.textContent,'STOP','Reveal had no visible Stop control');
   active.clear();context.setState('ready');assert.equal(context.elements.micLabel.textContent,'LISTEN');assert.equal(context.watchAudioDucking.active,false);
   context.agentRunId='running';context.setState('thinking');assert.equal(context.watchAudioDucking.active,true);assert.equal(context.elements.micLabel.textContent,'STOP');await context.toggleVoice();assert.equal(stops,3,'Button did not stop a delegated agent task');
@@ -318,4 +325,11 @@ async function cameraToolLifecycle() {
  await f.live._handleToolCall({functionCalls:[{id:'invalid',name:'control_camera',args:{enabled:'on'}}]});assert.equal(f.calls(),1);assert.match(f.sent.at(-1).toolResponse.functionResponses[0].response.error,/true or false/);
  console.log('Live camera tool: owned Stop/microphone/disconnect abort, completed-camera preservation, strict input and duplicate state refresh passed.');
 }
-(async()=>{await cameraToolLifecycle();await playbackStateLifecycle();await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});
+let lifecycleCompleted = false;
+process.once('beforeExit', () => {
+  if (!lifecycleCompleted && !process.exitCode) {
+    console.error('Voice lifecycle did not finish: an awaited fixture remained unresolved.');
+    process.exitCode = 1;
+  }
+});
+(async()=>{await cameraToolLifecycle();await playbackStateLifecycle();await wakeLifecycle();await localCaptionLifecycle();await failedModelDownload();await modelLoadFailures();await liveLifecycle();await microphoneTurns();await cameraFrames();await awakeningCancellation();lifecycleCompleted=true;console.log('Voice lifecycle passed: immediate stop, permission/close races, cancelled wake, stale sockets/transcripts, audio interruption, explicit microphone boundaries, local interim captions with server correction and stale-turn rejection, serialized and deduplicated tools.');})().catch(error=>{console.error(error);process.exitCode=1;});

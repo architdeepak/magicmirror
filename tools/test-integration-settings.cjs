@@ -18,6 +18,11 @@ async function checkMainIntegration(directory, vault) {
   const dataSource=source.slice(source.indexOf('const writableDataDirectory'),source.indexOf('const integrationSettings'));
   const paths=vm.runInNewContext(dataSource+';({memoryPath,closetPath,closetAssetDirectory,tryOnDirectory})',{app:{isPackaged:true,getPath:()=>directory},path,__dirname:'/read-only/app.asar/src'});
   for(const value of Object.values(paths))assert(value.startsWith(path.join(directory,'data')+path.sep),'Packaged data path points into application archive');
+  for(const profileDirectory of ['',directory]) {
+    const devPaths=vm.runInNewContext(dataSource+';({memoryPath,closetPath,closetAssetDirectory,tryOnDirectory})',{app:{isPackaged:false,getPath:()=>directory},profileDirectory,path,__dirname:path.join(directory,'checkout','src')});
+    const expected=profileDirectory?path.join(directory,'data'):path.join(directory,'checkout','data');
+    for(const value of Object.values(devPaths))assert(value.startsWith(expected+path.sep),'Explicit development profile shared checkout data');
+  }
   await fs.mkdir(paths.tryOnDirectory,{recursive:true});await fs.writeFile(paths.memoryPath,'{}');
 
   const servers=[];const links=[];const tokenPath=path.join(directory,'spotify-fixture.bin');

@@ -15,8 +15,16 @@ const deferred = () => { let resolve; const promise = new Promise(r => resolve =
   assert.equal(select.options.length, 0); assert(use.disabled && refresh.disabled);
   picker.bridge.spotifyDevices = async () => [{ id: 'phone', name: 'Phone', active: true }, { id: 'tv', name: 'TV <test>' }, { id: 'locked', name: 'Restricted', restricted: true }];
   await picker.refresh(); assert.equal(select.value, 'phone'); assert.equal(select.options[1].textContent, 'TV <test>'); assert(select.options[2].disabled);
+  const originalOptions=select.options;
+  select.value='tv';for(let i=0;i<100;i++)await picker.refresh();assert.equal(select.options,originalOptions,'Unchanged refresh replaced options');assert.equal(select.value,'tv');
   select.value = 'tv'; await picker.transfer(); assert.deepEqual(request, { action: 'transfer', deviceId: 'tv' });
   assert.match(status.textContent, /Switch requested/); assert.equal(refreshed, 1);
+  const retainedOptions=select.options;
+  picker.bridge.spotifyDevices=async()=>{throw Error('Offline')};
+  await picker.refresh();assert.equal(select.options,retainedOptions);assert.equal(select.value,'tv');assert.equal(picker.devices.length,3);assert.equal(refresh.disabled,false);assert.match(status.textContent,/previous list/);
+  picker.bridge.spotifyDevices=async()=>[{id:'tv',name:'TV',active:true}];await picker.refresh();assert.equal(select.value,'tv');assert.equal(select.options.length,1);assert(!status.textContent.includes('failed'));
+  const previousLabel=select.options;
+  picker.bridge.spotifyDevices=async()=>[{id:'tv',name:'Renamed TV',active:false}];await picker.refresh();assert.notEqual(select.options,previousLabel);assert.equal(select.options[0].textContent,'Renamed TV');assert.equal(select.value,'tv');
   const late = deferred(); picker.bridge.spotifyControl = () => late.promise;
   const transferring = picker.transfer(); picker.clear(); late.resolve({ confirmed: true }); await transferring;
   assert.match(status.textContent, /Connect Spotify/); assert.equal(refreshed, 1, 'Old account transfer refreshed the new account');

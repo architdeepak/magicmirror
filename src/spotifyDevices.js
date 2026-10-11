@@ -28,9 +28,14 @@ export class SpotifyDevices {
       if (generation !== this.generation) return;
       const previous = this.select.value;
       this.devices = devices;
-      this.select.replaceChildren(...devices.map(device => {
+      const label = device => `${device.name}${device.active ? ' · active' : ''}${device.restricted ? ' · unavailable for control' : ''}`;
+      const unchanged = this.select.options.length === devices.length && devices.every((device,index) => {
+        const option=this.select.options[index];
+        return option.value===device.id && option.textContent===label(device) && Boolean(option.disabled)===Boolean(device.restricted);
+      });
+      if(!unchanged)this.select.replaceChildren(...devices.map(device => {
         const option = document.createElement('option'); option.value = device.id;
-        option.textContent = `${device.name}${device.active ? ' · active' : ''}${device.restricted ? ' · unavailable for control' : ''}`;
+        option.textContent = label(device);
         option.disabled = device.restricted; return option;
       }));
       this.select.value = devices.find(device => device.id === previous && !device.restricted)?.id
@@ -38,7 +43,9 @@ export class SpotifyDevices {
       this.status.textContent = devices.length ? 'Choose the PC/TV to move playback there. Playing or paused state is preserved.' : 'No devices found. Open Spotify on the PC/TV, then Refresh.';
     } catch (error) {
       if (generation !== this.generation) return;
-      this.devices = []; this.select.replaceChildren(); this.status.textContent = error.message;
+      this.status.textContent = this.devices.length
+        ? `Device refresh failed: ${error.message}. Showing the previous list; Refresh to retry.`
+        : error.message;
     } finally { if (generation === this.generation) { this.busy = false; this.updateControls(); } }
   }
   async transfer() {

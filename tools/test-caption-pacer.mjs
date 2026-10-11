@@ -92,4 +92,14 @@ const sentence = 'The fairest of them all is whoever dares to ask the mirror aga
   assert.ok(maxLead < 12, `captions must not run far ahead of speech, lead ${maxLead} chars`);
 }
 
-console.log('Caption pacer: voice-proportional reveal, whole words, text-only grace, single completion, barge-in and interleaved arrival passed.');
+// Languages without whitespace still reveal during speech, on word boundaries.
+for (const text of ['你好世界欢迎来到魔法镜子', '魔法の鏡へようこそ今日も素敵な一日', 'สวัสดียินดีต้อนรับสู่กระจกวิเศษ', '你好👑世界欢迎回来']) {
+  const { state, pacer } = make();
+  pacer.text(text); pacer.audio(0, 10); state.now = 5; pacer.tick();
+  assert(state.shown.length > 0 && state.shown.length < text.length, 'Unspaced language waits for the entire turn');
+  assert(text.startsWith(state.shown), 'Unspaced language changed text');
+  const boundaries = [...new Intl.Segmenter(undefined, {granularity:'word'}).segment(text)].map(part=>part.index+part.segment.length);
+  assert(boundaries.includes(state.shown.length), 'Reveal split a word or Unicode symbol');
+  pacer.endTurn(); state.now = 10; pacer.tick(); assert.equal(state.shown, text);
+}
+console.log('Caption pacer: voice-proportional reveal, whole words, text-only grace, single completion, barge-in, interleaved arrival and unspaced multilingual speech passed.');
