@@ -31,6 +31,9 @@ export class FrameTracking {
           const request = this.pending;
           if (!request || request.id !== data.requestId) return;
           clearTimeout(request.timeout); this.pending = null; this.warmedUp = true;
+          // Post the next frame as soon as this result is consumed instead of waiting for the next
+          // render tick: at 5-17 fps rendering that idle gap was a large share of the frame age.
+          Promise.resolve().then(() => this.update(performance.now()));
           if (!this.enabled || data.epoch !== this.epoch || request.stream !== this.video.srcObject || request.stream?.active === false) return;
           this.inferenceMs = data.inferenceMs;
           // Reject results that are already too old to drive the current view or controls.

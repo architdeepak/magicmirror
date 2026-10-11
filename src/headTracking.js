@@ -205,6 +205,7 @@ export function setCameraQuality(id) {
 
 // Ambient (idle mirror) needs presence, not a 30 Hz virtual window: dropping
 // to ~4 Hz removes most of the main-thread frame-capture cost on small PCs.
+let faceLatency = { ema: 0, at: 0 };
 let lastHeadSample = { at: 0, x: 0, y: 0, z: 1 };
 const headVelocity = { x: 0, y: 0, z: 0 };
 let faceDetailFull = true;
@@ -227,7 +228,17 @@ export function setFaceDetail(full) {
 
 export function setTrackingAmbient(ambient) {
   ambientCadence = Boolean(ambient);
-  if (faceTracking) { faceTracking.interval = ambientCadence ? 250 : 32; faceTracking.maxAge = ambientCadence ? 900 : 300; }
+  if (faceTracking) { faceTracking.interval = faceInterval(performance.now()); faceTracking.maxAge = ambientCadence ? 900 : 300; }
+}
+
+// Frame cadence: full rate while following a face in conversation, 4 Hz in the
+// ambient mirror, and 4 Hz while nobody is in view (a search pass costs the
+// most and finds nothing; the ~250 ms re-acquisition is imperceptible).
+const SEARCH_AFTER_MS = 1500;
+function faceInterval(now) {
+  if (ambientCadence) return 250;
+  const searching = !status.faceDetected && now - lastFaceAt > SEARCH_AFTER_MS;
+  return searching ? 250 : 32;
 }
 
 export function setTrackingOptions(next) {
@@ -245,8 +256,8 @@ function judgeFaceDelegate(inferenceMs) {
   const trial = delegateTrial;
   if (trial.settled || !Number.isFinite(inferenceMs) || !faceTracking?.delegate) return;
   trial.frames += 1;
-  if (trial.frames > 4) trial.ema = trial.ema ? trial.ema * .8 + inferenceMs * .2 : inferenceMs;   // skip warm-up
-  if (trial.frames < 40) return;
+  if (trial.frames > 3) trial.ema = trial.ema ? trial.ema * .75 + inferenceMs * .25 : inferenceMs;   // skip warm-up
+  if (trial.frames < 14) return;   // a short trial: each contended GPU frame costs ~200 ms of lag
   const delegate = faceTracking.delegate;
   if (delegate === 'GPU' && !trial.triedCpu) {
     if (trial.ema <= 90) { trial.settled = true; return; }                    // GPU is fine
@@ -274,7 +285,10 @@ function restartFaceTracker() {
 
 function acceptFaceResult(landmarks, timestamp, data = {}) {
   if (!status.cameraActive || !videoElement?.srcObject) return;
-  if (landmarks) judgeFaceDelegate(data.inferenceMs);
+  if (landmarks) {
+    judgeFaceDelegate(data.inferenceMs);
+    if (Number.isFinite(data.inferenceMs)) faceLatency = { ema: faceLatency.ema ? faceLatency.ema * .8 + data.inferenceMs * .2 : data.inferenceMs, at: performance.now() };
+  }
   latestLandmarks = landmarks;
   latestMatrix = data.matrix || null;
   latestBlendshapes = categoriesToBlendshapes(data.blendshapes);
@@ -339,6 +353,7 @@ function oneEuro(state, current, target, seconds, minCutoff, beta = .9, derivati
 }
 
 export function updateHeadTracking(now = performance.now()) {
+  if (faceTracking) faceTracking.interval = faceInterval(now);
   faceTracking?.update(now);
 
   if (now - lastFaceAt > Math.max(ambientCadence ? 900 : 300, faceTracking?.effectiveMaxAge?.() ?? 0)) {
@@ -398,6 +413,10 @@ export function applyFlatProjection(camera, aspect = window.innerWidth / window.
 }
 
 export function getHeadPosition() { return currentHead; }
+// Smoothed face-model cost in ms while a face is being tracked; NaN when unknown (camera off, nobody in view).
+export function getFaceLatency(now = performance.now()) {
+  return status.cameraActive && faceLatency.ema && now - faceLatency.at < 3000 ? faceLatency.ema : NaN;
+}
 export function getTrackingStatus() {
   const calibration = calibrationSample(performance.now());
   return { ...status, lastInferenceMs: faceTracking?.inferenceMs || 0, delegate: faceTracking?.delegate || '',

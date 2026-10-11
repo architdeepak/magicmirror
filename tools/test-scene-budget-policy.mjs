@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { suggestSceneFps } from '../src/sceneBudgetPolicy.js';
+assert.equal(suggestSceneFps(30, 130), 20, 'contended face tracker lowers the scene cap');
+assert.equal(suggestSceneFps(30, 200), 15, 'very slow tracker goes to the floor');
+assert.equal(suggestSceneFps(20, 70), 20, 'middle band holds (hysteresis)');
+assert.equal(suggestSceneFps(20, 30), 30, 'idle GPU restores 30');
+assert.equal(suggestSceneFps(15, 100), 15, 'never rises while still slow');
+assert.equal(suggestSceneFps(30, NaN), 30, 'no data keeps the current cap');
+assert.equal(suggestSceneFps(30, 200, { base: 15, floor: 15 }), 15, 'software graphics stay at their lower base');
+assert.equal(suggestSceneFps(15, 20, { base: 15 }), 15, 'never exceeds the base');
+console.log('Scene budget policy: latency-driven cap, hysteresis, floor and base limits passed.');

@@ -11,6 +11,7 @@ import { CAMERA_CLARITY } from './cameraClarity.js';
 import { MirrorExperience } from './mirrorExperience.js';
 import { MirrorAmbience } from './mirrorAmbience.js';
 import { MirrorTimers, parseTimerCommand, formatRemaining } from './mirrorTimers.js';
+import { suggestSceneFps } from './sceneBudgetPolicy.js';
 import { initSettingsSections } from './settingsSections.js';
 import { MagicTheatre } from './magicTheatre.js';
 import { FramingGuide, evaluateFraming } from './framingGuide.js';
@@ -44,7 +45,8 @@ import {
   toggleCamera,
   updateHeadTracking,
   setTrackingAmbient,
-  setFaceDetail
+  setFaceDetail,
+  getFaceLatency
 } from './headTracking.js';
 
 const elements = {
@@ -264,6 +266,13 @@ const preferredPixelRatio = () => {
 };
 const softwareGraphics = (() => { try { const gl = renderer.getContext(); const info = gl.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software/i.test(String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '')); } catch { return false; } })();
 const sceneBudget = new SceneRenderBudget({ maxDynamicFps: softwareGraphics ? 15 : 30 });
+// The 3D scene yields GPU time to the face model when the model is running late (see sceneBudgetPolicy.js).
+const sceneFpsBase = softwareGraphics ? 15 : 30;
+const sceneFpsTimer = setInterval(() => {
+  const latency = getFaceLatency();
+  sceneBudget.maxDynamicFps = Number.isFinite(latency) ? suggestSceneFps(sceneBudget.maxDynamicFps, latency, { base: sceneFpsBase }) : sceneFpsBase;
+}, 1000);
+window.addEventListener('beforeunload', () => clearInterval(sceneFpsTimer));
 elements.canvas.addEventListener('webglcontextrestored', () => sceneBudget.invalidate());
 const renderQuality = {
   // A 4K portrait panel at DPR 2 would otherwise request ~33 million pixels
@@ -704,7 +713,7 @@ async function initialize() {
   else updateWakeStatus('paused');
 }
 
-window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic, showAssistant, setAssistantMode, handleWakeWord, runVoiceNavigation, showSearchResult,
+window.__mirrorDebug = { watchAvatarLayout, scene, camera, avatar, gestures, depthScene, renderQuality, garmentOverlay, liveTryOn, gemini, getMirrorState, stopAssistant, runAgentTask, agentTools, experience, framing, magic, sceneBudget, showAssistant, setAssistantMode, handleWakeWord, runVoiceNavigation, showSearchResult,
   getWakeState: () => ({ enabled: wake.enabled, assistantActive: wake.assistantActive, microphoneReady: Boolean(wake.processor && wake.stream?.active), generation: wake.generation }),
   getPowerState: () => ({ ...renderBudget.snapshot(), scene: sceneBudget.snapshot() }) };
 
