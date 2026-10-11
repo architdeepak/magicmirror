@@ -4,6 +4,7 @@ import { AvatarPresence } from './avatarPresence.js';
 import { FaceHost } from './faceHost.js';
 import { RigFaceHost } from './rigFaceHost.js';
 import { ExpressionMixer } from './expressionMixer.js';
+import { DelayLine, visualDelayMs } from './delayLine.js';
 import { AvatarVideoHost } from './avatarVideoHost.js';
 
 export class AvatarController {
@@ -368,6 +369,12 @@ export class AvatarController {
       // Energy/zero crossings supply only broad vowel motion, not phonemes.
       if(level>=.09){viseme=crossings/meter.samples.length<.105&&level>.18?'O':'AA';if(meter.detected&&performance.now()-meter.detected.at<150)viseme=meter.detected.shape;}
     }
+    // Line the mouth up with what is audible, not what reached the analyser:
+    // wireless outputs sit 100-250 ms behind it. Wired/built-in adds none.
+    const delay=visualDelayMs((meter.node.context.outputLatency||0)*1000);
+    meter.delay||=new DelayLine();
+    const shown=meter.delay.push(performance.now(),{level,viseme},delay);
+    if(shown){level=shown.level;viseme=shown.viseme;}else if(delay>0){level=0;viseme='rest';}
     meter.level=level;meter.viseme=viseme;this.setSpeechLevel(level);this.setViseme(viseme);
     this.setPerformance({turn:Math.sin(elapsed*1000/910)*Math.min(.24,level*.44),lean:Math.sin(elapsed*1000/1430)*Math.min(.14,level*.28),nod:Math.sin(elapsed*1000/330)*Math.min(.09,level*.18)});
   }

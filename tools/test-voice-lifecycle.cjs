@@ -8,6 +8,7 @@ const read = name => fs.readFileSync(path.join(__dirname,'../src',name),'utf8');
 function moduleClass(name, className, globals) {
   const context = vm.createContext({ console, setTimeout, clearTimeout, setInterval, clearInterval, performance, ...globals });
   if(name==='geminiLiveAdapter.js')vm.runInContext(read('audioTurnDetector.js').replace(/export class /g,'class '),context);
+  if(name==='geminiLiveAdapter.js')vm.runInContext(read('captionPacer.js').replace(/export class /g,'class '),context);
   vm.runInContext(read(name).replace(/^import .*;\r?\n/gm,'').replace(/export class /g,'class ') + `\nglobalThis.Subject=${className};`,context);
   return { Subject: context.Subject, context };
 }

@@ -212,3 +212,12 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 .topbar, .mirror-clock, .mirror-weather, .wake-status, .bottom-dock, .privacy-chip { translate: var(--shift-x, 0px) var(--shift-y, 0px); }
 /* Late-night dimming keeps a lit mirror from glaring in a dark room. */
 #app-shell[data-dim="night"] { filter: brightness(.6); }
+
+/* Captions: a two-line subtitle window that always shows the newest words.
+   (They were single-line tickers scrolled to the end, which clipped the first
+   letter of the visible slice and lost the start of every long reply.) The
+   column-reverse flex trick bottom-aligns the text so overflow is dropped from
+   the top, always at a whole line. */
+.caption-line { white-space: normal; text-overflow: clip; overflow: visible; justify-content: center; }
+.caption-line span { display: flex; flex-direction: column-reverse; white-space: normal; max-height: calc(1.45em * 2); overflow: hidden; text-align: center; overflow-wrap: anywhere; text-wrap: balance; }
+.live-captions { text-align: center; }

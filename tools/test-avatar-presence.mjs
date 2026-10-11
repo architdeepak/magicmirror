@@ -12,7 +12,8 @@ console.log('Avatar presence: low duty-cycle full blinks/glances, thoughtful bro
 // than asserting a setter value that the tracking loop can immediately erase.
 const {readFileSync}=await import('node:fs'),{default:vm}=await import('node:vm');
 const {ExpressionMixer}=await import('../src/expressionMixer.js');
-const sandbox=vm.createContext({AvatarPresence,ExpressionMixer});
+const {DelayLine,visualDelayMs}=await import('../src/delayLine.js');
+const sandbox=vm.createContext({AvatarPresence,ExpressionMixer,DelayLine,visualDelayMs});
 vm.runInContext(readFileSync('src/avatarController.js','utf8').replace(/^import .*;$/mg,'').replace('export class','class')+';globalThis.Controller=AvatarController',sandbox);
 const host={style:{},closest:()=>({dataset:{reducedMotion:'false'}})},actor=new sandbox.Controller({host});let face;
 actor.faceHost={setFace:(values,gaze)=>face={values,gaze},setViseme(){},setPerformance(){},update(){}};

@@ -8,7 +8,7 @@ assert.equal(materialDisposals,1);assert.equal(geometryDisposals,1);assert.equal
 console.log('Shared rig face/head resources dispose exactly once.');
 let source=fs.readFileSync('src/avatarController.js','utf8').replace(/^import .*;$/gm,'').replace('export class AvatarController','class AvatarController');source+='\nglobalThis.AvatarController=AvatarController;';
 class Rig{constructor(host,options){this.canvas={style:{}};this.options=options;this.ready=false;}setQuality(q){this.quality=q;}async setPersona(p){if(p==='rowan')throw new Error('No rig');this.persona=p;if(this.wait)await this.wait;this.ready=true;}}
-const context={console,RigFaceHost:Rig,ExpressionMixer:class{setMood(){}},AvatarPresence:class{},};vm.createContext(context);vm.runInContext(source,context);
+const context={console,performance,RigFaceHost:Rig,ExpressionMixer:class{setMood(){}},AvatarPresence:class{},DelayLine:class{push(_t,v){return v}},visualDelayMs:()=>0,};vm.createContext(context);vm.runInContext(source,context);
 (async()=>{
  const a=new context.AvatarController({host:{dataset:{},style:{}}});a.faceHost={canvas:{style:{}},setPersona(){},setQuality(){}};a.rigHost=new Rig();let surface;a.onSurfaceChange=c=>surface=c;
  await a.setRenderStyle('rig');assert.equal(a.faceHost.canvas.style.display,'none');assert.equal(surface,a.rigHost.canvas);a.setDepthEnabled(true);assert.equal(a.rigHost.canvas.style.opacity,'.001');

@@ -165,8 +165,12 @@ export class FaceHost {
     const targetO = ['O','OU'].includes(this.viseme) ? mouthStrength : 0;
     // Ease between poses rather than hard-swapping frames. The assets are
     // matched renders, so this gives the lips a continuous, deliberate feel.
-    this.poseBlend.AA += (targetAA - this.poseBlend.AA) * (1-Math.exp(-dt*6.7));
-    this.poseBlend.O += (targetO - this.poseBlend.O) * (1-Math.exp(-dt*6.7));
+    // Asymmetric: open quickly so a syllable's onset lands with the sound
+    // (a 6.7/s ease measured ~150 ms of lag and blurred 4-5 Hz syllables into
+    // one slow wobble), close a little more gently so the lips do not flutter.
+    const ease = (current, target) => current + (target - current) * (1 - Math.exp(-dt * (target > current ? 26 : 15)));
+    this.poseBlend.AA = ease(this.poseBlend.AA, targetAA);
+    this.poseBlend.O = ease(this.poseBlend.O, targetO);
     const aa = Math.max(0, Math.min(1, this.poseBlend.AA));
     const rounded = Math.max(0, Math.min(1 - aa, this.poseBlend.O));
     // Do not squeeze the face to fake a turn. Width distortion is more

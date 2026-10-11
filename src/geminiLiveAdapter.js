@@ -1,4 +1,5 @@
 import { AudioTurnDetector } from './audioTurnDetector.js';
+import { CaptionPacer } from './captionPacer.js';
 const PERSONA = `You are Obsidian, an ancient magical mirror awakened in a modern home.
 Speak with warmth, mystery, dry wit, and quiet theatrical confidence. You are magical, not cruel.
 Speak at a natural, moderately brisk pace with clear enunciation and short pauses between thoughts.
@@ -60,6 +61,12 @@ export class GeminiLiveAdapter {
     this.processor = null;
     this.outputContext = null;
     this.outputCursor = 0;
+    // Captions follow the audible voice, not the (faster than real time) network.
+    this.captionTimer = null;
+    this.captions = new CaptionPacer({
+      clock: () => this.outputContext ? this.outputContext.currentTime : performance.now() / 1000,
+      reveal: text => this.onTranscript('assistant', text, { delta: true })
+    });
     this.setupResolve = null;
     this.setupReject = null;
     this.intentionalDisconnect = false;
@@ -503,7 +510,6 @@ export class GeminiLiveAdapter {
       const content = message.serverContent;
       if (content?.inputTranscription?.text) this.onTranscript('user', content.inputTranscription.text, { delta: true });
       if (cancelled()) return;
-      if (content?.outputTranscription?.text) this.onTranscript('assistant', content.outputTranscription.text, { delta: true });
 
       if (cancelled()) return;
       if (content?.interrupted) this._interruptPlayback();
@@ -517,13 +523,20 @@ export class GeminiLiveAdapter {
         }
       }
 
+      // Audio parts are scheduled first so this message's words are paced
+      // against the voice they belong to.
+      if (cancelled()) return;
+      if (content?.outputTranscription?.text) { this.captions.text(content.outputTranscription.text); this.captions.tick(); this._ensureCaptionTimer(); }
+
       if (content?.turnComplete) {
         this.screenObservationActive = false;
         this.screenObservation = null;
         this.lastDeliveredClick = null;
         this.avatar.endAudioTurn();
         if(!this.avatar.getPlaybackStatus?.().enabled)this.onState(this.listening ? 'listening' : 'ready');
-        this.onTurnComplete();
+        // Finish the turn only once its captions are fully shown (they trail the audio).
+        this.captions.endTurn(() => this.onTurnComplete());
+        this._ensureCaptionTimer();
       }
       if (message.toolCall) await this._queueToolCall(message.toolCall);
     } catch (error) {
@@ -553,10 +566,20 @@ export class GeminiLiveAdapter {
       if(this.outputSources.size===0)this.avatar.finishPlayback?.(outputGain);
     };
     source.start(this.outputCursor);
+    this.captions.audio(this.outputCursor, buffer.duration);
     this.outputCursor += buffer.duration;
   }
 
+  _ensureCaptionTimer() {
+    if (this.captionTimer) return;
+    this.captionTimer = setInterval(() => {
+      this.captions.tick();
+      if (!this.captions.active) { clearInterval(this.captionTimer); this.captionTimer = null; }
+    }, 40);
+  }
+
   _interruptPlayback() {
+    this.captions.cancel();
     this.avatar.interrupt();
     for (const source of this.outputSources) {
       try { source.stop(); } catch { /* Already ended. */ }
@@ -592,6 +615,8 @@ export class GeminiLiveAdapter {
   }
 
   disconnect() {
+    this.captions.cancel();
+    clearInterval(this.captionTimer); this.captionTimer = null;
     this.connectionGeneration += 1;
     this.connecting = null;
     this.toolQueue = Promise.resolve();
