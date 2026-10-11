@@ -553,7 +553,11 @@ const gemini = new GeminiLiveAdapter({
     return { result: camera.active ? 'Local camera is on.' : 'Local camera is off.', ...(enabled && !camera.active ? { error: camera.error || 'Camera unavailable.' } : {}), camera };
   },
   onOpenService: async (service) => openServiceFrame(service),
-  onOpenWebpage: async (url) => window.mirrorBridge.openWebpage(url),
+  onOpenWebpage: async (url) => {
+    const outcome = await openDesktopPage(url);
+    if (outcome.error) throw outcome.error;
+    return outcome.result;
+  },
   onCaptureScreen: async () => {
     const watchHost = (() => { try { return new URL(elements.watchFrame.src).hostname.toLowerCase(); } catch { return ''; } })();
     const watchIsSpotify = mode === 'watch' && elements.watchFrame.classList.contains('loaded')
@@ -2435,8 +2439,28 @@ async function handleWatchControl(args = {}) {
 
 // Apps live in the mirror's own frame so the mirror never loses the screen.
 async function openServiceFrame(service) {
+  // Stop, mute, a new voice session or a manual choice made while the launcher
+  // lookup was pending retires this request; it must not take over the screen.
+  const voice = voiceStartGeneration, control = manualControlGeneration;
   const info = await window.mirrorBridge.openService(service);
+  if (voice !== voiceStartGeneration || control !== manualControlGeneration) return { cancelled: true };
+  // Choosing an app retires an assistant page that is still loading, which
+  // would otherwise open over it later.
+  if (manualDesktopRequest?.page) { manualDesktopRequest = null; void window.mirrorBridge.closeDesktop?.()?.catch(() => {}); }
   return showUrlInFrame(info);
+}
+// Assistant-opened pages share the manual-request slot so a later manual choice
+// closes (and so cancels) a page that is still loading. `current` is false when
+// the request was superseded, stopped or muted, so its outcome stays silent.
+async function openDesktopPage(url) {
+  const token = { page: true }, voice = voiceStartGeneration, control = manualControlGeneration;
+  manualDesktopRequest = token;
+  const current = () => manualDesktopRequest === token && voice === voiceStartGeneration && control === manualControlGeneration;
+  try {
+    const result = await window.mirrorBridge.openWebpage(url);
+    return { result, current: current() };
+  } catch (error) { return { error, current: current() }; }
+  finally { if (manualDesktopRequest === token) manualDesktopRequest = null; }
 }
 
 async function showUrlInFrame(info) {
@@ -2671,7 +2695,8 @@ function runVoiceNavigation(prompt) {
     return true;
   }
   if (/^(?:whats|what is|show me|open|check)? ?(?:on )?(?:my |the )?(?:calendar|schedule|agenda|plans)(?: today| tomorrow)?$|^what do i have (?:on |today|tomorrow|planned)/.test(spoken)) {
-    openServiceFrame('calendar').then(() => showGesture('Your calendar')).catch(error => showOracle(error.message, '', 'Calendar'));
+    const voice = voiceStartGeneration, control = manualControlGeneration, current = () => voice === voiceStartGeneration && control === manualControlGeneration;
+    openServiceFrame('calendar').then(result => { if (current() && !result?.cancelled) showGesture('Your calendar'); }).catch(error => { if (current()) showOracle(error.message, '', 'Calendar'); });
     return true;
   }
   const timerCommand = parseTimerCommand(prompt);
@@ -2729,12 +2754,14 @@ function runVoiceNavigation(prompt) {
     return true;
   }
   const urlMatch = prompt.match(/\b(?:open|visit|go to)\s+((?:https?:\/\/|www\.)[^\s]+)/i)
-    || prompt.match(/\b(?:open|visit|go to)\s+([a-z0-9-]+\.[a-z]{2,}(?:\/[^\s]*)?)/i);
+    || prompt.match(/\b(?:open|visit|go to)\s+([a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/[^\s]*)?)/i);
   if (urlMatch) {
     const url = urlMatch[1].replace(/[),.!?]+$/, '');
-    window.mirrorBridge?.openWebpage(/^https?:\/\//i.test(url) ? url : `https://${url}`)
-      .then(() => showGesture(`Opening ${url}`))
-      .catch((error) => showOracle(error.message, prompt, 'Desktop browser'));
+    void openDesktopPage(/^https?:\/\//i.test(url) ? url : `https://${url}`).then(outcome => {
+      if (!outcome.current) return;
+      if (outcome.error) showOracle(outcome.error.message, prompt, 'Desktop browser');
+      else showGesture(`Opening ${url}`);
+    });
     return true;
   }
   const text = prompt.toLowerCase().replace(/[.,!?]/g, ' ');

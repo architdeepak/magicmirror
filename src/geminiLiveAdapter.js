@@ -85,6 +85,8 @@ export class GeminiLiveAdapter {
     this.connectionGeneration = 0;
     this.connecting = null;
     this.outputSources = new Set();
+    // Tool calls the server withdrew because the user barged in.
+    this.cancelledToolIds = new Set();
     this.avatar.onPlaybackState = active => {
       if(!this.connected||this.intentionalDisconnect||this.playbackSuppressed)return;
       this.onState(active?'speaking':this.listening?'listening':'ready');
@@ -538,6 +540,10 @@ export class GeminiLiveAdapter {
         this.captions.endTurn(() => this.onTurnComplete());
         this._ensureCaptionTimer();
       }
+      if (Array.isArray(message.toolCallCancellation?.ids)) {
+        for (const id of message.toolCallCancellation.ids) this.cancelledToolIds.add(String(id));
+        if (this.cancelledToolIds.size > 100) this.cancelledToolIds.delete(this.cancelledToolIds.values().next().value);
+      }
       if (message.toolCall) await this._queueToolCall(message.toolCall);
     } catch (error) {
       console.warn('[gemini] bad server message', error);
@@ -621,6 +627,7 @@ export class GeminiLiveAdapter {
     this.connecting = null;
     this.toolQueue = Promise.resolve();
     this.toolResults.clear();
+    this.cancelledToolIds.clear();
     this.intentionalDisconnect = true;
     this.setupReject?.(new Error('Voice connection cancelled'));
     this._clearSetupWaiters();
@@ -741,6 +748,8 @@ export class GeminiLiveAdapter {
     const results = this.toolResults;
     for (const call of toolCall.functionCalls || []) {
       if (cancelled()) return;
+      // The user spoke over this request: never run or answer a withdrawn call.
+      if (call.id && this.cancelledToolIds.has(String(call.id))) continue;
       this.onToolActivity?.(call.name);
       const key = call.id && !['see_screen', 'get_mirror_state'].includes(call.name)
         ? JSON.stringify([call.id, call.name, call.args || {}]) : null;
@@ -888,7 +897,8 @@ export class GeminiLiveAdapter {
         functionResponses.push({ name: call.name, id: call.id, response: { error: error.message } });
       } finally { if (!cancelled()) this.onToolActivity?.(null); }
     }
-    if (!cancelled() && functionResponses.length) this._send({ toolResponse: { functionResponses } });
+    const answers = functionResponses.filter(item => !(item.id && this.cancelledToolIds.has(String(item.id))));
+    if (!cancelled() && answers.length) this._send({ toolResponse: { functionResponses: answers } });
   }
 
   _clearSetupWaiters() {

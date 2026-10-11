@@ -43,8 +43,10 @@ These checks use synthetic state and no physical sensors or external accounts.
 1. Profile the remaining renderer/style cost under severe CPU stress. Camera
    and PC stick GPU workloads remain unmeasured. The portrait now adapts, but
    12× CPU stress still cannot sustain the requested cadence.
-2. Extend interaction coverage to dialog focus, managed apps, simultaneous voice
-   requests, and pending search/pop-up responses after Stop. Physically validate display transitions
+2. Extend interaction coverage to dialog focus. (Managed apps, simultaneous voice
+   requests and late page/launcher replies after Stop are covered by
+   `tools/test-interaction-races.cjs`; search/pop-up responses by
+   `test-search-lifecycle.cjs`.) Physically validate display transitions
    and the 30 Hz TV cap when hardware testing resumes.
 3. Continue visual inspection of transitions, including independent asymmetric
    expressions and mouth-patch edges.
