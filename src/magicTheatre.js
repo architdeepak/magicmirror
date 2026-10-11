@@ -1,6 +1,7 @@
 import { GpuMirrorFog } from './gpuMirrorFog.js';
 import { displayProfile, boundedSurface } from './displayQuality.js';
 import { MirrorFog } from './mirrorFog.js';
+import { FramePacer } from './renderBudget.js';
 // Short, local theatrical cues. No permanent particle loop or additional model.
 export class MagicTheatre {
   constructor(shell, { softwareGraphics = true, quality = 'auto' } = {}) {
@@ -38,13 +39,13 @@ export class MagicTheatre {
     this.selectSurface(['wake','arrival'].includes(kind));
 
     this.canvas.hidden = false; const start = performance.now(), duration = kind === 'wake' ? 3000 : kind === 'arrival' ? 1100 : 650;
-    let last = -Infinity;
+    let last = null; const pacer = new FramePacer();
     const draw = now => {
       const t = (now - start) / duration;
       if (t >= 1 || document.hidden) { this.cancel(); return; }
       this.frame = requestAnimationFrame(draw);
-      const fps=this.targetFps();
-      if (now - last < 1000 / fps - .5) return; last = now;
+      pacer.observe(now);
+      if (!pacer.due(now, last, this.targetFps())) return; last = now;
       this.renderCue(kind,t);
     };
     this.frame = requestAnimationFrame(draw);

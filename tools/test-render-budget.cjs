@@ -34,6 +34,17 @@ const fs = require('fs/promises');
   softwareRoom.invalidate();assert(softwareRoom.shouldRender({...cube,now:70}),'Input change must render immediately');
   assert(softwareRoom.shouldRender({...flat,now:75}),'Mode exit must draw a final frame');assert(!softwareRoom.shouldRender({...flat,now:100}));
   softwareRoom.invalidate();assert(!softwareRoom.shouldRender({...cube,sleeping:true,now:200}));assert(softwareRoom.shouldRender({...cube,now:210}));
+  // 30 Hz panel reporting 29 Hz: every vsync callback must render (used to alternate and run at ~15 fps).
+  const panel = new RenderBudget();let drawn = 0;
+  for (let i = 0; i < 90; i++) if (panel.shouldRender(1000 + i * 33.34, { ...ambient, avatarVisible: true, motionFps: 29 })) drawn++;
+  assert.equal(drawn, 90, '30 Hz panel with a 29 fps target dropped vsync frames');
+  // 60 Hz panel and a 30 fps target still renders every second callback.
+  const fast = new RenderBudget();drawn = 0;
+  for (let i = 0; i < 120; i++) if (fast.shouldRender(5000 + i * 16.667, { ...ambient, avatarVisible: true, motionFps: 30 })) drawn++;
+  assert(drawn >= 59 && drawn <= 61, 'cadence at half the display rate drifted: ' + drawn);
+  const slow = new RenderBudget();drawn = 0;
+  for (let i = 0; i < 120; i++) if (slow.shouldRender(9000 + i * 16.667, { ...ambient, avatarVisible: true, motionFps: 20 })) drawn++;
+  assert(drawn >= 38 && drawn <= 42, '20 fps target on a 60 Hz panel drifted: ' + drawn);
   console.log('Scene budget passed: flat caching, dirty changes retained through sleep, depth/reveal animation and one final frame.');
   console.log('Render budget passed: cadence, sleep/hidden suppression, immediate restore and reset.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

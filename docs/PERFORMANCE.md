@@ -69,3 +69,30 @@ Profiled with a CDP sampling profiler plus a MutationObserver on the Efficient t
   on every streamed delta.
 Ambient style recalcs fell from ~9/s to ~2.5/s and ambient layout to 0/s. Run-to-run task time varies by
 more than the change, so no whole-app CPU claim is made; confirm on the device.
+
+## Frame pacing on a 30 Hz panel, baked portrait lift (1080x1920, Efficient tier)
+Measured with the real app via CDP at 1080x1920, Efficient tier, 4x CPU throttle (a stress condition,
+not the stick; the dev GPU is far stronger, so GPU-side savings below are not measured here).
+- **Dropped frames.** The frame gates tested `elapsed < 1000/fps - 1`. When the target equals the
+  display rate (30 Hz TV, reported as 29 or 30) rAF arrives every 33.33 ms against a 33.5 ms
+  threshold, so every other callback was skipped: speaking ran at 23.4 fps in the bench (about 15 fps
+  on a real 30 Hz panel), and `MotionQuality` saw "<75% of target" and shrank the portrait for no
+  reason. `FramePacer` (renderBudget.js) allows up to half a measured refresh period of slack and is
+  shared by `RenderBudget`, `SceneRenderBudget` and the wake cloud. Speaking: 23.4 -> 29.7 fps with
+  per-frame main-thread cost unchanged (~17 ms/frame at 4x).
+- **`filter: brightness(1.2)`** on `.face-host-canvas` made the compositor resolve the canvas through a
+  filter pass over the host rectangle on every repaint. The lift is now baked once into the head art
+  (and so into the mouth patches and eye/brow crops). Visual diff against the previous build at
+  1080x1920: only 1-2 px antialiasing differences on edges (mean abs diff 0.1/255 over the frame).
+  Main-thread numbers are unchanged by design; the saving is in the GPU/compositor, to be confirmed on
+  the stick. The rig (3D) canvas keeps its CSS filter: ACES tone mapping makes a linear bake inexact.
+- **Host aura** was positioned with `left/top: var(--face-center-*)`, i.e. layout whenever the head
+  moved (~18 writes/s while speaking). It is now a transform; it stays centred on the face (<0.2 px).
+- Checked and left alone: caption DOM (incremental, ~13 node ops per streamed delta), idle main thread
+  (~4 fps, 35-40 ms/s at 4x), timers, `drawImage` head resample (pre-scaling the head art did not
+  change the profile).
+- **Largest remaining startup cost** (profiled, not changed): `TalkingHead` constructs its own
+  WebGLRenderer + PMREM environment (~250 ms PMREM plus ~500 ms for context creation at 1x) although
+  its renderer is never presented. `avatarOnly: true` in the library skips it but moves the animation
+  clock to the caller, which touches voice/viseme timing; try it on hardware with the voice tests.
+

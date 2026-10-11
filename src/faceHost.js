@@ -22,6 +22,26 @@ const PAINTED_CHANNELS = Object.freeze([
 // The host is deliberately a face cutout, not a conventional character avatar.
 // It uses high-resolution head art and a small, deterministic expression layer
 // so speech, blinks, and gaze remain live without ever exposing a neck or body.
+// The portrait is lifted 20% to read on black glass. This used to be a CSS
+// `filter: brightness(1.2)` on the canvas, which makes the compositor resolve
+// the canvas into an intermediate surface and run a filter pass over the whole
+// host rectangle on every repaint (30 times a second while speaking) on a
+// weak iGPU. The lift is linear per channel, so it is baked once into the head
+// art (and therefore the mouth patches and feature crops cut from it).
+const PORTRAIT_LIFT = 1.2;
+function liftBrightness(image, lift = PORTRAIT_LIFT) {
+  const width = image.naturalWidth || image.width, height = image.naturalHeight || image.height;
+  if (!width || !height || typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const context = canvas.getContext('2d');
+  if (!context || !('filter' in context)) return null;
+  context.filter = `brightness(${lift})`;
+  context.drawImage(image, 0, 0);
+  context.filter = 'none';
+  return canvas;
+}
+
 export class FaceHost {
   constructor(host) {
     this.host = host;
@@ -65,7 +85,7 @@ export class FaceHost {
     this.lastIdleSignature = null;
     this.persona = selected;
     this.ready = false;
-    this.image = new Image();
+    this.image = new Image();this.paintImage = null;
     this.speakingImage = new Image();
     this.roundedImage = new Image();
     this.speakingReady = false;
@@ -78,20 +98,24 @@ export class FaceHost {
     neutral.onerror=()=>{if(this.image===neutral)this.personaLoad=null;};
     this.image.onload = () => {
       if (this.image !== neutral) return;
-      if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(neutral, HEADS.rowan);
-      this.features = new FaceFeatures(neutral, HEADS[this.persona]);this.features.detail=this.featureDetail();
+      const lifted = liftBrightness(neutral);
+      this.paintImage = lifted || neutral;
+      this.baked = Boolean(lifted);
+      if (this.canvas?.style) this.canvas.style.filter = lifted ? '' : `brightness(${PORTRAIT_LIFT})`;
+      if (this.persona === 'rowan') this.fallbackMouthPatch = createMouthPatch(this.paintImage, HEADS.rowan);
+      this.features = new FaceFeatures(this.paintImage, HEADS[this.persona]);this.features.detail=this.featureDetail();
       this.ready = true;
       this.draw(0);
     };
     this.image.src = HEADS[this.persona].image;
     if (HEADS[this.persona].speaking) {
       const speaking = this.speakingImage;
-      this.speakingImage.onload = () => { if (this.speakingImage !== speaking) return; this.speakingPatch = createMouthPatch(speaking, HEADS[this.persona]); this.speakingReady = true; };
+      this.speakingImage.onload = () => { if (this.speakingImage !== speaking) return; this.speakingPatch = createMouthPatch(liftBrightness(speaking) || speaking, HEADS[this.persona]); this.speakingReady = true; };
       this.speakingImage.src = HEADS[this.persona].speaking;
     }
     if (HEADS[this.persona].rounded) {
       const rounded = this.roundedImage;
-      this.roundedImage.onload = () => { if (this.roundedImage !== rounded) return; this.roundedPatch = createMouthPatch(rounded, HEADS[this.persona]); this.roundedReady = true; };
+      this.roundedImage.onload = () => { if (this.roundedImage !== rounded) return; this.roundedPatch = createMouthPatch(liftBrightness(rounded) || rounded, HEADS[this.persona]); this.roundedReady = true; };
       this.roundedImage.src = HEADS[this.persona].rounded;
     }
   }
@@ -170,7 +194,7 @@ export class FaceHost {
     this.lastIdleSignature = signature;
     ctx.clearRect(0, 0, w, h);
     this.canvas._mirrorRevision = ++this.drawCount;
-    const aspect=(this.image.naturalHeight||1)/(this.image.naturalWidth||1);
+    const art=this.paintImage||this.image;const aspect=(art.naturalHeight||art.height||1)/(art.naturalWidth||art.width||1);
     const base = Math.min(w, h/aspect) * 1.12,headHeight=base*aspect;
     // No idle bounce: a mirror host should feel poised. Performance values are
     // eased so glances and deliberate nods settle rather than vibrate.
@@ -200,7 +224,7 @@ export class FaceHost {
     const rounded = Math.max(0, Math.min(1 - aa, this.poseBlend.O));
     // Do not squeeze the face to fake a turn. Width distortion is more
     // distracting than a stable front-on pose; real turns belong to the GLB.
-    ctx.drawImage(this.image, -base / 2, -headHeight / 2, base, headHeight);
+    ctx.drawImage(art, -base / 2, -headHeight / 2, base, headHeight);
     // Only the mouth region crossfades. Blending entire head renders changes
     // cheeks, eyes and hair simultaneously, which reads as a melting face.
     const spec = HEADS[this.persona];
@@ -358,8 +382,8 @@ function createMouthPatch(image, spec) {
   // Blend only the lips and their immediate edge. A large hard ellipse exposed
   // the older speaking art's cheek/nose lighting as a conspicuous face patch.
   // The feathered crop is cached when the image loads, never per frame.
-  const width = image.naturalWidth;
-  const height = image.naturalHeight;
+  const width = image.naturalWidth || image.width;
+  const height = image.naturalHeight || image.height;
   const patch = document.createElement('canvas');
   patch.width = Math.ceil(width * .22);
   patch.height = Math.ceil(height * .10);

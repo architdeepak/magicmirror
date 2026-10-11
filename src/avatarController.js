@@ -97,6 +97,8 @@ export class AvatarController {
       // full GLB on every audio animation tick. Keep its audio clock intact.
       this.head.renderer.render = () => {};
       const aura = document.createElement('div'); aura.className = 'host-aura'; aura.setAttribute('aria-hidden','true'); this.host.append(aura);
+      // The aura is positioned with transform from these (no layout per frame); seed the pre-first-paint position.
+      if (this.host.clientWidth) { this.host.style.setProperty('--face-center-x', this.host.clientWidth * .5 + 'px'); this.host.style.setProperty('--face-center-y', this.host.clientHeight * .6 + 'px'); this.host.style.setProperty('--face-glow-size', this.host.clientWidth + 'px'); }
       this.faceHost = new FaceHost(this.host);this.faceHost.setQuality(this.quality);
       this.videoHost = new AvatarVideoHost(this.host);
       // Experimental rig previews are explicitly created by their preview
