@@ -221,3 +221,27 @@ input[type="checkbox"] { accent-color: #e9c36a; }
 .caption-line { white-space: normal; text-overflow: clip; overflow: visible; justify-content: center; }
 .caption-line span { display: flex; flex-direction: column-reverse; white-space: normal; max-height: calc(1.45em * 2); overflow: hidden; text-align: center; overflow-wrap: anywhere; text-wrap: balance; }
 .live-captions { text-align: center; }
+
+/* ---- Settings: collapsible, searchable sections (gold on black) ---- */
+.settings-head { position: sticky; top: 0; z-index: 3; margin: -2px 0 10px; padding-bottom: 10px; background: #000; }
+.settings-head .panel-head { margin-bottom: 10px; }
+.settings-search { width: 100%; box-sizing: border-box; min-height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(240, 207, 132, .4); background: #000; color: #fff3cf; font: inherit; outline: 0; }
+.settings-search::placeholder { color: rgba(255, 240, 200, .5); }
+.settings-search:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(240, 207, 132, .25); }
+.settings-section { margin: 10px 0; border: 1px solid rgba(240, 207, 132, .32); border-radius: 14px; background: #000; }
+.settings-section[hidden] { display: none; }
+.settings-section > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 0 16px; cursor: pointer; list-style: none; font: 600 12px Cinzel, serif; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); border-radius: 14px; user-select: none; }
+.settings-section > summary::-webkit-details-marker { display: none; }
+.settings-section > summary::after { content: ""; width: 9px; height: 9px; border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold); transform: rotate(45deg) translateY(-2px); transition: transform .25s var(--ease-magic, ease); }
+.settings-section[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+.settings-section > summary:hover { background: rgba(240, 207, 132, .08); }
+.settings-section > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.settings-section-body { padding: 4px 16px 14px; border-top: 1px solid rgba(240, 207, 132, .18); }
+.settings-section-body > .settings-filtered { display: none !important; }
+/* Touch-friendly controls inside sections. */
+.settings-section .toggle-row { min-height: 44px; }
+.settings-section .setting select, .settings-section .setting input[type="number"], .settings-section .setting input[type="text"], .settings-section .setting input[type="password"], .settings-section .setting input[type="url"] { min-height: 44px; }
+.settings-section button { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .settings-section > summary::after { transition: none; } }
+/* The wake hint sits under the panel's bottom edge; hide it while Settings is open. */
+#app-shell:has(.settings-panel.open) .wake-status { opacity: 0; }

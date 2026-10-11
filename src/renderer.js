@@ -11,6 +11,7 @@ import { CAMERA_CLARITY } from './cameraClarity.js';
 import { MirrorExperience } from './mirrorExperience.js';
 import { MirrorAmbience } from './mirrorAmbience.js';
 import { MirrorTimers, parseTimerCommand, formatRemaining } from './mirrorTimers.js';
+import { initSettingsSections } from './settingsSections.js';
 import { MagicTheatre } from './magicTheatre.js';
 import { FramingGuide, evaluateFraming } from './framingGuide.js';
 import { LiveTryOn } from './liveTryOn.js';
@@ -1396,6 +1397,7 @@ elements.cameraMount.addEventListener('change', () => {
   showGesture(mount === 'top' ? 'Top-mounted camera profile selected' : 'Centered camera profile selected');
 });
 elements.citySelect.addEventListener('change', () => dashboard.setCity(elements.citySelect.value));
+initSettingsSections(elements.settings);
 // Behind one-way glass, black is the mirror and any lit pixel is light leaking
 // through; clothes are placed on the reflection instead of the camera picture.
 const screenWidthInput = document.querySelector('#screen-width-cm');

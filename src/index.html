@@ -743,60 +743,106 @@
 
       <button class="settings-toggle" id="settings-toggle" aria-label="Open settings">⚙</button>
       <aside class="settings-panel" id="settings-panel">
-        <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
-        <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
-        <p class="config-note" id="camera-notice" role="status" hidden></p>
-        <small class="config-note" id="camera-format" hidden></small>
-        <div class="setting"><label for="camera-clarity"><span>Camera clarity</span></label><select id="camera-clarity"><option value="off">Original · lowest power</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></div>
-        <p class="config-note">Local display enhancement; no generated facial or clothing details. Bright mode changes apparent colors. Say “mirror, brighten the camera” or “camera clarity off”.</p>
-        <label class="toggle-row" for="camera-flip-toggle"><span>Camera is upside down (flip 180°)</span><input id="camera-flip-toggle" type="checkbox"></label>
-        <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
-        <div class="setting"><label for="idle-background"><span>Before wake</span></label><select id="idle-background"><option value="weather">Time and weather on black</option><option value="black">Completely black</option><option value="gallery">Painting / photo gallery</option></select></div><div class="panel-actions"><button id="idle-gallery-import" type="button">Choose idle photos</button></div><label class="toggle-row" for="follow-toggle"><span>Host follows me when I move</span><input id="follow-toggle" type="checkbox" checked></label><label class="toggle-row" for="atmosphere-toggle"><span>Quiet ambient atmosphere</span><input id="atmosphere-toggle" type="checkbox"></label>
-        <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>Mountain View</option><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
-        <div class="setting"><label for="display-quality"><span>Picture and motion</span></label>
-        <select id="display-quality"><option value="auto">Balanced</option><option value="hd">Maximum detail</option><option value="eco">Efficient</option></select>
-        <small id="display-quality-status" role="status"></small></div>
-        <div class="setting"><label for="avatar-render-style"><span>Avatar appearance</span></label><select id="avatar-render-style"><option value="portrait">Portrait</option><option value="rig">3D face · preview</option></select><small id="avatar-render-status" role="status"></small></div>
-        <label class="toggle-row" for="framing-toggle"><span>Body framing guide</span><input id="framing-toggle" type="checkbox" checked></label>
-        <label class="toggle-row" for="reduced-motion-toggle"><span>Reduce motion</span><input id="reduced-motion-toggle" type="checkbox"></label>
-        <label class="toggle-row" for="magic-sounds-toggle"><span>Soft magic wake chime</span><input id="magic-sounds-toggle" type="checkbox"></label>
-        <div class="experience-actions"><button type="button" data-experience-action="ready">Getting ready</button><button type="button" data-experience-action="movie">Movie time</button><button type="button" data-experience-action="help">What can I do?</button></div>
-        <div class="setting"><label for="routine-movie"><span>Movie time service</span></label><select id="routine-movie"><option value="youtube">YouTube</option><option value="netflix">Netflix</option></select></div>
-        <label class="toggle-row" for="routine-music"><span>Resume Spotify when getting ready</span><input id="routine-music" type="checkbox"></label>
-        <p class="config-note">Say “remember my getting ready setup” to save your selected garment and clarity. Timers and look photos stay on this mirror.</p>
-        <form id="local-timer-form"><input id="local-timer-minutes" type="number" min="1" max="360" value="10" aria-label="Timer minutes"><button type="submit">Start timer</button></form>
-        <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">One-way mirror · pure black</option><option value="night">One-way mirror · night calm</option><option value="monitor">Plain monitor · show camera</option></select></div>
-        <div class="setting"><label for="screen-width-cm"><span>Visible screen width (cm)</span></label><input id="screen-width-cm" type="number" min="20" max="200" step="1" value="51" inputmode="numeric"><small>A 43″ portrait panel is about 51 cm. Used to place clothes on your reflection.</small></div>
-        <div class="setting"><label for="glass-size"><span>Clothes size on reflection</span></label><input id="glass-size" type="range" min="70" max="130" step="1" value="100"></div>
-        <div class="setting"><label for="glass-nudge"><span>Clothes height on reflection</span></label><input id="glass-nudge" type="range" min="-30" max="30" step="1" value="0"><small>Trim these while standing in front of the mirror if the clothes sit above or below your reflection.</small></div>
-        <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="enchanted">Enchanted reveal</option><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
-        <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
-        <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
-        <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
-        <label class="toggle-row" for="gesture-toggle"><span>Hands-free navigation</span><input id="gesture-toggle" type="checkbox" checked></label>
-        <p class="gesture-guide">Hold palm: stop active voice; otherwise Converse or return from browser. Pinch: play/pause in Watch or Music; next filter in Try on. Swipe left/right: seek ±15s in video or YouTube, next/previous track in Music, next/previous garment in Try on. Swipe up/down: scroll browser; otherwise change mode. Relax or lower your hand between gestures.</p>
-        <label class="toggle-row" for="face-puppet-toggle"><span>Animate host from your face</span><input id="face-puppet-toggle" type="checkbox"></label>
-        <label class="toggle-row" for="vision-toggle"><span>Share camera and try-on view with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
-        <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
-        <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
-        <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
-        <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
-        <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button id="save-diagnostics" type="button">Save diagnostics</button></div>
-        <p class="config-note" id="diagnostics-status" role="status">Press D for live diagnostics. Save a troubleshooting report with runtime status and recent errors; keys, conversations and images are excluded.</p>
-        <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
-        <form id="connection-form" class="connections" aria-label="Assistant, music, and try-on connections">
-          <div class="setting"><label for="gemini-key">Gemini API key</label><input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a key to enable live voice" maxlength="256"></div>
-          <div class="setting"><label for="spotify-client-id">Spotify app client ID (optional on Windows)</label><input id="spotify-client-id" type="text" autocomplete="off" spellcheck="false" placeholder="Client ID from your Spotify app" maxlength="256"></div>
-          <div class="setting"><label for="tryon-provider">Try-on still renderer</label><select id="tryon-provider"><option value="off">Off · local preview only</option><option value="custom">Custom renderer</option><option value="vertex">Google Cloud</option></select></div>
-          <div class="setting"><label for="decart-key">Decart live try-on key</label><input id="decart-key" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current key" maxlength="256"></div><p class="config-note">Decart is an optional cloud AI service that generates moving outfits from the camera and a garment photo. The local overlay works without it, but does not generate realistic fabric.</p><label class="toggle-row" for="decart-clear-key"><span>Remove live try-on key</span><input id="decart-clear-key" type="checkbox"></label>
-          <div id="tryon-custom-settings" hidden><div class="setting"><label for="tryon-endpoint">Renderer URL</label><input id="tryon-endpoint" type="url" autocomplete="off" spellcheck="false" placeholder="https://your-renderer.example/try-on" maxlength="2048"></div><div class="setting"><label for="tryon-token">Renderer token</label><input id="tryon-token" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current token" maxlength="2048"></div><label class="toggle-row" for="tryon-clear-token"><span>Remove current token</span><input id="tryon-clear-token" type="checkbox"></label></div>
-          <div id="tryon-cloud-settings" hidden><div class="setting"><label for="tryon-project">Google Cloud project ID</label><input id="tryon-project" type="text" autocomplete="off" spellcheck="false" maxlength="256"></div><div class="setting"><label for="tryon-location">Google Cloud region</label><input id="tryon-location" type="text" autocomplete="off" spellcheck="false" placeholder="us-central1" maxlength="256"></div><p class="config-note">Requires a Google Cloud project and Google Cloud sign-in on this PC. See the setup guide in the README.</p></div>
-          <p class="config-note" id="tryon-connection-note">Camera frames are sent only after consent and a render request.</p>
-          <label class="toggle-row" for="remember-connections"><span>Remember on this device</span><input id="remember-connections" type="checkbox" checked></label>
-          <div class="panel-actions"><button id="save-connections" type="submit">Save connections</button><button id="disable-gemini" type="button">Disable Gemini</button></div>
-          <p class="config-note" id="connection-status" role="status"></p>
-        </form>
-        <p class="config-note" id="config-note">Add a Gemini API key above to enable live conversation. On Windows, Music follows the installed Spotify app. An optional account connection controls other Spotify devices.</p>
+        <div class="settings-head">
+  <div class="panel-head"><strong>MIRROR SETTINGS</strong><span id="api-badge">DEMO MODE</span></div>
+          <input id="settings-search" class="settings-search" type="search" placeholder="Search settings" aria-label="Search settings" autocomplete="off" spellcheck="false">
+        </div>
+        <details class="settings-section" data-section="voice" open>
+          <summary>Assistant &amp; voice</summary>
+          <div class="settings-section-body">
+            <div class="setting"><label for="voice-select"><span>Assistant voice</span></label><select id="voice-select"><option value="Charon">Charon · deep and informative</option><option value="Gacrux">Gacrux · mature</option><option value="Algenib">Algenib · gravelly</option><option value="Orus">Orus · firm</option><option value="Kore">Kore · composed</option><option value="Aoede">Aoede · airy</option><option value="Puck">Puck · upbeat</option></select></div>
+            <div class="setting"><label for="pace-select"><span>Speaking pace</span></label><select id="pace-select"><option value="relaxed">Relaxed</option><option value="natural">Natural</option><option value="brisk">Slightly brisk</option></select></div>
+          </div>
+        </details>
+        <details class="settings-section" data-section="display">
+          <summary>Display &amp; mirror glass</summary>
+          <div class="settings-section-body">
+            <div class="setting"><label for="idle-background"><span>Before wake</span></label><select id="idle-background"><option value="weather">Time and weather on black</option><option value="black">Completely black</option><option value="gallery">Painting / photo gallery</option></select></div>
+            <div class="panel-actions"><button id="idle-gallery-import" type="button">Choose idle photos</button></div>
+            <label class="toggle-row" for="follow-toggle"><span>Host follows me when I move</span><input id="follow-toggle" type="checkbox" checked></label>
+            <div class="setting"><label for="city-select"><span>Weather city</span></label><select id="city-select"><option>Mountain View</option><option>San Francisco</option><option>New York</option><option>London</option><option>Tokyo</option><option>Paris</option></select></div>
+            <div class="setting"><label for="display-quality"><span>Picture and motion</span></label>
+            <select id="display-quality"><option value="auto">Balanced</option><option value="hd">Maximum detail</option><option value="eco">Efficient</option></select>
+            <small id="display-quality-status" role="status"></small></div>
+            <div class="setting"><label for="avatar-render-style"><span>Avatar appearance</span></label><select id="avatar-render-style"><option value="portrait">Portrait</option><option value="rig">3D face · preview</option></select><small id="avatar-render-status" role="status"></small></div>
+            <label class="toggle-row" for="framing-toggle"><span>Body framing guide</span><input id="framing-toggle" type="checkbox" checked></label>
+            <label class="toggle-row" for="reduced-motion-toggle"><span>Reduce motion</span><input id="reduced-motion-toggle" type="checkbox"></label>
+            <div class="setting"><label for="glass-profile"><span>Two-way glass profile</span></label><select id="glass-profile"><option value="glass">One-way mirror · pure black</option><option value="night">One-way mirror · night calm</option><option value="monitor">Plain monitor · show camera</option></select></div>
+            <div class="setting"><label for="screen-width-cm"><span>Visible screen width (cm)</span></label><input id="screen-width-cm" type="number" min="20" max="200" step="1" value="51" inputmode="numeric"><small>A 43″ portrait panel is about 51 cm. Used to place clothes on your reflection.</small></div>
+            <div class="setting"><label for="glass-size"><span>Clothes size on reflection</span></label><input id="glass-size" type="range" min="70" max="130" step="1" value="100"></div>
+            <div class="setting"><label for="glass-nudge"><span>Clothes height on reflection</span></label><input id="glass-nudge" type="range" min="-30" max="30" step="1" value="0"><small>Trim these while standing in front of the mirror if the clothes sit above or below your reflection.</small></div>
+          </div>
+        </details>
+        <details class="settings-section" data-section="camera">
+          <summary>Camera &amp; tracking</summary>
+          <div class="settings-section-body">
+            <div class="setting"><label for="camera-select"><span>Tracking camera</span><span id="tracking-badge">MOUSE</span></label><select id="camera-select"><option value="">Detecting cameras…</option></select></div>
+            <p class="config-note" id="camera-notice" role="status" hidden></p>
+            <small class="config-note" id="camera-format" hidden></small>
+            <div class="setting"><label for="camera-clarity"><span>Camera clarity</span></label><select id="camera-clarity"><option value="off">Original · lowest power</option><option value="natural">Natural · gentle clarity</option><option value="bright">Bright · lift shadows</option></select></div>
+            <p class="config-note">Local display enhancement; no generated facial or clothing details. Bright mode changes apparent colors. Say “mirror, brighten the camera” or “camera clarity off”.</p>
+            <label class="toggle-row" for="camera-flip-toggle"><span>Camera is upside down (flip 180°)</span><input id="camera-flip-toggle" type="checkbox"></label>
+            <div class="setting"><label for="camera-mount"><span>Camera mounting</span></label><select id="camera-mount"><option value="top">Top-center of portrait TV</option><option value="center">Screen-center / tripod</option></select></div>
+            <label class="toggle-row" for="gesture-toggle"><span>Hands-free navigation</span><input id="gesture-toggle" type="checkbox" checked></label>
+            <p class="gesture-guide">Hold palm: stop active voice; otherwise Converse or return from browser. Pinch: play/pause in Watch or Music; next filter in Try on. Swipe left/right: seek ±15s in video or YouTube, next/previous track in Music, next/previous garment in Try on. Swipe up/down: scroll browser; otherwise change mode. Relax or lower your hand between gestures.</p>
+            <label class="toggle-row" for="face-puppet-toggle"><span>Animate host from your face</span><input id="face-puppet-toggle" type="checkbox"></label>
+            <div class="setting"><label for="sensitivity"><span>Depth sensitivity</span><span id="sensitivity-value">1.0×</span></label><input id="sensitivity" type="range" min="0.5" max="2" step="0.05" value="1"></div>
+            <div class="setting"><label for="smoothing"><span>Tracking smoothing</span><span id="smoothing-value">82%</span></label><input id="smoothing" type="range" min="0.05" max="0.35" step="0.01" value="0.18"></div>
+            <div class="panel-actions"><button id="camera-toggle" type="button">Camera on</button><button id="fullscreen-toggle" type="button">Fullscreen</button></div>
+            <div class="panel-actions"><button id="calibrate-depth" type="button">Calibrate depth</button><button type="button" disabled>Stand at viewing spot</button></div>
+          </div>
+        </details>
+        <details class="settings-section" data-section="sound">
+          <summary>Sound &amp; ambience</summary>
+          <div class="settings-section-body">
+            <label class="toggle-row" for="atmosphere-toggle"><span>Quiet ambient atmosphere</span><input id="atmosphere-toggle" type="checkbox"></label>
+            <label class="toggle-row" for="magic-sounds-toggle"><span>Soft magic wake chime</span><input id="magic-sounds-toggle" type="checkbox"></label>
+          </div>
+        </details>
+        <details class="settings-section" data-section="privacy">
+          <summary>Privacy &amp; listening</summary>
+          <div class="settings-section-body">
+            <label class="toggle-row" for="wake-toggle"><span>“Mirror mirror” wake word</span><input id="wake-toggle" type="checkbox" checked></label>
+            <label class="toggle-row" for="vision-toggle"><span>Share camera and try-on view with assistant</span><input id="vision-toggle" type="checkbox" checked></label>
+            <div class="panel-actions"><button id="clear-memory" type="button">Clear memory</button><button id="memory-status" type="button" disabled>0 memories</button></div>
+          </div>
+        </details>
+        <details class="settings-section" data-section="routines">
+          <summary>Routines &amp; try-on</summary>
+          <div class="settings-section-body">
+            <div class="experience-actions"><button type="button" data-experience-action="ready">Getting ready</button><button type="button" data-experience-action="movie">Movie time</button><button type="button" data-experience-action="help">What can I do?</button></div>
+            <div class="setting"><label for="routine-movie"><span>Movie time service</span></label><select id="routine-movie"><option value="youtube">YouTube</option><option value="netflix">Netflix</option></select></div>
+            <label class="toggle-row" for="routine-music"><span>Resume Spotify when getting ready</span><input id="routine-music" type="checkbox"></label>
+            <p class="config-note">Say “remember my getting ready setup” to save your selected garment and clarity. Timers and look photos stay on this mirror.</p>
+            <form id="local-timer-form"><input id="local-timer-minutes" type="number" min="1" max="360" value="10" aria-label="Timer minutes"><button type="submit">Start timer</button></form>
+            <div class="setting"><label for="ar-effect"><span>AR enchantment</span></label><select id="ar-effect"><option value="enchanted">Enchanted reveal</option><option value="crown">Astral crown</option><option value="runes">Oracle runes</option><option value="aura">Violet aura</option><option value="glasses">Arcane glasses</option><option value="mask">Masquerade mask</option><option value="cat">Familiar cat</option><option value="halo">Celestial halo</option><option value="emoji">Magic emojis</option><option value="scan">Mystic face scan</option><option value="none">No filter</option></select></div>
+          </div>
+        </details>
+        <details class="settings-section" data-section="connections">
+          <summary>Connections &amp; keys</summary>
+          <div class="settings-section-body">
+            <form id="connection-form" class="connections" aria-label="Assistant, music, and try-on connections">
+            <div class="setting"><label for="gemini-key">Gemini API key</label><input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a key to enable live voice" maxlength="256"></div>
+            <div class="setting"><label for="spotify-client-id">Spotify app client ID (optional on Windows)</label><input id="spotify-client-id" type="text" autocomplete="off" spellcheck="false" placeholder="Client ID from your Spotify app" maxlength="256"></div>
+            <div class="setting"><label for="tryon-provider">Try-on still renderer</label><select id="tryon-provider"><option value="off">Off · local preview only</option><option value="custom">Custom renderer</option><option value="vertex">Google Cloud</option></select></div>
+            <div class="setting"><label for="decart-key">Decart live try-on key</label><input id="decart-key" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current key" maxlength="256"></div><p class="config-note">Decart is an optional cloud AI service that generates moving outfits from the camera and a garment photo. The local overlay works without it, but does not generate realistic fabric.</p><label class="toggle-row" for="decart-clear-key"><span>Remove live try-on key</span><input id="decart-clear-key" type="checkbox"></label>
+            <div id="tryon-custom-settings" hidden><div class="setting"><label for="tryon-endpoint">Renderer URL</label><input id="tryon-endpoint" type="url" autocomplete="off" spellcheck="false" placeholder="https://your-renderer.example/try-on" maxlength="2048"></div><div class="setting"><label for="tryon-token">Renderer token</label><input id="tryon-token" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank to keep the current token" maxlength="2048"></div><label class="toggle-row" for="tryon-clear-token"><span>Remove current token</span><input id="tryon-clear-token" type="checkbox"></label></div>
+            <div id="tryon-cloud-settings" hidden><div class="setting"><label for="tryon-project">Google Cloud project ID</label><input id="tryon-project" type="text" autocomplete="off" spellcheck="false" maxlength="256"></div><div class="setting"><label for="tryon-location">Google Cloud region</label><input id="tryon-location" type="text" autocomplete="off" spellcheck="false" placeholder="us-central1" maxlength="256"></div><p class="config-note">Requires a Google Cloud project and Google Cloud sign-in on this PC. See the setup guide in the README.</p></div>
+            <p class="config-note" id="tryon-connection-note">Camera frames are sent only after consent and a render request.</p>
+            <label class="toggle-row" for="remember-connections"><span>Remember on this device</span><input id="remember-connections" type="checkbox" checked></label>
+            <div class="panel-actions"><button id="save-connections" type="submit">Save connections</button><button id="disable-gemini" type="button">Disable Gemini</button></div>
+            <p class="config-note" id="connection-status" role="status"></p>
+            </form>
+            <p class="config-note" id="config-note">Add a Gemini API key above to enable live conversation. On Windows, Music follows the installed Spotify app. An optional account connection controls other Spotify devices.</p>
+          </div>
+        </details>
+        <details class="settings-section" data-section="diagnostics">
+          <summary>Diagnostics &amp; memory</summary>
+          <div class="settings-section-body">
+            <div class="panel-actions"><button id="diagnostics-toggle" type="button">Diagnostics</button><button id="save-diagnostics" type="button">Save diagnostics</button></div>
+            <p class="config-note" id="diagnostics-status" role="status">Press D for live diagnostics. Save a troubleshooting report with runtime status and recent errors; keys, conversations and images are excluded.</p>
+          </div>
+        </details>
       </aside>
       <aside class="diagnostics" id="diagnostics" aria-live="polite"><strong>LOCAL DIAGNOSTICS</strong><p><span>Render</span><b id="diag-render">—</b></p><p><span>Tracking</span><b id="diag-tracking">—</b></p><p><span>Face rig</span><b id="diag-rig">—</b></p><p><span>Blendshapes</span><b id="diag-blendshapes">—</b></p><p><span>Eye gaze</span><b id="diag-gaze">—</b></p><p><span>Tip</span><b>Calibrate at mirror position</b></p></aside>
     </section>
