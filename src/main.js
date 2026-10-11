@@ -713,7 +713,8 @@ async function spotifyApi(pathname, { method = 'GET', body } = {}) {
         ? 'Spotify denied that action. Playback control may require Premium or a supported active device.'
         : `Spotify API returned HTTP ${response.status}${detail ? `: ${detail.slice(0, 200)}` : '.'}`);
   }
-  const payload = await response.json();
+  // Some player commands answer 200 with a plain-text body rather than JSON.
+  const payload = await response.json().catch(() => null);
   assertCurrent();
   return payload;
 }
