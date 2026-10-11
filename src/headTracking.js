@@ -235,10 +235,18 @@ export function setTrackingAmbient(ambient) {
 // ambient mirror, and 4 Hz while nobody is in view (a search pass costs the
 // most and finds nothing; the ~250 ms re-acquisition is imperceptible).
 const SEARCH_AFTER_MS = 1500;
+let faceHighRate = true;
+// The 3D window and a mirrored expression need ~30 Hz; flat conversation only
+// uses the face for gaze and the slow follow, so ~12 Hz is plenty and saves the
+// per-frame capture cost (each camera bitmap is several ms of main thread).
+export function setFaceRate(high) {
+  faceHighRate = Boolean(high);
+  if (faceTracking) faceTracking.interval = faceInterval(performance.now());
+}
 function faceInterval(now) {
   if (ambientCadence) return 250;
   const searching = !status.faceDetected && now - lastFaceAt > SEARCH_AFTER_MS;
-  return searching ? 250 : 32;
+  return searching ? 250 : (faceHighRate ? 32 : 83);
 }
 
 export function setTrackingOptions(next) {

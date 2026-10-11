@@ -20,6 +20,7 @@ export class GestureNavigation {
     this.absentSince = 0;
     this.lastSampleAt = 0;
     this.status = 'off';
+    this.lastHandAt = 0;
   }
 
   init() { return this.tracker.init(); }
@@ -42,6 +43,10 @@ export class GestureNavigation {
       else if (this.status !== 'unavailable') this.status = 'camera-off';
       this._reset(); this.latched = false; this.absentSince = 0; this.lastSampleAt = 0;
     }
+    // Most of the time nobody is gesturing. Look ~4 times a second until a hand
+    // is seen, then at the full rate for as long as it stays; each camera bitmap
+    // is several ms of main-thread work on a small PC.
+    this.tracker.interval = now - this.lastHandAt < 1500 ? 95 : 220;
     this.tracker.update(now);
   }
 
@@ -54,7 +59,7 @@ export class GestureNavigation {
       if (now - this.absentSince > 250) this._reset();
       this.status = 'searching'; return;
     }
-    this.absentSince = 0; this.status = 'tracking'; this._interpret(hand, now);
+    this.absentSince = 0; this.lastHandAt = now; this.status = 'tracking'; this._interpret(hand, now);
   }
 
   destroy() { this.enabled = false; this.tracker.destroy(); this._reset(); this.latched = false; this.status = 'off'; }

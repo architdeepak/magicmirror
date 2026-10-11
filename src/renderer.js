@@ -46,6 +46,7 @@ import {
   updateHeadTracking,
   setTrackingAmbient,
   setFaceDetail,
+  setFaceRate,
   getFaceLatency
 } from './headTracking.js';
 
@@ -430,6 +431,7 @@ try {
   }
 } catch {}
 setFaceDetail(localStorage.getItem('mirror.face-puppet') === 'true');
+function syncFaceRate() { setFaceRate((depthEnabled && mode === 'portal') || Boolean(elements.facePuppetToggle?.checked)); }
 let requestedMode = 'mirror';
 let state = 'starting';
 const watchAvatarLayout = new WatchAvatarLayout({shell:elements.shell,panel:elements.watchPanel,host:elements.avatarHost,getState:()=>({active:mode==='watch'&&!desktopActive&&avatar.visible,position:elements.shell.dataset.avatarPosition||'center'})});
@@ -747,6 +749,7 @@ function setDepthMode(enabled, announce = true) {
   elements.dimensionSwitch?.querySelectorAll('button').forEach((button) => button.classList.toggle('active', button.dataset.depth === (depthEnabled ? 'cube' : 'flat')));
   depthScene.setDepthEnabled(depthEnabled);
   avatar.setDepthEnabled(depthEnabled && mode === 'portal' && !desktopActive);
+  syncFaceRate();
   if (announce) { const tracking = getTrackingStatus(); showGesture(depthEnabled ? !tracking.cameraActive ? '3D enabled · turn camera on for head tracking' : !tracking.faceDetected ? '3D enabled · looking for your face' : '3D enabled · head tracking active' : '2D surface · stable front view'); }
 }
 setDepthMode(depthEnabled, false);
@@ -773,6 +776,7 @@ function setMode(nextMode) {
   avatar.setVisible(desktopActive || nextMode === 'portal' || nextMode === 'ar' || nextMode === 'watch' && Boolean(gemini.listening || browserRecognition || ['connecting', 'listening', 'thinking', 'speaking'].includes(state)));
   avatar.setDisplayMode(nextMode);
   avatar.setDepthEnabled(depthEnabled && nextMode === 'portal' && !desktopActive);
+  syncFaceRate();
   if (nextMode === 'mirror') elements.oracleCard.classList.add('empty');
   watchAvatarLayout.schedule();
   resetIdle();
@@ -1698,6 +1702,7 @@ elements.facePuppetToggle.addEventListener('change', () => {
   localStorage.setItem('mirror.face-puppet', String(elements.facePuppetToggle.checked));
   avatar.setFacePuppetEnabled(elements.facePuppetToggle.checked);
   setFaceDetail(elements.facePuppetToggle.checked);
+  syncFaceRate();
   showGesture(elements.facePuppetToggle.checked ? 'Face puppet on · webcam input' : 'Face puppet off · AI animation');
 });
 elements.tryOnConsent.addEventListener('change', () => {
