@@ -1,3 +1,4 @@
+import { VoiceGate, blockLevel } from './voiceGate.js';
 const createModel = (url) => {
   if (!window.Vosk.Model) return window.Vosk.createModel(url);
   const model = new window.Vosk.Model(url, -1);
@@ -112,6 +113,7 @@ export class WakeWordListener {
       : undefined;
     const recognizer = new this.model.KaldiRecognizer(16000, grammar);
     this.recognizer = recognizer;
+    this.gate?.reset();
     const check = (text) => { if (this.recognizer === recognizer) this._check(text); };
     recognizer.on('partialresult', (message) => check(message?.result?.partial));
     recognizer.on('result', (message) => check(message?.result?.text));
@@ -151,6 +153,8 @@ export class WakeWordListener {
     }
     this.source = audioContext.createMediaStreamSource(stream);
     this.processor = audioContext.createScriptProcessor(4096, 1, 1);
+    this.gate = new VoiceGate();
+    this.stats = { blocks: 0, fed: 0 };
     this.silentGain = this.audioContext.createGain();
     this.silentGain.gain.value = 0;
     this.processor.onaudioprocess = (event) => {
@@ -161,7 +165,17 @@ export class WakeWordListener {
         this.captionPrefix.push({ samples, sampleRate });
         // Two 256 ms blocks preserve words preceding the live speech detector.
         if (this.captionPrefix.length > 2) this.captionPrefix.shift();
-        this.recognizer.acceptWaveform(event.inputBuffer);
+        // Standby decodes only around speech (pre-roll + hangover): decoding
+        // silence cost ~half a core. While the assistant is active the stop
+        // vocabulary stays fully fed, and the gate resets for the next standby.
+        let feed = true, preroll = false;
+        if (this.assistantActive) this.gate.reset();
+        else { const gated = this.gate.push(blockLevel(samples)); feed = gated.feed; preroll = gated.preroll; }
+        this.stats.blocks += 1; if (feed) this.stats.fed += 1;
+        if (feed) {
+          if (preroll) for (const frame of this.captionPrefix.slice(0, -1)) this.recognizer.acceptWaveformFloat(frame.samples, frame.sampleRate);
+          this.recognizer.acceptWaveform(event.inputBuffer);
+        }
         if (this.enabled) this.captionRecognizer?.acceptWaveformFloat(samples, sampleRate);
       }
       catch (error) { console.warn('[wake word process]', error.message); }

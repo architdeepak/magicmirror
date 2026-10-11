@@ -2262,6 +2262,7 @@ const mirrorTimers = new MirrorTimers({
 });
 window.addEventListener('beforeunload', () => { mirrorTimers.destroy(); clearInterval(timerTick); });
 window.__mirrorDebug.mirrorTimers = mirrorTimers;
+window.__mirrorDebug.wake = wake;
 
 // ---- Search pool: grounded answers and their sources as a dismissible card.
 searchPool.root = document.querySelector('#search-pool');

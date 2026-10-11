@@ -89,7 +89,7 @@
     "check:codex:lifecycle": "node tools/check-codex-lifecycle.cjs",
     "check:ui:audit": "node tools/check-adversarial-ui.cjs",
     "check:account:ipc": "node tools/check-account-ipc.cjs",
-    "test:experience": "node tools/test-experience.cjs && node tools/test-weather.cjs && node tools/test-magic-theatre.cjs && node tools/test-face-cache.cjs && node tools/test-avatar-presence.mjs && node tools/test-hd-quality.cjs && node tools/test-grounded-search.cjs && node tools/test-timers.mjs && node tools/test-popup-routes.cjs && node tools/test-reflection-map.mjs && node tools/test-scene-budget-policy.mjs && node tools/test-settings-sections.mjs && node tools/test-caption-pacer.mjs && node tools/test-delay-line.mjs",
+    "test:experience": "node tools/test-experience.cjs && node tools/test-weather.cjs && node tools/test-magic-theatre.cjs && node tools/test-face-cache.cjs && node tools/test-avatar-presence.mjs && node tools/test-hd-quality.cjs && node tools/test-grounded-search.cjs && node tools/test-timers.mjs && node tools/test-popup-routes.cjs && node tools/test-reflection-map.mjs && node tools/test-voice-gate.mjs && node tools/test-scene-budget-policy.mjs && node tools/test-settings-sections.mjs && node tools/test-caption-pacer.mjs && node tools/test-delay-line.mjs",
     "check:experience:ui": "node tools/check-experience-ui.cjs",
     "test:diagnostics": "node tools/test-diagnostics.cjs",
     "check:recovery:ui": "node tools/check-recovery-ui.cjs"

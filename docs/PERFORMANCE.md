@@ -47,3 +47,13 @@ What follows from that:
 - `npm run bench` throttles the CPU only; the laptop GPU is far stronger than the stick's,
   so frame-rate numbers from the laptop are optimistic. Treat them as regression guards and
   verify on the device.
+
+## Idle CPU: the wake-word listener
+Measured on a laptop with `Get-Process` CPU deltas (ambient mirror, camera released): the
+always-on Vosk recogniser used about 45% of a core decoding silence (renderer 55% -> 10% with the
+wake toggle off). `src/voiceGate.js` now feeds the standby recogniser only around speech (pre-roll
+plus hangover, adaptive noise floor; unit-tested), which halves that in an ordinary room and
+approaches the 10% floor in a quiet one. The gate is bypassed while the assistant is active so
+"mirror stop" is never clipped. On a 6 W part this is the single biggest steady drain: re-measure
+on the stick (`tools/startup-timeline.cjs` sums process memory; use the CPU delta script in the
+session notes or Task Manager).
