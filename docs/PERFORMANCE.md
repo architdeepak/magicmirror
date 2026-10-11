@@ -57,3 +57,15 @@ approaches the 10% floor in a quiet one. The gate is bypassed while the assistan
 "mirror stop" is never clipped. On a 6 W part this is the single biggest steady drain: re-measure
 on the stick (`tools/startup-timeline.cjs` sums process memory; use the CPU delta script in the
 session notes or Task Manager).
+## Redundant style and layout writes (ambient and speaking)
+Profiled with a CDP sampling profiler plus a MutationObserver on the Efficient tier at 540x960 under
+4x CPU throttling (a stress condition, not the stick). Unchanged-value writes were the avoidable cost:
+- The AR framing guide assigned `hidden` every frame (~8/s ambient, ~30/s speaking), invalidating
+  style each time. It now writes only on change.
+- `garmentOverlay.clear()` ran every ambient frame, releasing the clarity pipeline and rewriting
+  `display` each time; it is now idempotent, and the camera layer `display`/`filter` are cached.
+- The host `transform` and timer badge `hidden`/`dataset` are written only when they change.
+- Caption tail-follow reads `scrollWidth/Height` once per animation frame instead of forcing a layout
+  on every streamed delta.
+Ambient style recalcs fell from ~9/s to ~2.5/s and ambient layout to 0/s. Run-to-run task time varies by
+more than the change, so no whole-app CPU claim is made; confirm on the device.

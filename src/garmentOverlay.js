@@ -122,7 +122,9 @@ export class GarmentOverlay {
     this.hasPixels = false;
     this.lastDraw = null;
     this.outsideCrop = false; this.curvedTorso = false;
-    if (!keepCamera) { this.cameraClarity?.release(); if (this.cameraCanvas) this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; }
+    // Idempotent: the idle mirror calls clear() every frame. Release the clarity
+    // pipeline and hide the camera layer once, not on each ambient frame.
+    if (!keepCamera && !this.cameraLayerIdle) { this.cameraClarity?.release(); this.setCameraDisplay('none'); this.lastCameraFrame = null; this.cameraLayerIdle = true; }
   }
 
   getLiveState(now = performance.now()) {
@@ -399,15 +401,22 @@ export class GarmentOverlay {
     this.ctx.restore();
   }
 
+  setCameraDisplay(value) {
+    if (!this.cameraCanvas || this.cameraDisplay === value) return;
+    this.cameraDisplay = value; this.cameraCanvas.style.display = value;
+  }
+
   drawCameraFrame(now) {
     if (!this.cameraCanvas) return;
     const frame = this.tracker.getCameraFrame(now);
-    if (!frame) { this.cameraCanvas.style.display = 'none'; this.lastCameraFrame = null; return; }
-    this.cameraCanvas.style.display = 'block';
+    if (!frame) { this.setCameraDisplay('none'); this.lastCameraFrame = null; return; }
+    this.cameraLayerIdle = false;
+    this.setCameraDisplay('block');
     if (frame === this.lastCameraFrame) return;
     const { width, height } = this.viewport;
     const displayFrame = this.cameraClarity?.process(frame) || frame;
-    this.cameraCanvas.style.filter=this.cameraClarity?.backend==='original'?(CAMERA_CLARITY[this.cameraClarity.mode]?.filter||'none'):'none';
+    const filter=this.cameraClarity?.backend==='original'?(CAMERA_CLARITY[this.cameraClarity.mode]?.filter||'none'):'none';
+    if(this.cameraFilter!==filter){this.cameraFilter=filter;this.cameraCanvas.style.filter=filter;}
     const scale = Math.max(width/displayFrame.width, height/displayFrame.height), w = displayFrame.width*scale, h = displayFrame.height*scale;
     const ctx = this.cameraCanvas.getContext('2d');
     ctx.save(); ctx.translate(width, 0); ctx.scale(-1, 1);

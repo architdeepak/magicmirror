@@ -418,7 +418,8 @@ export class AvatarController {
     // Layout owns the host's size and position, including its compact Try On
     // corner. Window-relative mode offsets can push it over the viewer's body
     // or outside a portrait display when the surrounding desktop is wider.
-    this.host.style.transform = `perspective(1400px) translate3d(${offsetX}px, ${offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    const transform = `perspective(1400px) translate3d(${offsetX}px, ${offsetY}px, ${this.depthEnabled ? 26 : 0}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    if (this.hostTransform !== transform) { this.hostTransform = transform; this.host.style.transform = transform; }
 
     if (this.head && elapsed - this.lastLookAt > 0.1) {
       this.lastLookAt = elapsed;
