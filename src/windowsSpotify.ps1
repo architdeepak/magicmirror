@@ -61,7 +61,7 @@ while ($null -ne ($line = [Console]::ReadLine())) {
               $loaded = Await ($reader.LoadAsync($length)) ([uint32])
               if ($loaded -eq $length) { $bytes=New-Object byte[] $length; $reader.ReadBytes($bytes); $image='data:'+$stream.ContentType+';base64,'+[Convert]::ToBase64String($bytes) }
             }
-          } catch {} finally { if ($reader) { $reader.Dispose() }; if ($stream) { $stream.Dispose() } }
+          } catch {} finally { foreach ($handle in @($reader, $stream)) { if ($handle) { try { if ($handle.PSObject.Methods['Dispose']) { $handle.Dispose() } elseif ($handle.PSObject.Methods['Close']) { $handle.Close() } } catch {} } } }
         }
         $result = @{connected=$true; source='windows-native'; sessionId=$source; isPlaying=($info.PlaybackStatus.ToString() -eq 'Playing'); progressMs=[Math]::Max(0,$timeline.Position.TotalMilliseconds-$timeline.StartTime.TotalMilliseconds); durationMs=[Math]::Max(0,$timeline.EndTime.TotalMilliseconds-$timeline.StartTime.TotalMilliseconds); device='This Windows PC'; canControl=($controls.IsPlayEnabled -or $controls.IsPauseEnabled -or $controls.IsNextEnabled -or $controls.IsPreviousEnabled); canPause=[bool]$controls.IsPauseEnabled; canResume=[bool]$controls.IsPlayEnabled; canNext=[bool]$controls.IsNextEnabled; canPrevious=[bool]$controls.IsPreviousEnabled; item=@{name=[string]$media.Title; artists=@([string]$media.Artist); album=[string]$media.AlbumTitle; imageUrl=$image; uri=''; externalUrl=''}}
       }
