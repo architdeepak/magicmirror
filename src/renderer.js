@@ -1222,8 +1222,22 @@ function appendCaption(role, text, { replace = false, delta = false } = {}) {
   if (!decorateCaptionWords(valueNode, next)) valueNode.textContent = next;
   row.classList.toggle('visible', Boolean(next));
   elements.captions.classList.toggle('visible', Boolean(captionState.user || captionState.assistant));
-  valueNode.scrollLeft = valueNode.scrollWidth;
-  valueNode.scrollTop = valueNode.scrollHeight;
+  followCaptionTail(valueNode);
+}
+
+// Reading scrollWidth/Height right after a DOM write forces a synchronous layout.
+// Coalesce the follow-the-latest-word scroll into one pass per animation frame.
+const captionTailNodes = new Set();
+let captionTailFrame = 0;
+function followCaptionTail(node) {
+  if (typeof requestAnimationFrame !== 'function') { node.scrollLeft = node.scrollWidth; node.scrollTop = node.scrollHeight; return; }
+  captionTailNodes.add(node);
+  if (captionTailFrame) return;
+  captionTailFrame = requestAnimationFrame(() => {
+    captionTailFrame = 0;
+    for (const tail of captionTailNodes) { tail.scrollLeft = tail.scrollWidth; tail.scrollTop = tail.scrollHeight; }
+    captionTailNodes.clear();
+  });
 }
 
 // Words arrive a few at a time; render each as its own element so only the new

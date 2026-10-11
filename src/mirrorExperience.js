@@ -153,8 +153,8 @@ export class MirrorExperience {
   addTimer(minutes, label = 'Getting ready') { this.timers.add(minutes, label); this.tick(); this.a.notice(`${label} · ${minutes} minute timer started`); }
   tick() {
     const items = this.timers.tick(), item = items.find(item => item.state === 'done') || items.slice().sort((a,b) => a.deadline - b.deadline)[0], badge = document.querySelector('#local-timer-badge');
-    badge.hidden = !item;
-    if (item) { badge.dataset.timer = item.id; const label = `${item.label} · ${item.state === 'done' ? 'Time is up' : `${Math.floor(item.seconds / 60)}:${String(item.seconds % 60).padStart(2, '0')}`}${items.length > 1 ? ` · ${items.length} timers` : ''}`; if (badge.querySelector('span').textContent !== label) badge.querySelector('span').textContent = label; }
+    if (badge.hidden !== !item) badge.hidden = !item;
+    if (item) { if (badge.dataset.timer !== item.id) badge.dataset.timer = item.id; const label = `${item.label} · ${item.state === 'done' ? 'Time is up' : `${Math.floor(item.seconds / 60)}:${String(item.seconds % 60).padStart(2, '0')}`}${items.length > 1 ? ` · ${items.length} timers` : ''}`; if (badge.querySelector('span').textContent !== label) badge.querySelector('span').textContent = label; }
   }
   help() {
     const mode = this.a.context().mode;

@@ -20,7 +20,8 @@ export class FramingGuide {
   }
   update({ mode, desktopActive, sleeping, liveAI, rendered, editorOpen }, now = performance.now()) {
     const active = this.enabled && mode === 'ar' && !desktopActive && !sleeping && !liveAI && !rendered && !editorOpen;
-    this.element.hidden = !active;
+    // Assigning an unchanged boolean attribute still invalidates style.
+    if (this.element.hidden === active) this.element.hidden = !active;
     if (!active || now - this.lastAt < 250) return;
     this.lastAt = now;
     const tray = this.shell.querySelector('.studio-tray')?.getBoundingClientRect(), shell = this.shell.getBoundingClientRect();
