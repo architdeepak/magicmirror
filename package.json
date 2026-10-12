@@ -135,7 +135,6 @@
     "@decartai/sdk": "^0.2.5",
     "@mediapipe/tasks-vision": "^1.0.1",
     "@met4citizen/talkinghead": "^1.7.0",
-    "@pixiv/three-vrm": "^3.5.5",
     "dotenv": "^16.6.1",
     "google-auth-library": "^11.1.0",
     "qrcode": "^1.5.4",
