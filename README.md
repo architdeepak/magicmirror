@@ -394,6 +394,8 @@ See [completion audit](docs/COMPLETION-AUDIT.md) for the original requirements, 
 
 ### Spotify on the Windows stick
 
+Voice requests such as "play Daft Punk" search Spotify and start playback directly on the PC's Spotify app (launching it if needed), with no browser. This needs a Premium account, a Client ID in Settings, and one **Connect** sign-in. Register `http://127.0.0.1:43819/callback` as a redirect URI in the Spotify developer dashboard, and add the account under Users and Access while the app is in Development mode.
+
 Install Spotify on the stick, sign in, and play a song. Select the TV as the Windows audio output. Music follows Spotify’s local Windows media session and offers classic/pocket views plus play/pause/skip, without a Spotify developer client ID. Use **Open Spotify app** in Music to launch it. The optional account connection/device picker is for Spotify Connect on other devices. This Windows backend is implemented and tested with fixtures; actual WinRT/Spotify playback on the stick remains unverified.
 
 ### Interactive verification

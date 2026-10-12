@@ -766,7 +766,7 @@ async function playSpotifyQuery(action) {
   const kind = SPOTIFY_KINDS.has(action.kind) ? action.kind : 'track';
   if (!query) throw new Error('Tell me what to play.');
   const found = await spotifyApi(`search?type=${kind}&limit=1&q=${encodeURIComponent(query)}`);
-  const item = found?.[`${kind}s`]?.items?.[0];
+  const item = found?.[`${kind}s`]?.items?.find(entry => entry?.uri);   // playlist results can contain nulls
   if (!item?.uri) throw new Error(`I could not find ${query} on Spotify.`);
   const pickDevice = async () => {
     const list = (await spotifyApi('me/player/devices'))?.devices?.filter(device => device.id && !device.is_restricted) || [];
